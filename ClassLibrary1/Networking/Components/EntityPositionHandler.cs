@@ -65,22 +65,27 @@ namespace ONI_MP.Networking.Components
             if (!shouldSendDeltaUpdate)
                 return;
 
+            // Update last-known values before sending
             lastUpdateTime = currentTime;
             lastVelocity = velocity;
             lastSentPosition = currentPosition;
 
-            if (Mathf.Abs(currentPosition.x - lastSentPosition.x) > 0.001f)
-                facingLeft = currentPosition.x < lastSentPosition.x;
+            // Determine facing direction based on horizontal movement
+            if (Mathf.Abs(velocity.x) > 0.001f)
+                facingLeft = velocity.x < 0;
 
             var packet = new EntityPositionPacket
             {
                 NetId = networkedEntity.NetId,
                 Position = currentPosition,
-                FacingLeft = facingLeft
+                Velocity = velocity,
+                FacingLeft = facingLeft,
+                Timestamp = currentTime
             };
 
             PacketSender.SendToAllClients(packet, sendType: SteamNetworkingSend.Unreliable);
         }
+
 
 
         // Test function to see how the game handles every interval. Conclusion. Not very well
