@@ -2,7 +2,8 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework> <!-- Was net5.0 -->
     <ImplicitUsings>false</ImplicitUsings>
-    <ManagedPath>F:\SteamLibrary\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed</ManagedPath>
+	<ManagedPath>$(GAME_DIR)\OxygenNotIncluded_Data\Managed</ManagedPath>
+    <ManagedPath Condition="'$(GAME_DIR)' == ''">F:\SteamLibrary\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed</ManagedPath>
   </PropertyGroup>
 
   <ItemGroup>
