@@ -1,4 +1,5 @@
 ﻿using ONI_MP.DebugTools;
+using ONI_MP.Misc.World;
 using ONI_MP.Networking.Packets.Architecture;
 using Steamworks;
 using System.Collections.Generic;
@@ -69,7 +70,8 @@ namespace ONI_MP.Networking.Packets.Tools.Cancel
                     if (filter == null || !CancelTool.Instance.IsActiveLayer(filter))
                         continue;
 
-                    obj.Trigger((int) GameHashes.Cancel);
+                    //obj.Trigger((int) GameHashes.Cancel);
+                    EventTrigger.TriggerWithAuthority(obj, (int)GameHashes.Cancel, null);
                 }
             }
         }

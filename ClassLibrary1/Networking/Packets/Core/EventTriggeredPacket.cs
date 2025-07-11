@@ -7,6 +7,7 @@ using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Misc;
 using ONI_MP.Patches.GamePatches;
+using ONI_MP.Misc.World;
 
 namespace ONI_MP.Networking.Packets.Events
 {
@@ -72,7 +73,8 @@ namespace ONI_MP.Networking.Packets.Events
                 }
             }
 
-            go.Trigger(EventHash, deserialized);
+            //go.Trigger(EventHash, deserialized);
+            EventTrigger.TriggerWithAuthority(go.gameObject, EventHash, deserialized);
         }
     }
 }

@@ -3,6 +3,7 @@ using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking;
 using System.IO;
 using System.Linq;
+using ONI_MP.Misc.World;
 
 public class ToggleMinionEffectPacket : IPacket
 {
@@ -46,5 +47,6 @@ public class ToggleMinionEffectPacket : IPacket
 
         var hash = Hash.SDBMLower(Event);
         toggler.Trigger(hash, Enable);
+        EventTrigger.TriggerWithAuthority(toggler.gameObject, hash, Enable);
     }
 }
