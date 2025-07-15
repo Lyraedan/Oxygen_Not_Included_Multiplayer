@@ -1,14 +1,53 @@
 ![Logo](https://i.imgur.com/GCIbhpn.png)
-# ONI Together: An Oxygen Not Included Multiplayer Mod (WIP)
+# ONI Together: An Oxygen Not Included Multiplayer Mod
 
-> **Note:** This is a work-in-progress project. Not to be confused with [onimp/oni_multiplayer](https://github.com/onimp/oni_multiplayer).
+> **Note:** This is a work-in-progress project in early alpha stage. Not to be confused with [onimp/oni_multiplayer](https://github.com/onimp/oni_multiplayer).
 
-A new mod that introduces multiplayer functionality to *Oxygen Not Included*, featuring a custom networking layer and lobby system.
-> **Note:** This mod is in the very early pre-pre alpha stage. Name is subject to change
+A multiplayer mod that introduces real-time collaborative gameplay to *Oxygen Not Included*, featuring a custom networking layer, Steam integration, and synchronized game mechanics.
 
-Join the [Discord](https://discord.gg/jpxveK6mmY)
+[![Discord](https://img.shields.io/discord/DISCORD_ID?color=7289da&label=Discord&logo=discord&logoColor=white)](https://discord.gg/jpxveK6mmY)
+[![License](https://img.shields.io/github/license/Lyraedan/Oxygen_Not_Included_Multiplayer)](LICENSE.md)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)]()
 
-Steam workshop: Not released yet.
+## Quick Start
+
+1. **Download** the latest release from the releases page
+2. **Install** following the [installation guide](docs/INSTALL.md)
+3. **Configure** using the [configuration guide](docs/CONFIGURATION.md)
+4. **Join the community** on [Discord](https://discord.gg/jpxveK6mmY)
+
+## Documentation
+
+- 📖 [Installation Guide](docs/INSTALL.md) - How to install and set up the mod
+- ⚙️ [Configuration Guide](docs/CONFIGURATION.md) - Detailed configuration options
+- 🔧 [Development Guide](docs/DEVELOPMENT.md) - For contributors and developers
+- 📋 [Changelog](CHANGELOG.md) - Version history and changes
+
+## Project Status
+
+### 🎯 Current Version: 0.1.0-alpha
+
+**Development Stage:** Early Alpha - Core functionality implemented, expect bugs and incomplete features.
+
+### ✅ Stable Features
+- Steam P2P networking and lobby system
+- Real-time chat with themed UI
+- Player cursor visualization
+- Basic tool synchronization (Build, Cancel, Deconstruct, Priority)
+- Configuration system with auto-generated defaults
+- Debug tools and console (Shift+F1)
+
+### 🚧 Work in Progress
+- Advanced tool synchronization (Pipes, Wires, Mopping, Sweeping)
+- Enhanced duplicant behavior synchronization
+- Storage and inventory management
+- Performance optimizations
+
+### ⚠️ Known Limitations
+- Gas, temperature, and fluid simulation remains client-side
+- Some UI elements may not sync properly
+- Large save files may transfer slowly
+- Limited to small groups (2-4 players recommended)
 
 ---
 
@@ -135,23 +174,53 @@ To get started with building the mod, follow these steps:
    Make sure you have [.NET Framework 4.7.2](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net472) installed on your system.
 
 2. **Clone the repository**  
-   ```
+   ```bash
    git clone https://github.com/Lyraedan/Oxygen_Not_Included_Multiplayer.git
+   cd Oxygen_Not_Included_Multiplayer
    ```
 
-3. **Open the solution**  
-   Open the `.sln` file in Visual Studio (or your preferred C# IDE).
+3. **Build the project**  
+   
+   **Option A: Using the build script (Recommended)**
+   ```powershell
+   # Windows PowerShell
+   .\build.ps1
+   
+   # Or with specific configuration
+   .\build.ps1 -Configuration Release -Package
+   ```
+   
+   **Option B: Using .NET CLI**
+   ```bash
+   dotnet build ONI_MP.sln
+   ```
+   
+   **Option C: Using Visual Studio**
+   Open `Oni_MP.sln` in Visual Studio and build the solution.
 
-4. **Update the `ManagedPath` in the `.csproj` file**  
-   Open the `.csproj` file and find the `ManagedPath` property.  
-   Change its value to point to your local `OxygenNotIncluded_Data/Managed` folder, for example:
+4. **Configure game path (if needed)**  
+   The project is configured to auto-detect your ONI installation. If the build fails to find game assemblies, update the `ManagedPath` in `src/LUKES_ONI_MP/ONI_MP.csproj`:
    ```xml
    <ManagedPath>C:\Program Files (x86)\Steam\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed</ManagedPath>
    ```
 
-5. **Build the project**  
-   Once the `ManagedPath` is correctly set, build the project.  
-   If everything is configured correctly, the build should succeed.
+5. **Find your built mod**  
+   After building, the mod files will be in:
+   - Complete mod package: `BuildOutput/`
+   - Built DLL: `BuildOutput/ONI_MP.dll`
+
+### Project Structure
+
+```
+Oxygen_Not_Included_Multiplayer/
+├── docs/                     # Documentation
+├── src/                      # Source code
+│   ├── LUKES_ONI_MP/        # Main project source
+├── BuildOutput/             # Build output
+├── build.ps1               # Build automation script
+├── ONI_MP.sln             # Root solution file
+└── README.md              # This file
+```
 
 ---
 

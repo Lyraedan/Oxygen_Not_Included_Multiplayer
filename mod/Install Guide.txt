@@ -1,3 +1,0 @@
-1) Update the .dll inside oni_mp
-2) Copy paste (and override) oni_mp in your "documents/klei/OxygenNotIncluded/mods/local" folder
-3) Boot up the game and enable the mod

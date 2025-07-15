@@ -1,0 +1,20 @@
+{
+  "Host": {
+    "MaxLobbySize": 4,
+    "MaxMessagesPerPoll": 128,
+    "SaveFileTransferChunkKB": 256,
+    "GoogleDrive": {
+      "ApplicationName": "ONI Multiplayer Mod"
+    }
+  },
+  "Client": {
+    "UseCustomMainMenu": true,
+    "MaxMessagesPerPoll": 16,
+    "UseRandomPlayerColor": false,
+    "PlayerColor": {
+      "R": 100,
+      "G": 150,
+      "B": 255
+    }
+  }
+}

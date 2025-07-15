@@ -8,7 +8,7 @@ echo "REQUIRES: wget tar"
 echo "DEBIAN EXAMPLE: sudo apt install wget tar"
 scriptDir="${PWD}"	##suboptimal method, but whatever
 ##test -z "$scriptDir" || echo "please run script with terminal in the folder its in" && exit ##lol no echo if no terminal
-buildDir="$scriptDir/ClassLibrary1"
+buildDir="$scriptDir/src/LUKES_ONI_MP"
 downloadDir="$scriptDir/.downloaded"
 generatedDir="$scriptDir/.generator"
 dotnetDir="$scriptDir/.downloaded/dotnet"

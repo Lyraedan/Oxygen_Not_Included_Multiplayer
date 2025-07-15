@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  
+  <!-- Global Properties for ONI Multiplayer Mod -->
+  <PropertyGroup>
+    <ModName>ONI_MP</ModName>
+    <ModDisplayName>ONI Together - Multiplayer Mod</ModDisplayName>
+    <ModVersion>0.1.0.0</ModVersion>
+    <ModVersionString>0.1.0-alpha</ModVersionString>
+    <ModAuthor>Luke</ModAuthor>
+    <ModDescription>A multiplayer mod for Oxygen Not Included</ModDescription>
+    
+    <!-- Build Configuration -->
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <WarningsNotAsErrors />
+    
+    <!-- Output Configuration -->
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <AssemblyTitle>$(ModDisplayName)</AssemblyTitle>
+    <AssemblyDescription>$(ModDescription)</AssemblyDescription>
+    <AssemblyCompany>$(ModAuthor)</AssemblyCompany>
+    <AssemblyProduct>$(ModName)</AssemblyProduct>
+    <AssemblyVersion>$(ModVersion)</AssemblyVersion>
+    <FileVersion>$(ModVersion)</FileVersion>
+    <InformationalVersion>$(ModVersionString)</InformationalVersion>
+  </PropertyGroup>
+  
+  <!-- Debug Configuration -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  
+  <!-- Release Configuration -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  
+</Project>

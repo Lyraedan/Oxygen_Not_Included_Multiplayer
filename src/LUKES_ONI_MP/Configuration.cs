@@ -29,21 +29,53 @@ namespace ONI_MP
 
         public static T GetHostProperty<T>(string propertyName)
         {
+            if (Instance?.Host == null)
+            {
+                Debug.LogWarning($"[Configuration] Host settings are null, creating default instance");
+                if (Instance != null)
+                    Instance.Host = new HostSettings();
+                else
+                    _instance = new Configuration();
+            }
             return Instance.GetProperty<T>(Instance.Host, propertyName);
         }
 
         public static T GetClientProperty<T>(string propertyName)
         {
+            if (Instance?.Client == null)
+            {
+                Debug.LogWarning($"[Configuration] Client settings are null, creating default instance");
+                if (Instance != null)
+                    Instance.Client = new ClientSettings();
+                else
+                    _instance = new Configuration();
+            }
             return Instance.GetProperty<T>(Instance.Client, propertyName);
         }
 
         public static T GetGoogleDriveProperty<T>(string propertyName)
         {
+            if (Instance?.Host?.GoogleDrive == null)
+            {
+                Debug.LogWarning($"[Configuration] GoogleDrive settings are null, creating default instance");
+                if (Instance?.Host != null)
+                    Instance.Host.GoogleDrive = new GoogleDriveSettings();
+                else
+                {
+                    if (Instance != null)
+                        Instance.Host = new HostSettings();
+                    else
+                        _instance = new Configuration();
+                }
+            }
             return Instance.GetProperty<T>(Instance.Host.GoogleDrive, propertyName);
         }
 
         private T GetProperty<T>(object obj, string propertyName)
         {
+            if (obj == null)
+                throw new ArgumentNullException(nameof(obj), $"Cannot get property '{propertyName}' from null object");
+                
             var prop = obj.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
 
             if (prop == null)
@@ -65,8 +97,46 @@ namespace ONI_MP
                 return defaultConfig;
             }
 
-            string existingJson = File.ReadAllText(ConfigPath);
-            return JsonConvert.DeserializeObject<Configuration>(existingJson);
+            try
+            {
+                string existingJson = File.ReadAllText(ConfigPath);
+                var config = JsonConvert.DeserializeObject<Configuration>(existingJson);
+                
+                // Ensure properties are not null after deserialization
+                if (config == null)
+                {
+                    Debug.LogWarning("[Configuration] Deserialized config is null, creating new instance");
+                    config = new Configuration();
+                }
+                
+                if (config.Host == null)
+                {
+                    Debug.LogWarning("[Configuration] Host settings are null after deserialization, creating default");
+                    config.Host = new HostSettings();
+                }
+                
+                if (config.Client == null)
+                {
+                    Debug.LogWarning("[Configuration] Client settings are null after deserialization, creating default");
+                    config.Client = new ClientSettings();
+                }
+                
+                if (config.Host.GoogleDrive == null)
+                {
+                    Debug.LogWarning("[Configuration] GoogleDrive settings are null after deserialization, creating default");
+                    config.Host.GoogleDrive = new GoogleDriveSettings();
+                }
+                
+                return config;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[Configuration] Failed to load configuration: {ex.Message}. Creating default configuration.");
+                var defaultConfig = new Configuration();
+                string json = JsonConvert.SerializeObject(defaultConfig, Formatting.Indented);
+                File.WriteAllText(ConfigPath, json);
+                return defaultConfig;
+            }
         }
 
         public void Save()

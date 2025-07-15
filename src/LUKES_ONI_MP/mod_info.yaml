@@ -1,4 +1,4 @@
-supportedContent: ALL
+supportedContent: VANILLA_ID, ALL
 minimumSupportedBuild: 647408
 version: 0.1
 APIVersion: 2

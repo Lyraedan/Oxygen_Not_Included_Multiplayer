@@ -1,0 +1,79 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <OutputType>Library</OutputType>
+    <ImplicitUsings>false</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    
+    <!-- Game Directory Configuration -->
+    <ManagedPath>$(GAME_DIR)\OxygenNotIncluded_Data\Managed</ManagedPath>
+    <ManagedPath Condition="'$(GAME_DIR)' == ''">E:\SteamLibrary\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed</ManagedPath>
+    <OutputPath>..\..\BuildOutput\</OutputPath>
+  </PropertyGroup>
+
+  <!-- Game Assembly References -->
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp" HintPath="$(ManagedPath)\Assembly-CSharp.dll" Private="false" />
+    <Reference Include="Assembly-CSharp-firstpass" HintPath="$(ManagedPath)\Assembly-CSharp-firstpass.dll" Private="false" />
+  </ItemGroup>
+
+  <!-- Unity Engine References -->
+  <ItemGroup>
+    <Reference Include="UnityEngine" HintPath="$(ManagedPath)\UnityEngine.dll" Private="false" />
+    <Reference Include="UnityEngine.CoreModule" HintPath="$(ManagedPath)\UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="UnityEngine.AssetBundleModule" HintPath="$(ManagedPath)\UnityEngine.AssetBundleModule.dll" Private="false" />
+    <Reference Include="UnityEngine.ImageConversionModule" HintPath="$(ManagedPath)\UnityEngine.ImageConversionModule.dll" Private="false" />
+    <Reference Include="UnityEngine.IMGUIModule" HintPath="$(ManagedPath)\UnityEngine.IMGUIModule.dll" Private="false" />
+    <Reference Include="UnityEngine.InputLegacyModule" HintPath="$(ManagedPath)\UnityEngine.InputLegacyModule.dll" Private="false" />
+    <Reference Include="UnityEngine.TextRenderingModule" HintPath="$(ManagedPath)\UnityEngine.TextRenderingModule.dll" Private="false" />
+    <Reference Include="UnityEngine.UI" HintPath="$(ManagedPath)\UnityEngine.UI.dll" Private="false" />
+    <Reference Include="UnityEngine.UIModule" HintPath="$(ManagedPath)\UnityEngine.UIModule.dll" Private="false" />
+  </ItemGroup>
+
+  <!-- Third-Party References -->
+  <ItemGroup>
+    <Reference Include="0Harmony" HintPath="$(ManagedPath)\0Harmony.dll" Private="false" />
+    <Reference Include="com.rlabrecque.steamworks.net" HintPath="$(ManagedPath)\com.rlabrecque.steamworks.net.dll" Private="false" />
+    <Reference Include="Unity.TextMeshPro" HintPath="$(ManagedPath)\Unity.TextMeshPro.dll" Private="false" />
+    <Reference Include="ImGui.NET" HintPath="$(ManagedPath)\ImGui.NET.dll" Private="false" />
+  </ItemGroup>
+
+  <!-- Embedded Assets -->
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\oni_together_logo.png" />
+    <EmbeddedResource Include="Assets\background-static.png" />
+    <EmbeddedResource Include="Assets\discord.png" />
+    <EmbeddedResource Include="Assets\cloud_status.png" />
+    <EmbeddedResource Include="Assets\bundles\playercursor_win.bundle" />
+    <EmbeddedResource Include="Assets\bundles\playercursor_mac.bundle" />
+    <EmbeddedResource Include="Assets\bundles\playercursor_lin.bundle" />
+  </ItemGroup>
+
+  <!-- Configuration Files -->
+  <ItemGroup>
+    <None Include="multiplayer_settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="mod.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="mod_info.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <!-- NuGet Package References -->
+  <ItemGroup>
+    <PackageReference Include="Google.Apis.Drive.v3" Version="1.69.0.3783" />
+  </ItemGroup>
+
+  <!-- Post-Build Copy Configuration Files to Mod Directory -->
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <OutputFiles Include="$(OutputPath)**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(OutputFiles)" DestinationFolder="$(USERPROFILE)\Documents\Klei\OxygenNotIncluded\mods\Local\LUKE_ONI_MP\%(RecursiveDir)" />
+  </Target>
+
+</Project>
