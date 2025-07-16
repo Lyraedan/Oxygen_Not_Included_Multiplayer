@@ -24,7 +24,7 @@ namespace ONI_MP.Networking.Relay.Platforms.Steam
         }
 
         public bool IsValid => SteamID.IsValid();
-        public string DebugName => SteamID.ToString();
+        public string DebugName => $"Steam:{SteamID.ToString()}";
 
         public string Id => SteamID.ToString();
 

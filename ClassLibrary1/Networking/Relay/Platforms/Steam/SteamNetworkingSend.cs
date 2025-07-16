@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ONI_MP.Networking
+namespace ONI_MP.Networking.Relay.Platforms.Steam
 {
     /// <summary>
     /// A recreation of steam networking types

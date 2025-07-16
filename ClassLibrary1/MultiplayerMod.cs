@@ -13,6 +13,7 @@ using System;
 using ONI_MP.Networking.Relay.Platforms.Steam;
 using ONI_MP.Networking.Platforms.Steam;
 using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Networking.Relay.Platforms.EOS;
 
 namespace ONI_MP
 {
@@ -55,9 +56,52 @@ namespace ONI_MP
 
         private void InitializePlatform()
         {
-            var steamPlatform = new SteamPlatform();
-            PacketSender.Platform = steamPlatform;
-            DebugConsole.Log("Steam platform initialized.");
+            int platform = Configuration.GetClientProperty<int>("Platform");
+            switch(platform)
+            {
+                case 0:
+                    {
+                        var steamPlatform = new SteamPlatform();
+                        PacketSender.Platform = steamPlatform;
+                        DebugConsole.Log("Steam platform initialized.");
+                        break;
+                    }
+                case 1:
+                    {
+                        var eosManager = new EOSManager();
+                        eosManager.Initialize();
+
+                        if (!eosManager.IsInitialized)
+                        {
+                            DebugConsole.LogError("[InitializePlatform] EOSManager is not initialized!");
+                            return;
+                        }
+
+                        var localUserId = eosManager.GetLocalUserId();
+                        var p2pInterface = eosManager.GetP2PInterface();
+                        var connectInterface = eosManager.GetConnectInterface();
+
+                        if (localUserId == null || !localUserId.IsValid())
+                        {
+                            DebugConsole.LogError("[InitializePlatform] Invalid EOS LocalUserId.");
+                            return;
+                        }
+
+                        var eosPlatform = new EOSPlatform();
+                        EOSPlatform.Initialize(localUserId, p2pInterface, connectInterface);
+                        PacketSender.Platform = eosPlatform;
+                        DebugConsole.Log("EOS platform initialized.");
+                        break;    
+                    }
+                default:
+                    {
+                        // Default to steam
+                        var steamPlatform = new SteamPlatform();
+                        PacketSender.Platform = steamPlatform;
+                        DebugConsole.Log("Steam platform initialized.");
+                        break;
+                    }
+            }
         }
 
         void InitializeCloud()

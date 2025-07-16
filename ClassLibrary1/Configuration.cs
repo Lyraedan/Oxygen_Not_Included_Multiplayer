@@ -87,6 +87,7 @@ namespace ONI_MP
 
     class ClientSettings
     {
+        public int Platform { get; set; } = 0; // 0 = STEAM, 1 = EOS
         public bool UseCustomMainMenu { get; set; } = true;
         public int MaxMessagesPerPoll { get; set; } = 16;
         public bool UseRandomPlayerColor { get; set; } = true;
