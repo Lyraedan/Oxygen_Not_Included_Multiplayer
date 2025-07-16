@@ -9,6 +9,7 @@ using ONI_MP.Networking.Relay.Platforms.EOS;
 using Steamworks;
 using static ResearchTypes;
 using Epic.OnlineServices.Connect;
+using ONI_MP.Networking.Packets.Architecture;
 
 public class MultiplayerPlayer
 {
@@ -44,66 +45,19 @@ public class MultiplayerPlayer
 
     private void InitSteam(string id)
     {
+        Name = PacketSender.Platform.GetPlayerName(id);
+
         if (ulong.TryParse(id, out var steamIdUlong))
         {
             var steamId = new CSteamID(steamIdUlong);
-            Name = SteamFriends.GetFriendPersonaName(steamId);
             AvatarImageId = SteamFriends.GetLargeFriendAvatar(steamId);
         }
     }
 
     private void InitEos(string id)
     {
-        try
-        {
-            var productUserId = ProductUserId.FromString(id);
-            var connectInterface = EOSManager.Instance.GetConnectInterface();
-
-            if (connectInterface != null)
-            {
-                var mapOptions = new QueryProductUserIdMappingsOptions
-                {
-                    LocalUserId = EOSManager.Instance.GetLocalUserId(),
-                    ProductUserIds = new[] { productUserId }
-                };
-
-                connectInterface.QueryProductUserIdMappings(mapOptions, null, mappingResult =>
-                {
-                    if (mappingResult.ResultCode == Epic.OnlineServices.Result.Success)
-                    {
-                        var getOptions = new GetProductUserIdMappingOptions
-                        {
-                            LocalUserId = EOSManager.Instance.GetLocalUserId(),
-                            TargetProductUserId = productUserId,
-                            AccountIdType = ExternalAccountType.Epic
-                        };
-
-                        var buffer = new System.Text.StringBuilder(256);
-                        int bufferLength = buffer.Capacity;
-
-                        if (connectInterface.GetProductUserIdMapping(getOptions, buffer, ref bufferLength) == Epic.OnlineServices.Result.Success)
-                        {
-                            Name = buffer.ToString();
-                            DebugConsole.Log($"[EOS] Resolved display name: {Name}");
-                        }
-                        else
-                        {
-                            DebugConsole.LogError($"[EOS] Failed to get product user ID mapping for {productUserId}", false);
-                            Name = "EOS_Player";
-                        }
-                    }
-                    else
-                    {
-                        DebugConsole.LogError($"[EOS] QueryProductUserIdMappings failed: {mappingResult.ResultCode}", false);
-                        Name = "EOS_Player";
-                    }
-                });
-            }
-        }
-        catch (Exception ex)
-        {
-            DebugConsole.LogError($"[EOS] Failed to parse ProductUserId: {ex.Message}");
-        }
+        Name = PacketSender.Platform.GetPlayerName(id);
+        AvatarImageId = -1;
     }
 
 
