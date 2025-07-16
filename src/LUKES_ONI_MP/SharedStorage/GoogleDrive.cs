@@ -9,7 +9,7 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace ONI_MP.Cloud
+namespace ONI_MP.SharedStorage
 {
     public class GoogleDrive
     {

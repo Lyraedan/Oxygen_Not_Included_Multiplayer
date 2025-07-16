@@ -10,16 +10,16 @@ using UnityEngine;
 using UnityEngine.Events;
 using Newtonsoft.Json;
 
-namespace ONI_MP.Cloud
+namespace ONI_MP.SharedStorage
 {
     /// <summary>
     /// HTTP-based shared storage provider for dedicated file servers.
     /// Allows multiplayer save file sharing through a self-hosted server.
     /// </summary>
-    public class HttpSharedStorageProvider : ISharedAccessStorageProvider
+    public class StorageServerProvider : ISharedStorageProvider
     {
         public bool IsInitialized { get; private set; }
-        public string ProviderName => "HttpSharedStorage";
+        public string ProviderName => "StorageServer";
 
         public UnityEvent OnUploadStarted { get; } = new UnityEvent();
         public UnityEvent<string> OnUploadFinished { get; } = new UnityEvent<string>();
@@ -27,6 +27,7 @@ namespace ONI_MP.Cloud
         public UnityEvent OnDownloadStarted { get; } = new UnityEvent();
         public UnityEvent<string> OnDownloadFinished { get; } = new UnityEvent<string>();
         public UnityEvent<Exception> OnDownloadFailed { get; } = new UnityEvent<Exception>();
+        public UnityEvent OnInitializationComplete { get; } = new UnityEvent();
 
         private string _serverUrl;
         private string _sessionId;
@@ -36,14 +37,16 @@ namespace ONI_MP.Cloud
         private HttpClient _httpClient;
 
         private const int TIMEOUT_SECONDS = 30;
+        private const int MAX_RETRY_ATTEMPTS = 3;
+        private const int RETRY_DELAY_MS = 1000;
 
         public void Initialize()
         {
             try
             {
-                _serverUrl = Configuration.GetHttpCloudProperty<string>("HttpServerUrl");
-                _sessionId = Configuration.GetHttpCloudProperty<string>("SessionId");
-                _authToken = Configuration.GetHttpCloudProperty<string>("AuthToken");
+                _serverUrl = Configuration.GetStorageServerProperty<string>("HttpServerUrl");
+                _sessionId = Configuration.GetStorageServerProperty<string>("SessionId");
+                _authToken = Configuration.GetStorageServerProperty<string>("AuthToken");
 
                 if (string.IsNullOrEmpty(_serverUrl))
                 {
@@ -54,7 +57,7 @@ namespace ONI_MP.Cloud
                 {
                     // Generate a session ID based on Steam user or lobby
                     _sessionId = GenerateSessionId();
-                    DebugConsole.Log($"HttpSharedStorageProvider: Generated session ID: {_sessionId}");
+                    DebugConsole.Log($"StorageServerProvider: Generated session ID: {_sessionId}");
                 }
 
                 // Normalize server URL
@@ -86,7 +89,7 @@ namespace ONI_MP.Cloud
             }
             catch (Exception ex)
             {
-                DebugConsole.LogError($"HttpSharedStorageProvider: Initialization failed: {ex.Message}", false);
+                DebugConsole.LogError($"StorageServerProvider: Initialization failed: {ex.Message}", false);
                 throw;
             }
         }
@@ -109,32 +112,46 @@ namespace ONI_MP.Cloud
         {
             try
             {
+                // First validate server connectivity
+                if (!await ValidateServerConnectivity())
+                {
+                    DebugConsole.LogError("StorageServerProvider: Server connectivity validation failed", false);
+                    IsInitialized = false;
+                    return;
+                }
+
                 var sessionData = new
                 {
                     sessionId = _sessionId,
-                    host = Environment.MachineName
+                    host = Environment.MachineName,
+                    timestamp = System.DateTime.UtcNow.ToString("O"),
+                    clientVersion = "1.0.0"
                 };
 
                 var json = JsonConvert.SerializeObject(sessionData);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = await _httpClient.PostAsync($"{_serverUrl}/session", content);
+                var response = await RetryOperation(async () => 
+                    await _httpClient.PostAsync($"{_serverUrl}/session", content), 
+                    "Session initialization");
 
                 if (response.IsSuccessStatusCode)
                 {
                     IsInitialized = true;
-                    DebugConsole.Log($"HttpSharedStorageProvider: Successfully initialized with session {_sessionId}");
+                    DebugConsole.Log($"StorageServerProvider: Successfully initialized with session {_sessionId}");
+                    OnInitializationComplete?.Invoke();
                 }
                 else
                 {
-                    DebugConsole.LogError($"HttpSharedStorageProvider: Failed to initialize session: {response.ReasonPhrase}", false);
+                    DebugConsole.LogError($"StorageServerProvider: Failed to initialize session: {response.ReasonPhrase}", false);
                     IsInitialized = false;
                 }
             }
             catch (Exception ex)
             {
-                DebugConsole.LogError($"HttpSharedStorageProvider: Session initialization failed: {ex.Message}", false);
+                DebugConsole.LogError($"StorageServerProvider: Session initialization failed: {ex.Message}", false);
                 IsInitialized = false;
+                OnInitializationComplete?.Invoke();
             }
         }
 
@@ -148,7 +165,7 @@ namespace ONI_MP.Cloud
 
             if (_isUploading)
             {
-                DebugConsole.LogWarning("HttpSharedStorageProvider: Upload already in progress");
+                DebugConsole.LogWarning("StorageServerProvider: Upload already in progress");
                 return;
             }
 
@@ -174,7 +191,7 @@ namespace ONI_MP.Cloud
             try
             {
                 var fileBytes = File.ReadAllBytes(localFilePath);
-                DebugConsole.Log($"HttpSharedStorageProvider: Uploading {remoteFileName} ({fileBytes.Length} bytes)");
+                DebugConsole.Log($"StorageServerProvider: Uploading {remoteFileName} ({fileBytes.Length} bytes)");
 
                 using (var form = new MultipartFormDataContent())
                 {
@@ -186,7 +203,7 @@ namespace ONI_MP.Cloud
 
                     if (response.IsSuccessStatusCode)
                     {
-                        DebugConsole.Log($"HttpSharedStorageProvider: Successfully uploaded {remoteFileName}");
+                        DebugConsole.Log($"StorageServerProvider: Successfully uploaded {remoteFileName}");
                         
                         // Notify on main thread
                         MainThreadExecutor.dispatcher.QueueEvent(() =>
@@ -198,7 +215,7 @@ namespace ONI_MP.Cloud
                     else
                     {
                         var error = new Exception($"Upload failed: {response.ReasonPhrase}");
-                        DebugConsole.LogError($"HttpSharedStorageProvider: {error.Message}", false);
+                        DebugConsole.LogError($"StorageServerProvider: {error.Message}", false);
                         
                         MainThreadExecutor.dispatcher.QueueEvent(() =>
                         {
@@ -210,7 +227,7 @@ namespace ONI_MP.Cloud
             }
             catch (Exception ex)
             {
-                DebugConsole.LogError($"HttpSharedStorageProvider: Upload exception: {ex.Message}", false);
+                DebugConsole.LogError($"StorageServerProvider: Upload exception: {ex.Message}", false);
                 MainThreadExecutor.dispatcher.QueueEvent(() =>
                 {
                     OnUploadFailed?.Invoke(ex);
@@ -232,7 +249,7 @@ namespace ONI_MP.Cloud
 
             if (_isDownloading)
             {
-                DebugConsole.LogWarning("HttpSharedStorageProvider: Download already in progress");
+                DebugConsole.LogWarning("StorageServerProvider: Download already in progress");
                 return;
             }
 
@@ -246,7 +263,7 @@ namespace ONI_MP.Cloud
 
             try
             {
-                DebugConsole.Log($"HttpSharedStorageProvider: Downloading {remoteFileName}");
+                DebugConsole.Log($"StorageServerProvider: Downloading {remoteFileName}");
 
                 var encodedFileName = Uri.EscapeDataString(remoteFileName);
                 var response = await _httpClient.GetAsync($"{_serverUrl}/download/{encodedFileName}");
@@ -265,7 +282,7 @@ namespace ONI_MP.Cloud
                     // Write file
                     File.WriteAllBytes(localFilePath, fileBytes);
 
-                    DebugConsole.Log($"HttpSharedStorageProvider: Successfully downloaded {remoteFileName} to {localFilePath}");
+                    DebugConsole.Log($"StorageServerProvider: Successfully downloaded {remoteFileName} to {localFilePath}");
                     
                     MainThreadExecutor.dispatcher.QueueEvent(() =>
                     {
@@ -276,7 +293,7 @@ namespace ONI_MP.Cloud
                 else
                 {
                     var error = new Exception($"Download failed: {response.ReasonPhrase}");
-                    DebugConsole.LogError($"HttpSharedStorageProvider: {error.Message}", false);
+                    DebugConsole.LogError($"StorageServerProvider: {error.Message}", false);
                     
                     MainThreadExecutor.dispatcher.QueueEvent(() =>
                     {
@@ -287,7 +304,7 @@ namespace ONI_MP.Cloud
             }
             catch (Exception ex)
             {
-                DebugConsole.LogError($"HttpSharedStorageProvider: Download exception: {ex.Message}", false);
+                DebugConsole.LogError($"StorageServerProvider: Download exception: {ex.Message}", false);
                 MainThreadExecutor.dispatcher.QueueEvent(() =>
                 {
                     OnDownloadFailed?.Invoke(ex);
@@ -305,7 +322,7 @@ namespace ONI_MP.Cloud
                 return "Provider not initialized";
 
             // HTTP provider doesn't have a quota system like traditional cloud storage
-            return "HTTP File Server - No quota limits";
+            return "HTTP Shared Storage - No quota limits (limited by server disk space)";
         }
 
         public string[] ListFiles()
@@ -315,13 +332,53 @@ namespace ONI_MP.Cloud
 
             // This is a synchronous method but we need async for HTTP
             // Return empty array and use async method instead
-            DebugConsole.LogWarning("HttpSharedStorageProvider: ListFiles() called - consider using ListFilesAsync()");
+            DebugConsole.LogWarning("StorageServerProvider: ListFiles() called - consider using ListFilesAsync()");
             return new string[0];
         }
 
         /// <summary>
-        /// Async method to list files from server
+        /// Retry policy for failed HTTP operations
         /// </summary>
+        private async Task<T> RetryOperation<T>(Func<Task<T>> operation, string operationName)
+        {
+            Exception lastException = null;
+            
+            for (int attempt = 1; attempt <= MAX_RETRY_ATTEMPTS; attempt++)
+            {
+                try
+                {
+                    return await operation();
+                }
+                catch (Exception ex)
+                {
+                    lastException = ex;
+                    DebugConsole.LogWarning($"StorageServerProvider: {operationName} attempt {attempt} failed: {ex.Message}");
+                    
+                    if (attempt < MAX_RETRY_ATTEMPTS)
+                    {
+                        await Task.Delay(RETRY_DELAY_MS * attempt); // Exponential backoff
+                    }
+                }
+            }
+            
+            throw lastException ?? new Exception($"{operationName} failed after {MAX_RETRY_ATTEMPTS} attempts");
+        }
+
+        /// <summary>
+        /// Validates server connectivity
+        /// </summary>
+        private async Task<bool> ValidateServerConnectivity()
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_serverUrl}/health");
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
         public void ListFilesAsync(System.Action<string[]> callback)
         {
             if (!IsInitialized)
@@ -354,13 +411,13 @@ namespace ONI_MP.Cloud
                 }
                 else
                 {
-                    DebugConsole.LogError($"HttpSharedStorageProvider: Failed to list files: {response.ReasonPhrase}", false);
+                    DebugConsole.LogError($"StorageServerProvider: Failed to list files: {response.ReasonPhrase}", false);
                     callback?.Invoke(new string[0]);
                 }
             }
             catch (Exception ex)
             {
-                DebugConsole.LogError($"HttpSharedStorageProvider: Failed to list files: {ex.Message}", false);
+                DebugConsole.LogError($"StorageServerProvider: Failed to list files: {ex.Message}", false);
                 callback?.Invoke(new string[0]);
             }
         }
@@ -373,17 +430,17 @@ namespace ONI_MP.Cloud
         [System.Serializable]
         private class FileListResponse
         {
-            public string sessionId;
-            public FileInfo[] files;
+            public string sessionId { get; set; }
+            public FileInfo[] files { get; set; }
         }
 
         [System.Serializable]
         private class FileInfo
         {
-            public string filename;
-            public string originalName;
-            public long size;
-            public string uploadedAt;
+            public string filename { get; set; }
+            public string originalName { get; set; }
+            public long size { get; set; }
+            public string uploadedAt { get; set; }
         }
     }
 }

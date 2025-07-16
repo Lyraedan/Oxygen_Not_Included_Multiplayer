@@ -1,13 +1,13 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Misc.World;
-using ONI_MP.Networking.Packets.Cloud;
+using ONI_MP.Networking.Packets.SharedStorage;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking;
 using Steamworks;
 using System;
 using System.IO;
 
-namespace ONI_MP.Cloud
+namespace ONI_MP.SharedStorage
 {
     /// <summary>
     /// Universal storage utilities that work with any configured shared access storage provider.
@@ -20,19 +20,19 @@ namespace ONI_MP.Cloud
         /// </summary>
         public static void UploadAndSendToAllClients()
         {
-            if (!SharedAccessStorageManager.Instance.IsInitialized)
+            if (!SharedStorageManager.Instance.IsInitialized)
             {
                 DebugConsole.LogError("StorageUtils: Shared access storage not initialized!", false);
                 return;
             }
 
-            SharedAccessStorageManager.Instance.OnUploadFinished.RemoveAllListeners();
-            SharedAccessStorageManager.Instance.OnUploadFinished.AddListener((result) =>
+            SharedStorageManager.Instance.OnUploadFinished.RemoveAllListeners();
+            SharedStorageManager.Instance.OnUploadFinished.AddListener((result) =>
             {
                 string originalFileName = Path.GetFileName(SaveLoader.GetActiveSaveFilePath());
 
                 // Send appropriate packet based on current provider
-                if (SharedAccessStorageManager.Instance.CurrentProvider == "GoogleDrive")
+                if (SharedStorageManager.Instance.CurrentProvider == "GoogleDrive")
                 {
                     var packet = new GoogleDriveFileSharePacket
                     {
@@ -41,14 +41,14 @@ namespace ONI_MP.Cloud
                     };
                     PacketSender.SendToAllClients(packet);
                 }
-                else if (SharedAccessStorageManager.Instance.CurrentProvider == "HttpSharedStorage")
+                else if (SharedStorageManager.Instance.CurrentProvider == "StorageServer")
                 {
-                    var packet = new HttpCloudFileSharePacket
+                    var packet = new StorageServerFileSharePacket
                     {
                         FileName = originalFileName,
                         CloudFileName = result,
-                        ServerUrl = Configuration.GetHttpCloudProperty<string>("HttpServerUrl"),
-                        SessionId = Configuration.GetHttpCloudProperty<string>("SessionId"),
+                        ServerUrl = Configuration.GetStorageServerProperty<string>("HttpServerUrl"),
+                        SessionId = Configuration.GetStorageServerProperty<string>("SessionId"),
                         FileSize = (int)new FileInfo(SaveLoader.GetActiveSaveFilePath()).Length,
                         Timestamp = System.DateTime.UtcNow
                     };
@@ -61,8 +61,8 @@ namespace ONI_MP.Cloud
                 }
             });
 
-            SharedAccessStorageManager.Instance.OnUploadFailed.RemoveAllListeners();
-            SharedAccessStorageManager.Instance.OnUploadFailed.AddListener((ex) =>
+            SharedStorageManager.Instance.OnUploadFailed.RemoveAllListeners();
+            SharedStorageManager.Instance.OnUploadFailed.AddListener((ex) =>
             {
                 DebugConsole.LogError($"StorageUtils: Upload failed: {ex.Message}", false);
             });
@@ -76,19 +76,19 @@ namespace ONI_MP.Cloud
         /// </summary>
         public static void UploadAndSendToClient(CSteamID requester)
         {
-            if (!SharedAccessStorageManager.Instance.IsInitialized)
+            if (!SharedStorageManager.Instance.IsInitialized)
             {
                 DebugConsole.LogError("StorageUtils: Shared access storage not initialized!", false);
                 return;
             }
 
-            SharedAccessStorageManager.Instance.OnUploadFinished.RemoveAllListeners();
-            SharedAccessStorageManager.Instance.OnUploadFinished.AddListener((result) =>
+            SharedStorageManager.Instance.OnUploadFinished.RemoveAllListeners();
+            SharedStorageManager.Instance.OnUploadFinished.AddListener((result) =>
             {
                 string originalFileName = Path.GetFileName(SaveLoader.GetActiveSaveFilePath());
 
                 // Send appropriate packet based on current provider
-                if (SharedAccessStorageManager.Instance.CurrentProvider == "GoogleDrive")
+                if (SharedStorageManager.Instance.CurrentProvider == "GoogleDrive")
                 {
                     var packet = new GoogleDriveFileSharePacket
                     {
@@ -97,14 +97,14 @@ namespace ONI_MP.Cloud
                     };
                     PacketSender.SendToPlayer(requester, packet);
                 }
-                else if (SharedAccessStorageManager.Instance.CurrentProvider == "HttpSharedStorage")
+                else if (SharedStorageManager.Instance.CurrentProvider == "StorageServer")
                 {
-                    var packet = new HttpCloudFileSharePacket
+                    var packet = new StorageServerFileSharePacket
                     {
                         FileName = originalFileName,
                         CloudFileName = result,
-                        ServerUrl = Configuration.GetHttpCloudProperty<string>("HttpServerUrl"),
-                        SessionId = Configuration.GetHttpCloudProperty<string>("SessionId"),
+                        ServerUrl = Configuration.GetStorageServerProperty<string>("HttpServerUrl"),
+                        SessionId = Configuration.GetStorageServerProperty<string>("SessionId"),
                         FileSize = (int)new FileInfo(SaveLoader.GetActiveSaveFilePath()).Length,
                         Timestamp = System.DateTime.UtcNow
                     };
@@ -120,7 +120,7 @@ namespace ONI_MP.Cloud
         /// </summary>
         public static void UploadSaveFile()
         {
-            if (!SharedAccessStorageManager.Instance.IsInitialized)
+            if (!SharedStorageManager.Instance.IsInitialized)
             {
                 DebugConsole.LogError("StorageUtils: Shared access storage not initialized!", false);
                 return;
@@ -135,7 +135,7 @@ namespace ONI_MP.Cloud
                 string remoteFileName = $"ONI_MP_Save_{System.DateTime.UtcNow:yyyyMMdd_HHmmss}_{originalFileName}";
 
                 DebugConsole.Log($"StorageUtils: Uploading save file {originalFileName} as {remoteFileName}");
-                SharedAccessStorageManager.Instance.UploadFile(path, remoteFileName);
+                SharedStorageManager.Instance.UploadFile(path, remoteFileName);
             }
             catch (Exception ex)
             {
@@ -148,7 +148,7 @@ namespace ONI_MP.Cloud
         /// </summary>
         public static void DownloadAndLoadSaveFile(string remoteFileName, string localFileName)
         {
-            if (!SharedAccessStorageManager.Instance.IsInitialized)
+            if (!SharedStorageManager.Instance.IsInitialized)
             {
                 DebugConsole.LogError("StorageUtils: Shared access storage not initialized!", false);
                 return;
@@ -162,8 +162,8 @@ namespace ONI_MP.Cloud
 
                 DebugConsole.Log($"StorageUtils: Downloading {remoteFileName} to {localPath}");
 
-                SharedAccessStorageManager.Instance.OnDownloadFinished.RemoveAllListeners();
-                SharedAccessStorageManager.Instance.OnDownloadFinished.AddListener((downloadPath) =>
+                SharedStorageManager.Instance.OnDownloadFinished.RemoveAllListeners();
+                SharedStorageManager.Instance.OnDownloadFinished.AddListener((downloadPath) =>
                 {
                     try
                     {
@@ -176,13 +176,13 @@ namespace ONI_MP.Cloud
                     }
                 });
 
-                SharedAccessStorageManager.Instance.OnDownloadFailed.RemoveAllListeners();
-                SharedAccessStorageManager.Instance.OnDownloadFailed.AddListener((exception) =>
+                SharedStorageManager.Instance.OnDownloadFailed.RemoveAllListeners();
+                SharedStorageManager.Instance.OnDownloadFailed.AddListener((exception) =>
                 {
                     DebugConsole.LogError($"StorageUtils: Download failed: {exception.Message}", false);
                 });
 
-                SharedAccessStorageManager.Instance.DownloadFile(remoteFileName, localPath);
+                SharedStorageManager.Instance.DownloadFile(remoteFileName, localPath);
             }
             catch (Exception ex)
             {
@@ -195,11 +195,11 @@ namespace ONI_MP.Cloud
         /// </summary>
         public static string GetProviderInfo()
         {
-            if (!SharedAccessStorageManager.Instance.IsInitialized)
+            if (!SharedStorageManager.Instance.IsInitialized)
                 return "Shared access storage not initialized";
 
-            string provider = SharedAccessStorageManager.Instance.CurrentProvider;
-            string quota = SharedAccessStorageManager.Instance.GetQuotaInfo();
+            string provider = SharedStorageManager.Instance.CurrentProvider;
+            string quota = SharedStorageManager.Instance.GetQuotaInfo();
             
             return $"Provider: {provider} | {quota}";
         }
@@ -209,10 +209,10 @@ namespace ONI_MP.Cloud
         /// </summary>
         public static string[] GetAvailableSaveFiles()
         {
-            if (!SharedAccessStorageManager.Instance.IsInitialized)
+            if (!SharedStorageManager.Instance.IsInitialized)
                 return new string[0];
 
-            return SharedAccessStorageManager.Instance.ListFiles();
+            return SharedStorageManager.Instance.ListFiles();
         }
 
         /// <summary>
@@ -220,13 +220,13 @@ namespace ONI_MP.Cloud
         /// </summary>
         public static void SwitchProvider(string providerName)
         {
-            if (!SharedAccessStorageManager.Instance.IsInitialized)
+            if (!SharedStorageManager.Instance.IsInitialized)
             {
                 DebugConsole.LogError("StorageUtils: Shared access storage not initialized!", false);
                 return;
             }
 
-            SharedAccessStorageManager.Instance.SwitchProvider(providerName);
+            SharedStorageManager.Instance.SwitchProvider(providerName);
         }
 
         /// <summary>
@@ -234,10 +234,10 @@ namespace ONI_MP.Cloud
         /// </summary>
         public static bool SupportsFeature(CloudFeature feature)
         {
-            if (!SharedAccessStorageManager.Instance.IsInitialized)
+            if (!SharedStorageManager.Instance.IsInitialized)
                 return false;
 
-            switch (SharedAccessStorageManager.Instance.CurrentProvider)
+            switch (SharedStorageManager.Instance.CurrentProvider)
             {
                 case "GoogleDrive":
                     switch (feature)
@@ -252,7 +252,7 @@ namespace ONI_MP.Cloud
                             return false;
                     }
 
-                case "HttpSharedStorage":
+                case "StorageServer":
                     switch (feature)
                     {
                         case CloudFeature.FileListing:

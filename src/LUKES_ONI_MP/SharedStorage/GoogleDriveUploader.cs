@@ -11,7 +11,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using File = System.IO.File;
 
-namespace ONI_MP.Cloud
+namespace ONI_MP.SharedStorage
 {
     public class GoogleDriveUploader
     {

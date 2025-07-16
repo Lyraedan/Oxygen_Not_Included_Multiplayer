@@ -7,7 +7,7 @@ using ONI_MP.Networking.States;
 using System;
 using System.IO;
 
-namespace ONI_MP.Networking.Packets.Cloud
+namespace ONI_MP.Networking.Packets.SharedStorage
 {
     public class GoogleDriveFileSharePacket : IPacket
     {

@@ -3,19 +3,19 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace ONI_MP.Cloud
+namespace ONI_MP.SharedStorage
 {
     /// <summary>
     /// Manages shared access storage operations, supporting multiple providers.
     /// </summary>
-    public class SharedAccessStorageManager
+    public class SharedStorageManager
     {
-        private static SharedAccessStorageManager _instance;
-        private ISharedAccessStorageProvider _currentProvider;
+        private static SharedStorageManager _instance;
+        private ISharedStorageProvider _currentProvider;
         private bool _initialized = false;
 
         public bool IsInitialized => _initialized && _currentProvider?.IsInitialized == true;
-        public string CurrentProvider { get; private set; } = "None";
+        public string CurrentProvider { get; private set; } = "StorageServer";
 
         public UnityEvent OnInitialized { get; } = new UnityEvent();
         public UnityEvent OnUploadStarted { get; } = new UnityEvent();
@@ -25,9 +25,9 @@ namespace ONI_MP.Cloud
         public UnityEvent<string> OnDownloadFinished { get; } = new UnityEvent<string>();
         public UnityEvent<Exception> OnDownloadFailed { get; } = new UnityEvent<Exception>();
 
-        private SharedAccessStorageManager() { }
+        private SharedStorageManager() { }
 
-        public static SharedAccessStorageManager Instance => _instance ?? (_instance = new SharedAccessStorageManager());
+        public static SharedStorageManager Instance => _instance ?? (_instance = new SharedStorageManager());
 
         /// <summary>
         /// Initializes the shared access storage manager with the configured provider.
@@ -36,34 +36,32 @@ namespace ONI_MP.Cloud
         {
             if (_initialized)
             {
-                DebugConsole.Log("SharedAccessStorageManager already initialized.");
+                DebugConsole.Log("SharedStorageManager already initialized.");
                 return;
             }
 
             try
             {
                 string provider = Configuration.GetCloudStorageProperty<string>("Provider");
-                DebugConsole.Log($"SharedAccessStorageManager: Initializing with provider: {provider}");
+                DebugConsole.Log($"SharedStorageManager: Initializing with provider: {provider}");
 
                 switch (provider?.ToLower())
                 {
                     case "googledrive":
                         InitializeGoogleDrive();
                         break;
-                    case "httpcloud":
-                    case "http":
-                    case "httpsharedstorage":
-                        InitializeHttpSharedStorage();
+                    case "StorageServer":
+                        InitializeStorageServer();
                         break;
                     default:
-                        DebugConsole.LogWarning($"SharedAccessStorageManager: Unknown provider '{provider}', falling back to HTTP Shared Storage");
-                        InitializeHttpSharedStorage();
+                        DebugConsole.LogWarning($"SharedStorageManager: Unknown provider '{provider}', falling back to StorageServer");
+                        InitializeStorageServer();
                         break;
                 }
             }
             catch (Exception ex)
             {
-                DebugConsole.LogError($"SharedAccessStorageManager: Initialization failed: {ex.Message}", false);
+                DebugConsole.LogError($"SharedStorageManager: Initialization failed: {ex.Message}", false);
             }
         }
 
@@ -76,48 +74,55 @@ namespace ONI_MP.Cloud
                 
                 if (googleDriveProvider.IsInitialized)
                 {
-                    _currentProvider = (ISharedAccessStorageProvider)googleDriveProvider;
+                    _currentProvider = (ISharedStorageProvider)googleDriveProvider;
                     CurrentProvider = "GoogleDrive";
                     ConnectEvents();
                     _initialized = true;
-                    DebugConsole.Log("SharedAccessStorageManager: Successfully initialized with Google Drive");
+                    DebugConsole.Log("SharedStorageManager: Successfully initialized with Google Drive");
                     OnInitialized.Invoke();
                 }
                 else
                 {
-                    DebugConsole.LogError("SharedAccessStorageManager: Google Drive initialization failed", false);
+                    DebugConsole.LogError("SharedStorageManager: Google Drive initialization failed", false);
                 }
             }
             catch (Exception ex)
             {
-                DebugConsole.LogError($"SharedAccessStorageManager: Google Drive initialization error: {ex.Message}", false);
+                DebugConsole.LogError($"SharedStorageManager: Google Drive initialization error: {ex.Message}", false);
             }
         }
 
-        private void InitializeHttpSharedStorage()
+        private void InitializeStorageServer()
         {
             try
             {
-                var httpStorageProvider = new HttpSharedStorageProvider();
+                var httpStorageProvider = new StorageServerProvider();
+                
+                // Set up callback for when async initialization completes
+                httpStorageProvider.OnInitializationComplete.AddListener(() => {
+                    if (httpStorageProvider.IsInitialized)
+                    {
+                        DebugConsole.Log("SharedStorageManager: HTTP Shared Storage async initialization completed successfully");
+                    }
+                    else
+                    {
+                        DebugConsole.LogError("SharedStorageManager: HTTP Shared Storage async initialization failed", false);
+                    }
+                });
+                
                 httpStorageProvider.Initialize();
                 
-                if (httpStorageProvider.IsInitialized)
-                {
-                    _currentProvider = httpStorageProvider;
-                    CurrentProvider = "HttpSharedStorage";
-                    ConnectEvents();
-                    _initialized = true;
-                    DebugConsole.Log("SharedAccessStorageManager: Successfully initialized with HTTP Shared Storage");
-                    OnInitialized.Invoke();
-                }
-                else
-                {
-                    DebugConsole.LogError("SharedAccessStorageManager: HTTP Shared Storage initialization failed", false);
-                }
+                // Set up the provider immediately - the async initialization will complete in background
+                _currentProvider = httpStorageProvider;
+                CurrentProvider = "StorageServer";
+                ConnectEvents();
+                _initialized = true;
+                DebugConsole.Log("SharedStorageManager: HTTP Shared Storage provider set up, async initialization in progress");
+                OnInitialized.Invoke();
             }
             catch (Exception ex)
             {
-                DebugConsole.LogError($"SharedAccessStorageManager: HTTP Shared Storage initialization error: {ex.Message}", false);
+                DebugConsole.LogError($"SharedStorageManager: HTTP Shared Storage initialization error: {ex.Message}", false);
             }
         }
 
@@ -140,7 +145,7 @@ namespace ONI_MP.Cloud
         {
             if (!IsInitialized)
             {
-                DebugConsole.LogError("SharedAccessStorageManager: Not initialized!", false);
+                DebugConsole.LogError("SharedStorageManager: Not initialized!", false);
                 OnUploadFailed?.Invoke(new InvalidOperationException("Shared access storage not initialized"));
                 return;
             }
@@ -155,7 +160,7 @@ namespace ONI_MP.Cloud
         {
             if (!IsInitialized)
             {
-                DebugConsole.LogError("SharedAccessStorageManager: Not initialized!", false);
+                DebugConsole.LogError("SharedStorageManager: Not initialized!", false);
                 OnDownloadFailed?.Invoke(new InvalidOperationException("Shared access storage not initialized"));
                 return;
             }
@@ -190,7 +195,7 @@ namespace ONI_MP.Cloud
         /// </summary>
         public void SwitchProvider(string providerName)
         {
-            DebugConsole.Log($"SharedAccessStorageManager: Switching provider to {providerName}");
+            DebugConsole.Log($"SharedStorageManager: Switching provider to {providerName}");
             
             // Disconnect current provider events
             if (_currentProvider != null)
@@ -215,7 +220,7 @@ namespace ONI_MP.Cloud
             }
             catch (Exception ex)
             {
-                DebugConsole.LogError($"SharedAccessStorageManager: Failed to update configuration: {ex.Message}", false);
+                DebugConsole.LogError($"SharedStorageManager: Failed to update configuration: {ex.Message}", false);
             }
 
             // Initialize new provider

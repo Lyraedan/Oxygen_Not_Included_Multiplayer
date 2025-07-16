@@ -6,7 +6,7 @@ using KMod;
 using ONI_MP.Networking.Packets.World;
 using Steamworks;
 using System;
-using ONI_MP.Cloud;
+using ONI_MP.SharedStorage;
 
 namespace ONI_MP.DebugTools
 {
@@ -115,9 +115,9 @@ namespace ONI_MP.DebugTools
                 {
                     GUILayout.Label("Not in a multiplayer session.");
                 }
-            } catch(Exception e)
+            } catch(Exception)
             {
-
+                // Ignore errors in debug menu
             }
 
             GUILayout.Space(20);

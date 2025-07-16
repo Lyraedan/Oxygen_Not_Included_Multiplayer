@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 using ONI_MP.Menus;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Networking.Packets.Cloud;
+using ONI_MP.Networking.Packets.SharedStorage;
 using Steamworks;
 using static TechInstance;
 
-namespace ONI_MP.Cloud
+namespace ONI_MP.SharedStorage
 {
     public class GoogleDriveUtils
     {

@@ -184,18 +184,9 @@ To get started with building the mod, follow these steps:
 
 3. **Build the project**  
    
-   **Option A: Using the build script (Recommended)**
-   ```powershell
-   # Windows PowerShell
-   .\build.ps1
-   
-   # Or with specific configuration
-   .\build.ps1 -Configuration Release -Package
-   ```
-   
-   **Option B: Using .NET CLI**
+   **Using .NET CLI**
    ```bash
-   dotnet build ONI_MP.sln
+   dotnet build ONI_MP.sln -Configuration Release
    ```
    
    **Option C: Using Visual Studio**
@@ -211,6 +202,7 @@ To get started with building the mod, follow these steps:
    After building, the mod files will be in:
    - Complete mod package: `BuildOutput/`
    - Built DLL: `BuildOutput/ONI_MP.dll`
+   - this package also gets installed automatically to youre game into this folder: '$(USERPROFILE)\Documents\Klei\OxygenNotIncluded\mods\Local\LUKE_ONI_MP\'
 
 ### Project Structure
 

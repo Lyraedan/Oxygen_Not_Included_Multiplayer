@@ -117,6 +117,46 @@ namespace ONI_MP
             return Instance.GetProperty<T>(Instance.Host.CloudStorage.HttpCloud, propertyName);
         }
 
+        public static T GetStorageServerProperty<T>(string propertyName)
+        {
+            if (Instance?.Host?.CloudStorage?.StorageServer == null)
+            {
+                Debug.LogWarning($"[Configuration] StorageServer settings are null, creating default instance");
+                if (Instance?.Host?.CloudStorage != null)
+                    Instance.Host.CloudStorage.StorageServer = new StorageServerSettings();
+                else
+                {
+                    if (Instance?.Host != null)
+                        Instance.Host.CloudStorage = new CloudStorageSettings();
+                    else
+                    {
+                        if (Instance != null)
+                            Instance.Host = new HostSettings();
+                        else
+                            _instance = new Configuration();
+                    }
+                }
+            }
+            return Instance.GetProperty<T>(Instance.Host.CloudStorage.StorageServer, propertyName);
+        }
+
+        public static void SetCloudStorageProvider(string provider)
+        {
+            try
+            {
+                if (Instance?.Host?.CloudStorage != null)
+                {
+                    Instance.Host.CloudStorage.Provider = provider;
+                    Instance.Save();
+                    Debug.Log($"[Configuration] Changed provider to {provider}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[Configuration] Failed to set provider: {ex.Message}");
+            }
+        }
+
         private T GetProperty<T>(object obj, string propertyName)
         {
             if (obj == null)
@@ -236,9 +276,10 @@ namespace ONI_MP
 
     class CloudStorageSettings
     {
-        public string Provider { get; set; } = "SteamCloud"; // "SteamCloud", "GoogleDrive", or "HttpCloud"
+        public string Provider { get; set; } = "StorageServer"; // "GoogleDrive" or "StorageServer"
         public GoogleDriveSettings GoogleDrive { get; set; } = new GoogleDriveSettings();
         public HttpCloudSettings HttpCloud { get; set; } = new HttpCloudSettings();
+        public StorageServerSettings StorageServer { get; set; } = new StorageServerSettings();
     }
 
     class GoogleDriveSettings
@@ -247,6 +288,13 @@ namespace ONI_MP
     }
 
     class HttpCloudSettings
+    {
+        public string HttpServerUrl { get; set; } = "http://localhost:3000"; // Server URL
+        public string SessionId { get; set; } = ""; // Auto-generated if empty
+        public string AuthToken { get; set; } = ""; // Optional authentication token
+    }
+
+    class StorageServerSettings
     {
         public string HttpServerUrl { get; set; } = "http://localhost:3000"; // Server URL
         public string SessionId { get; set; } = ""; // Auto-generated if empty

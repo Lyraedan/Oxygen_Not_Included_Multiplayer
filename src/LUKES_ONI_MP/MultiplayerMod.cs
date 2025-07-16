@@ -8,7 +8,7 @@ using ONI_MP.Components;
 using System.Reflection;
 using System.Collections.Generic;
 using ONI_MP.Misc;
-using ONI_MP.Cloud;
+using ONI_MP.SharedStorage;
 using System;
 
 namespace ONI_MP
@@ -53,16 +53,16 @@ namespace ONI_MP
         {
             try
             {
-                SharedAccessStorageManager.Instance.OnInitialized.AddListener(() =>
+                SharedStorageManager.Instance.OnInitialized.AddListener(() =>
                 {
-                    SharedAccessStorageManager.Instance.OnUploadStarted.AddListener(() =>
+                    SharedStorageManager.Instance.OnUploadStarted.AddListener(() =>
                     {
                         SpeedControlScreen.Instance?.Pause(false); // Pause the game when uploading starts
                     });
                 });
 
-                SharedAccessStorageManager.Instance.Initialize();
-                DebugConsole.Log($"Shared access storage initialized and ready! Using provider: {SharedAccessStorageManager.Instance.CurrentProvider}");
+                SharedStorageManager.Instance.Initialize();
+                DebugConsole.Log($"Shared access storage initialized and ready! Using provider: {SharedStorageManager.Instance.CurrentProvider}");
 
             }
             catch (Exception ex)

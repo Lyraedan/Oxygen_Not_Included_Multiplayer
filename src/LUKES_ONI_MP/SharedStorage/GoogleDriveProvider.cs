@@ -2,12 +2,12 @@ using System;
 using System.IO;
 using UnityEngine.Events;
 
-namespace ONI_MP.Cloud
+namespace ONI_MP.SharedStorage
 {
     /// <summary>
     /// Google Drive provider implementation.
     /// </summary>
-    public class GoogleDriveProvider : ISharedAccessStorageProvider
+    public class GoogleDriveProvider : ISharedStorageProvider
     {
         public bool IsInitialized => GoogleDrive.Instance.IsInitialized;
         public string ProviderName => "GoogleDrive";

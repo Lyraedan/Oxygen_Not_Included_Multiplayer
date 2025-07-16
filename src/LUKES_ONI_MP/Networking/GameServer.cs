@@ -8,7 +8,7 @@ using UnityEngine;
 using ONI_MP.Networking.States;
 using ONI_MP.Networking.Packets.World;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Cloud;
+using ONI_MP.SharedStorage;
 
 namespace ONI_MP.Networking
 {

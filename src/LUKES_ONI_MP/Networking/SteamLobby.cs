@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using ONI_MP.Cloud;
+using ONI_MP.SharedStorage;
 using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Packets;
@@ -52,7 +52,7 @@ namespace ONI_MP.Networking
         public static void CreateLobby(ELobbyType lobbyType = ELobbyType.k_ELobbyTypePublic, System.Action onSuccess = null)
         {
             if (!SteamManager.Initialized) return;
-            if (!SharedAccessStorageManager.Instance.IsInitialized)
+            if (!SharedStorageManager.Instance.IsInitialized)
             {
                 DebugConsole.LogWarning("[SteamLobby] Cannot create lobby. Cloud storage needs to be initialized!");
                 return;

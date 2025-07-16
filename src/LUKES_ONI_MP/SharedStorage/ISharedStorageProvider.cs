@@ -1,12 +1,12 @@
 using System;
 using UnityEngine.Events;
 
-namespace ONI_MP.Cloud
+namespace ONI_MP.SharedStorage
 {
     /// <summary>
     /// Interface for shared access storage providers.
     /// </summary>
-    public interface ISharedAccessStorageProvider
+    public interface ISharedStorageProvider
     {
         bool IsInitialized { get; }
         string ProviderName { get; }

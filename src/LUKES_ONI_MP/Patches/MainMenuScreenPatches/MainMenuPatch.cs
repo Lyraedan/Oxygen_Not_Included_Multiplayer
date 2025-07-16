@@ -11,7 +11,7 @@ using UnityEngine.UI;
 using System.Collections;
 using ONI_MP.DebugTools;
 using ONI_MP;
-using ONI_MP.Cloud;
+using ONI_MP.SharedStorage;
 
 [HarmonyPatch(typeof(MainMenu), "OnPrefabInit")]
 internal static class MainMenuPatch
@@ -29,16 +29,26 @@ internal static class MainMenuPatch
 
         // Host Game
 
-        string host_text = SharedAccessStorageManager.Instance.IsInitialized ? "Host Game" : "Host Game [Setup]";
+        if (SharedStorageManager.Instance.IsInitialized)
+        {
+            DebugConsole.Log("[MainMenuPatch] SharedStorageManager is initialized.");
+        }
+        else
+        {
+            DebugConsole.LogWarning("[MainMenuPatch] SharedStorageManager is not initialized. Prompting user to set up cloud storage.");
+            if (Configuration.GetCloudStorageProperty<string>("Provider") == "GoogleDrive" )
+            {
+                Application.OpenURL("https://github.com/Lyraedan/Oxygen_Not_Included_Multiplayer/wiki/Cloud-Storage-Setup-Guide");
+            } else if (Configuration.GetCloudStorageProperty<string>("Provider") == "StorageServer")
+            {
+                Application.OpenURL("https://github.com/Lyraedan/Oxygen_Not_Included_Multiplayer/wiki/Cloud-Storage-Setup-Guide");
+            }
+        }
+
+        string host_text = SharedStorageManager.Instance.IsInitialized ? "Host Game" : "Host Game [Setup]";
         var hostInfo = CreateButtonInfo(
             host_text,
             new System.Action(() => {
-                if(!SharedAccessStorageManager.Instance.IsInitialized)
-                {
-                    Application.OpenURL("https://github.com/Lyraedan/Oxygen_Not_Included_Multiplayer/wiki/Cloud-Storage-Setup-Guide");
-                    return;
-                }
-
                 MultiplayerSession.ShouldHostAfterLoad = true;
                 __instance.Button_ResumeGame.SignalClick(KKeyCode.Mouse0);
             }),
@@ -59,6 +69,22 @@ internal static class MainMenuPatch
             buttonInfoType
         );
         makeButton.Invoke(__instance, new object[] { joinInfo });
+
+        // Provider Toggle
+        string currentProvider = SharedStorageManager.Instance.CurrentProvider;
+        string nextProvider = currentProvider == "GoogleDrive" ? "HttpSharedStorage" : "GoogleDrive";
+        string toggleText = $"Storage: {currentProvider} → {nextProvider}";
+        
+        var toggleInfo = CreateButtonInfo(
+            toggleText,
+            new System.Action(() => {
+                SharedStorageManager.Instance.SwitchProvider(nextProvider);
+            }),
+            normalFontSize - 2, // Slightly smaller font
+            normalStyle,
+            buttonInfoType
+        );
+        makeButton.Invoke(__instance, new object[] { toggleInfo });
 
         bool useCustomMenu = Configuration.GetClientProperty<bool>("UseCustomMainMenu");
         if (useCustomMenu)
@@ -293,8 +319,8 @@ internal static class MainMenuPatch
         AddSocialButton(socialsContainer.transform, "Join ONI Together\non Discord", "https://discord.gg/jpxveK6mmY", discordSprite);
 
         var statusSprite = ResourceLoader.LoadEmbeddedTexture("ONI_MP.Assets.cloud_status.png");
-        AddStatusIndicator(socialsContainer.transform, "cloud_indicator", SharedAccessStorageManager.Instance.IsInitialized, statusSprite, 
-            new string[] { $"Multiplayer Hosting: Not Ready!\n<color=#FFFF00>Provider: {SharedAccessStorageManager.Instance.CurrentProvider}</color>", "Multiplayer Hosting: Ready!" },
+        AddStatusIndicator(socialsContainer.transform, "cloud_indicator", SharedStorageManager.Instance.IsInitialized, statusSprite, 
+            new string[] { $"Multiplayer Hosting: Not Ready!\n<color=#FFFF00>Provider: {SharedStorageManager.Instance.CurrentProvider}</color>", "Multiplayer Hosting: Ready!" },
             new string[] { "https://github.com/Lyraedan/Oxygen_Not_Included_Multiplayer/wiki/Cloud-Storage-Setup-Guide ", "" });
 
         // Automatically resize the container to properly fit the buttons
