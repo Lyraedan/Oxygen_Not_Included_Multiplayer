@@ -53,21 +53,21 @@ namespace ONI_MP
         {
             try
             {
-                GoogleDrive.Instance.OnInitialized.AddListener(() =>
+                SharedAccessStorageManager.Instance.OnInitialized.AddListener(() =>
                 {
-                    GoogleDrive.Instance.Uploader.OnUploadStarted.AddListener(() =>
+                    SharedAccessStorageManager.Instance.OnUploadStarted.AddListener(() =>
                     {
                         SpeedControlScreen.Instance?.Pause(false); // Pause the game when uploading starts
                     });
                 });
 
-                GoogleDrive.Instance.Initialize();
-                DebugConsole.Log("GoogleDrive initialized and ready!");
+                SharedAccessStorageManager.Instance.Initialize();
+                DebugConsole.Log($"Shared access storage initialized and ready! Using provider: {SharedAccessStorageManager.Instance.CurrentProvider}");
 
             }
             catch (Exception ex)
             {
-                DebugConsole.LogError($"GoogleDrive init failed: {ex.Message}");
+                DebugConsole.LogError($"Cloud storage init failed: {ex.Message}");
             }
         }
 

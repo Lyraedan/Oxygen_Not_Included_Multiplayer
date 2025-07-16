@@ -34,7 +34,7 @@ namespace ONI_MP.Networking.Packets.World
                 return;
 
             DebugConsole.Log($"[Packets/SaveFileRequest] Received request from {Requester}");
-            GoogleDriveUtils.UploadAndSendToClient(Requester);
+            StorageUtils.UploadAndSendToClient(Requester);
             //SendSaveFile(Requester);
         }
 

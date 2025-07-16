@@ -6,6 +6,29 @@ This document explains all the configuration options available in the `multiplay
 The configuration file should be placed in the same directory as the mod's DLL file:
 - `multiplayer_settings.json`
 
+## Cloud Storage Options
+
+The mod supports two cloud storage providers for save file synchronization:
+
+### Steam Cloud (Default)
+- **No setup required** - Uses your Steam account automatically
+- **100MB storage limit per user**
+- **Automatic authentication** through Steam
+- **File versioning** and conflict resolution
+- **Works offline** (local storage with sync when online)
+
+### Google Drive
+- **Requires setup** - Need to configure credentials.json
+- **15GB free storage** (Google account)
+- **Large file support** - Can handle saves larger than 100MB
+- **Manual authentication** required
+- **Setup guide**: [Google Drive Setup Guide](https://github.com/Lyraedan/Oxygen_Not_Included_Multiplayer/wiki/Google-Drive-Setup-Guide)
+
+### Switching Providers
+To switch between providers, change the `Provider` setting in your configuration:
+- For Steam Cloud: `"Provider": "SteamCloud"`
+- For Google Drive: `"Provider": "GoogleDrive"`
+
 ## Configuration Structure
 
 ### Host Settings
@@ -29,10 +52,18 @@ These settings control the behavior when hosting a multiplayer session.
 - Range: 64-1024
 - Example: `"SaveFileTransferChunkKB": 512`
 
-#### `GoogleDrive` Settings
-Settings for Google Drive integration (save file sharing).
+#### `CloudStorage` Settings
+Settings for cloud storage integration (save file sharing).
 
-##### `ApplicationName` (string, default: "ONI Multiplayer Mod")
+##### `Provider` (string, default: "SteamCloud")
+- The cloud storage provider to use for save file synchronization
+- Options: "SteamCloud" or "GoogleDrive"
+- SteamCloud: Uses Steam's built-in cloud storage (no setup required)
+- GoogleDrive: Uses Google Drive API (requires credentials setup)
+- Example: `"Provider": "GoogleDrive"`
+
+##### `GoogleDrive` Settings (only used when Provider is "GoogleDrive")
+###### `ApplicationName` (string, default: "ONI Multiplayer Mod")
 - Application name used for Google Drive API authentication
 - Should not be changed unless you have a custom Google Drive setup
 - Example: `"ApplicationName": "My Custom ONI Mod"`
@@ -78,8 +109,38 @@ RGB color values for the player cursor (only used if `UseRandomPlayerColor` is f
     "MaxLobbySize": 4,
     "MaxMessagesPerPoll": 128,
     "SaveFileTransferChunkKB": 256,
-    "GoogleDrive": {
-      "ApplicationName": "ONI Multiplayer Mod"
+    "CloudStorage": {
+      "Provider": "SteamCloud",
+      "GoogleDrive": {
+        "ApplicationName": "ONI Multiplayer Mod"
+      }
+    }
+  },
+  "Client": {
+    "UseCustomMainMenu": true,
+    "MaxMessagesPerPoll": 16,
+    "UseRandomPlayerColor": true,
+    "PlayerColor": {
+      "R": 255,
+      "G": 255,
+      "B": 255
+    }
+  }
+}
+```
+
+### Google Drive Configuration
+```json
+{
+  "Host": {
+    "MaxLobbySize": 4,
+    "MaxMessagesPerPoll": 128,
+    "SaveFileTransferChunkKB": 256,
+    "CloudStorage": {
+      "Provider": "GoogleDrive",
+      "GoogleDrive": {
+        "ApplicationName": "ONI Multiplayer Mod"
+      }
     }
   },
   "Client": {
@@ -102,8 +163,11 @@ RGB color values for the player cursor (only used if `UseRandomPlayerColor` is f
     "MaxLobbySize": 6,
     "MaxMessagesPerPoll": 256,
     "SaveFileTransferChunkKB": 512,
-    "GoogleDrive": {
-      "ApplicationName": "ONI Multiplayer Mod"
+    "CloudStorage": {
+      "Provider": "SteamCloud",
+      "GoogleDrive": {
+        "ApplicationName": "ONI Multiplayer Mod"
+      }
     }
   },
   "Client": {
@@ -126,8 +190,11 @@ RGB color values for the player cursor (only used if `UseRandomPlayerColor` is f
     "MaxLobbySize": 3,
     "MaxMessagesPerPoll": 64,
     "SaveFileTransferChunkKB": 128,
-    "GoogleDrive": {
-      "ApplicationName": "ONI Multiplayer Mod"
+    "CloudStorage": {
+      "Provider": "SteamCloud",
+      "GoogleDrive": {
+        "ApplicationName": "ONI Multiplayer Mod"
+      }
     }
   },
   "Client": {
@@ -163,3 +230,5 @@ RGB color values for the player cursor (only used if `UseRandomPlayerColor` is f
 - The configuration file is automatically created with default values if it doesn't exist
 - Changes to the configuration require restarting the game
 - Invalid values will be replaced with defaults and logged as warnings
+- **Steam Cloud is the recommended provider** for most users due to no setup requirements
+- Google Drive setup is only needed if you require more than 100MB storage or have Steam Cloud disabled

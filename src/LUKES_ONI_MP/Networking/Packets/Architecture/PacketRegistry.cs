@@ -72,6 +72,7 @@ namespace ONI_MP.Networking.Packets.Architecture
             Register(PacketType.SpeedChange, () => new SpeedChangePacket());
             Register(PacketType.PlayerCursor, () => new PlayerCursorPacket());
             Register(PacketType.GoogleDriveFileShare, () => new GoogleDriveFileSharePacket());
+            Register(PacketType.HttpCloudFileShare, () => new HttpCloudFileSharePacket());
         }
     }
 }

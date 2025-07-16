@@ -53,13 +53,13 @@ namespace ONI_MP
             return Instance.GetProperty<T>(Instance.Client, propertyName);
         }
 
-        public static T GetGoogleDriveProperty<T>(string propertyName)
+        public static T GetCloudStorageProperty<T>(string propertyName)
         {
-            if (Instance?.Host?.GoogleDrive == null)
+            if (Instance?.Host?.CloudStorage == null)
             {
-                Debug.LogWarning($"[Configuration] GoogleDrive settings are null, creating default instance");
+                Debug.LogWarning($"[Configuration] CloudStorage settings are null, creating default instance");
                 if (Instance?.Host != null)
-                    Instance.Host.GoogleDrive = new GoogleDriveSettings();
+                    Instance.Host.CloudStorage = new CloudStorageSettings();
                 else
                 {
                     if (Instance != null)
@@ -68,7 +68,53 @@ namespace ONI_MP
                         _instance = new Configuration();
                 }
             }
-            return Instance.GetProperty<T>(Instance.Host.GoogleDrive, propertyName);
+            return Instance.GetProperty<T>(Instance.Host.CloudStorage, propertyName);
+        }
+
+        public static T GetGoogleDriveProperty<T>(string propertyName)
+        {
+            if (Instance?.Host?.CloudStorage?.GoogleDrive == null)
+            {
+                Debug.LogWarning($"[Configuration] GoogleDrive settings are null, creating default instance");
+                if (Instance?.Host?.CloudStorage != null)
+                    Instance.Host.CloudStorage.GoogleDrive = new GoogleDriveSettings();
+                else
+                {
+                    if (Instance?.Host != null)
+                        Instance.Host.CloudStorage = new CloudStorageSettings();
+                    else
+                    {
+                        if (Instance != null)
+                            Instance.Host = new HostSettings();
+                        else
+                            _instance = new Configuration();
+                    }
+                }
+            }
+            return Instance.GetProperty<T>(Instance.Host.CloudStorage.GoogleDrive, propertyName);
+        }
+
+        public static T GetHttpCloudProperty<T>(string propertyName)
+        {
+            if (Instance?.Host?.CloudStorage?.HttpCloud == null)
+            {
+                Debug.LogWarning($"[Configuration] HttpCloud settings are null, creating default instance");
+                if (Instance?.Host?.CloudStorage != null)
+                    Instance.Host.CloudStorage.HttpCloud = new HttpCloudSettings();
+                else
+                {
+                    if (Instance?.Host != null)
+                        Instance.Host.CloudStorage = new CloudStorageSettings();
+                    else
+                    {
+                        if (Instance != null)
+                            Instance.Host = new HostSettings();
+                        else
+                            _instance = new Configuration();
+                    }
+                }
+            }
+            return Instance.GetProperty<T>(Instance.Host.CloudStorage.HttpCloud, propertyName);
         }
 
         private T GetProperty<T>(object obj, string propertyName)
@@ -121,10 +167,22 @@ namespace ONI_MP
                     config.Client = new ClientSettings();
                 }
                 
-                if (config.Host.GoogleDrive == null)
+                if (config.Host.CloudStorage == null)
+                {
+                    Debug.LogWarning("[Configuration] CloudStorage settings are null after deserialization, creating default");
+                    config.Host.CloudStorage = new CloudStorageSettings();
+                }
+                
+                if (config.Host.CloudStorage.GoogleDrive == null)
                 {
                     Debug.LogWarning("[Configuration] GoogleDrive settings are null after deserialization, creating default");
-                    config.Host.GoogleDrive = new GoogleDriveSettings();
+                    config.Host.CloudStorage.GoogleDrive = new GoogleDriveSettings();
+                }
+                
+                if (config.Host.CloudStorage.HttpCloud == null)
+                {
+                    Debug.LogWarning("[Configuration] HttpCloud settings are null after deserialization, creating default");
+                    config.Host.CloudStorage.HttpCloud = new HttpCloudSettings();
                 }
                 
                 return config;
@@ -152,7 +210,20 @@ namespace ONI_MP
         public int MaxMessagesPerPoll { get; set; } = 128;
         public int SaveFileTransferChunkKB { get; set; } = 256;
 
-        public GoogleDriveSettings GoogleDrive { get; set; } = new GoogleDriveSettings();
+        public CloudStorageSettings CloudStorage { get; set; } = new CloudStorageSettings();
+        
+        // Keep GoogleDrive for backward compatibility
+        [JsonIgnore]
+        public GoogleDriveSettings GoogleDrive 
+        { 
+            get => CloudStorage?.GoogleDrive ?? new GoogleDriveSettings();
+            set 
+            {
+                if (CloudStorage == null)
+                    CloudStorage = new CloudStorageSettings();
+                CloudStorage.GoogleDrive = value;
+            }
+        }
     }
 
     class ClientSettings
@@ -163,9 +234,23 @@ namespace ONI_MP
         public ColorRGB PlayerColor { get; set; } = new ColorRGB(255, 255, 255);
     }
 
+    class CloudStorageSettings
+    {
+        public string Provider { get; set; } = "SteamCloud"; // "SteamCloud", "GoogleDrive", or "HttpCloud"
+        public GoogleDriveSettings GoogleDrive { get; set; } = new GoogleDriveSettings();
+        public HttpCloudSettings HttpCloud { get; set; } = new HttpCloudSettings();
+    }
+
     class GoogleDriveSettings
     {
         public string ApplicationName { get; set; } = "ONI Multiplayer Mod";
+    }
+
+    class HttpCloudSettings
+    {
+        public string HttpServerUrl { get; set; } = "http://localhost:3000"; // Server URL
+        public string SessionId { get; set; } = ""; // Auto-generated if empty
+        public string AuthToken { get; set; } = ""; // Optional authentication token
     }
 
 

@@ -52,9 +52,9 @@ namespace ONI_MP.Networking
         public static void CreateLobby(ELobbyType lobbyType = ELobbyType.k_ELobbyTypePublic, System.Action onSuccess = null)
         {
             if (!SteamManager.Initialized) return;
-            if (!GoogleDrive.Instance.IsInitialized)
+            if (!SharedAccessStorageManager.Instance.IsInitialized)
             {
-                DebugConsole.LogWarning("[SteamLobby] Cannot create lobby. GoogleDrive needs to be initialized!");
+                DebugConsole.LogWarning("[SteamLobby] Cannot create lobby. Cloud storage needs to be initialized!");
                 return;
             }
 

@@ -3,8 +3,16 @@
     "MaxLobbySize": 4,
     "MaxMessagesPerPoll": 128,
     "SaveFileTransferChunkKB": 256,
-    "GoogleDrive": {
-      "ApplicationName": "ONI Multiplayer Mod"
+    "CloudStorage": {
+      "Provider": "HttpSharedStorage",
+      "GoogleDrive": {
+        "ApplicationName": "ONI Multiplayer Mod"
+      },
+      "HttpCloud": {
+        "HttpServerUrl": "http://localhost:3000",
+        "SessionId": "",
+        "AuthToken": ""
+      }
     }
   },
   "Client": {

@@ -104,8 +104,11 @@ A multiplayer mod that introduces real-time collaborative gameplay to *Oxygen No
       > (At the start of every new cycle the server will perform a hard sync, which basically boots out all the clients and makes them redownload the map before automatically reconnecting them)
     - Player cursors
       > See where other players are pointing, the tool they are using and they are color coded.
-    - Save file synchronization via Google Drive
-      > Using Google Drive allows synchronization of worlds larger then 10MB. A limit the other multiplayer mod has. Without it, this mod would have the same 10MB limit. This however comes at the cost of a small but simple setup process by hosts that only needs to be completed once. The guide can be found [here](https://github.com/Lyraedan/Oxygen_Not_Included_Multiplayer/wiki/Google-Drive-Setup-Guide)
+    - Save file synchronization via multiple providers
+      > **Steam Cloud**: Built-in Steam integration (limited to same user across sessions)  
+      > **Google Drive**: Cloud storage for large saves >10MB with simple setup process  
+      > **HTTP File Server**: Self-hosted solution for true multiplayer save sharing across different users  
+      > Choose your preferred method in the configuration. HTTP server setup guide can be found in `server/README.md`
 
 - Synchronized UI Elements
      - World Cycle
@@ -214,6 +217,12 @@ To get started with building the mod, follow these steps:
 ```
 Oxygen_Not_Included_Multiplayer/
 ├── docs/                     # Documentation
+├── server/                   # HTTP File Server for save synchronization
+│   ├── server.js            # Main server application
+│   ├── package.json         # Server dependencies
+│   ├── start-server.bat     # Windows startup script
+│   ├── start-server.sh      # Linux/Mac startup script
+│   └── README.md           # Server setup guide
 ├── src/                      # Source code
 │   ├── LUKES_ONI_MP/        # Main project source
 ├── BuildOutput/             # Build output

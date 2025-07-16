@@ -44,6 +44,7 @@ namespace ONI_MP.Networking.Packets.Architecture
         Disinfect = 34,
         SpeedChange = 35,
         PlayerCursor = 36,
-        GoogleDriveFileShare = 37
+        GoogleDriveFileShare = 37,
+        HttpCloudFileShare = 38
     }
 }

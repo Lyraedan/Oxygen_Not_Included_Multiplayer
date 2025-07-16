@@ -106,7 +106,7 @@ namespace ONI_MP.DebugTools
                     {
                         if (GUILayout.Button("Test Upload"))
                         {
-                            GoogleDriveUtils.UploadSaveFile();
+                            StorageUtils.UploadSaveFile();
                         }
                     }
                     //DrawPlayerList();
