@@ -41,6 +41,8 @@
 	<EmbeddedResource Include="Assets\bundles\playercursor_mac.bundle" />
 	<EmbeddedResource Include="Assets\bundles\playercursor_lin.bundle" />
 	<EmbeddedResource Include="Assets\cloud_status.png" />
+	<EmbeddedResource Include="Assets\steam_logo.png" />
+	<EmbeddedResource Include="Assets\epicgames_logo.png" />
   </ItemGroup>
 
   <ItemGroup>

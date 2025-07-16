@@ -114,7 +114,7 @@ namespace ONI_MP.Networking.Platforms.EOS
         public int? GetPingToHost()
         {
             // EOS SDK does not support ping queries directly in P2P. Return null.
-            return null;
+            return -1;
         }
 
         public void CacheCurrentServer()

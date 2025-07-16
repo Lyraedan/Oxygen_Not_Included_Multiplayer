@@ -31,7 +31,7 @@ namespace ONI_MP.Networking.Relay.Platforms.Steam
         public void Send(IPacket packet, SendType sendType)
         {
             var bytes = PacketSender.SerializePacket(packet);
-            int steamSendType = sendType == SendType.Reliable ? (int)SteamNetworkingSend.Reliable : (int)SteamNetworkingSend.Unreliable;
+            int steamSendType = sendType == SendType.Reliable ? (int)SteamNetworkingSend.ReliableNoNagle : (int)SteamNetworkingSend.UnreliableNoNagle;
 
             IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
             try

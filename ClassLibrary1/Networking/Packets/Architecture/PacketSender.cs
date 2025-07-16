@@ -90,7 +90,6 @@ namespace ONI_MP.Networking.Packets.Architecture
             Platform.SendToAllExcluding(packet, filteredConnections, sendType);
         }
 
-
         private static INetworkConnection FindConnectionById(string id)
         {
             foreach (var conn in Platform.ConnectedClients)

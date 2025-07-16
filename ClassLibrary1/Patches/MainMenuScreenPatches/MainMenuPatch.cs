@@ -297,6 +297,29 @@ internal static class MainMenuPatch
             new string[] { "Multiplayer Hosting: Not Ready!\n<color=#FFFF00>Click to view guide</color>", "Multiplayer Hosting: Ready!" },
             new string[] { "https://github.com/Lyraedan/Oxygen_Not_Included_Multiplayer/wiki/Google-Drive-Setup-Guide ", "" });
 
+        int platform = Configuration.GetClientProperty<int>("Platform");
+        switch(platform)
+        {
+            case 0:
+                {
+                    var steamSprite = ResourceLoader.LoadEmbeddedTexture("ONI_MP.Assets.steam_logo.png");
+                    AddStaticButton(socialsContainer.transform, "Powered by Steamworks!", "https://partner.steamgames.com", steamSprite);
+                }
+                break;
+            case 1:
+                {
+                    var eosSprite = ResourceLoader.LoadEmbeddedTexture("ONI_MP.Assets.epicgames_logo.png");
+                    AddStaticButton(socialsContainer.transform, "Powered by EOS!", "https://dev.epicgames.com/docs/epic-online-services/eos-overview", eosSprite);
+                }
+                break;
+            default:
+                {
+                    var steamSprite = ResourceLoader.LoadEmbeddedTexture("ONI_MP.Assets.steam_logo.png");
+                    AddStaticButton(socialsContainer.transform, "Powered by Steamworks!", "https://partner.steamgames.com", steamSprite);
+                }
+                break;
+        }
+
         // Automatically resize the container to properly fit the buttons
         int buttonCount = socialsContainer.transform.childCount;
         float buttonWidth = 96f;
@@ -376,6 +399,35 @@ internal static class MainMenuPatch
             {
                 Application.OpenURL(url);
             }
+        });
+    }
+
+    private static void AddStaticButton(Transform parent, string tooltip, string url, Texture2D image)
+    {
+        if (image == null)
+            return;
+
+        GameObject buttonGO = new GameObject($"SocialButton_{tooltip}", typeof(RectTransform));
+        buttonGO.transform.SetParent(parent, false);
+
+        var buttonImage = buttonGO.AddComponent<Image>();
+
+        var button = buttonGO.AddComponent<Button>();
+
+        var rectTransform = button.GetComponent<RectTransform>();
+        rectTransform.sizeDelta = new Vector2(96f, 96f);
+
+        // slice the spritesheet (3 frames horizontally)
+        Sprite normalSprite = Sprite.Create(image, new Rect(0, 0, 128, 128), new Vector2(0.5f, 0.5f));
+
+        buttonImage.sprite = normalSprite;
+
+        var tooltipComp = buttonGO.AddComponent<ToolTip>();
+        tooltipComp.toolTip = tooltip;
+
+        button.onClick.AddListener(() =>
+        {
+            Application.OpenURL(url);
         });
     }
 }
