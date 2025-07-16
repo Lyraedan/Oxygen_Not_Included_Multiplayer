@@ -6,6 +6,7 @@ using ONI_MP.Networking.States;
 using ONI_MP.Menus;
 using ONI_MP.Networking.Relay.Platforms.Steam;
 using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Networking.Relay.Platforms.EOS;
 
 namespace ONI_MP.Networking.Components
 {
@@ -13,10 +14,22 @@ namespace ONI_MP.Networking.Components
     {
         public static UnityTaskScheduler scheduler = new UnityTaskScheduler();
 
+        int platform = 0; // Steam
+
         private void Start()
         {
-            SteamNetworkingUtils.InitRelayNetworkAccess();
-            PacketSender.Platform.GameClient.Init();
+            
+        }
+
+        public void Init()
+        {
+            int platform = Configuration.GetClientProperty<int>("Platform");
+            if (platform == 0)
+            {
+                // Use Steam
+                SteamNetworkingUtils.InitRelayNetworkAccess();
+            }
+            this.platform = platform;
 
             MultiplayerMod.OnPostSceneLoaded += () =>
             {
@@ -32,8 +45,10 @@ namespace ONI_MP.Networking.Components
         {
             scheduler.Tick();
 
-            if (!SteamManager.Initialized)
-                return;
+            if (platform == 1) // EOS
+            {
+                TickEOS();
+            }
 
             if (!MultiplayerSession.InSession)
                 return;
@@ -46,6 +61,11 @@ namespace ONI_MP.Networking.Components
             {
                 PacketSender.Platform.GameClient.Poll();
             }
+        }
+
+        public static void TickEOS()
+        {
+            EOSManager.Instance?.GetPlatformInterface()?.Tick();
         }
 
         private void OnApplicationQuit()

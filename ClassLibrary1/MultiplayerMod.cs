@@ -31,14 +31,16 @@ namespace ONI_MP
         {
             base.OnLoad(harmony);
 
+            var go = new GameObject("Multiplayer_Modules");
+            UnityEngine.Object.DontDestroyOnLoad(go);
+            MasterNetworkingComponent networking_comp = go.AddComponent<MasterNetworkingComponent>();
+            
             DebugMenu.Init();
             InitializePlatform();
+            networking_comp.Init();
 
             InitializeCloud();
 
-            var go = new GameObject("Multiplayer_Modules");
-            UnityEngine.Object.DontDestroyOnLoad(go);
-            go.AddComponent<MasterNetworkingComponent>();
             go.AddComponent<UIVisibilityController>();
             go.AddComponent<MainThreadExecutor>();
             go.AddComponent<CursorManager>();
@@ -61,48 +63,70 @@ namespace ONI_MP
             {
                 case 0:
                     {
-                        var steamPlatform = new SteamPlatform();
-                        PacketSender.Platform = steamPlatform;
-                        DebugConsole.Log("Steam platform initialized.");
+                        InitSteam();
                         break;
                     }
                 case 1:
                     {
-                        EOSLoader.LoadNativeLibrary();
-                        var eosManager = new EOSManager();
-                        eosManager.Initialize();
-
-                        if (!eosManager.IsInitialized)
-                        {
-                            DebugConsole.LogError("[InitializePlatform] EOSManager is not initialized!", false);
-                            return;
-                        }
-
-                        var localUserId = eosManager.GetLocalUserId();
-                        var p2pInterface = eosManager.GetP2PInterface();
-                        var connectInterface = eosManager.GetConnectInterface();
-
-                        if (localUserId == null || !localUserId.IsValid())
-                        {
-                            DebugConsole.LogError("[InitializePlatform] Invalid EOS LocalUserId.");
-                            return;
-                        }
-
-                        var eosPlatform = new EOSPlatform();
-                        EOSPlatform.Initialize(localUserId, p2pInterface, connectInterface);
-                        PacketSender.Platform = eosPlatform;
-                        DebugConsole.Log("EOS platform initialized.");
+                        InitEos();
                         break;    
                     }
                 default:
                     {
                         // Default to steam
-                        var steamPlatform = new SteamPlatform();
-                        PacketSender.Platform = steamPlatform;
-                        DebugConsole.Log("Steam platform initialized.");
+                        InitSteam();
                         break;
                     }
             }
+        }
+
+        private void InitSteam()
+        {
+            var steamPlatform = new SteamPlatform();
+            PacketSender.Platform = steamPlatform;
+            DebugConsole.Log("Steam platform initialized.");
+
+            PacketSender.Platform.GameClient.Init();
+        }
+
+        private void InitEos()
+        {
+            EOSLoader.LoadNativeLibrary();
+            var eosManager = new EOSManager();
+            eosManager.Initialize();
+
+            if (!eosManager.IsInitialized)
+            {
+                DebugConsole.LogError("[InitializePlatform] EOSManager is not initialized!");
+                return;
+            }
+
+
+            eosManager.OnCreatedDeviceId += () =>
+            {
+                DebugConsole.Log("Created device id!");
+                eosManager.Login();
+            };
+
+            eosManager.OnLoginSuccessful += () =>
+            {
+                var localUserId = eosManager.GetLocalUserId();
+                var p2pInterface = eosManager.GetP2PInterface();
+                var connectInterface = eosManager.GetConnectInterface();
+
+                if (localUserId == null || !localUserId.IsValid())
+                {
+                    DebugConsole.LogError("[InitializePlatform] Invalid EOS LocalUserId.");
+                    return;
+                }
+
+                var eosPlatform = new EOSPlatform();
+                EOSPlatform.Initialize(localUserId, p2pInterface, connectInterface);
+                PacketSender.Platform = eosPlatform;
+                DebugConsole.Log("EOS platform initialized.");
+
+                PacketSender.Platform.GameClient.Init();
+            };
         }
 
         void InitializeCloud()

@@ -1,10 +1,11 @@
 ﻿using System;
+using System.IO;
 using Epic.OnlineServices;
 using Epic.OnlineServices.Platform;
 using Epic.OnlineServices.Connect;
 using Epic.OnlineServices.P2P;
-using ONI_MP.DebugTools;
 using Epic.OnlineServices.Auth;
+using ONI_MP.DebugTools;
 
 namespace ONI_MP.Networking.Relay.Platforms.EOS
 {
@@ -20,6 +21,17 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
         public ProductUserId GetLocalUserId() => _localUserId;
         public P2PInterface GetP2PInterface() => _platformInterface?.GetP2PInterface();
         public ConnectInterface GetConnectInterface() => _platformInterface?.GetConnectInterface();
+        public PlatformInterface GetPlatformInterface() => _platformInterface;
+
+        public System.Action OnCreatedDeviceId;
+        public System.Action OnLoginSuccessful;
+
+        private static readonly string TokenPath = Path.Combine(
+            Path.GetDirectoryName(typeof(Configuration).Assembly.Location),
+            "token"
+        );
+
+        private static readonly string RefreshTokenFile = Path.Combine(TokenPath, "eos.refreshtoken");
 
         public EOSManager()
         {
@@ -66,33 +78,130 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
                 return;
             }
 
-            LoginWithConnect();
+            _initialized = true;
+            Login();
         }
 
-        private void LoginWithConnect()
+        private void SaveRefreshToken(string token)
         {
-            var connect = _platformInterface.GetConnectInterface();
-
-            var loginOptions = new Epic.OnlineServices.Connect.LoginOptions
+            try
             {
-                Credentials = new Epic.OnlineServices.Connect.Credentials
+                if (!Directory.Exists(TokenPath))
+                    Directory.CreateDirectory(TokenPath);
+
+                File.WriteAllText(RefreshTokenFile, token ?? string.Empty);
+                DebugConsole.Log("[EOSManager] Saved refresh token to disk.");
+            }
+            catch (Exception ex)
+            {
+                DebugConsole.LogError($"[EOSManager] Failed to save refresh token: {ex}");
+            }
+        }
+
+        private string LoadRefreshToken()
+        {
+            try
+            {
+                if (File.Exists(RefreshTokenFile))
+                    return File.ReadAllText(RefreshTokenFile);
+            }
+            catch (Exception ex)
+            {
+                DebugConsole.LogError($"[EOSManager] Failed to load refresh token: {ex}");
+            }
+
+            return null;
+        }
+
+        public void Login()
+        {
+            var auth = _platformInterface.GetAuthInterface();
+            string savedRefreshToken = LoadRefreshToken();
+
+            var loginOptions = new Epic.OnlineServices.Auth.LoginOptions
+            {
+                Credentials = new Epic.OnlineServices.Auth.Credentials
                 {
-                    Type = ExternalCredentialType.DeviceidAccessToken,
-                    Token = null
-                }
+                    Type = string.IsNullOrEmpty(savedRefreshToken)
+                        ? LoginCredentialType.AccountPortal
+                        : LoginCredentialType.RefreshToken,
+                    Token = savedRefreshToken,
+                    Id = null
+                },
+                ScopeFlags = AuthScopeFlags.BasicProfile | AuthScopeFlags.FriendsList
             };
 
-            connect.Login(loginOptions, null, result =>
+            auth.Login(loginOptions, null, loginResult =>
             {
-                if (result.ResultCode == Epic.OnlineServices.Result.Success)
+                if (loginResult.ResultCode == Epic.OnlineServices.Result.Success)
                 {
-                    _localUserId = result.LocalUserId;
-                    _initialized = true;
-                    DebugConsole.Log($"[EOSManager] Login successful. UserId = {_localUserId}");
+                    DebugConsole.Log($"[EOSManager] Epic login successful. EpicAccountId = {loginResult.LocalUserId}");
+
+                    auth.CopyUserAuthToken(
+                        new CopyUserAuthTokenOptions(),
+                        loginResult.LocalUserId,
+                        out var token
+                    );
+
+                    if (!string.IsNullOrEmpty(token.RefreshToken))
+                    {
+                        SaveRefreshToken(token.RefreshToken);
+                        DebugConsole.Log("[EOSManager] Refresh token saved.");
+                    }
+
+                    var connect = _platformInterface.GetConnectInterface();
+
+                    if (loginResult.ContinuanceToken != null)
+                    {
+                        var linkOptions = new CreateUserOptions
+                        {
+                            ContinuanceToken = loginResult.ContinuanceToken
+                        };
+
+                        connect.CreateUser(linkOptions, null, linkResult =>
+                        {
+                            if (linkResult.ResultCode == Epic.OnlineServices.Result.Success)
+                            {
+                                _localUserId = linkResult.LocalUserId;
+                                _initialized = true;
+                                OnLoginSuccessful?.Invoke();
+                                DebugConsole.Log($"[EOSManager] Created new EOS user. ProductUserId = {_localUserId}");
+                            }
+                            else
+                            {
+                                DebugConsole.LogError($"[EOSManager] CreateUser failed: {linkResult.ResultCode}");
+                            }
+                        });
+                    }
                 }
                 else
                 {
-                    DebugConsole.LogError($"[EOSManager] Login failed: {result.ResultCode}");
+                    DebugConsole.LogError($"[EOSManager] Epic login failed: {loginResult.ResultCode}");
+                    SaveRefreshToken(null); // Clear bad token
+                }
+            });
+        }
+
+        private void CreateDeviceId()
+        {
+            var connect = _platformInterface.GetConnectInterface();
+
+            var createOptions = new CreateDeviceIdOptions
+            {
+                DeviceModel = "ONI_MP"
+            };
+
+            connect.CreateDeviceId(createOptions, null, createResult =>
+            {
+                if (createResult.ResultCode == Epic.OnlineServices.Result.Success ||
+                    createResult.ResultCode == Epic.OnlineServices.Result.DuplicateNotAllowed)
+                {
+                    DebugConsole.Log("[EOSManager] Device ID created (or already exists), logging in...");
+                    OnCreatedDeviceId?.Invoke();
+                }
+                else
+                {
+                    DebugConsole.LogError($"[EOSManager] CreateDeviceId failed: {createResult.ResultCode}");
                 }
             });
         }
