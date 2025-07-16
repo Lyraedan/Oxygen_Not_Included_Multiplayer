@@ -26,6 +26,10 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
         public System.Action OnCreatedDeviceId;
         public System.Action OnLoginSuccessful;
 
+        private EpicAccountId _epicAccountId;
+
+        public EpicAccountId GetEpicAccountId() => _epicAccountId;
+
         private static readonly string TokenPath = Path.Combine(
             Path.GetDirectoryName(typeof(Configuration).Assembly.Location),
             "token"
@@ -148,6 +152,8 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
                         SaveRefreshToken(token.RefreshToken);
                         DebugConsole.Log("[EOSManager] Refresh token saved.");
                     }
+
+                    _epicAccountId = loginResult.LocalUserId;
 
                     var connect = _platformInterface.GetConnectInterface();
 
