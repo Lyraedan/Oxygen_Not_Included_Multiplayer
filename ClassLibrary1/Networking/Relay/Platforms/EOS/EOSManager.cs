@@ -181,29 +181,5 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
                 }
             });
         }
-
-        private void CreateDeviceId()
-        {
-            var connect = _platformInterface.GetConnectInterface();
-
-            var createOptions = new CreateDeviceIdOptions
-            {
-                DeviceModel = "ONI_MP"
-            };
-
-            connect.CreateDeviceId(createOptions, null, createResult =>
-            {
-                if (createResult.ResultCode == Epic.OnlineServices.Result.Success ||
-                    createResult.ResultCode == Epic.OnlineServices.Result.DuplicateNotAllowed)
-                {
-                    DebugConsole.Log("[EOSManager] Device ID created (or already exists), logging in...");
-                    OnCreatedDeviceId?.Invoke();
-                }
-                else
-                {
-                    DebugConsole.LogError($"[EOSManager] CreateDeviceId failed: {createResult.ResultCode}");
-                }
-            });
-        }
     }
 }
