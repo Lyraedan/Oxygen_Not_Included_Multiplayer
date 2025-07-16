@@ -14,6 +14,7 @@ using ONI_MP.Networking.Relay.Platforms.Steam;
 using ONI_MP.Networking.Platforms.Steam;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Relay.Platforms.EOS;
+using ONI_MP.Networking.Platforms.EOS;
 
 namespace ONI_MP
 {
@@ -68,6 +69,7 @@ namespace ONI_MP
                     }
                 case 1:
                     {
+                        EOSLoader.LoadNativeLibrary();
                         var eosManager = new EOSManager();
                         eosManager.Initialize();
 

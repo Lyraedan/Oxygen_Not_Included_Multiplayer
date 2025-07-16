@@ -5,6 +5,7 @@
 	<ManagedPath>$(GAME_DIR)\OxygenNotIncluded_Data\Managed</ManagedPath>
 	<LibsPath>D:\Github\Oxygen_Not_Included_Multiplayer\libs</LibsPath> <!-- Used for custom libraries (Like EOS) -->
     <ManagedPath Condition="'$(GAME_DIR)' == ''">F:\SteamLibrary\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed</ManagedPath>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,8 +25,12 @@
 	<Reference Include="UnityEngine.UIModule" HintPath="$(ManagedPath)\UnityEngine.UIModule.dll" Private="false" />
 	<Reference Include="UnityEngine.TextRenderingModule" HintPath="$(ManagedPath)\UnityEngine.TextRenderingModule.dll" Private="false" />
 	<Reference Include="ImGui.NET" HintPath="$(ManagedPath)\ImGui.NET.dll" Private="false" />
+  </ItemGroup>
 
-	 <Reference Include="EOSSDK-Win64-Shipping" HintPath="$(LibsPath)\EOS\EOSSDK-Win64-Shipping.dll" Private="false" />
+  <ItemGroup>
+	<None Include="$(LibsPath)\EOS\EOSSDK-Win64-Shipping.dll">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
   </ItemGroup>
 
   <ItemGroup>
