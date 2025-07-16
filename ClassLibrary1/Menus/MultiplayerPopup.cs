@@ -2,6 +2,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Menus;
 using ONI_MP.Networking;
+using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Patches.MainMenuScreen;
 using Steamworks;
 using UnityEngine;
@@ -52,8 +53,7 @@ public static class MultiplayerPopup
 
         AddPopupButton(popup.transform, "Join Game", new Vector2(0, 0), () =>
         {
-            //SteamFriends.ActivateGameOverlay("friends");
-            SteamFriends.ActivateGameOverlayInviteDialog(MultiplayerSession.LocalSteamID);
+            PacketSender.Platform.GetJoinDialog();
         });
 
         AddPopupButton(popup.transform, "Cancel", new Vector2(0, -70), () =>

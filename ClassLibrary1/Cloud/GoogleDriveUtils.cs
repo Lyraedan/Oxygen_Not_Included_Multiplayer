@@ -37,7 +37,7 @@ namespace ONI_MP.Cloud
             UploadSaveFile();
         }
 
-        public static void UploadAndSendToClient(CSteamID requester)
+        public static void UploadAndSendToClient(string requester)
         {
             GoogleDrive.Instance.Uploader.OnUploadFinished.RemoveAllListeners();
             GoogleDrive.Instance.Uploader.OnUploadFinished.AddListener((link) =>

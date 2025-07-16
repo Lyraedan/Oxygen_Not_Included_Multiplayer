@@ -13,7 +13,7 @@ namespace ONI_MP.Networking.Packets.Tools.Prioritize
 
         public List<int> TargetCells = new List<int>();
         public PrioritySetting Priority;
-        public CSteamID SenderId;
+        public string SenderId;
 
         public void Serialize(BinaryWriter writer)
         {
@@ -24,7 +24,7 @@ namespace ONI_MP.Networking.Packets.Tools.Prioritize
             writer.Write((int)Priority.priority_class);
             writer.Write(Priority.priority_value);
 
-            writer.Write(SenderId.m_SteamID);
+            writer.Write(SenderId);
         }
 
         public void Deserialize(BinaryReader reader)
@@ -39,7 +39,7 @@ namespace ONI_MP.Networking.Packets.Tools.Prioritize
                 reader.ReadInt32()
             );
 
-            SenderId = new CSteamID(reader.ReadUInt64());
+            SenderId = reader.ReadString();
         }
 
         public void OnDispatched()
@@ -89,10 +89,10 @@ namespace ONI_MP.Networking.Packets.Tools.Prioritize
 
             if (MultiplayerSession.IsHost)
             {
-                var exclude = new HashSet<CSteamID>
+                var exclude = new HashSet<string>
                 {
                     SenderId,
-                    MultiplayerSession.LocalSteamID
+                    MultiplayerSession.LocalId
                 };
                 PacketSender.SendToAllExcluding(this, exclude);
                 DebugConsole.Log($"[PrioritizePacket] Rebroadcasted to clients (excluding sender {SenderId}) for {TargetCells.Count} cell(s)");

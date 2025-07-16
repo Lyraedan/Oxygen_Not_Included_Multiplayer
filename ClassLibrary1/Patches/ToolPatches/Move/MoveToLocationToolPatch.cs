@@ -30,7 +30,7 @@ namespace ONI_MP.Patches.ToolPatches.Move
             {
                 Cell = target_cell,
                 TargetNetId = identity.NetId,
-                SenderId = MultiplayerSession.LocalSteamID
+                SenderId = MultiplayerSession.LocalId
             };
 
             PacketSender.SendToHost(packet);

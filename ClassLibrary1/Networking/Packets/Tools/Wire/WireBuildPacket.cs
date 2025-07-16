@@ -32,11 +32,11 @@ namespace ONI_MP.Networking.Packets.Tools.Wire
         }
 
         public List<Node> Path = new List<Node>();
-        public CSteamID SenderId;
+        public string SenderId;
 
         public WireBuildPacket() { }
 
-        public WireBuildPacket(List<Node> path, CSteamID senderId)
+        public WireBuildPacket(List<Node> path, string senderId)
         {
             Path = path;
             SenderId = senderId;
@@ -48,7 +48,7 @@ namespace ONI_MP.Networking.Packets.Tools.Wire
             foreach (var node in Path)
                 node.Serialize(writer);
 
-            writer.Write(SenderId.m_SteamID);
+            writer.Write(SenderId);
         }
 
         public void Deserialize(BinaryReader reader)
@@ -58,7 +58,7 @@ namespace ONI_MP.Networking.Packets.Tools.Wire
             for (int i = 0; i < count; i++)
                 Path.Add(Node.Deserialize(reader));
 
-            SenderId = new CSteamID(reader.ReadUInt64());
+            SenderId = reader.ReadString();
         }
 
         public void OnDispatched()
@@ -129,7 +129,7 @@ namespace ONI_MP.Networking.Packets.Tools.Wire
             // Re-broadcast from host to all clients except sender
             if (MultiplayerSession.IsHost)
             {
-                var exclude = new HashSet<CSteamID> { SenderId, MultiplayerSession.LocalSteamID };
+                var exclude = new HashSet<string> { SenderId, MultiplayerSession.LocalId };
                 PacketSender.SendToAllExcluding(this, exclude);
             }
         }

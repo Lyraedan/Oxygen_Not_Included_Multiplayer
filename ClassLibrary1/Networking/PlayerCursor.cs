@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ONI_MP.DebugTools;
 using ONI_MP.Misc;
+using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.States;
 using Steamworks;
 using TMPro;
@@ -24,7 +25,7 @@ namespace ONI_MP.Networking
         private Image cursorImage = null;
         private TextMeshProUGUI cursorText = null;
 
-        private CSteamID assignedPlayer;
+        private string assignedPlayer;
         string playerName = string.Empty;
 
         private CursorState cursorState = CursorState.NONE;
@@ -65,9 +66,9 @@ namespace ONI_MP.Networking
             base.OnSpawn();
         }
 
-        public void AssignPlayer(CSteamID steamId)
+        public void AssignPlayer(string id)
         {
-            this.assignedPlayer = steamId;
+            this.assignedPlayer = id;
         }
 
         public void Init()
@@ -90,7 +91,7 @@ namespace ONI_MP.Networking
             cursor.transform.SetParent(transform, false);
             gameObject.SetLayerRecursively(LayerMask.NameToLayer("UI"));
 
-            playerName = SteamFriends.GetFriendPersonaName(assignedPlayer);
+            playerName = PacketSender.Platform.GetPlayerName(assignedPlayer);
             cursorText.text = $"{playerName}";
 
             OnCursorStateChanged += () => UpdateActionImage();

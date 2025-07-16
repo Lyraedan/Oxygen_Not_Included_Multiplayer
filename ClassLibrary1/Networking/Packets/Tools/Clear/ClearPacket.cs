@@ -19,7 +19,7 @@ namespace ONI_MP.Networking.Packets.Tools.Clear
         public PacketType Type => PacketType.Clear;
 
         public List<int> TargetCells = new List<int>();
-        public CSteamID SenderId;
+        public string SenderId;
         public ClearActionType ActionType;
 
         public void Serialize(BinaryWriter writer)
@@ -29,7 +29,7 @@ namespace ONI_MP.Networking.Packets.Tools.Clear
             foreach (var cell in TargetCells)
                 writer.Write(cell);
 
-            writer.Write(SenderId.m_SteamID);
+            writer.Write(SenderId);
         }
 
         public void Deserialize(BinaryReader reader)
@@ -40,7 +40,7 @@ namespace ONI_MP.Networking.Packets.Tools.Clear
             for (int i = 0; i < count; i++)
                 TargetCells.Add(reader.ReadInt32());
 
-            SenderId = new CSteamID(reader.ReadUInt64());
+            SenderId = reader.ReadString();
         }
 
         public void OnDispatched()
@@ -58,10 +58,10 @@ namespace ONI_MP.Networking.Packets.Tools.Clear
 
             if (MultiplayerSession.IsHost)
             {
-                var exclude = new HashSet<CSteamID>
+                var exclude = new HashSet<string>
                 {
                     SenderId,
-                    MultiplayerSession.LocalSteamID
+                    MultiplayerSession.LocalId
                 };
 
                 PacketSender.SendToAllExcluding(this, exclude);

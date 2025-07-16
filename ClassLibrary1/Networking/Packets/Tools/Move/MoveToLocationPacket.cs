@@ -12,20 +12,20 @@ namespace ONI_MP.Networking.Packets.Tools.Move
 
         public int Cell;
         public int TargetNetId;
-        public CSteamID SenderId;
+        public string SenderId;
 
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(Cell);
             writer.Write(TargetNetId);
-            writer.Write(SenderId.m_SteamID);
+            writer.Write(SenderId);
         }
 
         public void Deserialize(BinaryReader reader)
         {
             Cell = reader.ReadInt32();
             TargetNetId = reader.ReadInt32();
-            SenderId = new CSteamID(reader.ReadUInt64());
+            SenderId = reader.ReadString();
         }
 
         public void OnDispatched()

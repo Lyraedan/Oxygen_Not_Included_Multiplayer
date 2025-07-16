@@ -8,18 +8,18 @@ namespace ONI_MP.Networking.Packets.World
 {
     public class WorldDataRequestPacket : IPacket
     {
-        public CSteamID SenderId;
+        public string SenderId;
 
         public PacketType Type => PacketType.WorldDataRequest;
 
         public void Serialize(BinaryWriter writer)
         {
-            writer.Write(SenderId.m_SteamID);
+            writer.Write(SenderId);
         }
 
         public void Deserialize(BinaryReader reader)
         {
-            SenderId = new CSteamID(reader.ReadUInt64());
+            SenderId = reader.ReadString();
         }
 
         public void OnDispatched()
@@ -31,7 +31,7 @@ namespace ONI_MP.Networking.Packets.World
             SendWorldData(SenderId);
         }
 
-        private void SendWorldData(CSteamID target)
+        private void SendWorldData(string target)
         {
             DebugConsole.Log($"[WorldDataRequestPacket] Sending world data to {target}");
 

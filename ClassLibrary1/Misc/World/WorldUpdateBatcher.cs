@@ -4,6 +4,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.World;
+using ONI_MP.Networking.Relay;
 using Steamworks;
 using UnityEngine;
 
@@ -48,7 +49,7 @@ namespace ONI_MP.Misc.World
                     var chunk = pendingUpdates.GetRange(i, Math.Min(MaxUpdatesPerPacket, pendingUpdates.Count - i));
                     var packet = new WorldUpdatePacket();
                     packet.Updates.AddRange(chunk);
-                    PacketSender.SendToAll(packet, sendType: SteamNetworkingSend.Unreliable); // max packet size 1200 bytes (typically 1170–1200 bytes)
+                    PacketSender.SendToAll(packet, sendType: SendType.Unreliable); // max packet size 1200 bytes (typically 1170–1200 bytes)
 
                     DebugConsole.Log($"[World] Sent chunked WorldUpdate ({chunk.Count} cells)");
                 }

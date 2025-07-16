@@ -12,11 +12,11 @@ namespace ONI_MP.Networking.Packets.Tools.Dig
         public PacketType Type => PacketType.Diggable;
 
         public int Cell;
-        public CSteamID SenderId;
+        public string SenderId;
 
         public DiggablePacket() { }
 
-        public DiggablePacket(int cell, CSteamID senderId)
+        public DiggablePacket(int cell, string senderId)
         {
             Cell = cell;
             SenderId = senderId;
@@ -25,13 +25,13 @@ namespace ONI_MP.Networking.Packets.Tools.Dig
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(Cell);
-            writer.Write(SenderId.m_SteamID);
+            writer.Write(SenderId);
         }
 
         public void Deserialize(BinaryReader reader)
         {
             Cell = reader.ReadInt32();
-            SenderId = new CSteamID(reader.ReadUInt64());
+            SenderId = reader.ReadString();
         }
 
         public void OnDispatched()
@@ -55,10 +55,10 @@ namespace ONI_MP.Networking.Packets.Tools.Dig
             // If host, forward to everyone except sender and host
             if (MultiplayerSession.IsHost)
             {
-                var excludeSet = new HashSet<CSteamID>
+                var excludeSet = new HashSet<string>
                 {
                     SenderId,
-                    MultiplayerSession.LocalSteamID
+                    MultiplayerSession.LocalId
                 };
                 PacketSender.SendToAllExcluding(this, excludeSet);
                 DebugConsole.Log($"[DiggablePacket] Host forwarded diggable packet for cell {Cell} to all except sender {SenderId} and self.");

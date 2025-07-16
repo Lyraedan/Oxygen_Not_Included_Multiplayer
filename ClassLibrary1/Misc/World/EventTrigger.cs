@@ -10,6 +10,7 @@ using ONI_MP.Networking;
 using UnityEngine;
 using System.Security.Policy;
 using ONI_MP.DebugTools;
+using ONI_MP.Networking.Relay;
 
 namespace ONI_MP.Misc.World
 {
@@ -48,7 +49,7 @@ namespace ONI_MP.Misc.World
                 if (identity != null)
                 {
                     var packet = new EventTriggeredPacket(identity.NetId, hash, data);
-                    PacketSender.SendToAllClients(packet, SteamNetworkingSend.ReliableNoNagle);
+                    PacketSender.SendToAllClients(packet, SendType.Reliable);
                 }
             }
         }

@@ -1,5 +1,7 @@
 ﻿using Steamworks;
 using ONI_MP.DebugTools;
+using ONI_MP.Networking.Relay.Platforms.Steam;
+using ONI_MP.Networking.Packets.Architecture;
 
 namespace ONI_MP.Networking
 {
@@ -35,8 +37,8 @@ namespace ONI_MP.Networking
 
             SteamFriends.SetRichPresence("gamestatus", "In Multiplayer Lobby");
             SteamFriends.SetRichPresence("steam_display", "Lobby");
-            SteamFriends.SetRichPresence("steam_player_group", SteamLobby.CurrentLobby.ToString());
-            int group_size = SteamMatchmaking.GetNumLobbyMembers(SteamLobby.CurrentLobby);
+            SteamFriends.SetRichPresence("steam_player_group", PacketSender.Platform.Lobby.CurrentLobby.ToString());
+            int group_size = PacketSender.Platform.Lobby.GetAllLobbyMembers().Count;
             SteamFriends.SetRichPresence("steam_player_group_size", $"{group_size}");
 
         }

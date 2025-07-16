@@ -15,7 +15,7 @@ namespace ONI_MP.Patches.ToolPatches.Deconstruct
             if (!MultiplayerSession.InSession)
                 return;
 
-            var packet = new DeconstructPacket(cell, MultiplayerSession.LocalSteamID);
+            var packet = new DeconstructPacket(cell, MultiplayerSession.LocalId);
 
             if (MultiplayerSession.IsHost)
                 PacketSender.SendToAllClients(packet);

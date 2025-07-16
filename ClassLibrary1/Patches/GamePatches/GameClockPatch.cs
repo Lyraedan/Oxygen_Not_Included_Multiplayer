@@ -5,6 +5,7 @@ using ONI_MP.Networking;
 using ONI_MP.Networking.Packets;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.World;
+using ONI_MP.Networking.Relay;
 using Steamworks;
 using UnityEngine;
 
@@ -51,7 +52,7 @@ namespace ONI_MP.Patches.GamePatches
                 {
                     Cycle = __instance.GetCycle(),
                     CycleTime = __instance.GetTimeSinceStartOfCycle()
-                }, SteamNetworkingSend.Unreliable);
+                }, SendType.Unreliable);
             }
 
             // 2. Trigger HardSync at the start of a new cycle

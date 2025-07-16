@@ -8,6 +8,8 @@ using Steamworks;
 using UnityEngine;
 using UnityEngine.Events;
 using System.Linq;
+using ONI_MP.Networking.Relay.Platforms.Steam;
+using ONI_MP.Networking.Packets.Architecture;
 
 namespace ONI_MP.Patches
 {
@@ -22,7 +24,7 @@ namespace ONI_MP.Patches
         {
             if (MultiplayerSession.InSession)
             {
-                SteamLobby.LeaveLobby();
+                PacketSender.Platform.Lobby.LeaveLobby();
                 MultiplayerSession.Clear();
             }
         }
@@ -64,7 +66,7 @@ namespace ONI_MP.Patches
                 buttonInfos.Insert(idx, new KModalButtonMenu.ButtonInfo(
                     "Invite",
                     new UnityAction(() => {
-                        SteamFriends.ActivateGameOverlayInviteDialog(MultiplayerSession.HostSteamID);
+                        PacketSender.Platform.GetInviteDialog();
                     })
                 ));
 

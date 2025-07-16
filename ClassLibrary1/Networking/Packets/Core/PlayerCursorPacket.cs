@@ -13,7 +13,7 @@ namespace ONI_MP.Networking.Packets.Core
 {
     public class PlayerCursorPacket : IPacket
     {
-        public CSteamID SteamID;
+        public string SenderID;
         public Vector3 Position;
         public Color Color;
         public CursorState CursorState;
@@ -22,7 +22,7 @@ namespace ONI_MP.Networking.Packets.Core
 
         public void Serialize(BinaryWriter writer)
         {
-            writer.Write(SteamID.m_SteamID);
+            writer.Write(SenderID);
             writer.Write(Position.x);
             writer.Write(Position.y);
             writer.Write(Position.z);
@@ -35,7 +35,7 @@ namespace ONI_MP.Networking.Packets.Core
 
         public void Deserialize(BinaryReader reader)
         {
-            SteamID = new CSteamID(reader.ReadUInt64());
+            SenderID = reader.ReadString();
             float x = reader.ReadSingle();
             float y = reader.ReadSingle();
             float z = reader.ReadSingle();
@@ -50,7 +50,7 @@ namespace ONI_MP.Networking.Packets.Core
 
         public void OnDispatched()
         {
-            if (MultiplayerSession.TryGetCursorObject(SteamID, out var cursorGO))
+            if (MultiplayerSession.TryGetCursorObject(SenderID, out var cursorGO))
             {
                 var cursorComponent = cursorGO.GetComponent<PlayerCursor>();
                 if (cursorComponent != null)
@@ -66,7 +66,7 @@ namespace ONI_MP.Networking.Packets.Core
             {
                 if (Utils.IsInGame())
                 {
-                    MultiplayerSession.CreateNewPlayerCursor(SteamID); // Create a cursor if one doesn't exist.
+                    MultiplayerSession.CreateNewPlayerCursor(SenderID); // Create a cursor if one doesn't exist.
                 }
             }
 
@@ -74,10 +74,10 @@ namespace ONI_MP.Networking.Packets.Core
             // Forward to others if host
             if (MultiplayerSession.IsHost)
             {
-                HashSet<CSteamID> excluding = new HashSet<CSteamID>
+                HashSet<string> excluding = new HashSet<string>
                 {
-                    SteamID,
-                    MultiplayerSession.LocalSteamID
+                    SenderID,
+                    MultiplayerSession.LocalId
                 };
                 PacketSender.SendToAllExcluding(this, excluding);
             }

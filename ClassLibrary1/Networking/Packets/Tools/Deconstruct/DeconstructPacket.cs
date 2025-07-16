@@ -12,11 +12,11 @@ namespace ONI_MP.Networking.Packets.Tools.Deconstruct
         public PacketType Type => PacketType.Deconstruct;
 
         public int Cell;
-        public CSteamID SenderId;
+        public string SenderId;
 
         public DeconstructPacket() { }
 
-        public DeconstructPacket(int cell, CSteamID senderId)
+        public DeconstructPacket(int cell, string senderId)
         {
             Cell = cell;
             SenderId = senderId;
@@ -25,13 +25,13 @@ namespace ONI_MP.Networking.Packets.Tools.Deconstruct
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(Cell);
-            writer.Write(SenderId.m_SteamID);
+            writer.Write(SenderId);
         }
 
         public void Deserialize(BinaryReader reader)
         {
             Cell = reader.ReadInt32();
-            SenderId = new CSteamID(reader.ReadUInt64());
+            SenderId = reader.ReadString();
         }
 
         public void OnDispatched()
@@ -57,7 +57,7 @@ namespace ONI_MP.Networking.Packets.Tools.Deconstruct
 
             if (MultiplayerSession.IsHost)
             {
-                var exclude = new HashSet<CSteamID> { SenderId, MultiplayerSession.LocalSteamID };
+                var exclude = new HashSet<string> { SenderId, MultiplayerSession.LocalId };
                 PacketSender.SendToAllExcluding(this, exclude);
                 DebugConsole.Log($"[DeconstructPacket] Host rebroadcasted deconstruct at cell {Cell}");
             }

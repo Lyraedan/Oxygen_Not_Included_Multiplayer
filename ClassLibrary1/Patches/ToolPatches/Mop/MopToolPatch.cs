@@ -54,7 +54,7 @@ namespace ONI_MP.Patches.ToolPatches.Mop
                     {
                         var packet = new ClearPacket
                         {
-                            SenderId = MultiplayerSession.LocalSteamID,
+                            SenderId = MultiplayerSession.LocalId,
                             TargetCells = new List<int> { cell },
                             ActionType = ClearActionType.Mop
                         };

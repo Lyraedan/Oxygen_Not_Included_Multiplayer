@@ -7,6 +7,9 @@ using ONI_MP.Networking.Packets.World;
 using Steamworks;
 using System;
 using ONI_MP.Cloud;
+using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Networking.Relay.Platforms.Steam;
+using ONI_MP.Networking.Platforms.Steam;
 
 namespace ONI_MP.DebugTools
 {
@@ -65,21 +68,21 @@ namespace ONI_MP.DebugTools
                 debugConsole.Toggle();
 
             if (GUILayout.Button("Create Lobby"))
-                SteamLobby.CreateLobby(onSuccess: () => {
+                PacketSender.Platform.Lobby.CreateLobby(onSuccess: () => {
                     SpeedControlScreen.Instance?.Unpause(false);
                 });
 
             if (GUILayout.Button("Leave lobby"))
-                SteamLobby.LeaveLobby();
+                PacketSender.Platform.Lobby.LeaveLobby();
 
             if (GUILayout.Button("Client disconnect"))
             {
-                GameClient.CacheCurrentServer();
-                GameClient.Disconnect();
+                PacketSender.Platform.GameClient.CacheCurrentServer();
+                PacketSender.Platform.GameClient.Disconnect();
             }
 
             if (GUILayout.Button("Reconnect"))
-                GameClient.ReconnectFromCache();
+                PacketSender.Platform.GameClient.ReconnectFromCache();
 
             GUILayout.Space(10);
 
@@ -89,7 +92,7 @@ namespace ONI_MP.DebugTools
                 {
                     if (!MultiplayerSession.IsHost)
                     {
-                        int? ping = GameClient.GetPingToHost();
+                        int? ping = PacketSender.Platform.GameClient.GetPingToHost();
                         string pingDisplay = ping >= 0 ? $"{ping} ms" : "Pending...";
                         GUILayout.Label($"Ping to Host: {pingDisplay}");
                     }
@@ -130,17 +133,17 @@ namespace ONI_MP.DebugTools
         {
             GUILayout.Label("Players in Lobby:", UnityEngine.GUI.skin.label);
 
-            var players = SteamLobby.GetAllLobbyMembers();
+            var players = PacketSender.Platform.Lobby.GetAllLobbyMembers();
             if (players.Count == 0)
             {
                 GUILayout.Label("<none>", UnityEngine.GUI.skin.label);
             }
             else
             {
-                foreach (CSteamID playerId in players)
+                foreach (string playerId in players)
                 {
-                    var playerName = SteamFriends.GetFriendPersonaName(playerId);
-                    string prefix = (MultiplayerSession.HostSteamID == playerId) ? "[HOST] " : "";
+                    var playerName = PacketSender.Platform.GetPlayerName(playerId);
+                    string prefix = (MultiplayerSession.HostId == playerId) ? "[HOST] " : "";
                     GUILayout.Label($"{prefix}{playerName} ({playerId})", UnityEngine.GUI.skin.label);
                 }
             }

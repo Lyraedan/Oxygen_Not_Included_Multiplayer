@@ -4,6 +4,7 @@ using ONI_MP.Networking.Packets;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Core;
+using ONI_MP.Networking.Relay;
 
 namespace ONI_MP.Networking.Components
 {
@@ -81,7 +82,7 @@ namespace ONI_MP.Networking.Components
                     FacingLeft = facingLeft
                 };
 
-                PacketSender.SendToAllClients(packet, sendType: SteamNetworkingSend.UnreliableNoNagle);
+                PacketSender.SendToAllClients(packet, sendType: SendType.Unreliable);
             }
         }
 

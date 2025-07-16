@@ -26,7 +26,7 @@ public static class SaveHelper
     }
     public static void RequestWorldLoad(WorldSave world)
     {
-        SteamNetworkingComponent.scheduler.Run(() => LoadWorldSave(Path.GetFileNameWithoutExtension(world.Name), world.Data));
+        MasterNetworkingComponent.scheduler.Run(() => LoadWorldSave(Path.GetFileNameWithoutExtension(world.Name), world.Data));
     }
 
     private static void LoadWorldSave(string name, byte[] data)
@@ -49,9 +49,9 @@ public static class SaveHelper
         }
 
         // We've saved a copy of the downloaded world now load it
-        GameClient.CacheCurrentServer();
-        GameClient.Disconnect();
-        GameClient.SetState(ClientState.LoadingWorld);
+        PacketSender.Platform.GameClient.CacheCurrentServer();
+        PacketSender.Platform.GameClient.Disconnect();
+        PacketSender.Platform.GameClient.SetState(ClientState.LoadingWorld);
         PacketHandler.readyToProcess = false;
         MultiplayerOverlay.Show("Loading...");
 
@@ -190,9 +190,9 @@ public static class SaveHelper
         }
 
         // We've saved a copy of the downloaded world, now load it
-        GameClient.CacheCurrentServer();
-        GameClient.Disconnect();
-        GameClient.SetState(ClientState.LoadingWorld);
+        PacketSender.Platform.GameClient.CacheCurrentServer();
+        PacketSender.Platform.GameClient.Disconnect();
+        PacketSender.Platform.GameClient.SetState(ClientState.LoadingWorld);
         PacketHandler.readyToProcess = false;
         MultiplayerOverlay.Show("Loading...");
 

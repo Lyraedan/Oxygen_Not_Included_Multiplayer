@@ -12,7 +12,7 @@ namespace ONI_MP.Networking.Packets.World
 {
     public class SaveFileRequestPacket : IPacket
     {
-        public CSteamID Requester;
+        public string Requester;
 
         public const float SAVE_DATA_SEND_DELAY = 1f;
 
@@ -20,12 +20,12 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Serialize(BinaryWriter writer)
         {
-            writer.Write(Requester.m_SteamID);
+            writer.Write(Requester);
         }
 
         public void Deserialize(BinaryReader reader)
         {
-            Requester = new CSteamID(reader.ReadUInt64());
+            Requester = reader.ReadString();
         }
 
         public void OnDispatched()
@@ -38,7 +38,7 @@ namespace ONI_MP.Networking.Packets.World
             //SendSaveFile(Requester);
         }
 
-        public static void SendSaveFile(CSteamID requester)
+        public static void SendSaveFile(string requester)
         {
             if (!MultiplayerSession.IsHost)
                 return;
@@ -79,14 +79,14 @@ namespace ONI_MP.Networking.Packets.World
             }
         }
 
-        private static IEnumerator SendChunksThrottled(List<SaveFileChunkPacket> chunkPackets, CSteamID steamID)
+        private static IEnumerator SendChunksThrottled(List<SaveFileChunkPacket> chunkPackets, string id)
         {
             foreach (var chunkPacket in chunkPackets)
             {
-                PacketSender.SendToPlayer(steamID, chunkPacket);
+                PacketSender.SendToPlayer(id, chunkPacket);
                 yield return new WaitForSeconds(SAVE_DATA_SEND_DELAY);
             }
-            DebugConsole.Log($"[SaveFileRequest] All {chunkPackets.Count} chunks sent to {steamID}.");
+            DebugConsole.Log($"[SaveFileRequest] All {chunkPackets.Count} chunks sent to {id}.");
         }
 
     }

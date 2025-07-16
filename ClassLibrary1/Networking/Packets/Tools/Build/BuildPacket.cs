@@ -16,11 +16,11 @@ namespace ONI_MP.Networking.Packets.Tools.Build
         public int Cell;
         public Orientation Orientation;
         public List<string> MaterialTags = new List<string>();
-        public CSteamID SenderId;
+        public string SenderId;
 
         public BuildPacket() { }
 
-        public BuildPacket(string prefabID, int cell, Orientation orientation, IEnumerable<Tag> materials, CSteamID senderId)
+        public BuildPacket(string prefabID, int cell, Orientation orientation, IEnumerable<Tag> materials, string senderId)
         {
             PrefabID = prefabID;
             Cell = cell;
@@ -37,7 +37,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
             writer.Write(MaterialTags.Count);
             foreach (var tag in MaterialTags)
                 writer.Write(tag);
-            writer.Write(SenderId.m_SteamID);
+            writer.Write(SenderId);
         }
 
         public void Deserialize(BinaryReader reader)
@@ -49,7 +49,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
             MaterialTags = new List<string>();
             for (int i = 0; i < count; i++)
                 MaterialTags.Add(reader.ReadString());
-            SenderId = new CSteamID(reader.ReadUInt64());
+            SenderId = reader.ReadString();
         }
 
         public void OnDispatched()
@@ -79,9 +79,9 @@ namespace ONI_MP.Networking.Packets.Tools.Build
             // Host rebroadcast to other clients
             if (MultiplayerSession.IsHost)
             {
-                var exclude = new HashSet<CSteamID> {
+                var exclude = new HashSet<string> {
                     SenderId,
-                    MultiplayerSession.LocalSteamID
+                    MultiplayerSession.LocalId
                 };
                 PacketSender.SendToAllExcluding(this, exclude);
                 DebugConsole.Log($"[BuildPacket] Host rebroadcasted build for {PrefabID} at {Cell}");

@@ -16,7 +16,7 @@ namespace ONI_MP.Patches.ToolPatches.Cancel
             if (!MultiplayerSession.InSession)
                 return;
 
-            var packet = new CancelPacket(cell, MultiplayerSession.LocalSteamID);
+            var packet = new CancelPacket(cell, MultiplayerSession.LocalId);
 
             if (MultiplayerSession.IsHost)
             {

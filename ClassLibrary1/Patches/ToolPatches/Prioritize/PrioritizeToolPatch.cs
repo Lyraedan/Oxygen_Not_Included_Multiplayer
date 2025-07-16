@@ -23,7 +23,7 @@ public static class PrioritizeToolPatch
         {
             TargetCells = new List<int> { cell },
             Priority = priority,
-            SenderId = MultiplayerSession.LocalSteamID
+            SenderId = MultiplayerSession.LocalId
         };
 
         if (MultiplayerSession.IsHost)

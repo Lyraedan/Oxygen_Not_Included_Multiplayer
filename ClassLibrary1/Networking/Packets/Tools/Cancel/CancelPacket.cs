@@ -13,11 +13,11 @@ namespace ONI_MP.Networking.Packets.Tools.Cancel
         public PacketType Type => PacketType.Cancel;
 
         public int Cell;
-        public CSteamID SenderId;
+        public string SenderId;
 
         public CancelPacket() { }
 
-        public CancelPacket(int cell, CSteamID senderId)
+        public CancelPacket(int cell, string senderId)
         {
             Cell = cell;
             SenderId = senderId;
@@ -26,13 +26,13 @@ namespace ONI_MP.Networking.Packets.Tools.Cancel
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(Cell);
-            writer.Write(SenderId.m_SteamID);
+            writer.Write(SenderId);
         }
 
         public void Deserialize(BinaryReader reader)
         {
             Cell = reader.ReadInt32();
-            SenderId = new CSteamID(reader.ReadUInt64());
+            SenderId = reader.ReadString();
         }
 
         public void OnDispatched()
@@ -51,7 +51,7 @@ namespace ONI_MP.Networking.Packets.Tools.Cancel
             // If host, rebroadcast
             if (MultiplayerSession.IsHost)
             {
-                PacketSender.SendToAllExcluding(this, new HashSet<CSteamID> { SenderId, MultiplayerSession.LocalSteamID });
+                PacketSender.SendToAllExcluding(this, new HashSet<string> { SenderId, MultiplayerSession.LocalId });
                 DebugConsole.Log($"[CancelPacket] Host rebroadcasted cancel for cell {Cell}");
             }
         }

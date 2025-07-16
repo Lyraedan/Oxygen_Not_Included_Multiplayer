@@ -2,6 +2,8 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Menus;
 using ONI_MP.Networking;
+using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Networking.Relay.Platforms.Steam;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World
@@ -34,7 +36,7 @@ namespace ONI_MP.Patches.World
             {
                 MultiplayerSession.ShouldHostAfterLoad = false;
 
-                SteamLobby.CreateLobby(onSuccess: () =>
+                PacketSender.Platform.Lobby.CreateLobby(onSuccess: () =>
                 {
                     SpeedControlScreen.Instance?.Unpause(false);
                     DebugConsole.Log(logMessage);

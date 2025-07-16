@@ -382,7 +382,7 @@ namespace ONI_MP.UI
 
                 var packet = new ChatMessagePacket
                 {
-                    SenderId = MultiplayerSession.LocalSteamID,
+                    SenderId = MultiplayerSession.LocalId,
                     Message = text,
                     PlayerColor = CursorManager.Instance.color
                 };

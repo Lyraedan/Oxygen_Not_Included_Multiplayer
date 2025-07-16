@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ONI_MP.Menus;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Core;
+using ONI_MP.Networking.Relay.Platforms.Steam;
 using ONI_MP.Networking.States;
 using Steamworks;
 
@@ -14,11 +15,11 @@ namespace ONI_MP.Networking
     public class ReadyManager
     {
 
-        private static Dictionary<CSteamID, ClientReadyState> ReadyStates = new Dictionary<CSteamID, ClientReadyState>();
+        private static Dictionary<string, ClientReadyState> ReadyStates = new Dictionary<string, ClientReadyState>();
 
         public static void SetupListeners()
         {
-            SteamLobby.OnLobbyMembersRefreshed += UpdateReadyStateTracking;
+            PacketSender.Platform.Lobby.OnLobbyMembersRefreshed += UpdateReadyStateTracking;
         }
 
         public static void RunReadyCheck()
@@ -69,7 +70,7 @@ namespace ONI_MP.Networking
             
             var packet = new ClientReadyStatusPacket
             {
-                SenderId = SteamUser.GetSteamID(),
+                SenderId = MultiplayerSession.LocalId,
                 Status = state
             };
             PacketSender.SendToHost(packet);
@@ -85,17 +86,17 @@ namespace ONI_MP.Networking
 
             bool allReady = true;
 
-            foreach (var steamId in SteamLobby.LobbyMembers)
+            foreach (var id in PacketSender.Platform.Lobby.LobbyMembers)
             {
                 OnIteration?.Invoke();
 
-                if (steamId == MultiplayerSession.HostSteamID)
+                if (id == MultiplayerSession.HostId)
                     continue;
 
-                var state = GetPlayerReadyState(steamId);
+                var state = GetPlayerReadyState(id);
 
                 // get the name
-                string name = SteamFriends.GetFriendPersonaName(steamId);
+                string name = PacketSender.Platform.GetPlayerName(id);
 
                 // get the readable status
                 string statusStr = state.ToString();
@@ -114,26 +115,26 @@ namespace ONI_MP.Networking
             if (!MultiplayerSession.IsHost)
                 return;
 
-            foreach (var steamId in SteamLobby.LobbyMembers)
+            foreach (var id in PacketSender.Platform.Lobby.LobbyMembers)
             {
-                if (steamId == MultiplayerSession.HostSteamID)
+                if (id == MultiplayerSession.HostId)
                     continue;
 
-                ReadyStates[steamId] = ClientReadyState.Unready;
+                ReadyStates[id] = ClientReadyState.Unready;
             }
         }
 
-        public static void SetPlayerReadyState(CSteamID id, ClientReadyState state)
+        public static void SetPlayerReadyState(string id, ClientReadyState state)
         {
-            if (id == MultiplayerSession.HostSteamID)
+            if (id == MultiplayerSession.HostId)
                 return;
 
             ReadyStates[id] = state;
         }
 
-        public static ClientReadyState GetPlayerReadyState(CSteamID id)
+        public static ClientReadyState GetPlayerReadyState(string id)
         {
-            if (id == MultiplayerSession.HostSteamID)
+            if (id == MultiplayerSession.HostId)
                 return ClientReadyState.Ready;
 
             return ReadyStates.TryGetValue(id, out var state) ? state : ClientReadyState.Unready;
@@ -145,7 +146,7 @@ namespace ONI_MP.Networking
             ReadyStates.Clear();
         }
 
-        private static void UpdateReadyStateTracking(CSteamID id)
+        private static void UpdateReadyStateTracking(string id)
         {
             if (!ReadyStates.ContainsKey(id))
             {
@@ -153,8 +154,8 @@ namespace ONI_MP.Networking
             }
 
             // Clean up anyone who left
-            var lobbyMembers = SteamLobby.LobbyMembers;
-            var toRemove = new List<CSteamID>();
+            var lobbyMembers = PacketSender.Platform.Lobby.LobbyMembers;
+            var toRemove = new List<string>();
             foreach (var existing in ReadyStates.Keys)
             {
                 if (!lobbyMembers.Contains(existing))

@@ -55,7 +55,7 @@ namespace ONI_MP.Patches.ToolPatches.Build
                 cell,
                 orientation,
                 selectedElements,
-                MultiplayerSession.LocalSteamID
+                MultiplayerSession.LocalId
             );
 
             if (MultiplayerSession.IsHost)

@@ -36,7 +36,7 @@ namespace ONI_MP.Patches.ToolPatches.Dig
             var packet = new DiggablePacket()
             {
                 Cell = cell,
-                SenderId = MultiplayerSession.LocalSteamID
+                SenderId = MultiplayerSession.LocalId
             };
 
             if (MultiplayerSession.IsHost)

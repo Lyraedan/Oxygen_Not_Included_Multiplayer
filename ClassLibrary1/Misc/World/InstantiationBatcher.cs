@@ -2,6 +2,7 @@
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets;
 using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Networking.Relay;
 using Steamworks;
 using UnityEngine;
 
@@ -39,7 +40,7 @@ namespace ONI_MP.Misc.World
                 Entries = new List<InstantiationsPacket.InstantiationEntry>(queue)
             };
 
-            PacketSender.SendToAll(packet, sendType: SteamNetworkingSend.Unreliable);
+            PacketSender.SendToAll(packet, sendType: SendType.Unreliable);
             queue.Clear();
         }
     }

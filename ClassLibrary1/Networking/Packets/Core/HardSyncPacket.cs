@@ -39,18 +39,18 @@ namespace ONI_MP.Networking.Packets.Core
 
         public static void Sync()
         {
-            GameClient.IsHardSyncInProgress = true;
+            PacketSender.Platform.GameClient.IsHardSyncInProgress = true;
             MultiplayerOverlay.Show("Hard sync in progress!");
 
             // This is incredibly stupid...
-            GameClient.CacheCurrentServer();
-            GameClient.Disconnect();
+            PacketSender.Platform.GameClient.CacheCurrentServer();
+            PacketSender.Platform.GameClient.Disconnect();
 
             PauseScreen.TriggerQuitGame(); // Force exit to frontend
 
             MultiplayerOverlay.Show("Hard sync in process!");
             NetworkIdentityRegistry.Clear();
-            GameClient.ReconnectFromCache();
+            PacketSender.Platform.GameClient.ReconnectFromCache();
         }
     }
 }

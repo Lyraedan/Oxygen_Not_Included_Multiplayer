@@ -7,6 +7,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Core;
+using ONI_MP.Networking.Relay;
 using ONI_MP.Networking.States;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -55,7 +56,7 @@ namespace ONI_MP.Networking.Components
             if (!Utils.IsInGame())
                 return;
 
-            if (!MultiplayerSession.InSession || !MultiplayerSession.LocalSteamID.IsValid())
+            if (!MultiplayerSession.InSession || !string.IsNullOrEmpty(MultiplayerSession.LocalId))
                 return;
 
             timeSinceLastSend += Time.unscaledDeltaTime;
@@ -71,7 +72,7 @@ namespace ONI_MP.Networking.Components
             Vector3 cursorWorldPos = GetCursorWorldPosition();
             var packet = new PlayerCursorPacket
             {
-                SteamID = MultiplayerSession.LocalSteamID,
+                SenderID = MultiplayerSession.LocalId,
                 Position = cursorWorldPos,
                 Color = color,
                 CursorState = cursorState
@@ -79,10 +80,10 @@ namespace ONI_MP.Networking.Components
 
             if(MultiplayerSession.IsHost)
             {
-                PacketSender.SendToAllClients(packet, SteamNetworkingSend.Unreliable);
+                PacketSender.SendToAllClients(packet, SendType.Unreliable);
             } else
             {
-                PacketSender.SendToHost(packet, SteamNetworkingSend.Unreliable);
+                PacketSender.SendToHost(packet, SendType.Unreliable);
             }
         }
 

@@ -10,6 +10,9 @@ using System.Collections.Generic;
 using ONI_MP.Misc;
 using ONI_MP.Cloud;
 using System;
+using ONI_MP.Networking.Relay.Platforms.Steam;
+using ONI_MP.Networking.Platforms.Steam;
+using ONI_MP.Networking.Packets.Architecture;
 
 namespace ONI_MP
 {
@@ -27,13 +30,14 @@ namespace ONI_MP
             base.OnLoad(harmony);
 
             DebugMenu.Init();
-            SteamLobby.Initialize();
+            InitializePlatform();
+            //SteamLobby.Initialize();
 
             InitializeCloud();
 
             var go = new GameObject("Multiplayer_Modules");
             UnityEngine.Object.DontDestroyOnLoad(go);
-            go.AddComponent<SteamNetworkingComponent>();
+            go.AddComponent<MasterNetworkingComponent>();
             go.AddComponent<UIVisibilityController>();
             go.AddComponent<MainThreadExecutor>();
             go.AddComponent<CursorManager>();
@@ -47,6 +51,13 @@ namespace ONI_MP
             {
                 DebugConsole.Log("Embedded Resource: " + res);
             }
+        }
+
+        private void InitializePlatform()
+        {
+            var steamPlatform = new SteamPlatform();
+            PacketSender.Platform = steamPlatform;
+            DebugConsole.Log("Steam platform initialized.");
         }
 
         void InitializeCloud()

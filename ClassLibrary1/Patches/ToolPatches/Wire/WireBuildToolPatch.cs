@@ -31,7 +31,7 @@ namespace ONI_MP.Patches.ToolPatches.Wire
                 return;
 
             var packet = new WireBuildPacket();
-            packet.SenderId = MultiplayerSession.LocalSteamID;
+            packet.SenderId = MultiplayerSession.LocalId;
 
             foreach (var node in path)
             {
