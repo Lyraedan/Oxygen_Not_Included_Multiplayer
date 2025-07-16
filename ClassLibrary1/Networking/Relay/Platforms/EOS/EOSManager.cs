@@ -49,13 +49,13 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
 
             var platformOptions = new Options
             {
-                ProductId = "<your-product-id>",
-                SandboxId = "<your-sandbox-id>",
-                DeploymentId = "<your-deployment-id>",
+                ProductId = "d6ef1606c8284101a70dc560c2e990a0",
+                SandboxId = "Live",
+                DeploymentId = "b30a90d34ae34c92b4d9259c6540b037",
                 ClientCredentials = new ClientCredentials
                 {
-                    ClientId = "<your-client-id>",
-                    ClientSecret = "<your-client-secret>"
+                    ClientId = "ONI_MP",
+                    ClientSecret = "xyza7891UPTBdO5vIQGLOExreRxe5fGB"
                 },
                 IsServer = false,
                 EncryptionKey = "0123456789abcdef0123456789abcdef", // 32 bytes
