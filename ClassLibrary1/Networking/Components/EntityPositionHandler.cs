@@ -15,6 +15,8 @@ namespace ONI_MP.Networking.Components
 
         private NetworkIdentity networkedEntity;
         private bool facingLeft;
+
+        public bool IsMoving { get; private set; }
         protected override void OnSpawn()
         {
             base.OnSpawn();
@@ -49,12 +51,16 @@ namespace ONI_MP.Networking.Components
             timer = 0f;
 
             Vector3 currentPosition = transform.position;
-            float deltaX = currentPosition.x - lastSentPosition.x;
+            float distance = Vector3.Distance(currentPosition, lastSentPosition);
 
-            if (Vector3.Distance(currentPosition, lastSentPosition) > 0.01f)
+            IsMoving = distance > 0.01f;
+
+            if (IsMoving)
             {
+                float deltaX = currentPosition.x - lastSentPosition.x;
+
                 Vector2 direction = new Vector2(deltaX, 0f);
-                if (direction.sqrMagnitude > 0.01f) // only check if there's meaningful movement
+                if (direction.sqrMagnitude > 0.01f)
                 {
                     Vector2 right = Vector2.right;
                     float dot = Vector2.Dot(direction.normalized, right);
@@ -78,5 +84,6 @@ namespace ONI_MP.Networking.Components
                 PacketSender.SendToAllClients(packet, sendType: SteamNetworkingSend.UnreliableNoNagle);
             }
         }
+
     }
 }

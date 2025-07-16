@@ -101,4 +101,30 @@ namespace ONI_MP.Patches.Navigation
             }
         }
     }
+
+    [HarmonyPatch(typeof(Navigator), nameof(Navigator.IsMoving))]
+    public static class Navigator_IsMoving_Patch
+    {
+        public static bool Prefix(Navigator __instance, ref bool __result)
+        {
+            var is_moving = __instance.smi.IsInsideState(__instance.smi.sm.normal.moving); // Default functionality
+
+            // Singleplayer
+            if (!MultiplayerSession.InSession)
+            {
+                __result = is_moving;
+                return false;
+            }
+
+            if (__instance.TryGetComponent<EntityPositionHandler>(out var handler))
+            {
+                __result = handler.IsMoving;
+                return false;
+            }
+
+            __result = is_moving;
+            return false;
+        }
+    }
+
 }

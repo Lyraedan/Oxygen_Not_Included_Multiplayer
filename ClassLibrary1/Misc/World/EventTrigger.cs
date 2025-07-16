@@ -26,7 +26,7 @@ namespace ONI_MP.Misc.World
             KObject kObject = KObjectManager.Instance.Get(go);
             if (kObject != null && kObject.hasEventSystem)
             {
-                kObject.GetEventSystem().Trigger(go, hash, data);
+                kObject.GetEventSystem().Trigger(go, hash, data); // This is a different trigger function
                 SendTriggerPacket(go, hash, data);
             }
         }
