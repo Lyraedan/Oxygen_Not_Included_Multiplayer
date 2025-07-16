@@ -105,12 +105,56 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
 
         public void GetJoinDialog()
         {
-            DebugConsole.Log("[EOSPlatform] Join dialog is not implemented.");
+            var ui = EOSManager.Instance.GetPlatformInterface()?.GetUIInterface();
+            if (ui == null)
+            {
+                DebugConsole.LogError("[EOSPlatform] UI Interface is not available.");
+                return;
+            }
+
+            var options = new Epic.OnlineServices.UI.ShowFriendsOptions
+            {
+                LocalUserId = EOSManager.Instance.GetEpicAccountId()
+            };
+
+            ui.ShowFriends(options, null, result =>
+            {
+                if (result.ResultCode == Epic.OnlineServices.Result.Success)
+                {
+                    DebugConsole.Log("[EOSPlatform] Friends overlay shown. Join invitations can be accepted there.");
+                }
+                else
+                {
+                    DebugConsole.LogError($"[EOSPlatform] Failed to show friends UI: {result.ResultCode}");
+                }
+            });
         }
 
         public void GetInviteDialog()
         {
-            DebugConsole.Log("[EOSPlatform] Invite dialog is not implemented.");
+            var ui = EOSManager.Instance.GetPlatformInterface()?.GetUIInterface();
+            if (ui == null)
+            {
+                DebugConsole.LogError("[EOSPlatform] UI Interface is not available.");
+                return;
+            }
+
+            var options = new Epic.OnlineServices.UI.ShowFriendsOptions
+            {
+                LocalUserId = EOSManager.Instance.GetEpicAccountId()
+            };
+
+            ui.ShowFriends(options, null, result =>
+            {
+                if (result.ResultCode == Epic.OnlineServices.Result.Success)
+                {
+                    DebugConsole.Log("[EOSPlatform] Invite dialog (friends list) shown.");
+                }
+                else
+                {
+                    DebugConsole.LogError($"[EOSPlatform] Failed to show invite dialog: {result.ResultCode}");
+                }
+            });
         }
 
         public void SendToAll(IPacket packet, INetworkConnection exclude = null, SendType sendType = SendType.Reliable)

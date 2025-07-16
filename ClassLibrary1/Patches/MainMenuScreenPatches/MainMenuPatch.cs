@@ -12,6 +12,7 @@ using System.Collections;
 using ONI_MP.DebugTools;
 using ONI_MP;
 using ONI_MP.Cloud;
+using ONI_MP.Networking.Packets.Architecture;
 
 [HarmonyPatch(typeof(MainMenu), "OnPrefabInit")]
 internal static class MainMenuPatch
@@ -52,7 +53,8 @@ internal static class MainMenuPatch
         var joinInfo = CreateButtonInfo(
             "Join Game",
             new System.Action(() => {
-                SteamFriends.ActivateGameOverlay("friends");
+                //SteamFriends.ActivateGameOverlay("friends");
+                PacketSender.Platform.GetJoinDialog();
             }),
             normalFontSize,
             normalStyle,

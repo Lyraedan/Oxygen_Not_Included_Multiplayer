@@ -60,7 +60,6 @@ public class MultiplayerPlayer
         AvatarImageId = -1;
     }
 
-
     public bool IsConnected => Connection != null && Connection.IsValid;
 
     public override string ToString()

@@ -52,7 +52,7 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
 
             var options = new InitializeOptions
             {
-                ProductName = "ONI_MP",
+                ProductName = "Oxygen Not Included Together",
                 ProductVersion = "1.0"
             };
 
