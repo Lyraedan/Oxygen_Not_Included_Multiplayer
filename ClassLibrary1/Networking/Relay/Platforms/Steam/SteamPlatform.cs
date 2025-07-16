@@ -28,6 +28,8 @@ namespace ONI_MP.Networking.Relay.Platforms.Steam
         public SteamPlatform()
         {
             _lobby = new SteamLobby();
+            _lobby.Initialize();
+
             _gameClient = new SteamGameClient();
             _gameServer = new SteamGameServer();
         }

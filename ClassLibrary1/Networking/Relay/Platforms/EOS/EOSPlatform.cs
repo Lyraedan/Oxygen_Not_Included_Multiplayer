@@ -38,6 +38,8 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
         public EOSPlatform()
         {
             _lobby = new EOSLobby();
+            _lobby.Initialize();
+
             _gameClient = new EosGameClient();
             _gameServer = new EosGameServer();
         }

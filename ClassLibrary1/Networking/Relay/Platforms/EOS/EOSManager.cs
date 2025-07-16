@@ -50,16 +50,13 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
             var platformOptions = new Options
             {
                 ProductId = "d6ef1606c8284101a70dc560c2e990a0",
-                SandboxId = "Live",
+                SandboxId = "5faf3ea257d349818d87aaf5517810e0",
                 DeploymentId = "b30a90d34ae34c92b4d9259c6540b037",
                 ClientCredentials = new ClientCredentials
                 {
-                    ClientId = "ONI_MP",
-                    ClientSecret = "xyza7891UPTBdO5vIQGLOExreRxe5fGB"
-                },
-                IsServer = false,
-                EncryptionKey = "0123456789abcdef0123456789abcdef", // 32 bytes
-                CacheDirectory = "EOSCache"
+                    ClientId = "xyza7891UPTBdO5vIQGLOExreRxe5fGB",
+                    ClientSecret = "z/DAJ5j/22iEZTllVl3yCA1wV0x8BNX9Ijhk/My5cBg"
+                }
             };
 
             _platformInterface = Epic.OnlineServices.Platform.PlatformInterface.Create(platformOptions);

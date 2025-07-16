@@ -33,7 +33,6 @@ namespace ONI_MP
 
             DebugMenu.Init();
             InitializePlatform();
-            //SteamLobby.Initialize();
 
             InitializeCloud();
 
@@ -43,7 +42,7 @@ namespace ONI_MP
             go.AddComponent<UIVisibilityController>();
             go.AddComponent<MainThreadExecutor>();
             go.AddComponent<CursorManager>();
-            SetupListeners();
+            //SetupListeners();
 
             LoadAssetBundles();
 
@@ -75,7 +74,7 @@ namespace ONI_MP
 
                         if (!eosManager.IsInitialized)
                         {
-                            DebugConsole.LogError("[InitializePlatform] EOSManager is not initialized!");
+                            DebugConsole.LogError("[InitializePlatform] EOSManager is not initialized!", false);
                             return;
                         }
 
