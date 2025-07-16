@@ -12,6 +12,12 @@ namespace ONI_MP.Patches.KleiPatches
         [HarmonyPatch(nameof(KMonoBehaviour.Trigger), new[] { typeof(int), typeof(object) })]
         public static bool Prefix(KMonoBehaviour __instance, int hash, object data)
         {
+            if(!MultiplayerSession.InSession)
+            {
+                return true;
+            }
+
+
             GameObject go = __instance.gameObject;
 
             // Only the host is allowed to dispatch events directly
