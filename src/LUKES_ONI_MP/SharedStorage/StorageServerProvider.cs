@@ -47,7 +47,9 @@ namespace ONI_MP.SharedStorage
                 // Use the server URL from StorageServerManager (which handles configuration)
                 _serverUrl = StorageServerManager.ServerUrl;
                 _sessionId = Configuration.GetStorageServerProperty<string>("SessionId");
-                _authToken = Configuration.GetStorageServerProperty<string>("AuthToken");
+                
+                // Get auth token from StorageServerManager if available, otherwise from configuration
+                _authToken = StorageServerManager.AuthToken ?? Configuration.GetStorageServerProperty<string>("AuthToken");
 
                 if (string.IsNullOrEmpty(_serverUrl))
                 {
@@ -55,7 +57,7 @@ namespace ONI_MP.SharedStorage
                     _serverUrl = Configuration.GetStorageServerProperty<string>("HttpServerUrl");
                     if (string.IsNullOrEmpty(_serverUrl))
                     {
-                        _serverUrl = "http://localhost:3000"; // Default fallback
+                        _serverUrl = "http://localhost:29600"; // Default fallback to match embedded server
                     }
                 }
 
@@ -83,9 +85,20 @@ namespace ONI_MP.SharedStorage
                 _httpClient = new HttpClient();
                 _httpClient.Timeout = TimeSpan.FromSeconds(TIMEOUT_SECONDS);
                 
-                // Add headers - no special authentication required
+                // Add required headers including authentication
                 _httpClient.DefaultRequestHeaders.Add("X-Session-ID", _sessionId);
                 _httpClient.DefaultRequestHeaders.Add("User-Agent", "ONI-MP-Client/1.0");
+                
+                // Add auth token if available
+                if (!string.IsNullOrEmpty(_authToken))
+                {
+                    _httpClient.DefaultRequestHeaders.Add("X-Auth-Token", _authToken);
+                    DebugConsole.Log($"StorageServerProvider: Auth token added to headers");
+                }
+                else
+                {
+                    DebugConsole.LogWarning("StorageServerProvider: No auth token available for authentication");
+                }
 
                 // Test connection and create/join session
                 Task.Run(async () => await InitializeSessionAsync());

@@ -35,20 +35,15 @@ internal static class MainMenuPatch
         }
         else
         {
-            DebugConsole.LogWarning("[MainMenuPatch] SharedStorageManager is not initialized. Prompting user to set up cloud storage.");
-            if (Configuration.GetCloudStorageProperty<string>("Provider") == "GoogleDrive" )
-            {
-                Application.OpenURL("https://github.com/Lyraedan/Oxygen_Not_Included_Multiplayer/wiki/Cloud-Storage-Setup-Guide");
-            } else if (Configuration.GetCloudStorageProperty<string>("Provider") == "StorageServer")
-            {
-                Application.OpenURL("https://github.com/Lyraedan/Oxygen_Not_Included_Multiplayer/wiki/Cloud-Storage-Setup-Guide");
-            }
+            DebugConsole.LogWarning("[MainMenuPatch] SharedStorageManager is not initialized. Cloud storage setup may be required.");
+            // Note: User can manually access setup guide if needed
         }
 
         string host_text = SharedStorageManager.Instance.IsInitialized ? "Host Game" : "Host Game [Setup]";
         var hostInfo = CreateButtonInfo(
             host_text,
             new System.Action(() => {
+                DebugConsole.Log("[MainMenuPatch] Host Game button clicked - setting ShouldHostAfterLoad to true");
                 MultiplayerSession.ShouldHostAfterLoad = true;
                 __instance.Button_ResumeGame.SignalClick(KKeyCode.Mouse0);
             }),
@@ -321,7 +316,7 @@ internal static class MainMenuPatch
         var statusSprite = ResourceLoader.LoadEmbeddedTexture("ONI_MP.Assets.cloud_status.png");
         AddStatusIndicator(socialsContainer.transform, "cloud_indicator", SharedStorageManager.Instance.IsInitialized, statusSprite, 
             new string[] { $"Multiplayer Hosting: Not Ready!\n<color=#FFFF00>Provider: {SharedStorageManager.Instance.CurrentProvider}</color>", "Multiplayer Hosting: Ready!" },
-            new string[] { "https://github.com/Lyraedan/Oxygen_Not_Included_Multiplayer/wiki/Cloud-Storage-Setup-Guide ", "" });
+            new string[] { "https://github.com/Lyraedan/Oxygen_Not_Included_Multiplayer/wiki/Cloud-Storage-Setup-Guide", "Wiki" });
 
         // Automatically resize the container to properly fit the buttons
         int buttonCount = socialsContainer.transform.childCount;

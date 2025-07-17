@@ -159,6 +159,8 @@ namespace ONI_MP.SharedStorage
 
                 // Skip auth check for health endpoint to allow connection testing
                 var path = request.Url.AbsolutePath.TrimStart('/').ToLower();
+                DebugConsole.Log($"[EmbeddedServer] Processing path: '{path}' (raw: '{request.Url.AbsolutePath}')");
+                
                 if (path != "health" && !ValidateAuthToken(request))
                 {
                     response.StatusCode = 401;

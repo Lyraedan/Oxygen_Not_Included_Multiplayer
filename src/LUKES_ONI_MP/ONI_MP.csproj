@@ -5,6 +5,7 @@
     <OutputType>Library</OutputType>
     <ImplicitUsings>false</ImplicitUsings>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     
     <!-- Game Directory Configuration -->
     <ManagedPath>$(GAME_DIR)\OxygenNotIncluded_Data\Managed</ManagedPath>

@@ -32,8 +32,13 @@ namespace ONI_MP.UI
 
         public static void Show()
         {
+            DebugConsole.Log($"[ChatScreen] Show() called. MultiplayerSession.InSession: {MultiplayerSession.InSession}");
+            
             if (Instance != null)
+            {
+                DebugConsole.Log("[ChatScreen] Instance already exists, returning");
                 return;
+            }
 
             var go = new GameObject("ChatScreen", typeof(RectTransform));
             Instance = go.AddComponent<ChatScreen>();
@@ -47,6 +52,7 @@ namespace ONI_MP.UI
             rt.anchoredPosition = new Vector2(0, 0);
 
             Instance.SetupUI();
+            DebugConsole.Log("[ChatScreen] Show() complete");
         }
         private void SetupUI()
         {
@@ -214,8 +220,16 @@ namespace ONI_MP.UI
 
         private void Update()
         {
+            bool wasVisible = header.activeSelf;
             header.SetActive(MultiplayerSession.InSession);
             chatbox.SetActive(MultiplayerSession.InSession && expanded);
+            
+            // Only log when visibility changes to avoid spam
+            if (header.activeSelf != wasVisible)
+            {
+                DebugConsole.Log($"[ChatScreen] Visibility changed. InSession: {MultiplayerSession.InSession}, header visible: {header.activeSelf}, chatbox visible: {chatbox.activeSelf}");
+            }
+            
             if (!MultiplayerSession.InSession)
             {
                 return;

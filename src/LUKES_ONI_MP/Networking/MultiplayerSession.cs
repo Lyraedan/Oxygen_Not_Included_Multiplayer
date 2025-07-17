@@ -18,7 +18,19 @@ namespace ONI_MP.Networking
 
         public static CSteamID HostSteamID { get; set; } = CSteamID.Nil;
 
-        public static bool InSession = false;
+        private static bool _inSession = false;
+        public static bool InSession 
+        { 
+            get => _inSession;
+            set 
+            {
+                if (_inSession != value)
+                {
+                    _inSession = value;
+                    DebugConsole.Log($"[MultiplayerSession] InSession changed to: {value}");
+                }
+            }
+        }
 
         public static bool IsHost => HostSteamID == LocalSteamID;
 
