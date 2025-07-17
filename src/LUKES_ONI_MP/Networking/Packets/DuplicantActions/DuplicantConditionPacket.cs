@@ -55,6 +55,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
             // Disabled for now
             return;
 
+            /* TODO: Re-enable when duplicant condition networking is ready
             if (MultiplayerSession.IsHost)
                 return;
 
@@ -81,6 +82,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
             tracker.ApplyHealth(Health, MaxHealth);
             tracker.ApplyAmounts(Calories, Stress, Breath, Bladder, Stamina, BodyTemperature);
             tracker.ApplyAttributes(Morale);
+            */
         }
     }
 }

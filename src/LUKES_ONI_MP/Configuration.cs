@@ -94,29 +94,6 @@ namespace ONI_MP
             return Instance.GetProperty<T>(Instance.Host.CloudStorage.GoogleDrive, propertyName);
         }
 
-        public static T GetHttpCloudProperty<T>(string propertyName)
-        {
-            if (Instance?.Host?.CloudStorage?.HttpCloud == null)
-            {
-                Debug.LogWarning($"[Configuration] HttpCloud settings are null, creating default instance");
-                if (Instance?.Host?.CloudStorage != null)
-                    Instance.Host.CloudStorage.HttpCloud = new HttpCloudSettings();
-                else
-                {
-                    if (Instance?.Host != null)
-                        Instance.Host.CloudStorage = new CloudStorageSettings();
-                    else
-                    {
-                        if (Instance != null)
-                            Instance.Host = new HostSettings();
-                        else
-                            _instance = new Configuration();
-                    }
-                }
-            }
-            return Instance.GetProperty<T>(Instance.Host.CloudStorage.HttpCloud, propertyName);
-        }
-
         public static T GetStorageServerProperty<T>(string propertyName)
         {
             if (Instance?.Host?.CloudStorage?.StorageServer == null)
@@ -219,10 +196,10 @@ namespace ONI_MP
                     config.Host.CloudStorage.GoogleDrive = new GoogleDriveSettings();
                 }
                 
-                if (config.Host.CloudStorage.HttpCloud == null)
+                if (config.Host.CloudStorage.StorageServer == null)
                 {
-                    Debug.LogWarning("[Configuration] HttpCloud settings are null after deserialization, creating default");
-                    config.Host.CloudStorage.HttpCloud = new HttpCloudSettings();
+                    Debug.LogWarning("[Configuration] StorageServer settings are null after deserialization, creating default");
+                    config.Host.CloudStorage.StorageServer = new StorageServerSettings();
                 }
                 
                 return config;
@@ -278,20 +255,12 @@ namespace ONI_MP
     {
         public string Provider { get; set; } = "StorageServer"; // "GoogleDrive" or "StorageServer"
         public GoogleDriveSettings GoogleDrive { get; set; } = new GoogleDriveSettings();
-        public HttpCloudSettings HttpCloud { get; set; } = new HttpCloudSettings();
         public StorageServerSettings StorageServer { get; set; } = new StorageServerSettings();
     }
 
     class GoogleDriveSettings
     {
         public string ApplicationName { get; set; } = "ONI Multiplayer Mod";
-    }
-
-    class HttpCloudSettings
-    {
-        public string HttpServerUrl { get; set; } = "http://localhost:3000"; // Server URL
-        public string SessionId { get; set; } = ""; // Auto-generated if empty
-        public string AuthToken { get; set; } = ""; // Optional authentication token
     }
 
     class StorageServerSettings

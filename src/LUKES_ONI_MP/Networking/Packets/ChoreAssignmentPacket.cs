@@ -41,6 +41,7 @@ public class ChoreAssignmentPacket : IPacket
         // Disabled for now
         return;
 
+        /* TODO: Re-enable when chore assignment networking is ready
         if (!NetworkIdentityRegistry.TryGet(NetId, out var entity))
         {
             DebugConsole.LogWarning($"[ChoreAssignment] Could not find entity with NetId {NetId}");
@@ -74,6 +75,7 @@ public class ChoreAssignmentPacket : IPacket
         {
             DebugConsole.LogWarning($"[ChoreAssignment] Could not create chore: {ChoreTypeId} for {dupeGO.name}");
         }
+        */
     }
 
 

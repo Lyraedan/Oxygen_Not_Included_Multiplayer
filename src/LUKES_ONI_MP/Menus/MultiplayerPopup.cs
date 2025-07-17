@@ -39,15 +39,27 @@ public static class MultiplayerPopup
         // Create buttons
         AddPopupButton(popup.transform, "Host Game", new Vector2(0, 70), () =>
         {
-            MultiplayerSession.ShouldHostAfterLoad = true;
-            //MainMenuPatch.Instance.Button_ResumeGame.SignalClick(KKeyCode.Mouse0);
-            //HostLastSave();
-            /*
-            SteamLobby.CreateLobby(onSuccess: () =>
+            Close();
+            
+            // Show storage server configuration dialog
+            var canvas = Object.FindObjectOfType<Canvas>();
+            if (canvas != null)
             {
-                
-            });
-            */
+                StorageServerDialog.Show(canvas.transform, (serverUrl) =>
+                {
+                    DebugConsole.Log($"[MultiplayerPopup] Using storage server: {serverUrl}");
+                    
+                    // Proceed with hosting after server is configured
+                    MultiplayerSession.ShouldHostAfterLoad = true;
+                    
+                    // Load the game
+                    HostLastSave();
+                });
+            }
+            else
+            {
+                DebugConsole.LogError("[MultiplayerPopup] Could not find Canvas for dialog");
+            }
         });
 
         AddPopupButton(popup.transform, "Join Game", new Vector2(0, 0), () =>

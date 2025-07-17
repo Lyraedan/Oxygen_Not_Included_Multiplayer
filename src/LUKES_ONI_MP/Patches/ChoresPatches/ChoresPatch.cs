@@ -64,7 +64,9 @@ namespace ONI_MP.Patches.Chores
         public static void Postfix(Chore __instance)
         {
             return; // Disabled for now
-            ChoresPatch.SendAssignmentPacket(__instance);
+            
+            // TODO: Re-enable when chore assignment networking is ready
+            // ChoresPatch.SendAssignmentPacket(__instance);
         }
     }
 

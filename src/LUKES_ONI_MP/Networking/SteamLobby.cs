@@ -98,6 +98,11 @@ namespace ONI_MP.Networking
 
                 SteamMatchmaking.SetLobbyData(CurrentLobby, "name", SteamFriends.GetPersonaName() + "'s Lobby");
                 SteamMatchmaking.SetLobbyData(CurrentLobby, "host", SteamUser.GetSteamID().ToString());
+                
+                // Set storage server URL for clients to use
+                var storageServerUrl = SharedStorage.StorageServerManager.ServerUrl;
+                SteamMatchmaking.SetLobbyData(CurrentLobby, "storage_server", storageServerUrl);
+                DebugConsole.Log($"[SteamLobby] Set storage server URL: {storageServerUrl}");
 
                 MultiplayerSession.Clear();
 
@@ -132,6 +137,17 @@ namespace ONI_MP.Networking
             if (ulong.TryParse(hostStr, out ulong hostId))
             {
                 MultiplayerSession.SetHost(new CSteamID(hostId));
+            }
+
+            // Get storage server URL from lobby data and configure client
+            string storageServerUrl = SteamMatchmaking.GetLobbyData(CurrentLobby, "storage_server");
+            if (!string.IsNullOrEmpty(storageServerUrl) && !MultiplayerSession.IsHost)
+            {
+                DebugConsole.Log($"[SteamLobby] Configuring client to use storage server: {storageServerUrl}");
+                SharedStorage.StorageServerManager.SetServerUrl(storageServerUrl);
+                
+                // Reinitialize the storage manager with the new URL
+                SharedStorage.SharedStorageManager.Instance.SwitchProvider("StorageServer");
             }
 
             SteamRichPresence.SetLobbyInfo(CurrentLobby, "Multiplayer – In Lobby");

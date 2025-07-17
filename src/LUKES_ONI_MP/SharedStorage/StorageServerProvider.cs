@@ -44,13 +44,19 @@ namespace ONI_MP.SharedStorage
         {
             try
             {
-                _serverUrl = Configuration.GetStorageServerProperty<string>("HttpServerUrl");
+                // Use the server URL from StorageServerManager (which handles configuration)
+                _serverUrl = StorageServerManager.ServerUrl;
                 _sessionId = Configuration.GetStorageServerProperty<string>("SessionId");
                 _authToken = Configuration.GetStorageServerProperty<string>("AuthToken");
 
                 if (string.IsNullOrEmpty(_serverUrl))
                 {
-                    throw new InvalidOperationException("HttpServerUrl is required in configuration");
+                    // Fallback to configuration if manager doesn't have a URL
+                    _serverUrl = Configuration.GetStorageServerProperty<string>("HttpServerUrl");
+                    if (string.IsNullOrEmpty(_serverUrl))
+                    {
+                        _serverUrl = "http://localhost:3000"; // Default fallback
+                    }
                 }
 
                 if (string.IsNullOrEmpty(_sessionId))
@@ -71,18 +77,15 @@ namespace ONI_MP.SharedStorage
                     _serverUrl = _serverUrl.TrimEnd('/');
                 }
 
+                DebugConsole.Log($"StorageServerProvider: Initializing with server URL: {_serverUrl}");
+
                 // Initialize HTTP client
                 _httpClient = new HttpClient();
                 _httpClient.Timeout = TimeSpan.FromSeconds(TIMEOUT_SECONDS);
                 
-                // Add headers
-                if (!string.IsNullOrEmpty(_authToken))
-                {
-                    _httpClient.DefaultRequestHeaders.Authorization = 
-                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _authToken);
-                }
-                
+                // Add headers - no special authentication required
                 _httpClient.DefaultRequestHeaders.Add("X-Session-ID", _sessionId);
+                _httpClient.DefaultRequestHeaders.Add("User-Agent", "ONI-MP-Client/1.0");
 
                 // Test connection and create/join session
                 Task.Run(async () => await InitializeSessionAsync());
