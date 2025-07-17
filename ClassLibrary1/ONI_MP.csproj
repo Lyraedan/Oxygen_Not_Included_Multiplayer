@@ -27,11 +27,24 @@
 	<Reference Include="ImGui.NET" HintPath="$(ManagedPath)\ImGui.NET.dll" Private="false" />
   </ItemGroup>
 
-  <ItemGroup>
-	<None Include="$(LibsPath)\EOS\EOSSDK-Win64-Shipping.dll">
-		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-  </ItemGroup>
+	<ItemGroup>
+		<!-- EOS Native Libraries (All Platforms) -->
+		<None Include="$(LibsPath)\EOS\EOSSDK-Win64-Shipping.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="$(LibsPath)\EOS\EOSSDK-Win32-Shipping.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="$(LibsPath)\EOS\libEOSSDK-Mac-Shipping.dylib">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="$(LibsPath)\EOS\libEOSSDK-Linux-Shipping.so">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="$(LibsPath)\EOS\libEOSSDK-LinuxArm64-Shipping.so">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Assets\oni_together_logo.png" />
