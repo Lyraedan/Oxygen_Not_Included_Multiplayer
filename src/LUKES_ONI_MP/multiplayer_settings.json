@@ -4,7 +4,7 @@
     "MaxMessagesPerPoll": 128,
     "SaveFileTransferChunkKB": 256,
     "CloudStorage": {
-      "Provider": "StorageServer",
+      "Provider": "SteamP2P",
       "GoogleDrive": {
         "ApplicationName": "ONI Multiplayer Mod"
       },
@@ -12,6 +12,11 @@
         "HttpServerUrl": "http://localhost:3000",
         "SessionId": "",
         "AuthToken": ""
+      },
+      "SteamP2P": {
+        "ChunkSizeKB": 256,
+        "EnableCompression": true,
+        "TransferTimeoutSeconds": 60
       }
     }
   },

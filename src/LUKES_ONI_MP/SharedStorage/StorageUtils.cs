@@ -54,6 +54,19 @@ namespace ONI_MP.SharedStorage
                     };
                     PacketSender.SendToAllClients(packet);
                 }
+                else if (SharedStorageManager.Instance.CurrentProvider == "SteamP2P")
+                {
+                    // For Steam P2P, the result is the local filename in the P2P storage
+                    var packet = new SteamP2PFileSharePacket
+                    {
+                        FileName = originalFileName,
+                        P2PFileName = result,
+                        FileSize = (int)new FileInfo(SaveLoader.GetActiveSaveFilePath()).Length,
+                        Timestamp = System.DateTime.UtcNow
+                    };
+                    DebugConsole.Log($"[StorageUtils] Sending SteamP2P file share packet to all clients: {originalFileName}");
+                    PacketSender.SendToAllClients(packet);
+                }
 
                 if (GameServerHardSync.IsHardSyncInProgress)
                 {
@@ -108,6 +121,19 @@ namespace ONI_MP.SharedStorage
                         FileSize = (int)new FileInfo(SaveLoader.GetActiveSaveFilePath()).Length,
                         Timestamp = System.DateTime.UtcNow
                     };
+                    PacketSender.SendToPlayer(requester, packet);
+                }
+                else if (SharedStorageManager.Instance.CurrentProvider == "SteamP2P")
+                {
+                    // For Steam P2P, send to specific requesting client
+                    var packet = new SteamP2PFileSharePacket
+                    {
+                        FileName = originalFileName,
+                        P2PFileName = result,
+                        FileSize = (int)new FileInfo(SaveLoader.GetActiveSaveFilePath()).Length,
+                        Timestamp = System.DateTime.UtcNow
+                    };
+                    DebugConsole.Log($"[StorageUtils] Sending SteamP2P file share packet to client {requester}: {originalFileName}");
                     PacketSender.SendToPlayer(requester, packet);
                 }
             });

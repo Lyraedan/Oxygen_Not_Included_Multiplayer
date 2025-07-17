@@ -53,9 +53,12 @@ namespace ONI_MP.SharedStorage
                     case "storageserver":
                         InitializeStorageServer();
                         break;
+                    case "steamp2p":
+                        InitializeSteamP2P();
+                        break;
                     default:
-                        DebugConsole.LogWarning($"SharedStorageManager: Unknown provider '{provider}', falling back to StorageServer");
-                        InitializeStorageServer();
+                        DebugConsole.LogWarning($"SharedStorageManager: Unknown provider '{provider}', falling back to SteamP2P");
+                        InitializeSteamP2P();
                         break;
                 }
             }
@@ -144,6 +147,53 @@ namespace ONI_MP.SharedStorage
             catch (Exception ex)
             {
                 DebugConsole.LogError($"SharedStorageManager: HTTP Shared Storage initialization error: {ex.Message}", false);
+            }
+        }
+        
+        private void InitializeSteamP2P()
+        {
+            try
+            {
+                DebugConsole.Log("SharedStorageManager: Initializing Steam P2P Storage Provider");
+                DebugConsole.Log($"SharedStorageManager: Steam initialized: {SteamManager.Initialized}");
+                
+                var steamP2PProvider = new SteamP2PStorageProvider();
+                
+                // Set up callback for when async initialization completes
+                steamP2PProvider.OnInitializationComplete.AddListener(() => {
+                    DebugConsole.Log($"SharedStorageManager: Steam P2P provider initialization complete. IsInitialized: {steamP2PProvider.IsInitialized}");
+                    
+                    if (steamP2PProvider.IsInitialized)
+                    {
+                        DebugConsole.Log("SharedStorageManager: Steam P2P Storage initialization completed successfully");
+                        _initialized = true;
+                        OnInitialized.Invoke();
+                    }
+                    else
+                    {
+                        DebugConsole.LogError("SharedStorageManager: Steam P2P Storage initialization failed", false);
+                        // Still need to fire OnInitialized so SaveLoaderPatch doesn't hang waiting
+                        DebugConsole.Log("SharedStorageManager: Marking as initialized despite provider failure to allow lobby creation");
+                        _initialized = true;
+                        OnInitialized.Invoke();
+                    }
+                });
+                
+                steamP2PProvider.Initialize();
+                
+                // Set up the provider but don't mark as initialized until async completes
+                _currentProvider = steamP2PProvider;
+                CurrentProvider = "SteamP2P";
+                ConnectEvents();
+                DebugConsole.Log("SharedStorageManager: Steam P2P Storage provider set up, waiting for initialization to complete");
+            }
+            catch (Exception ex)
+            {
+                DebugConsole.LogError($"SharedStorageManager: Steam P2P Storage initialization error: {ex.Message}", false);
+                DebugConsole.LogError($"SharedStorageManager: Steam P2P Stack trace: {ex.StackTrace}", false);
+                // Still fire OnInitialized to prevent hanging
+                _initialized = true;
+                OnInitialized.Invoke();
             }
         }
 

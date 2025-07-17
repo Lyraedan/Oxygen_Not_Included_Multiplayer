@@ -117,6 +117,29 @@ namespace ONI_MP
             return Instance.GetProperty<T>(Instance.Host.CloudStorage.StorageServer, propertyName);
         }
 
+        public static T GetSteamP2PProperty<T>(string propertyName)
+        {
+            if (Instance?.Host?.CloudStorage?.SteamP2P == null)
+            {
+                Debug.LogWarning($"[Configuration] SteamP2P settings are null, creating default instance");
+                if (Instance?.Host?.CloudStorage != null)
+                    Instance.Host.CloudStorage.SteamP2P = new SteamP2PSettings();
+                else
+                {
+                    if (Instance?.Host != null)
+                        Instance.Host.CloudStorage = new CloudStorageSettings();
+                    else
+                    {
+                        if (Instance != null)
+                            Instance.Host = new HostSettings();
+                        else
+                            _instance = new Configuration();
+                    }
+                }
+            }
+            return Instance.GetProperty<T>(Instance.Host.CloudStorage.SteamP2P, propertyName);
+        }
+
         public static void SetCloudStorageProvider(string provider)
         {
             try
@@ -253,9 +276,10 @@ namespace ONI_MP
 
     class CloudStorageSettings
     {
-        public string Provider { get; set; } = "StorageServer"; // "GoogleDrive" or "StorageServer"
+        public string Provider { get; set; } = "SteamP2P"; // "GoogleDrive", "StorageServer", or "SteamP2P"
         public GoogleDriveSettings GoogleDrive { get; set; } = new GoogleDriveSettings();
         public StorageServerSettings StorageServer { get; set; } = new StorageServerSettings();
+        public SteamP2PSettings SteamP2P { get; set; } = new SteamP2PSettings();
     }
 
     class GoogleDriveSettings
@@ -268,6 +292,13 @@ namespace ONI_MP
         public string HttpServerUrl { get; set; } = "http://localhost:3000"; // Server URL
         public string SessionId { get; set; } = ""; // Auto-generated if empty
         public string AuthToken { get; set; } = ""; // Optional authentication token
+    }
+
+    class SteamP2PSettings
+    {
+        public int ChunkSizeKB { get; set; } = 256; // File transfer chunk size in KB
+        public bool EnableCompression { get; set; } = true; // Enable file compression
+        public int TransferTimeoutSeconds { get; set; } = 60; // Transfer timeout
     }
 
 
