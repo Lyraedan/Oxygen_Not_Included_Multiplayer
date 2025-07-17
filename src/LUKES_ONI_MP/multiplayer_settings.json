@@ -8,11 +8,6 @@
       "GoogleDrive": {
         "ApplicationName": "ONI Multiplayer Mod"
       },
-      "StorageServer": {
-        "HttpServerUrl": "http://localhost:3000",
-        "SessionId": "",
-        "AuthToken": ""
-      },
       "SteamP2P": {
         "ChunkSizeKB": 256,
         "EnableCompression": true,

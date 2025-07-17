@@ -94,29 +94,6 @@ namespace ONI_MP
             return Instance.GetProperty<T>(Instance.Host.CloudStorage.GoogleDrive, propertyName);
         }
 
-        public static T GetStorageServerProperty<T>(string propertyName)
-        {
-            if (Instance?.Host?.CloudStorage?.StorageServer == null)
-            {
-                Debug.LogWarning($"[Configuration] StorageServer settings are null, creating default instance");
-                if (Instance?.Host?.CloudStorage != null)
-                    Instance.Host.CloudStorage.StorageServer = new StorageServerSettings();
-                else
-                {
-                    if (Instance?.Host != null)
-                        Instance.Host.CloudStorage = new CloudStorageSettings();
-                    else
-                    {
-                        if (Instance != null)
-                            Instance.Host = new HostSettings();
-                        else
-                            _instance = new Configuration();
-                    }
-                }
-            }
-            return Instance.GetProperty<T>(Instance.Host.CloudStorage.StorageServer, propertyName);
-        }
-
         public static T GetSteamP2PProperty<T>(string propertyName)
         {
             if (Instance?.Host?.CloudStorage?.SteamP2P == null)
@@ -219,12 +196,6 @@ namespace ONI_MP
                     config.Host.CloudStorage.GoogleDrive = new GoogleDriveSettings();
                 }
                 
-                if (config.Host.CloudStorage.StorageServer == null)
-                {
-                    Debug.LogWarning("[Configuration] StorageServer settings are null after deserialization, creating default");
-                    config.Host.CloudStorage.StorageServer = new StorageServerSettings();
-                }
-                
                 return config;
             }
             catch (Exception ex)
@@ -252,7 +223,6 @@ namespace ONI_MP
 
         public CloudStorageSettings CloudStorage { get; set; } = new CloudStorageSettings();
         
-        // Keep GoogleDrive for backward compatibility
         [JsonIgnore]
         public GoogleDriveSettings GoogleDrive 
         { 
@@ -276,22 +246,14 @@ namespace ONI_MP
 
     class CloudStorageSettings
     {
-        public string Provider { get; set; } = "SteamP2P"; // "GoogleDrive", "StorageServer", or "SteamP2P"
+        public string Provider { get; set; } = "SteamP2P"; // "GoogleDrive" or "SteamP2P"
         public GoogleDriveSettings GoogleDrive { get; set; } = new GoogleDriveSettings();
-        public StorageServerSettings StorageServer { get; set; } = new StorageServerSettings();
         public SteamP2PSettings SteamP2P { get; set; } = new SteamP2PSettings();
     }
 
     class GoogleDriveSettings
     {
         public string ApplicationName { get; set; } = "ONI Multiplayer Mod";
-    }
-
-    class StorageServerSettings
-    {
-        public string HttpServerUrl { get; set; } = "http://localhost:3000"; // Server URL
-        public string SessionId { get; set; } = ""; // Auto-generated if empty
-        public string AuthToken { get; set; } = ""; // Optional authentication token
     }
 
     class SteamP2PSettings

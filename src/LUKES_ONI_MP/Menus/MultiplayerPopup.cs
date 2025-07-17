@@ -41,25 +41,9 @@ public static class MultiplayerPopup
         {
             Close();
             
-            // Show storage server configuration dialog
-            var canvas = Object.FindObjectOfType<Canvas>();
-            if (canvas != null)
-            {
-                StorageServerDialog.Show(canvas.transform, (serverUrl) =>
-                {
-                    DebugConsole.Log($"[MultiplayerPopup] Using storage server: {serverUrl}");
-                    
-                    // Proceed with hosting after server is configured
-                    MultiplayerSession.ShouldHostAfterLoad = true;
-                    
-                    // Load the game
-                    HostLastSave();
-                });
-            }
-            else
-            {
-                DebugConsole.LogError("[MultiplayerPopup] Could not find Canvas for dialog");
-            }
+            // Directly host the game
+            MultiplayerSession.ShouldHostAfterLoad = true;
+            HostLastSave();
         });
 
         AddPopupButton(popup.transform, "Join Game", new Vector2(0, 0), () =>

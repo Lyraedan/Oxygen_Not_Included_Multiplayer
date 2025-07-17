@@ -41,19 +41,6 @@ namespace ONI_MP.SharedStorage
                     };
                     PacketSender.SendToAllClients(packet);
                 }
-                else if (SharedStorageManager.Instance.CurrentProvider == "StorageServer")
-                {
-                    var packet = new StorageServerFileSharePacket
-                    {
-                        FileName = originalFileName,
-                        CloudFileName = result,
-                        ServerUrl = Configuration.GetStorageServerProperty<string>("HttpServerUrl"),
-                        SessionId = Configuration.GetStorageServerProperty<string>("SessionId"),
-                        FileSize = (int)new FileInfo(SaveLoader.GetActiveSaveFilePath()).Length,
-                        Timestamp = System.DateTime.UtcNow
-                    };
-                    PacketSender.SendToAllClients(packet);
-                }
                 else if (SharedStorageManager.Instance.CurrentProvider == "SteamP2P")
                 {
                     // For Steam P2P, the result is the local filename in the P2P storage
@@ -107,19 +94,6 @@ namespace ONI_MP.SharedStorage
                     {
                         FileName = originalFileName,
                         ShareLink = result
-                    };
-                    PacketSender.SendToPlayer(requester, packet);
-                }
-                else if (SharedStorageManager.Instance.CurrentProvider == "StorageServer")
-                {
-                    var packet = new StorageServerFileSharePacket
-                    {
-                        FileName = originalFileName,
-                        CloudFileName = result,
-                        ServerUrl = Configuration.GetStorageServerProperty<string>("HttpServerUrl"),
-                        SessionId = Configuration.GetStorageServerProperty<string>("SessionId"),
-                        FileSize = (int)new FileInfo(SaveLoader.GetActiveSaveFilePath()).Length,
-                        Timestamp = System.DateTime.UtcNow
                     };
                     PacketSender.SendToPlayer(requester, packet);
                 }
@@ -273,19 +247,6 @@ namespace ONI_MP.SharedStorage
                         case CloudFeature.FileQuota:
                         case CloudFeature.FileListing:
                         case CloudFeature.FileTimestamps:
-                            return false;
-                        default:
-                            return false;
-                    }
-
-                case "StorageServer":
-                    switch (feature)
-                    {
-                        case CloudFeature.FileListing:
-                        case CloudFeature.FileTimestamps:
-                            return true;
-                        case CloudFeature.FileQuota:
-                        case CloudFeature.ShareLinks:
                             return false;
                         default:
                             return false;

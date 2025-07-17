@@ -15,7 +15,7 @@ namespace ONI_MP.SharedStorage
         private bool _initialized = false;
 
         public bool IsInitialized => _initialized && _currentProvider?.IsInitialized == true;
-        public string CurrentProvider { get; private set; } = "StorageServer";
+        public string CurrentProvider { get; private set; } = "SteamP2P";
 
         public UnityEvent OnInitialized { get; } = new UnityEvent();
         public UnityEvent OnUploadStarted { get; } = new UnityEvent();
@@ -49,9 +49,6 @@ namespace ONI_MP.SharedStorage
                 {
                     case "googledrive":
                         InitializeGoogleDrive();
-                        break;
-                    case "storageserver":
-                        InitializeStorageServer();
                         break;
                     case "steamp2p":
                         InitializeSteamP2P();
@@ -95,61 +92,6 @@ namespace ONI_MP.SharedStorage
             }
         }
 
-        private async void InitializeStorageServer()
-        {
-            try
-            {
-                // Start embedded server first if not already running
-                if (!StorageServerManager.IsRunning)
-                {
-                    DebugConsole.Log("SharedStorageManager: Starting embedded storage server...");
-                    bool serverStarted = await StorageServerManager.StartServerAsync();
-                    if (!serverStarted)
-                    {
-                        DebugConsole.LogError("SharedStorageManager: Failed to start embedded storage server", false);
-                        return;
-                    }
-                    DebugConsole.Log($"SharedStorageManager: Server started with auth token: {StorageServerManager.AuthToken}");
-                }
-
-                // Create provider after server is running and configuration is updated
-                var httpStorageProvider = new StorageServerProvider();
-                
-                // Set up callback for when async initialization completes
-                httpStorageProvider.OnInitializationComplete.AddListener(() => {
-                    DebugConsole.Log($"SharedStorageManager: HTTP StorageServer provider initialization complete. IsInitialized: {httpStorageProvider.IsInitialized}");
-                    
-                    if (httpStorageProvider.IsInitialized)
-                    {
-                        DebugConsole.Log("SharedStorageManager: HTTP Shared Storage async initialization completed successfully");
-                        // Now mark the manager as initialized since the provider is ready
-                        _initialized = true;
-                        OnInitialized.Invoke();
-                    }
-                    else
-                    {
-                        DebugConsole.LogError("SharedStorageManager: HTTP Shared Storage async initialization failed", false);
-                        // Still need to fire OnInitialized so SaveLoaderPatch doesn't hang waiting
-                        DebugConsole.Log("SharedStorageManager: Marking as initialized despite provider failure to allow lobby creation");
-                        _initialized = true;
-                        OnInitialized.Invoke();
-                    }
-                });
-                
-                httpStorageProvider.Initialize();
-                
-                // Set up the provider but don't mark as initialized until async completes
-                _currentProvider = httpStorageProvider;
-                CurrentProvider = "StorageServer";
-                ConnectEvents();
-                DebugConsole.Log("SharedStorageManager: HTTP Shared Storage provider set up, waiting for async initialization to complete");
-            }
-            catch (Exception ex)
-            {
-                DebugConsole.LogError($"SharedStorageManager: HTTP Shared Storage initialization error: {ex.Message}", false);
-            }
-        }
-        
         private void InitializeSteamP2P()
         {
             try

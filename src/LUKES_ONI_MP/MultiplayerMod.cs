@@ -41,11 +41,6 @@ namespace ONI_MP
 
             LoadAssetBundles();
 
-            // Set up cleanup for storage server
-            Application.quitting += () => {
-                SharedStorage.StorageServerManager.Cleanup();
-            };
-
             DebugConsole.Log("[ONI_MP] Loaded Oxygen Not Included Together Multiplayer Mod.");
 
             foreach (var res in Assembly.GetExecutingAssembly().GetManifestResourceNames())
