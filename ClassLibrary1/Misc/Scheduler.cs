@@ -45,9 +45,9 @@ namespace ONI_MP.Misc
         }
 
         private int _taskIdCounter = 0;
-        private readonly Dictionary<Scheduler.Pipeline, List<Scheduler.Task>> _pipelines = new Dictionary<Scheduler.Pipeline, List<Scheduler.Task>>();
-        private readonly Dictionary<Scheduler.Pipeline, Thread> _threads = new Dictionary<Scheduler.Pipeline, Thread>();
-        private readonly Dictionary<Scheduler.Pipeline, object> _mutexes = new Dictionary<Scheduler.Pipeline, object>();
+        private readonly Dictionary<Pipeline, List<Scheduler.Task>> _pipelines = new Dictionary<Pipeline, List<Task>>();
+        private readonly Dictionary<Pipeline, Thread> _threads = new Dictionary<Pipeline, Thread>();
+        private readonly Dictionary<Pipeline, object> _mutexes = new Dictionary<Pipeline, object>();
         private readonly Stopwatch _stopwatch = new Stopwatch();
         private volatile bool _running = true;
 
