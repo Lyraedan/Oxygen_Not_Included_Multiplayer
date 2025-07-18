@@ -104,26 +104,34 @@ namespace ONI_MP.Networking.Packets.SharedStorage
                 DebugConsole.Log($"[P2PFileManifestPacket] IsHost: {MultiplayerSession.IsHost}, SenderIsHost: {SenderSteamID == MultiplayerSession.HostSteamID}");
                 DebugConsole.Log($"[P2PFileManifestPacket] HostSteamID: {MultiplayerSession.HostSteamID}");
                 
-                // If we're a client and this manifest is from the host, automatically request save files
+                // If we're a client and this manifest is from the host, automatically download and load save files
                 if (!MultiplayerSession.IsHost && SenderSteamID == MultiplayerSession.HostSteamID)
                 {
-                    DebugConsole.Log($"[P2PFileManifestPacket] Checking {AvailableFiles.Count} files for save files...");
+                    DebugConsole.Log($"[P2PFileManifestPacket] Client received manifest from host - checking for save files to auto-download");
                     foreach (var file in AvailableFiles)
                     {
                         DebugConsole.Log($"[P2PFileManifestPacket] Examining file: {file.FileName}");
                         // Look for save files (they should have ONI_MP_Save prefix or .sav extension)
                         if (file.FileName.StartsWith("ONI_MP_Save_") || file.FileName.EndsWith(".sav"))
                         {
-                            DebugConsole.Log($"[P2PFileManifestPacket] Auto-requesting save file: {file.FileName}");
+                            DebugConsole.Log($"[P2PFileManifestPacket] Found save file, directly downloading: {file.FileName}");
                             
-                            // Send file request packet to the host
-                            var requestPacket = new P2PFileRequestPacket(
-                                MultiplayerSession.LocalSteamID,
-                                file.FileName,
-                                file.FileHash
-                            );
-                            PacketSender.SendToPlayer(SenderSteamID, requestPacket);
-                            break; // Only request the first save file found
+                            // Directly download and load the save file using StorageUtils
+                            try 
+                            {
+                                // Use the original filename for loading (without ONI_MP_Save prefix)
+                                string originalFileName = file.FileName.StartsWith("ONI_MP_Save_") ? 
+                                    file.FileName.Substring(file.FileName.LastIndexOf('_') + 1) : 
+                                    file.FileName;
+                                    
+                                DebugConsole.Log($"[P2PFileManifestPacket] Triggering download: remote={file.FileName}, local={originalFileName}");
+                                StorageUtils.DownloadAndLoadSaveFile(file.FileName, originalFileName);
+                                break; // Only download the first save file found
+                            }
+                            catch (System.Exception ex)
+                            {
+                                DebugConsole.LogError($"[P2PFileManifestPacket] Failed to download save file: {ex.Message}");
+                            }
                         }
                     }
                 }
