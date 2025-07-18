@@ -9,7 +9,7 @@
     
     <!-- Game Directory Configuration -->
     <ManagedPath>$(GAME_DIR)\OxygenNotIncluded_Data\Managed</ManagedPath>
-    <ManagedPath Condition="'$(GAME_DIR)' == ''">E:\SteamLibrary\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed</ManagedPath>
+    <ManagedPath Condition="'$(GAME_DIR)' == ''">C:\Program Files (x86)\Steam\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed</ManagedPath>
     <OutputPath>..\..\BuildOutput\</OutputPath>
   </PropertyGroup>
 
