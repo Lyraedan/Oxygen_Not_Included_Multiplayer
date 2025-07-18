@@ -72,6 +72,9 @@ namespace ONI_MP.SharedStorage
         private readonly Queue<ChunkToSend> _individualChunkQueue = new Queue<ChunkToSend>();
         private bool _isProcessingIndividualChunks = false;
         
+        // Transfer timeout monitoring
+        private bool _isMonitoringTransfers = false;
+        
         public bool IsInitialized { get; private set; }
         public string ProviderName => "SteamP2P";
         
@@ -417,6 +420,12 @@ namespace ONI_MP.SharedStorage
                 _receivedChunks[transferID] = new List<byte[]>(new byte[totalChunks][]);
             }
             
+            // Start transfer monitoring if not already running
+            if (!_isMonitoringTransfers && Game.Instance != null)
+            {
+                Game.Instance.StartCoroutine(MonitorActiveTransfers());
+            }
+            
             // Request all chunks from the peer
             var chunkIndices = Enumerable.Range(0, totalChunks).ToList();
             var chunkRequestPacket = new P2PChunkRequestPacket(
@@ -620,6 +629,91 @@ namespace ONI_MP.SharedStorage
         }
         
         /// <summary>
+        /// Monitors active transfers and handles timeouts
+        /// </summary>
+        private IEnumerator MonitorActiveTransfers()
+        {
+            _isMonitoringTransfers = true;
+            DebugConsole.Log($"[SteamP2PStorageProvider] Started monitoring active transfers");
+            
+            while (true)
+            {
+                var transfersToTimeout = new List<P2PTransfer>();
+                var currentTime = System.DateTime.Now;
+                
+                lock (_transferLock)
+                {
+                    // Check for transfers that have timed out (60 seconds)
+                    foreach (var transfer in _activeTransfers.Values)
+                    {
+                        var elapsed = currentTime - transfer.StartTime;
+                        if (elapsed.TotalSeconds > 60)
+                        {
+                            transfersToTimeout.Add(transfer);
+                            DebugConsole.LogWarning($"[SteamP2PStorageProvider] Transfer timeout: {transfer.FileName} ({elapsed.TotalSeconds:F1}s)");
+                        }
+                        else if (elapsed.TotalSeconds > 30)
+                        {
+                            // Log progress every 30 seconds for long transfers
+                            DebugConsole.Log($"[SteamP2PStorageProvider] Transfer progress: {transfer.FileName} - {transfer.Progress:P1} ({elapsed.TotalSeconds:F1}s)");
+                        }
+                    }
+                    
+                    // Exit if no active transfers
+                    if (_activeTransfers.Count == 0)
+                    {
+                        DebugConsole.Log($"[SteamP2PStorageProvider] No more active transfers, stopping monitor");
+                        break;
+                    }
+                }
+                
+                // Handle timeouts outside the lock
+                foreach (var timedOutTransfer in transfersToTimeout)
+                {
+                    HandleTransferTimeout(timedOutTransfer);
+                }
+                
+                // Check every 5 seconds
+                yield return new WaitForSeconds(5.0f);
+            }
+            
+            _isMonitoringTransfers = false;
+            DebugConsole.Log($"[SteamP2PStorageProvider] Finished monitoring active transfers");
+        }
+        
+        /// <summary>
+        /// Handles transfer timeouts
+        /// </summary>
+        private void HandleTransferTimeout(P2PTransfer transfer)
+        {
+            try
+            {
+                DebugConsole.LogError($"[SteamP2PStorageProvider] Transfer timed out: {transfer.FileName} - received {transfer.ReceivedChunkCount}/{transfer.TotalChunks} chunks");
+                
+                // Clean up transfer data
+                lock (_transferLock)
+                {
+                    _activeTransfers.Remove(transfer.TransferID);
+                    _receivedChunks.Remove(transfer.TransferID);
+                }
+                
+                // Notify of failure
+                var timeoutException = new TimeoutException($"Transfer timed out after 60 seconds - received {transfer.ReceivedChunkCount}/{transfer.TotalChunks} chunks");
+                OnDownloadFailed?.Invoke(timeoutException);
+                
+                // Send failure notification to provider
+                var failurePacket = new P2PTransferCompletePacket(
+                    MultiplayerSession.LocalSteamID, transfer.FileName, transfer.FileHash, 
+                    transfer.TransferID, false, "Transfer timed out");
+                PacketSender.SendToPlayer(transfer.ProviderSteamID, failurePacket);
+            }
+            catch (Exception ex)
+            {
+                DebugConsole.LogError($"[SteamP2PStorageProvider] Error handling transfer timeout: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
         /// Processes chunk requests from the queue sequentially
         /// </summary>
         private IEnumerator ProcessChunkRequestQueue()
@@ -728,20 +822,30 @@ namespace ONI_MP.SharedStorage
             _isProcessingIndividualChunks = true;
             DebugConsole.Log($"[SteamP2PStorageProvider] Started processing individual chunk queue");
             
+            int idleCount = 0;
+            const int maxIdleChecks = 20; // 20 * 0.05s = 1 second of waiting before exit
+            
             while (true)
             {
                 ChunkToSend nextChunk = null;
+                int queueCount = 0;
                 
                 lock (_transferLock)
                 {
-                    if (_individualChunkQueue.Count > 0)
+                    queueCount = _individualChunkQueue.Count;
+                    if (queueCount > 0)
                     {
                         nextChunk = _individualChunkQueue.Dequeue();
+                        DebugConsole.Log($"[SteamP2PStorageProvider] Dequeued chunk {nextChunk.ChunkIndex} for {nextChunk.Request.FileName}. Queue remaining: {_individualChunkQueue.Count}");
+                        idleCount = 0; // Reset idle counter when we process a chunk
                     }
                 }
                 
                 if (nextChunk == null)
                 {
+                    idleCount++;
+                    DebugConsole.Log($"[SteamP2PStorageProvider] No chunks in queue, waiting... (idle check {idleCount}/{maxIdleChecks})");
+                    
                     // No more chunks, check if any new ones came in
                     yield return new WaitForSeconds(0.05f);
                     
@@ -749,15 +853,26 @@ namespace ONI_MP.SharedStorage
                     {
                         if (_individualChunkQueue.Count == 0)
                         {
-                            // Still no chunks, exit
-                            break;
+                            if (idleCount >= maxIdleChecks)
+                            {
+                                // Been idle too long, exit
+                                DebugConsole.Log($"[SteamP2PStorageProvider] Queue idle for {idleCount} checks, stopping individual chunk processor");
+                                break;
+                            }
                         }
-                        // New chunks came in, continue processing
-                        continue;
+                        else
+                        {
+                            // New chunks came in, continue processing
+                            DebugConsole.Log($"[SteamP2PStorageProvider] New chunks arrived, continuing processing. Queue: {_individualChunkQueue.Count}");
+                            idleCount = 0;
+                            continue;
+                        }
                     }
+                    continue;
                 }
                 
                 // Send the individual chunk
+                DebugConsole.Log($"[SteamP2PStorageProvider] About to send chunk {nextChunk.ChunkIndex + 1}/{nextChunk.TotalChunks} for {nextChunk.Request.FileName}");
                 yield return SendSingleChunk(nextChunk);
                 
                 // Small delay between chunks to prevent network overwhelming
@@ -775,6 +890,8 @@ namespace ONI_MP.SharedStorage
         {
             try
             {
+                DebugConsole.Log($"[SteamP2PStorageProvider] SendSingleChunk: Starting to send chunk {chunkToSend.ChunkIndex} for {chunkToSend.Request.FileName}");
+                
                 using (var fileStream = new FileStream(chunkToSend.FilePath, FileMode.Open, FileAccess.Read))
                 {
                     var chunkData = new byte[_chunkSize];
@@ -798,12 +915,19 @@ namespace ONI_MP.SharedStorage
                     
                     PacketSender.SendToPlayer(chunkToSend.Request.RequesterSteamID, chunkPacket);
                     
-                    DebugConsole.Log($"[SteamP2PStorageProvider] Sent chunk {chunkToSend.ChunkIndex + 1}/{chunkToSend.TotalChunks} for {chunkToSend.Request.FileName} - {bytesRead} bytes (queue: {_individualChunkQueue.Count} remaining)");
+                    int remainingInQueue = 0;
+                    lock (_transferLock)
+                    {
+                        remainingInQueue = _individualChunkQueue.Count;
+                    }
+                    
+                    DebugConsole.Log($"[SteamP2PStorageProvider] Successfully sent chunk {chunkToSend.ChunkIndex + 1}/{chunkToSend.TotalChunks} for {chunkToSend.Request.FileName} - {bytesRead} bytes (queue: {remainingInQueue} remaining)");
                 }
             }
             catch (Exception ex)
             {
                 DebugConsole.LogError($"[SteamP2PStorageProvider] Failed to send chunk {chunkToSend.ChunkIndex} for {chunkToSend.Request.FileName}: {ex.Message}");
+                DebugConsole.LogError($"[SteamP2PStorageProvider] Stack trace: {ex.StackTrace}");
                 
                 var failurePacket = new P2PTransferCompletePacket(
                     MultiplayerSession.LocalSteamID, chunkToSend.Request.FileName, chunkToSend.Request.FileHash, 
