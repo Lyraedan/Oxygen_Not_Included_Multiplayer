@@ -515,19 +515,47 @@ namespace ONI_MP.SharedStorage
                     return;
                 }
                 
-                // Store the chunk
-                if (packet.ChunkIndex < chunks.Count)
+                // Store the chunk (check for valid chunk index)
+                if (packet.ChunkIndex < chunks.Count && packet.ChunkIndex < transfer.ReceivedChunks.Length)
                 {
+                    // Check if we already have this chunk
+                    if (transfer.ReceivedChunks[packet.ChunkIndex])
+                    {
+                        DebugConsole.LogWarning($"[SteamP2PStorageProvider] Received duplicate chunk {packet.ChunkIndex + 1}/{transfer.TotalChunks} for {transfer.FileName}");
+                        return;
+                    }
+                    
                     chunks[packet.ChunkIndex] = packet.ChunkData;
                     transfer.ReceivedChunks[packet.ChunkIndex] = true;
                     
-                    DebugConsole.Log($"[SteamP2PStorageProvider] Received chunk {packet.ChunkIndex + 1}/{transfer.TotalChunks} for {transfer.FileName} ({transfer.Progress:P1})");
+                    DebugConsole.Log($"[SteamP2PStorageProvider] Received chunk {packet.ChunkIndex + 1}/{transfer.TotalChunks} for {transfer.FileName} ({transfer.Progress:P1}) - Received chunks: {string.Join(",", transfer.ReceivedChunks.Select((received, index) => received ? (index + 1).ToString() : "?"))}");
                     
                     // Check if transfer is complete
                     if (transfer.IsComplete)
                     {
                         CompleteTransfer(transfer);
                     }
+                    else
+                    {
+                        // Check for missing chunks and log them
+                        var missingChunks = new List<int>();
+                        for (int i = 0; i < transfer.ReceivedChunks.Length; i++)
+                        {
+                            if (!transfer.ReceivedChunks[i])
+                            {
+                                missingChunks.Add(i + 1);
+                            }
+                        }
+                        
+                        if (missingChunks.Count > 0 && missingChunks.Count <= 3) // Only log if few chunks missing
+                        {
+                            DebugConsole.Log($"[SteamP2PStorageProvider] Missing chunks for {transfer.FileName}: {string.Join(",", missingChunks)}");
+                        }
+                    }
+                }
+                else
+                {
+                    DebugConsole.LogError($"[SteamP2PStorageProvider] Invalid chunk index {packet.ChunkIndex} for transfer {transfer.FileName} (expected 0-{chunks.Count - 1})");
                 }
             }
         }
@@ -639,11 +667,12 @@ namespace ONI_MP.SharedStorage
             while (true)
             {
                 var transfersToTimeout = new List<P2PTransfer>();
+                var transfersToRetry = new List<P2PTransfer>();
                 var currentTime = System.DateTime.Now;
                 
                 lock (_transferLock)
                 {
-                    // Check for transfers that have timed out (60 seconds)
+                    // Check for transfers that have timed out (60 seconds) or need retry (15 seconds)
                     foreach (var transfer in _activeTransfers.Values)
                     {
                         var elapsed = currentTime - transfer.StartTime;
@@ -651,6 +680,24 @@ namespace ONI_MP.SharedStorage
                         {
                             transfersToTimeout.Add(transfer);
                             DebugConsole.LogWarning($"[SteamP2PStorageProvider] Transfer timeout: {transfer.FileName} ({elapsed.TotalSeconds:F1}s)");
+                        }
+                        else if (elapsed.TotalSeconds > 15 && transfer.ReceivedChunkCount > 0 && !transfer.IsComplete)
+                        {
+                            // Check if we have some chunks but are missing others for more than 15 seconds
+                            var missingChunks = new List<int>();
+                            for (int i = 0; i < transfer.ReceivedChunks.Length; i++)
+                            {
+                                if (!transfer.ReceivedChunks[i])
+                                {
+                                    missingChunks.Add(i);
+                                }
+                            }
+                            
+                            if (missingChunks.Count > 0)
+                            {
+                                DebugConsole.LogWarning($"[SteamP2PStorageProvider] Transfer stalled, requesting missing chunks: {transfer.FileName} - missing {missingChunks.Count} chunks");
+                                transfersToRetry.Add(transfer);
+                            }
                         }
                         else if (elapsed.TotalSeconds > 30)
                         {
@@ -673,12 +720,57 @@ namespace ONI_MP.SharedStorage
                     HandleTransferTimeout(timedOutTransfer);
                 }
                 
+                // Handle retries outside the lock
+                foreach (var stalledTransfer in transfersToRetry)
+                {
+                    RequestMissingChunks(stalledTransfer);
+                }
+                
                 // Check every 5 seconds
                 yield return new WaitForSeconds(5.0f);
             }
             
             _isMonitoringTransfers = false;
             DebugConsole.Log($"[SteamP2PStorageProvider] Finished monitoring active transfers");
+        }
+        
+        /// <summary>
+        /// Requests missing chunks for a stalled transfer
+        /// </summary>
+        private void RequestMissingChunks(P2PTransfer transfer)
+        {
+            try
+            {
+                var missingChunks = new List<int>();
+                
+                lock (_transferLock)
+                {
+                    for (int i = 0; i < transfer.ReceivedChunks.Length; i++)
+                    {
+                        if (!transfer.ReceivedChunks[i])
+                        {
+                            missingChunks.Add(i);
+                        }
+                    }
+                }
+                
+                if (missingChunks.Count > 0)
+                {
+                    DebugConsole.Log($"[SteamP2PStorageProvider] Requesting {missingChunks.Count} missing chunks for {transfer.FileName}: {string.Join(",", missingChunks.Select(x => x + 1))}");
+                    
+                    var chunkRequestPacket = new P2PChunkRequestPacket(
+                        transfer.RequesterSteamID, transfer.FileName, transfer.FileHash, missingChunks, transfer.TransferID);
+                    
+                    PacketSender.SendToPlayer(transfer.ProviderSteamID, chunkRequestPacket);
+                    
+                    // Update start time to prevent immediate timeout
+                    transfer.StartTime = System.DateTime.Now.AddSeconds(-10); // Keep some elapsed time
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugConsole.LogError($"[SteamP2PStorageProvider] Error requesting missing chunks: {ex.Message}");
+            }
         }
         
         /// <summary>
