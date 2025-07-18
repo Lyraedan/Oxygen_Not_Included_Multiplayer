@@ -88,14 +88,21 @@ namespace ONI_MP.DebugTools
                 PacketSender.Platform.GameClient.ReconnectFromCache();
 
             GUILayout.Space(10);
+            GUILayout.Label("Session details");
+            GUILayout.Label($"Platform: {PacketSender.Platform.ID}");
+            GUILayout.Label($"Connected clients: {PacketSender.Platform.ConnectedClients.Count}");
+            GUILayout.Label($"Is Host: {MultiplayerSession.IsHost}");
+            GUILayout.Label($"Is Client: {MultiplayerSession.IsClient}");
+            GUILayout.Label($"In Session: {MultiplayerSession.InSession}");
+            GUILayout.Label($"Local ID: {MultiplayerSession.LocalId}");
+            GUILayout.Label($"Host ID: {MultiplayerSession.HostId}");
+
+            GUILayout.Space(10);
 
             try
             {
                 if (MultiplayerSession.InSession)
                 {
-                    GUILayout.Label($"Platform: {PacketSender.Platform.ID}");
-                    GUILayout.Label($"Connected clients: {PacketSender.Platform.ConnectedClients.Count}");
-
                     if (!MultiplayerSession.IsHost)
                     {
                         int? ping = PacketSender.Platform.GameClient.GetPingToHost();
