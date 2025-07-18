@@ -42,13 +42,13 @@ namespace ONI_MP.Misc.DuplicantBehavior
         private static readonly Dictionary<int, Vector3> lastPathingDestinations = new Dictionary<int, Vector3>();
         private static readonly Dictionary<int, string> lastBehaviorStates = new Dictionary<int, string>();
 
-        // Timers for different update cycles
-        private static float workAssignmentTimer;
-        private static float idleBehaviorTimer;
-        private static float sleepBehaviorTimer;
-        private static float stressBehaviorTimer;
-        private static float pathfindingTimer;
-        private static float behaviorStateTimer;
+        // // Timers for different update cycles
+        // private static float workAssignmentTimer;
+        // private static float idleBehaviorTimer;
+        // private static float sleepBehaviorTimer;
+        // private static float stressBehaviorTimer;
+        // private static float pathfindingTimer;
+        // private static float behaviorStateTimer;
 
         private static bool isInitialized = false;
 

@@ -183,6 +183,13 @@ namespace ONI_MP.Networking.Packets.Architecture
         BetaFeatures = 151,      // Beta feature testing framework - NOT IMPLEMENTED
         DeveloperTools = 152,    // Developer debugging and testing tools - NOT IMPLEMENTED
         RemoteConsole = 153,     // Remote console and command execution - NOT IMPLEMENTED
-        SystemMonitoring = 154   // System resource monitoring - NOT IMPLEMENTED
+        SystemMonitoring = 154,  // System resource monitoring - NOT IMPLEMENTED
+        
+        // Steam P2P File Transfer (Types 155-159)
+        P2PFileRequest = 155,    // Request a file from peers
+        P2PFileChunk = 156,      // File chunk data transfer
+        P2PFileManifest = 157,   // File availability announcement
+        P2PChunkRequest = 158,   // Request specific chunks
+        P2PTransferComplete = 159 // Transfer completion notification
     }
 }

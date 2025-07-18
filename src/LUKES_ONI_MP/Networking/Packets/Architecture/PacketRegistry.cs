@@ -100,6 +100,13 @@ namespace ONI_MP.Networking.Packets.Architecture
             Register(PacketType.StressBehavior, () => new StressBehaviorPacket());
             Register(PacketType.PathfindingUpdate, () => new PathfindingUpdatePacket());
             Register(PacketType.BehaviorState, () => new BehaviorStatePacket());
+            
+            // Steam P2P File Transfer Packets
+            Register(PacketType.P2PFileRequest, () => new P2PFileRequestPacket());
+            Register(PacketType.P2PFileChunk, () => new P2PFileChunkPacket());
+            Register(PacketType.P2PFileManifest, () => new P2PFileManifestPacket());
+            Register(PacketType.P2PChunkRequest, () => new P2PChunkRequestPacket());
+            Register(PacketType.P2PTransferComplete, () => new P2PTransferCompletePacket());
         }
     }
 }

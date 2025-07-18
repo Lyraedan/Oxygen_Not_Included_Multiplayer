@@ -16,6 +16,7 @@ namespace ONI_MP.SharedStorage
 
         public bool IsInitialized => _initialized && _currentProvider?.IsInitialized == true;
         public string CurrentProvider { get; private set; } = "SteamP2P";
+        public ISharedStorageProvider CurrentProviderInstance => _currentProvider;
 
         public UnityEvent OnInitialized { get; } = new UnityEvent();
         public UnityEvent OnUploadStarted { get; } = new UnityEvent();
