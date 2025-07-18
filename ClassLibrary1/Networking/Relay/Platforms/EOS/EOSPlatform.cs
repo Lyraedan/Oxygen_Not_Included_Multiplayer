@@ -20,7 +20,7 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
         private INetworkConnection _hostConnection;
         private readonly List<INetworkConnection> _connectedClients = new List<INetworkConnection>();
 
-        public bool IsHost { get; private set; } = false;
+        public bool IsHost => MultiplayerSession.IsHost;
 
         public INetworkConnection HostConnection => _hostConnection;
 
@@ -67,11 +67,6 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
         public void RemoveClient(INetworkConnection client)
         {
             _connectedClients.Remove(client);
-        }
-
-        public void SetIsHost(bool isHost)
-        {
-            IsHost = isHost;
         }
 
         public string GetPlayerName(string id)

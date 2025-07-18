@@ -18,7 +18,11 @@ namespace ONI_MP.Networking.Components
 
         private void Start()
         {
-            
+            // Run this on the NETWORK thread
+            Misc.Scheduler.Instance.Loop(() =>
+            {
+                UpdateNetworking();
+            }, Misc.Scheduler.Pipeline.NETWORK);
         }
 
         public void Init()
@@ -44,7 +48,10 @@ namespace ONI_MP.Networking.Components
         private void Update()
         {
             scheduler.Tick();
+        }
 
+        public void UpdateNetworking()
+        {
             if (platform == 1) // EOS
             {
                 TickEOS();

@@ -8,25 +8,25 @@ namespace ONI_MP.Patches.KleiPatches
     [HarmonyPatch(typeof(KMonoBehaviour))]
     public static class KMonobehaviourPatch
     {
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(KMonoBehaviour.Trigger), new[] { typeof(int), typeof(object) })]
-        public static bool Prefix(KMonoBehaviour __instance, int hash, object data)
-        {
-            if(!MultiplayerSession.InSession)
-            {
-                return true;
-            }
+        //[HarmonyPrefix]
+        //[HarmonyPatch(nameof(KMonoBehaviour.Trigger), new[] { typeof(int), typeof(object) })]
+        //public static bool Prefix(KMonoBehaviour __instance, int hash, object data)
+        //{
+        //    if(!MultiplayerSession.InSession)
+        //    {
+        //        return true;
+        //    }
 
 
-            GameObject go = __instance.gameObject;
+        //    GameObject go = __instance.gameObject;
 
-            // Only the host is allowed to dispatch events directly
-            if (MultiplayerSession.IsHost)
-            {
-                EventTrigger.TriggerEvent(go, hash, data);
-            }
+        //    // Only the host is allowed to dispatch events directly
+        //    if (MultiplayerSession.IsHost)
+        //    {
+        //        EventTrigger.TriggerEvent(go, hash, data);
+        //    }
 
-            return false;
-        }
+        //    return true;
+        //}
     }
 }

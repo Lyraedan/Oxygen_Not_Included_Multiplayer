@@ -9,6 +9,24 @@ namespace ONI_MP.Misc
 {
     public class Scheduler
     {
+        private static Scheduler _instance;
+        private static readonly object _lock = new object();
+        public static Scheduler Instance 
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                            _instance = new Scheduler();
+                    }
+                }
+                return _instance;
+            }
+        }
+
         public enum Pipeline
         {
             ASYNC,
@@ -65,15 +83,15 @@ namespace ONI_MP.Misc
         {
             while (_running)
             {
-                List<Task> tasks;
+                List<Task> snapshot;
                 lock (_mutexes[pipeline])
                 {
-                    tasks = _pipelines[pipeline].ToList(); // Copy to avoid lock time
+                    snapshot = new List<Task>(_pipelines[pipeline]); // copy to avoid conflict
                 }
 
                 double now = _stopwatch.Elapsed.TotalSeconds;
 
-                foreach (var task in tasks)
+                foreach (var task in snapshot)
                 {
                     if (task.StopFlag || task.Repeat == 0)
                     {
@@ -85,14 +103,9 @@ namespace ONI_MP.Misc
                     if (now - task.LastCall >= task.Interval)
                     {
                         task.LastCall = now;
-                        try
-                        {
-                            task.Callback.Invoke();
-                        }
-                        catch (Exception e)
-                        {
-                            DebugConsole.Log($"[Scheduler] Task exception: {e}");
-                        }
+
+                        try { task.Callback.Invoke(); }
+                        catch (Exception e) { Console.WriteLine($"Task error: {e}"); }
 
                         if (task.Repeat > 0)
                         {
@@ -106,7 +119,7 @@ namespace ONI_MP.Misc
                     }
                 }
 
-                Thread.Sleep(10); // Avoid tight loop
+                //Thread.Sleep(10);
             }
         }
 

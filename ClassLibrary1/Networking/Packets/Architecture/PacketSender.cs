@@ -32,7 +32,8 @@ namespace ONI_MP.Networking.Packets.Architecture
                 return;
             }
 
-            conn.Send(packet, sendType);
+            DebugConsole.Log($"[PacketSender] Sending {packet.Type} to {conn.DebugName}");
+            Misc.Scheduler.Instance.Once(() => conn.Send(packet, sendType), Misc.Scheduler.Pipeline.NETWORK);
         }
 
         public static void SendToPlayer(string id, IPacket packet, SendType sendType = SendType.Reliable)
@@ -45,7 +46,7 @@ namespace ONI_MP.Networking.Packets.Architecture
                 return;
             }
 
-            target.Send(packet, sendType);
+            SendToConnection(target, packet, sendType );
         }
 
 
@@ -57,12 +58,12 @@ namespace ONI_MP.Networking.Packets.Architecture
                 return;
             }
 
-            Platform.HostConnection.Send(packet, sendType);
+            SendToConnection(Platform.HostConnection, packet, sendType );
         }
 
         public static void SendToAll(IPacket packet, INetworkConnection exclude = null, SendType sendType = SendType.Reliable)
         {
-            Platform.SendToAll(packet, exclude, sendType);
+            Misc.Scheduler.Instance.Once(() => Platform.SendToAll(packet, exclude, sendType), Misc.Scheduler.Pipeline.NETWORK);
         }
 
         public static void SendToAllClients(IPacket packet, SendType sendType = SendType.Reliable)
@@ -87,7 +88,7 @@ namespace ONI_MP.Networking.Packets.Architecture
                     filteredConnections.Add(conn);
             }
 
-            Platform.SendToAllExcluding(packet, filteredConnections, sendType);
+            Misc.Scheduler.Instance.Once(() => Platform.SendToAllExcluding(packet, filteredConnections, sendType), Misc.Scheduler.Pipeline.NETWORK);
         }
 
         private static INetworkConnection FindConnectionById(string id)

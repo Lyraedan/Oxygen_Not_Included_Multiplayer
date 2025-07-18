@@ -43,7 +43,7 @@ namespace ONI_MP.Networking
         public static void SetHost(string hostId)
         {
             HostId = hostId;
-            DebugConsole.Log($"[MultiplayerSession] Host set to: {hostId}");
+            DebugConsole.Log($"[MultiplayerSession] Host set to: {hostId} : We're host: {IsHost}");
         }
 
         public static MultiplayerPlayer GetPlayer(string id)

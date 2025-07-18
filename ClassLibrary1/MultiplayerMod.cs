@@ -54,6 +54,8 @@ namespace ONI_MP
             {
                 DebugConsole.Log("Embedded Resource: " + res);
             }
+
+            //Misc.Scheduler.Instance.Demo(); // Make sure scheduler works
         }
 
         private void InitializePlatform()

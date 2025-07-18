@@ -146,7 +146,10 @@ namespace ONI_MP.Networking.Platforms.Steam
             DebugConsole.Log($"[SteamLobby] Lobby created: {CurrentLobby}");
 
             SteamMatchmaking.SetLobbyData(_currentLobby, "name", SteamFriends.GetPersonaName() + "'s Lobby");
-            SteamMatchmaking.SetLobbyData(_currentLobby, "host", SteamUser.GetSteamID().ToString());
+            string host = SteamUser.GetSteamID().ToString();
+            SteamMatchmaking.SetLobbyData(_currentLobby, "host", host);
+
+            MultiplayerSession.SetHost(host);
 
             MultiplayerSession.Clear();
             PacketSender.Platform.GameServer.Start();
