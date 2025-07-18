@@ -216,11 +216,7 @@ namespace ONI_MP.Networking
                 MultiplayerOverlay.Show($"Waiting for {SteamFriends.GetFriendPersonaName(MultiplayerSession.HostSteamID)}...");
                 if (!IsHardSyncInProgress)
                 {
-                    var packet = new SaveFileRequestPacket
-                    {
-                        Requester = MultiplayerSession.LocalSteamID
-                    };
-                    PacketSender.SendToHost(packet);
+                    // SaveFileRequestPacket functionality removed
                 } else
                 {
                     // Tell the host we're ready

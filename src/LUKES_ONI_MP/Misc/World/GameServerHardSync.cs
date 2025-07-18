@@ -61,7 +61,7 @@ namespace ONI_MP.Networking
             int fileSize = SaveHelper.GetWorldSave().Length;
             int chunkSize = SaveHelper.SAVEFILE_CHUNKSIZE_KB * 1024;
             int chunkCount = Mathf.CeilToInt(fileSize / (float)chunkSize);
-            float estimatedTransferDuration = chunkCount * SaveFileRequestPacket.SAVE_DATA_SEND_DELAY;
+            float estimatedTransferDuration = chunkCount * 0.1f; // Default delay since SaveFileRequestPacket removed
             yield return new WaitForSeconds(estimatedTransferDuration * numberOfClientsAtTimeOfSync);
 
             hardSyncInProgress = false;

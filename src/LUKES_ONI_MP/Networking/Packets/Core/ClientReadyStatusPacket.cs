@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using ONI_MP.SharedStorage;
 using ONI_MP.DebugTools;
 using ONI_MP.Menus;
 using ONI_MP.Networking.Packets.Architecture;
@@ -62,7 +61,7 @@ namespace ONI_MP.Networking.Packets.Core
                 if(allReady)
                 {
                     ReadyManager.MarkAllAsUnready(); // Reset player ready states
-                    StorageUtils.UploadAndSendToAllClients();
+                    // StorageUtils functionality removed
                 }
                 return;
             }

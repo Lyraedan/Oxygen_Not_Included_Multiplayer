@@ -11,7 +11,6 @@ using UnityEngine.UI;
 using System.Collections;
 using ONI_MP.DebugTools;
 using ONI_MP;
-using ONI_MP.SharedStorage;
 
 [HarmonyPatch(typeof(MainMenu), "OnPrefabInit")]
 internal static class MainMenuPatch
@@ -28,18 +27,7 @@ internal static class MainMenuPatch
         var makeButton = __instance.GetType().GetMethod("MakeButton", BindingFlags.NonPublic | BindingFlags.Instance);
 
         // Host Game
-
-        if (SharedStorageManager.Instance.IsInitialized)
-        {
-            DebugConsole.Log("[MainMenuPatch] SharedStorageManager is initialized.");
-        }
-        else
-        {
-            DebugConsole.LogWarning("[MainMenuPatch] SharedStorageManager is not initialized. Cloud storage setup may be required.");
-            // Note: User can manually access setup guide if needed
-        }
-
-        string host_text = SharedStorageManager.Instance.IsInitialized ? "Host Game" : "Host Game [Setup]";
+        string host_text = "Host Game";
         var hostInfo = CreateButtonInfo(
             host_text,
             new System.Action(() => {
@@ -64,22 +52,6 @@ internal static class MainMenuPatch
             buttonInfoType
         );
         makeButton.Invoke(__instance, new object[] { joinInfo });
-
-        // Provider Toggle
-        string currentProvider = SharedStorageManager.Instance.CurrentProvider;
-        string nextProvider = currentProvider == "GoogleDrive" ? "HttpSharedStorage" : "GoogleDrive";
-        string toggleText = $"Storage: {currentProvider} → {nextProvider}";
-        
-        var toggleInfo = CreateButtonInfo(
-            toggleText,
-            new System.Action(() => {
-                SharedStorageManager.Instance.SwitchProvider(nextProvider);
-            }),
-            normalFontSize - 2, // Slightly smaller font
-            normalStyle,
-            buttonInfoType
-        );
-        makeButton.Invoke(__instance, new object[] { toggleInfo });
 
         bool useCustomMenu = Configuration.GetClientProperty<bool>("UseCustomMainMenu");
         if (useCustomMenu)
@@ -314,8 +286,8 @@ internal static class MainMenuPatch
         AddSocialButton(socialsContainer.transform, "Join ONI Together\non Discord", "https://discord.gg/jpxveK6mmY", discordSprite);
 
         var statusSprite = ResourceLoader.LoadEmbeddedTexture("ONI_MP.Assets.cloud_status.png");
-        AddStatusIndicator(socialsContainer.transform, "cloud_indicator", SharedStorageManager.Instance.IsInitialized, statusSprite, 
-            new string[] { $"Multiplayer Hosting: Not Ready!\n<color=#FFFF00>Provider: {SharedStorageManager.Instance.CurrentProvider}</color>", "Multiplayer Hosting: Ready!" },
+        AddStatusIndicator(socialsContainer.transform, "cloud_indicator", true, statusSprite, 
+            new string[] { $"", "Multiplayer Hosting: Ready!" },
             new string[] { "https://github.com/Lyraedan/Oxygen_Not_Included_Multiplayer/wiki/Cloud-Storage-Setup-Guide", "Wiki" });
 
         // Automatically resize the container to properly fit the buttons

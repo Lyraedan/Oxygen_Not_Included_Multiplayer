@@ -17,7 +17,7 @@ namespace ONI_MP.Patches.DuplicantBehavior
         private static Dictionary<int, int> duplicantRecreationBuildings = new Dictionary<int, int>();
         private static Dictionary<int, Vector3> lastIdlePositions = new Dictionary<int, Vector3>();
         private static Dictionary<int, float> idleStateTimestamps = new Dictionary<int, float>();
-        private static readonly float IDLE_POSITION_THRESHOLD = 0.5f; // Position change threshold for sync
+        // private static readonly float IDLE_POSITION_THRESHOLD = 0.5f; // Position change threshold for sync
         
         /// <summary>
         /// Synchronizes when duplicants start idle activities or recreation.

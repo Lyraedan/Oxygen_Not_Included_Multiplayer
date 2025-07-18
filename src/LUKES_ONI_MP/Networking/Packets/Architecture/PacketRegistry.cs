@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using ONI_MP.Networking.Packets.SharedStorage;
 using ONI_MP.Networking.Packets.Core;
 using ONI_MP.Networking.Packets.DuplicantActions;
 using ONI_MP.Networking.Packets.Events;
@@ -46,8 +45,6 @@ namespace ONI_MP.Networking.Packets.Architecture
             Register(PacketType.WorldDataRequest, () => new WorldDataRequestPacket());
             Register(PacketType.WorldUpdate, () => new WorldUpdatePacket());
             Register(PacketType.NavigatorPath, () => new NavigatorPathPacket());
-            Register(PacketType.SaveFileRequest, () => new SaveFileRequestPacket());
-            Register(PacketType.SaveFileChunk, () => new SaveFileChunkPacket());
             Register(PacketType.Diggable, () => new DiggablePacket());
             Register(PacketType.DigComplete, () => new DigCompletePacket());
             Register(PacketType.PlayAnim, () => new PlayAnimPacket());
@@ -74,8 +71,6 @@ namespace ONI_MP.Networking.Packets.Architecture
             Register(PacketType.Disinfect, () => new DisinfectPacket());
             Register(PacketType.SpeedChange, () => new SpeedChangePacket());
             Register(PacketType.PlayerCursor, () => new PlayerCursorPacket());
-            Register(PacketType.GoogleDriveFileShare, () => new GoogleDriveFileSharePacket());
-            Register(PacketType.SteamP2PFileShare, () => new SteamP2PFileSharePacket());
             
             // Resource & Inventory Synchronization Packets
             Register(PacketType.ResourceTransfer, () => new ResourceTransferPacket());
@@ -100,13 +95,6 @@ namespace ONI_MP.Networking.Packets.Architecture
             Register(PacketType.StressBehavior, () => new StressBehaviorPacket());
             Register(PacketType.PathfindingUpdate, () => new PathfindingUpdatePacket());
             Register(PacketType.BehaviorState, () => new BehaviorStatePacket());
-            
-            // Steam P2P File Transfer Packets
-            Register(PacketType.P2PFileRequest, () => new P2PFileRequestPacket());
-            Register(PacketType.P2PFileChunk, () => new P2PFileChunkPacket());
-            Register(PacketType.P2PFileManifest, () => new P2PFileManifestPacket());
-            Register(PacketType.P2PChunkRequest, () => new P2PChunkRequestPacket());
-            Register(PacketType.P2PTransferComplete, () => new P2PTransferCompletePacket());
         }
     }
 }

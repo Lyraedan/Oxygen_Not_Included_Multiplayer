@@ -7,9 +7,8 @@ using ONI_MP.Networking.Components;
 using ONI_MP.Components;
 using System.Reflection;
 using System.Collections.Generic;
-using ONI_MP.Misc;
-using ONI_MP.SharedStorage;
 using System;
+using ONI_MP.Misc;
 
 namespace ONI_MP
 {
@@ -29,8 +28,6 @@ namespace ONI_MP
             DebugMenu.Init();
             SteamLobby.Initialize();
 
-            InitializeCloud();
-
             var go = new GameObject("Multiplayer_Modules");
             UnityEngine.Object.DontDestroyOnLoad(go);
             go.AddComponent<SteamNetworkingComponent>();
@@ -46,28 +43,6 @@ namespace ONI_MP
             foreach (var res in Assembly.GetExecutingAssembly().GetManifestResourceNames())
             {
                 DebugConsole.Log("Embedded Resource: " + res);
-            }
-        }
-
-        void InitializeCloud()
-        {
-            try
-            {
-                SharedStorageManager.Instance.OnInitialized.AddListener(() =>
-                {
-                    SharedStorageManager.Instance.OnUploadStarted.AddListener(() =>
-                    {
-                        SpeedControlScreen.Instance?.Pause(false); // Pause the game when uploading starts
-                    });
-                });
-
-                SharedStorageManager.Instance.Initialize();
-                DebugConsole.Log($"Shared access storage initialized and ready! Using provider: {SharedStorageManager.Instance.CurrentProvider}");
-
-            }
-            catch (Exception ex)
-            {
-                DebugConsole.LogError($"Cloud storage init failed: {ex.Message}");
             }
         }
 

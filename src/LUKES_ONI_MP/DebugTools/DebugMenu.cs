@@ -6,7 +6,6 @@ using KMod;
 using ONI_MP.Networking.Packets.World;
 using Steamworks;
 using System;
-using ONI_MP.SharedStorage;
 
 namespace ONI_MP.DebugTools
 {
@@ -104,10 +103,7 @@ namespace ONI_MP.DebugTools
                     GUILayout.Label($"Google Drive");
                     if (MultiplayerSession.IsHost)
                     {
-                        if (GUILayout.Button("Test Upload"))
-                        {
-                            StorageUtils.UploadSaveFile();
-                        }
+                        // StorageUtils functionality removed
                     }
                     //DrawPlayerList();
                 }
