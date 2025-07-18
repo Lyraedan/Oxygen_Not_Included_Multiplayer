@@ -599,6 +599,9 @@ namespace ONI_MP.SharedStorage
             
             using (var fileStream = new FileStream(localFilePath, FileMode.Open, FileAccess.Read))
             {
+                // Calculate the total number of chunks for the entire file
+                var totalChunks = (int)Math.Ceiling((double)fileStream.Length / _chunkSize);
+                
                 foreach (var chunkIndex in request.RequestedChunks)
                 {
                     bool chunkSent = false;
@@ -616,7 +619,7 @@ namespace ONI_MP.SharedStorage
                         
                         var chunkPacket = new P2PFileChunkPacket(
                             MultiplayerSession.LocalSteamID, request.FileName, request.FileHash,
-                            chunkIndex, request.RequestedChunks.Count, chunkData, request.TransferID);
+                            chunkIndex, totalChunks, chunkData, request.TransferID);
                         
                         PacketSender.SendToPlayer(request.RequesterSteamID, chunkPacket);
                         chunkSent = true;
