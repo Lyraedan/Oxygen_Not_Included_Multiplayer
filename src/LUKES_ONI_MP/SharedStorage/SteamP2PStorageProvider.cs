@@ -597,10 +597,15 @@ namespace ONI_MP.SharedStorage
                 yield break;
             }
             
+            DebugConsole.Log($"[SteamP2PStorageProvider] Starting to send {request.RequestedChunks.Count} chunks for {request.FileName}");
+            
+            int sentCount = 0;
             using (var fileStream = new FileStream(localFilePath, FileMode.Open, FileAccess.Read))
             {
                 // Calculate the total number of chunks for the entire file
                 var totalChunks = (int)Math.Ceiling((double)fileStream.Length / _chunkSize);
+                
+                DebugConsole.Log($"[SteamP2PStorageProvider] File size: {fileStream.Length} bytes, Chunk size: {_chunkSize}, Total chunks: {totalChunks}");
                 
                 foreach (var chunkIndex in request.RequestedChunks)
                 {
@@ -623,6 +628,9 @@ namespace ONI_MP.SharedStorage
                         
                         PacketSender.SendToPlayer(request.RequesterSteamID, chunkPacket);
                         chunkSent = true;
+                        sentCount++;
+                        
+                        DebugConsole.Log($"[SteamP2PStorageProvider] Sent chunk {chunkIndex + 1}/{totalChunks} ({sentCount}/{request.RequestedChunks.Count} requested) - {bytesRead} bytes");
                     }
                     catch (Exception ex)
                     {
@@ -643,7 +651,7 @@ namespace ONI_MP.SharedStorage
                 }
             }
             
-            DebugConsole.Log($"[SteamP2PStorageProvider] Sent {request.RequestedChunks.Count} chunks to {request.RequesterSteamID}");
+            DebugConsole.Log($"[SteamP2PStorageProvider] Completed sending {sentCount} chunks to {request.RequesterSteamID}");
         }
         
         /// <summary>
