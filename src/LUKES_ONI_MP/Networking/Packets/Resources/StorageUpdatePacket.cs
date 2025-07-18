@@ -5,6 +5,7 @@ using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking;
 using Steamworks;
+using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Resources
 {
@@ -163,13 +164,13 @@ namespace ONI_MP.Networking.Packets.Resources
 
         private void UpdateStorageContents()
         {
-            var storageObj = NetworkIdentityRegistry.GetGameObject(StorageNetId);
-            if (storageObj == null)
+            if (!NetworkIdentityRegistry.TryGet(StorageNetId, out NetworkIdentity storageIdentity))
             {
                 DebugConsole.LogWarning($"[StorageUpdatePacket] Storage with NetId {StorageNetId} not found");
                 return;
             }
 
+            var storageObj = storageIdentity.gameObject;
             var storage = storageObj.GetComponent<Storage>();
             if (storage == null)
             {

@@ -62,14 +62,14 @@ namespace ONI_MP.Networking.Packets.Resources
             SenderId = senderId;
             DuplicantNetId = duplicantNetId;
             
-            var duplicantObj = NetworkIdentityRegistry.GetGameObject(duplicantNetId);
-            if (duplicantObj == null)
+            if (!NetworkIdentityRegistry.TryGet(duplicantNetId, out NetworkIdentity duplicantIdentity))
             {
                 IsCarryingAnything = false;
                 TotalCarriedMass = 0f;
                 return;
             }
 
+            var duplicantObj = duplicantIdentity.gameObject;
             // Extract inventory from duplicant
             ExtractDuplicantInventory(duplicantObj);
         }
@@ -216,13 +216,13 @@ namespace ONI_MP.Networking.Packets.Resources
 
         private void UpdateDuplicantInventory()
         {
-            var duplicantObj = NetworkIdentityRegistry.GetGameObject(DuplicantNetId);
-            if (duplicantObj == null)
+            if (!NetworkIdentityRegistry.TryGet(DuplicantNetId, out NetworkIdentity duplicantIdentity))
             {
                 DebugConsole.LogWarning($"[InventorySyncPacket] Duplicant with NetId {DuplicantNetId} not found");
                 return;
             }
 
+            var duplicantObj = duplicantIdentity.gameObject;
             var storage = duplicantObj.GetComponent<Storage>();
             if (storage == null)
             {

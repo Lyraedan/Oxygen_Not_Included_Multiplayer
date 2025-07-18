@@ -135,81 +135,96 @@ namespace ONI_MP.Networking.Packets.Resources
 
         private void ProcessPickup()
         {
-            var pickupableObj = NetworkIdentityRegistry.GetGameObject(PickupableNetId);
-            var actorObj = NetworkIdentityRegistry.GetGameObject(ActorNetId);
-            
-            if (pickupableObj != null && actorObj != null)
+            if (!NetworkIdentityRegistry.TryGet(PickupableNetId, out NetworkIdentity pickupableIdentity) ||
+                !NetworkIdentityRegistry.TryGet(ActorNetId, out NetworkIdentity actorIdentity))
             {
-                var pickupable = pickupableObj.GetComponent<Pickupable>();
-                var actorStorage = actorObj.GetComponent<Storage>();
-                
-                if (pickupable != null && actorStorage != null)
+                return;
+            }
+
+            var pickupableObj = pickupableIdentity.gameObject;
+            var actorObj = actorIdentity.gameObject;
+            
+            var pickupable = pickupableObj.GetComponent<Pickupable>();
+            var actorStorage = actorObj.GetComponent<Storage>();
+            
+            if (pickupable != null && actorStorage != null)
+            {
+                // Move pickupable from world to actor inventory
+                if (pickupable.storage == null) // Only if not already stored
                 {
-                    // Move pickupable from world to actor inventory
-                    if (pickupable.storage == null) // Only if not already stored
-                    {
-                        actorStorage.Store(pickupableObj, false, false, true, false);
-                        DebugConsole.Log($"[PickupableActionPacket] Actor {ActorNetId} picked up item {PickupableNetId}");
-                    }
+                    actorStorage.Store(pickupableObj, false, false, true, false);
+                    DebugConsole.Log($"[PickupableActionPacket] Actor {ActorNetId} picked up item {PickupableNetId}");
                 }
             }
         }
 
         private void ProcessDrop()
         {
-            var pickupableObj = NetworkIdentityRegistry.GetGameObject(PickupableNetId);
-            var actorObj = NetworkIdentityRegistry.GetGameObject(ActorNetId);
-            
-            if (pickupableObj != null && actorObj != null)
+            if (!NetworkIdentityRegistry.TryGet(PickupableNetId, out NetworkIdentity pickupableIdentity) ||
+                !NetworkIdentityRegistry.TryGet(ActorNetId, out NetworkIdentity actorIdentity))
             {
-                var pickupable = pickupableObj.GetComponent<Pickupable>();
-                var actorStorage = actorObj.GetComponent<Storage>();
-                
-                if (pickupable != null && actorStorage != null)
+                return;
+            }
+
+            var pickupableObj = pickupableIdentity.gameObject;
+            var actorObj = actorIdentity.gameObject;
+            
+            var pickupable = pickupableObj.GetComponent<Pickupable>();
+            var actorStorage = actorObj.GetComponent<Storage>();
+            
+            if (pickupable != null && actorStorage != null)
+            {
+                // Move pickupable from actor inventory to world
+                if (pickupable.storage == actorStorage)
                 {
-                    // Move pickupable from actor inventory to world
-                    if (pickupable.storage == actorStorage)
-                    {
-                        actorStorage.Drop(pickupableObj, true);
-                        pickupableObj.transform.position = Position;
-                        DebugConsole.Log($"[PickupableActionPacket] Actor {ActorNetId} dropped item {PickupableNetId} at {Position}");
-                    }
+                    actorStorage.Drop(pickupableObj, true);
+                    pickupableObj.transform.position = Position;
+                    DebugConsole.Log($"[PickupableActionPacket] Actor {ActorNetId} dropped item {PickupableNetId} at {Position}");
                 }
             }
         }
 
         private void ProcessStore()
         {
-            var pickupableObj = NetworkIdentityRegistry.GetGameObject(PickupableNetId);
-            var targetObj = NetworkIdentityRegistry.GetGameObject(TargetNetId);
-            
-            if (pickupableObj != null && targetObj != null)
+            if (!NetworkIdentityRegistry.TryGet(PickupableNetId, out NetworkIdentity pickupableIdentity) ||
+                !NetworkIdentityRegistry.TryGet(TargetNetId, out NetworkIdentity targetIdentity))
             {
-                var pickupable = pickupableObj.GetComponent<Pickupable>();
-                var targetStorage = targetObj.GetComponent<Storage>();
-                
-                if (pickupable != null && targetStorage != null)
+                return;
+            }
+
+            var pickupableObj = pickupableIdentity.gameObject;
+            var targetObj = targetIdentity.gameObject;
+            
+            var pickupable = pickupableObj.GetComponent<Pickupable>();
+            var targetStorage = targetObj.GetComponent<Storage>();
+            
+            if (pickupable != null && targetStorage != null)
+            {
+                // Move item to target storage
+                if (pickupable.storage != targetStorage && targetStorage.capacityKg > targetStorage.MassStored())
                 {
-                    // Move item to target storage
-                    if (pickupable.storage != targetStorage && targetStorage.capacityKg > targetStorage.MassStored())
+                    // Remove from current storage if any
+                    if (pickupable.storage != null)
                     {
-                        // Remove from current storage if any
-                        if (pickupable.storage != null)
-                        {
-                            pickupable.storage.Drop(pickupableObj, false);
-                        }
-                        
-                        targetStorage.Store(pickupableObj, false, false, true, false);
-                        DebugConsole.Log($"[PickupableActionPacket] Item {PickupableNetId} stored in container {TargetNetId}");
+                        pickupable.storage.Drop(pickupableObj, false);
                     }
+                    
+                    targetStorage.Store(pickupableObj, false, false, true, false);
+                    DebugConsole.Log($"[PickupableActionPacket] Item {PickupableNetId} stored in container {TargetNetId}");
                 }
             }
         }
 
         private void ProcessRetrieve()
         {
-            var pickupableObj = NetworkIdentityRegistry.GetGameObject(PickupableNetId);
-            var targetObj = NetworkIdentityRegistry.GetGameObject(TargetNetId);
+            if (!NetworkIdentityRegistry.TryGet(PickupableNetId, out NetworkIdentity pickupableIdentity) ||
+                !NetworkIdentityRegistry.TryGet(TargetNetId, out NetworkIdentity targetIdentity))
+            {
+                return;
+            }
+
+            var pickupableObj = pickupableIdentity.gameObject;
+            var targetObj = targetIdentity.gameObject;
             
             if (pickupableObj != null && targetObj != null)
             {
@@ -231,9 +246,9 @@ namespace ONI_MP.Networking.Packets.Resources
 
         private void ProcessReserve()
         {
-            var pickupableObj = NetworkIdentityRegistry.GetGameObject(PickupableNetId);
-            if (pickupableObj != null)
+            if (NetworkIdentityRegistry.TryGet(PickupableNetId, out NetworkIdentity pickupableIdentity))
             {
+                var pickupableObj = pickupableIdentity.gameObject;
                 var pickupable = pickupableObj.GetComponent<Pickupable>();
                 if (pickupable != null)
                 {
@@ -246,9 +261,9 @@ namespace ONI_MP.Networking.Packets.Resources
 
         private void ProcessUnreserve()
         {
-            var pickupableObj = NetworkIdentityRegistry.GetGameObject(PickupableNetId);
-            if (pickupableObj != null)
+            if (NetworkIdentityRegistry.TryGet(PickupableNetId, out NetworkIdentity pickupableIdentity))
             {
+                var pickupableObj = pickupableIdentity.gameObject;
                 var pickupable = pickupableObj.GetComponent<Pickupable>();
                 if (pickupable != null)
                 {
@@ -261,9 +276,9 @@ namespace ONI_MP.Networking.Packets.Resources
 
         private void ProcessConsume()
         {
-            var pickupableObj = NetworkIdentityRegistry.GetGameObject(PickupableNetId);
-            if (pickupableObj != null)
+            if (NetworkIdentityRegistry.TryGet(PickupableNetId, out NetworkIdentity pickupableIdentity))
             {
+                var pickupableObj = pickupableIdentity.gameObject;
                 var pickupable = pickupableObj.GetComponent<Pickupable>();
                 if (pickupable != null)
                 {

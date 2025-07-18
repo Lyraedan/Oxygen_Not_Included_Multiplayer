@@ -3,6 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Resources;
+using ONI_MP.Networking.Packets.Architecture;
 using Steamworks;
 using UnityEngine;
 
@@ -13,20 +14,7 @@ namespace ONI_MP.Patches.Resources
     /// </summary>
     public class PickupablePatch
     {
-        [HarmonyPatch(typeof(Pickupable), nameof(Pickupable.OnPrefabInit))]
-        public static class Pickupable_OnPrefabInit_Patch
-        {
-            public static void Postfix(Pickupable __instance)
-            {
-                // Ensure all pickupables have NetworkIdentity for synchronization
-                var identity = __instance.GetComponent<NetworkIdentity>();
-                if (identity == null)
-                {
-                    identity = __instance.gameObject.AddComponent<NetworkIdentity>();
-                    identity.RegisterIdentity();
-                }
-            }
-        }
+        // NetworkIdentity is already added by SubstancePatch when resources are spawned
 
         [HarmonyPatch(typeof(Pickupable), "OnPickedUp")]
         public static class Pickupable_OnPickedUp_Patch

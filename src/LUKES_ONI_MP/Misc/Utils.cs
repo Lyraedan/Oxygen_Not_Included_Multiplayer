@@ -65,7 +65,7 @@ namespace ONI_MP.Misc
 
         public static void ListAllTMPFonts()
         {
-            var fonts = Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
+            var fonts = UnityEngine.Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
             DebugConsole.Log($"Found {fonts.Length} TMP_FontAsset(s):");
 
             foreach (var font in fonts)

@@ -123,8 +123,7 @@ namespace ONI_MP.Networking.Packets.Resources
         private void SpawnDroppedResource()
         {
             // Check if resource already exists with this NetId
-            var existingObj = NetworkIdentityRegistry.GetGameObject(ResourceNetId);
-            if (existingObj != null)
+            if (NetworkIdentityRegistry.TryGet(ResourceNetId, out NetworkIdentity existingIdentity))
             {
                 DebugConsole.Log($"[ResourceDropPacket] Resource {ResourceNetId} already exists, skipping spawn");
                 return;
@@ -167,7 +166,7 @@ namespace ONI_MP.Networking.Packets.Resources
                 {
                     case DropReason.DuplicantDrop:
                         // Mark as recently dropped to prevent immediate re-pickup
-                        droppedObj.AddTag(GameTags.Minion);
+                        droppedObj.AddTag(GameTags.Stored);
                         break;
                     case DropReason.StorageEjection:
                         // Mark as ejected from storage

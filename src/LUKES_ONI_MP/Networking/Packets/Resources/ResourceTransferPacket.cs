@@ -133,9 +133,9 @@ namespace ONI_MP.Networking.Packets.Resources
         private void ProcessWorldPickup()
         {
             // Remove the resource from world if it exists
-            var resourceObj = NetworkIdentityRegistry.GetGameObject(ResourceNetId);
-            if (resourceObj != null)
+            if (NetworkIdentityRegistry.TryGet(ResourceNetId, out NetworkIdentity resourceIdentity))
             {
+                var resourceObj = resourceIdentity.gameObject;
                 var pickupable = resourceObj.GetComponent<Pickupable>();
                 if (pickupable != null)
                 {
@@ -149,9 +149,9 @@ namespace ONI_MP.Networking.Packets.Resources
 
         private void ProcessStoreInContainer()
         {
-            var containerObj = NetworkIdentityRegistry.GetGameObject(TargetNetId);
-            if (containerObj != null)
+            if (NetworkIdentityRegistry.TryGet(TargetNetId, out NetworkIdentity containerIdentity))
             {
+                var containerObj = containerIdentity.gameObject;
                 var storage = containerObj.GetComponent<Storage>();
                 if (storage != null && storage.capacityKg > storage.MassStored())
                 {
@@ -161,7 +161,7 @@ namespace ONI_MP.Networking.Packets.Resources
                     {
                         // Create resource in storage
                         storage.AddOre(element.id, Amount, element.defaultValues.temperature, 
-                                     element.defaultValues.diseaseIdx, element.defaultValues.diseaseCount);
+                                     0, 0); // No disease by default
                         DebugConsole.Log($"[ResourceTransferPacket] Added {Amount} {ResourceTag} to storage");
                     }
                 }
@@ -170,9 +170,9 @@ namespace ONI_MP.Networking.Packets.Resources
 
         private void ProcessTakeFromContainer()
         {
-            var containerObj = NetworkIdentityRegistry.GetGameObject(SourceNetId);
-            if (containerObj != null)
+            if (NetworkIdentityRegistry.TryGet(SourceNetId, out NetworkIdentity containerIdentity))
             {
+                var containerObj = containerIdentity.gameObject;
                 var storage = containerObj.GetComponent<Storage>();
                 if (storage != null)
                 {
@@ -180,7 +180,7 @@ namespace ONI_MP.Networking.Packets.Resources
                     var element = ElementLoader.FindElementByName(ResourceTag);
                     if (element != null)
                     {
-                        storage.ConsumeIgnoringDisease(element.id, Amount);
+                        storage.ConsumeIgnoringDisease(element.tag, Amount);
                         DebugConsole.Log($"[ResourceTransferPacket] Removed {Amount} {ResourceTag} from storage");
                     }
                 }
@@ -190,15 +190,13 @@ namespace ONI_MP.Networking.Packets.Resources
         private void ProcessDropToWorld()
         {
             // Spawn resource at position if it doesn't already exist
-            var existingObj = NetworkIdentityRegistry.GetGameObject(ResourceNetId);
-            if (existingObj == null)
+            if (!NetworkIdentityRegistry.TryGet(ResourceNetId, out NetworkIdentity existingIdentity))
             {
                 var element = ElementLoader.FindElementByName(ResourceTag);
                 if (element != null)
                 {
                     var droppedObj = element.substance.SpawnResource(Position, Amount, 
-                        element.defaultValues.temperature, element.defaultValues.diseaseIdx, 
-                        element.defaultValues.diseaseCount);
+                        element.defaultValues.temperature, 0, 0); // No disease by default
                         
                     var identity = droppedObj.GetComponent<NetworkIdentity>();
                     if (identity != null)
