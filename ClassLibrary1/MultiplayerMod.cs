@@ -70,7 +70,11 @@ namespace ONI_MP
                     }
                 case 1:
                     {
-                        InitEos();
+                        Misc.Scheduler.Instance.Once(() =>
+                        {
+                            InitEos();
+                        }, Misc.Scheduler.Pipeline.ASYNC);
+                        //InitEos();
                         break;    
                     }
                 default:

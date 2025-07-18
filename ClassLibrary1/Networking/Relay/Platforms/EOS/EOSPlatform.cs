@@ -13,6 +13,7 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
 {
     public class EOSPlatform : INetworkPlatform
     {
+        string INetworkPlatform.ID => "Epic Online Services";
         public static ProductUserId LocalUserId { get; private set; }
         public static P2PInterface P2P { get; private set; }
         public static ConnectInterface Connect { get; private set; }

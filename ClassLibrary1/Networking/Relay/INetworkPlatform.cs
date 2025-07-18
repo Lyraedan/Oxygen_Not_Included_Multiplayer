@@ -10,6 +10,7 @@ namespace ONI_MP.Networking.Relay
 {
     public interface INetworkPlatform
     {
+        string ID { get; }
         bool IsHost { get; }
         INetworkConnection HostConnection { get; }
         IReadOnlyCollection<INetworkConnection> ConnectedClients { get; }

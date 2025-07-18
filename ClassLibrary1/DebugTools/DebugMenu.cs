@@ -67,6 +67,9 @@ namespace ONI_MP.DebugTools
             if (GUILayout.Button("Toggle Debug Console"))
                 debugConsole.Toggle();
 
+            GUILayout.Space(10);
+            GUILayout.Label("Multiplayer");
+
             if (GUILayout.Button("Create Lobby"))
                 PacketSender.Platform.Lobby.CreateLobby(onSuccess: () => {
                     SpeedControlScreen.Instance?.Unpause(false);
@@ -90,6 +93,9 @@ namespace ONI_MP.DebugTools
             {
                 if (MultiplayerSession.InSession)
                 {
+                    GUILayout.Label($"Platform: {PacketSender.Platform.ID}");
+                    GUILayout.Label($"Connected clients: {PacketSender.Platform.ConnectedClients.Count}");
+
                     if (!MultiplayerSession.IsHost)
                     {
                         int? ping = PacketSender.Platform.GameClient.GetPingToHost();
@@ -101,6 +107,7 @@ namespace ONI_MP.DebugTools
                         GUILayout.Label("Hosting multiplayer session.");
                         if (GUILayout.Button("Test Hard sync"))
                             GameServerHardSync.PerformHardSync();
+
                     }
 
                     GUILayout.Space(10);
