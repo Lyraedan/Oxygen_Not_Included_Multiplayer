@@ -6,11 +6,6 @@
 # Build output directory
 BuildOutput/
 
-# Built mod files (except template files)
-build/oni_mp/*.dll
-build/oni_mp/*.pdb
-build/oni_mp/*.exe
-
 # Package output
 package/
 
