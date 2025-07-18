@@ -30,7 +30,7 @@ namespace ONI_MP.Networking.Platforms.EOS
 
         public string CurrentLobby => _currentLobbyId;
         public bool InLobby => !string.IsNullOrEmpty(_currentLobbyId);
-        public int MaxLobbySize { get; private set; } = 0;
+        public int MaxLobbySize { get; private set; } = 4;
         public IReadOnlyList<string> LobbyMembers => _members.AsReadOnly();
 
         public void Initialize()
