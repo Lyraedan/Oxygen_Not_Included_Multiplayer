@@ -53,86 +53,46 @@ namespace ONI_MP
             return Instance.GetProperty<T>(Instance.Client, propertyName);
         }
 
-        public static T GetCloudStorageProperty<T>(string propertyName)
-        {
-            if (Instance?.Host?.CloudStorage == null)
-            {
-                Debug.LogWarning($"[Configuration] CloudStorage settings are null, creating default instance");
-                if (Instance?.Host != null)
-                    Instance.Host.CloudStorage = new CloudStorageSettings();
-                else
-                {
-                    if (Instance != null)
-                        Instance.Host = new HostSettings();
-                    else
-                        _instance = new Configuration();
-                }
-            }
-            return Instance.GetProperty<T>(Instance.Host.CloudStorage, propertyName);
-        }
 
-        public static T GetGoogleDriveProperty<T>(string propertyName)
-        {
-            if (Instance?.Host?.CloudStorage?.GoogleDrive == null)
-            {
-                Debug.LogWarning($"[Configuration] GoogleDrive settings are null, creating default instance");
-                if (Instance?.Host?.CloudStorage != null)
-                    Instance.Host.CloudStorage.GoogleDrive = new GoogleDriveSettings();
-                else
-                {
-                    if (Instance?.Host != null)
-                        Instance.Host.CloudStorage = new CloudStorageSettings();
-                    else
-                    {
-                        if (Instance != null)
-                            Instance.Host = new HostSettings();
-                        else
-                            _instance = new Configuration();
-                    }
-                }
-            }
-            return Instance.GetProperty<T>(Instance.Host.CloudStorage.GoogleDrive, propertyName);
-        }
+        // public static T GetGoogleDriveProperty<T>(string propertyName)
+        // {
+        //     if (Instance?.Host?.CloudStorage?.GoogleDrive == null)
+        //     {
+        //         Debug.LogWarning($"[Configuration] GoogleDrive settings are null, creating default instance");
+        //         if (Instance?.Host?.CloudStorage != null)
+        //             Instance.Host.CloudStorage.GoogleDrive = new GoogleDriveSettings();
+        //         else
+        //         {
+        //             if (Instance?.Host != null)
+        //                 Instance.Host.CloudStorage = new CloudStorageSettings();
+        //             else
+        //             {
+        //                 if (Instance != null)
+        //                     Instance.Host = new HostSettings();
+        //                 else
+        //                     _instance = new Configuration();
+        //             }
+        //         }
+        //     }
+        //     return Instance.GetProperty<T>(Instance.Host.CloudStorage.GoogleDrive, propertyName);
+        // }
 
-        public static T GetSteamP2PProperty<T>(string propertyName)
-        {
-            if (Instance?.Host?.CloudStorage?.SteamP2P == null)
-            {
-                Debug.LogWarning($"[Configuration] SteamP2P settings are null, creating default instance");
-                if (Instance?.Host?.CloudStorage != null)
-                    Instance.Host.CloudStorage.SteamP2P = new SteamP2PSettings();
-                else
-                {
-                    if (Instance?.Host != null)
-                        Instance.Host.CloudStorage = new CloudStorageSettings();
-                    else
-                    {
-                        if (Instance != null)
-                            Instance.Host = new HostSettings();
-                        else
-                            _instance = new Configuration();
-                    }
-                }
-            }
-            return Instance.GetProperty<T>(Instance.Host.CloudStorage.SteamP2P, propertyName);
-        }
-
-        public static void SetCloudStorageProvider(string provider)
-        {
-            try
-            {
-                if (Instance?.Host?.CloudStorage != null)
-                {
-                    Instance.Host.CloudStorage.Provider = provider;
-                    Instance.Save();
-                    Debug.Log($"[Configuration] Changed provider to {provider}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"[Configuration] Failed to set provider: {ex.Message}");
-            }
-        }
+        // public static void SetCloudStorageProvider(string provider)
+        // {
+        //     try
+        //     {
+        //         if (Instance?.Host?.CloudStorage != null)
+        //         {
+        //             Instance.Host.CloudStorage.Provider = provider;
+        //             Instance.Save();
+        //             Debug.Log($"[Configuration] Changed provider to {provider}");
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         Debug.LogError($"[Configuration] Failed to set provider: {ex.Message}");
+        //     }
+        // }
 
         private T GetProperty<T>(object obj, string propertyName)
         {
@@ -184,17 +144,6 @@ namespace ONI_MP
                     config.Client = new ClientSettings();
                 }
                 
-                if (config.Host.CloudStorage == null)
-                {
-                    Debug.LogWarning("[Configuration] CloudStorage settings are null after deserialization, creating default");
-                    config.Host.CloudStorage = new CloudStorageSettings();
-                }
-                
-                if (config.Host.CloudStorage.GoogleDrive == null)
-                {
-                    Debug.LogWarning("[Configuration] GoogleDrive settings are null after deserialization, creating default");
-                    config.Host.CloudStorage.GoogleDrive = new GoogleDriveSettings();
-                }
                 
                 return config;
             }
@@ -221,19 +170,19 @@ namespace ONI_MP
         public int MaxMessagesPerPoll { get; set; } = 128;
         public int SaveFileTransferChunkKB { get; set; } = 256;
 
-        public CloudStorageSettings CloudStorage { get; set; } = new CloudStorageSettings();
+        // public GoogleDriveSettings GoogleDrive { get; set; } = new GoogleDriveSettings();
         
-        [JsonIgnore]
-        public GoogleDriveSettings GoogleDrive 
-        { 
-            get => CloudStorage?.GoogleDrive ?? new GoogleDriveSettings();
-            set 
-            {
-                if (CloudStorage == null)
-                    CloudStorage = new CloudStorageSettings();
-                CloudStorage.GoogleDrive = value;
-            }
-        }
+        // [JsonIgnore]
+        // public GoogleDriveSettings GoogleDrive 
+        // { 
+        //     get => CloudStorage?.GoogleDrive ?? new GoogleDriveSettings();
+        //     set 
+        //     {
+        //         if (CloudStorage == null)
+        //             CloudStorage = new CloudStorageSettings();
+        //         CloudStorage.GoogleDrive = value;
+        //     }
+        // }
     }
 
     class ClientSettings

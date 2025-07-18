@@ -287,8 +287,8 @@ internal static class MainMenuPatch
 
         var statusSprite = ResourceLoader.LoadEmbeddedTexture("ONI_MP.Assets.cloud_status.png");
         AddStatusIndicator(socialsContainer.transform, "cloud_indicator", true, statusSprite, 
-            new string[] { $"", "Multiplayer Hosting: Ready!" },
-            new string[] { "https://github.com/Lyraedan/Oxygen_Not_Included_Multiplayer/wiki/Cloud-Storage-Setup-Guide", "Wiki" });
+            new string[] {  "Multiplayer Hosting: Not Ready!\n<color=#FFFF00>Click to view guide</color>", "Multiplayer Hosting: Ready!" },
+            new string[] { "https://github.com/Lyraedan/Oxygen_Not_Included_Multiplayer/wiki/Google-Drive-Setup-Guide ", "" });
 
         // Automatically resize the container to properly fit the buttons
         int buttonCount = socialsContainer.transform.childCount;

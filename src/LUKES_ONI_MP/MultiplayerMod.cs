@@ -7,8 +7,8 @@ using ONI_MP.Networking.Components;
 using ONI_MP.Components;
 using System.Reflection;
 using System.Collections.Generic;
-using System;
 using ONI_MP.Misc;
+using System;
 
 namespace ONI_MP
 {
