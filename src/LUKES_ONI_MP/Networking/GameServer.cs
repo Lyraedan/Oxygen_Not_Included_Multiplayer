@@ -148,6 +148,13 @@ namespace ONI_MP.Networking
 
         private static void TryAcceptConnection(HSteamNetConnection conn, CSteamID clientId)
         {
+            // Only accept connections when server is fully started
+            if (_state != ServerState.Started)
+            {
+                RejectConnection(conn, clientId, $"Server not ready (current state: {_state})");
+                return;
+            }
+
             var result = SteamNetworkingSockets.AcceptConnection(conn);
             if (result == EResult.k_EResultOK)
             {

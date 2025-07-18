@@ -39,14 +39,19 @@ namespace ONI_MP.Networking.Packets.SharedStorage
 
         public void OnDispatched()
         {
+            DebugConsole.Log($"[SteamP2PFileSharePacket] DEBUG: Packet received! IsHost: {MultiplayerSession.IsHost}, IsInMenu: {Utils.IsInMenu()}, IsInGame: {Utils.IsInGame()}");
+            
             if (MultiplayerSession.IsHost)
             {
+                DebugConsole.Log($"[SteamP2PFileSharePacket] DEBUG: Ignoring packet - we are the host");
                 return; // Host does nothing here - they already have the file
             }
 
-            if (!Utils.IsInGame())
+            // Process when client is in menu (joining) or in game (reconnecting)
+            if (!Utils.IsInMenu() && !Utils.IsInGame())
             {
-                return; // Only process when in game
+                DebugConsole.Log($"[SteamP2PFileSharePacket] DEBUG: Ignoring packet - not in menu or game");
+                return; // Only process when in menu or in game
             }
 
             DebugConsole.Log($"[SteamP2PFileSharePacket] Received P2P file notification - {FileName} ({FileSize} bytes)");
@@ -59,7 +64,13 @@ namespace ONI_MP.Networking.Packets.SharedStorage
             if (SharedStorageManager.Instance.CurrentProvider == "SteamP2P")
             {
                 DebugConsole.Log($"[SteamP2PFileSharePacket] P2P file ready for download: {P2PFileName}");
-                // Future: Could trigger automatic download or user prompt
+                
+                // Auto-download and load the save file when client is connecting (in game state but no actual world loaded)
+                if (Utils.IsInMenu() || Utils.IsInGame())
+                {
+                    DebugConsole.Log($"[SteamP2PFileSharePacket] Auto-downloading save file for client join: {P2PFileName}");
+                    StorageUtils.DownloadAndLoadSaveFile(P2PFileName, FileName);
+                }
             }
         }
     }

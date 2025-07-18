@@ -546,6 +546,20 @@ namespace ONI_MP.SharedStorage
                 
                 OnDownloadFinished?.Invoke(transfer.LocalPath);
                 
+                // If this is a save file and we're a client, automatically load it
+                if (!MultiplayerSession.IsHost && (transfer.FileName.StartsWith("ONI_MP_Save_") || transfer.FileName.EndsWith(".sav")))
+                {
+                    DebugConsole.Log($"[SteamP2PStorageProvider] Auto-loading downloaded save file: {transfer.FileName}");
+                    try
+                    {
+                        SaveHelper.LoadDownloadedSave(transfer.FileName);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        DebugConsole.LogError($"[SteamP2PStorageProvider] Failed to load save file: {ex.Message}");
+                    }
+                }
+                
                 // Send completion notification to provider
                 var completePacket = new P2PTransferCompletePacket(
                     MultiplayerSession.LocalSteamID, transfer.FileName, transfer.FileHash, 

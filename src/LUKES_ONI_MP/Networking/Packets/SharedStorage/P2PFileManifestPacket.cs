@@ -86,12 +86,55 @@ namespace ONI_MP.Networking.Packets.SharedStorage
                 return;
                 
             DebugConsole.Log($"[P2PFileManifestPacket] Received manifest from {SenderSteamID} with {AvailableFiles.Count} files");
+            DebugConsole.Log($"[P2PFileManifestPacket] DEBUG CHECKPOINT 1 - About to access SharedStorageManager");
             
             // Update our peer file registry
             var steamP2PProvider = SharedStorageManager.Instance.CurrentProviderInstance as SteamP2PStorageProvider;
+            DebugConsole.Log($"[P2PFileManifestPacket] DEBUG CHECKPOINT 2 - SharedStorageManager access completed");
+            DebugConsole.Log($"[P2PFileManifestPacket] SharedStorageManager.Instance: {SharedStorageManager.Instance != null}");
+            DebugConsole.Log($"[P2PFileManifestPacket] CurrentProviderInstance: {SharedStorageManager.Instance?.CurrentProviderInstance != null}");
+            DebugConsole.Log($"[P2PFileManifestPacket] steamP2PProvider: {steamP2PProvider != null}");
+            
             if (steamP2PProvider != null)
             {
                 steamP2PProvider.UpdatePeerManifest(SenderSteamID, AvailableFiles);
+                DebugConsole.Log($"[P2PFileManifestPacket] DEBUG CHECKPOINT 3 - UpdatePeerManifest completed");
+                
+                // Debug logging
+                DebugConsole.Log($"[P2PFileManifestPacket] IsHost: {MultiplayerSession.IsHost}, SenderIsHost: {SenderSteamID == MultiplayerSession.HostSteamID}");
+                DebugConsole.Log($"[P2PFileManifestPacket] HostSteamID: {MultiplayerSession.HostSteamID}");
+                
+                // If we're a client and this manifest is from the host, automatically request save files
+                if (!MultiplayerSession.IsHost && SenderSteamID == MultiplayerSession.HostSteamID)
+                {
+                    DebugConsole.Log($"[P2PFileManifestPacket] Checking {AvailableFiles.Count} files for save files...");
+                    foreach (var file in AvailableFiles)
+                    {
+                        DebugConsole.Log($"[P2PFileManifestPacket] Examining file: {file.FileName}");
+                        // Look for save files (they should have ONI_MP_Save prefix or .sav extension)
+                        if (file.FileName.StartsWith("ONI_MP_Save_") || file.FileName.EndsWith(".sav"))
+                        {
+                            DebugConsole.Log($"[P2PFileManifestPacket] Auto-requesting save file: {file.FileName}");
+                            
+                            // Send file request packet to the host
+                            var requestPacket = new P2PFileRequestPacket(
+                                MultiplayerSession.LocalSteamID,
+                                file.FileName,
+                                file.FileHash
+                            );
+                            PacketSender.SendToPlayer(SenderSteamID, requestPacket);
+                            break; // Only request the first save file found
+                        }
+                    }
+                }
+                else
+                {
+                    DebugConsole.Log($"[P2PFileManifestPacket] Not requesting files - IsHost: {MultiplayerSession.IsHost}, SenderIsHost: {SenderSteamID == MultiplayerSession.HostSteamID}");
+                }
+            }
+            else
+            {
+                DebugConsole.LogError($"[P2PFileManifestPacket] steamP2PProvider is null - cannot process manifest");
             }
         }
     }
