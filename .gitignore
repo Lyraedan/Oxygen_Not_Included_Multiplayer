@@ -410,3 +410,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+eos_config.json
