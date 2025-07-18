@@ -48,27 +48,72 @@ namespace ONI_MP.Patches.Chores
                 ChoreTypeId = choreType.Id,
                 TargetPosition = __instance.gameObject?.transform.position ?? Vector3.zero,
                 TargetCell = Grid.PosToCell(__instance.gameObject),
-                TargetPrefabId = __instance.gameObject?.PrefabID().Name ?? ""
+                TargetPrefabId = __instance.gameObject?.PrefabID().Name ?? "",
+                Priority = GetChorePriority(__instance),
+                IsImmediate = IsImmediateChore(choreType.Id),
+                IsUrgent = IsUrgentChore(choreType.Id)
             };
 
             PacketSender.SendToAll(packet);
 
-            DebugConsole.Log($"[Chores] Sent ChoreAssignmentPacket: NetId={packet.NetId}, ChoreId={packet.ChoreTypeId}, Type={choreType.Name}:{choreType.Id}");
+            DebugConsole.Log($"[Chores] Sent ChoreAssignmentPacket: NetId={packet.NetId}, ChoreId={packet.ChoreTypeId}, " +
+                           $"Priority={packet.Priority}, Urgent={packet.IsUrgent}, Immediate={packet.IsImmediate}");
+        }
+
+        private static float GetChorePriority(Chore chore)
+        {
+            try
+            {
+                if (chore.gameObject?.TryGetComponent<Prioritizable>(out var prioritizable) == true)
+                {
+                    var priority = prioritizable.GetMasterPriority();
+                    return priority.priority_value;
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugConsole.LogWarning($"[Chores] Failed to get chore priority: {ex.Message}");
+            }
+            return 5.0f; // Default priority
+        }
+
+        private static bool IsImmediateChore(string choreTypeId)
+        {
+            // Chores that should immediately override current activities
+            return choreTypeId switch
+            {
+                "Flee" or "MoveToSafety" or "RecoverBreath" or "Die" => true,
+                "StressShock" or "Vomit" => true,
+                "RescueIncapacitated" => true,
+                _ => false
+            };
+        }
+
+        private static bool IsUrgentChore(string choreTypeId)
+        {
+            // Chores that are urgent but don't necessarily need immediate interruption
+            return choreTypeId switch
+            {
+                "Flee" or "MoveToSafety" or "RecoverBreath" or "Die" => true,
+                "Repair" => true,
+                "Doctor" => true,
+                "RescueIncapacitated" or "RescueSweepBot" => true,
+                "StressShock" or "Vomit" => true,
+                _ => false
+            };
         }
     }
 
 
         [HarmonyPatch(typeof(StandardChoreBase), nameof(StandardChoreBase.Begin))]
-    public static class StandardChoreBase_Begin_Patch
-    {
-        public static void Postfix(Chore __instance)
+        public static class StandardChoreBase_Begin_Patch
         {
-            return; // Disabled for now
-            
-            // TODO: Re-enable when chore assignment networking is ready
-            // ChoresPatch.SendAssignmentPacket(__instance);
+            public static void Postfix(Chore __instance)
+            {
+                // Send chore assignment packet when a chore begins
+                ChoresPatch.SendAssignmentPacket(__instance);
+            }
         }
-    }
 
     /* Disabled because they all use base.Begin which we patched above but they do all have unique Begin methods, every other chore uses the standard base begin
     [HarmonyPatch(typeof(AttackChore), nameof(AttackChore.Begin))]

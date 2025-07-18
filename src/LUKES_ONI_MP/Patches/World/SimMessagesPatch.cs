@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
+using ONI_MP.Misc.World;
 using ONI_MP.Networking;
-using ONI_MP.Networking.Packets;
+using ONI_MP.Networking.Packets.World;
 
 namespace ONI_MP.Patches.World
 {
@@ -22,7 +23,7 @@ namespace ONI_MP.Patches.World
         {
             if (!MultiplayerSession.IsHost || !Grid.IsValidCell(gameCell)) return;
 
-            /* Disable for now whilst I focus on getting saves syncing
+            // Environmental Systems: Real-time synchronization of gas flow, pressure, temperature, and fluid dynamics
             WorldUpdateBatcher.Queue(new WorldUpdatePacket.CellUpdate
             {
                 Cell = gameCell,
@@ -31,7 +32,23 @@ namespace ONI_MP.Patches.World
                 Mass = mass,
                 DiseaseIdx = disease_idx,
                 DiseaseCount = disease_count
-            });*/
+            });
+
+            // Enhanced Environmental Systems: Specific atmospheric and fluid dynamics tracking
+            var element = ElementLoader.elements[elementIdx];
+            
+            if (element.IsGas)
+            {
+                // Queue atmospheric changes for gas elements (oxygen, CO2, hydrogen, etc.)
+                EnvironmentalSystemsManager.QueueAtmosphericChange(
+                    gameCell, mass, mass, elementIdx, temperature, disease_idx, disease_count, true);
+            }
+            else if (element.IsLiquid)
+            {
+                // Queue fluid dynamics for liquid elements (water, polluted water, etc.)
+                EnvironmentalSystemsManager.QueueFluidDynamics(
+                    gameCell, -1, mass, 0f, elementIdx, temperature, mass, disease_idx, disease_count, false);
+            }
         }
     }
 }

@@ -50,7 +50,7 @@ namespace ONI_MP.Misc.World
                     packet.Updates.AddRange(chunk);
                     PacketSender.SendToAll(packet, sendType: SteamNetworkingSend.Unreliable); // max packet size 1200 bytes (typically 1170–1200 bytes)
 
-                    DebugConsole.Log($"[World] Sent chunked WorldUpdate ({chunk.Count} cells)");
+                    DebugConsole.Log($"[Environmental Systems] Synchronized {chunk.Count} cell changes (gas flow, temperature, pressure)");
                 }
 
                 pendingUpdates.Clear();

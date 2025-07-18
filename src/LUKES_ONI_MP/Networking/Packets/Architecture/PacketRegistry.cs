@@ -16,6 +16,8 @@ using ONI_MP.Networking.Packets.Tools.Prioritize;
 using ONI_MP.Networking.Packets.Tools.Wire;
 using ONI_MP.Networking.Packets.World;
 using ONI_MP.Networking.Packets.Resources;
+using ONI_MP.Networking.Packets.Research;
+using ONI_MP.Networking.Packets.DuplicantBehavior;
 
 namespace ONI_MP.Networking.Packets.Architecture
 {
@@ -81,6 +83,23 @@ namespace ONI_MP.Networking.Packets.Architecture
             Register(PacketType.InventorySync, () => new InventorySyncPacket());
             Register(PacketType.PickupableAction, () => new PickupableActionPacket());
             Register(PacketType.ResourceDrop, () => new ResourceDropPacket());
+            
+            // Environmental Systems Packets
+            Register(PacketType.AtmosphericChange, () => new AtmosphericChangePacket());
+            Register(PacketType.FluidDynamics, () => new FluidDynamicsPacket());
+            
+            // Research & Skills Packets
+            Register(PacketType.ResearchProgress, () => new ResearchProgressPacket());
+            Register(PacketType.SkillPoints, () => new SkillPointsPacket());
+            Register(PacketType.TechnologyUnlock, () => new TechnologyUnlockPacket());
+            
+            // Duplicant Behavior Packets
+            Register(PacketType.WorkAssignment, () => new WorkAssignmentPacket());
+            Register(PacketType.IdleBehavior, () => new IdleBehaviorPacket());
+            Register(PacketType.SleepBehavior, () => new SleepBehaviorPacket());
+            Register(PacketType.StressBehavior, () => new StressBehaviorPacket());
+            Register(PacketType.PathfindingUpdate, () => new PathfindingUpdatePacket());
+            Register(PacketType.BehaviorState, () => new BehaviorStatePacket());
         }
     }
 }
