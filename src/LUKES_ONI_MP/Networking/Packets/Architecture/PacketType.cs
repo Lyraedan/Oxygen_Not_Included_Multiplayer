@@ -45,6 +45,11 @@ namespace ONI_MP.Networking.Packets.Architecture
         SpeedChange = 35,
         PlayerCursor = 36,
         GoogleDriveFileShare = 37,
-        SteamP2PFileShare = 38
+        SteamP2PFileShare = 38,
+        ResourceTransfer = 39,
+        StorageUpdate = 40,
+        InventorySync = 41,
+        PickupableAction = 42,
+        ResourceDrop = 43
     }
 }

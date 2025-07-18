@@ -15,6 +15,7 @@ using ONI_MP.Networking.Packets.Tools.Move;
 using ONI_MP.Networking.Packets.Tools.Prioritize;
 using ONI_MP.Networking.Packets.Tools.Wire;
 using ONI_MP.Networking.Packets.World;
+using ONI_MP.Networking.Packets.Resources;
 
 namespace ONI_MP.Networking.Packets.Architecture
 {
@@ -73,6 +74,13 @@ namespace ONI_MP.Networking.Packets.Architecture
             Register(PacketType.PlayerCursor, () => new PlayerCursorPacket());
             Register(PacketType.GoogleDriveFileShare, () => new GoogleDriveFileSharePacket());
             Register(PacketType.SteamP2PFileShare, () => new SteamP2PFileSharePacket());
+            
+            // Resource & Inventory Synchronization Packets
+            Register(PacketType.ResourceTransfer, () => new ResourceTransferPacket());
+            Register(PacketType.StorageUpdate, () => new StorageUpdatePacket());
+            Register(PacketType.InventorySync, () => new InventorySyncPacket());
+            Register(PacketType.PickupableAction, () => new PickupableActionPacket());
+            Register(PacketType.ResourceDrop, () => new ResourceDropPacket());
         }
     }
 }
