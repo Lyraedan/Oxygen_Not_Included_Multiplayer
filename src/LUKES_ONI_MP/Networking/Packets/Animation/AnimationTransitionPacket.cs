@@ -26,7 +26,7 @@ namespace ONI_MP.Networking.Packets.Animation
         public float ToFrame;                // Frame position in target animation
         public string TransitionContext;     // Context: "Movement", "Work", "Idle", etc.
         public Vector3 MovementDirection;    // Direction of movement during transition
-        public DateTime TransitionStartTime; // When transition started
+        public System.DateTime TransitionStartTime; // When transition started
 
         public PacketType Type => PacketType.AnimationTransition;
 
@@ -48,7 +48,7 @@ namespace ONI_MP.Networking.Packets.Animation
             writer.Write(MovementDirection.y);
             writer.Write(MovementDirection.z);
             
-            writer.Write(DateTime.UtcNow.ToBinary());
+            writer.Write(System.DateTime.UtcNow.ToBinary());
         }
 
         public void Deserialize(BinaryReader reader)
@@ -71,7 +71,7 @@ namespace ONI_MP.Networking.Packets.Animation
                 reader.ReadSingle()
             );
             
-            TransitionStartTime = DateTime.FromBinary(reader.ReadInt64());
+            TransitionStartTime = System.DateTime.FromBinary(reader.ReadInt64());
         }
 
         public bool IsValid()

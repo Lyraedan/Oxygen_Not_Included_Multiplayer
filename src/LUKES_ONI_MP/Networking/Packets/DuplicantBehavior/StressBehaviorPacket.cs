@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Klei.AI;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
@@ -25,14 +26,14 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
         public float MoraleLevel;           // Current morale (can be negative)
         public bool IsStressBreakdown;      // Is this a full stress breakdown?
         public string StressEmote;          // Current stress emote being displayed
-        public DateTime StressStartTime;
+        public System.DateTime StressStartTime;
 
         public PacketType Type => PacketType.StressBehavior;
 
         public StressBehaviorPacket()
         {
             StressCauses = new List<string>();
-            StressStartTime = DateTime.UtcNow;
+            StressStartTime = System.DateTime.UtcNow;
         }
 
         public void Serialize(BinaryWriter writer)
@@ -87,7 +88,7 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
             MoraleLevel = reader.ReadSingle();
             IsStressBreakdown = reader.ReadBoolean();
             StressEmote = reader.ReadString();
-            StressStartTime = DateTime.FromBinary(reader.ReadInt64());
+            StressStartTime = System.DateTime.FromBinary(reader.ReadInt64());
         }
 
         public void OnDispatched()
@@ -169,15 +170,17 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
                 var stressAttribute = attributes.Get(Db.Get().Attributes.QualityOfLife.Id);
                 if (stressAttribute != null)
                 {
+                    // TODO: Fix AttributeInstance vs AmountInstance usage
                     // ONI stress is inverse - high QoL = low stress
                     float qualityOfLife = Mathf.Clamp(100.0f - StressLevel, 0.0f, 100.0f);
-                    stressAttribute.SetValue(qualityOfLife);
+                    // stressAttribute.SetValue(qualityOfLife);
                 }
 
                 var moraleAttribute = attributes.Get(Db.Get().Attributes.QualityOfLifeExpectation.Id);
                 if (moraleAttribute != null)
                 {
-                    moraleAttribute.SetValue(MoraleLevel);
+                    // TODO: Fix AttributeInstance vs AmountInstance usage
+                    // moraleAttribute.SetValue(MoraleLevel);
                 }
             }
         }

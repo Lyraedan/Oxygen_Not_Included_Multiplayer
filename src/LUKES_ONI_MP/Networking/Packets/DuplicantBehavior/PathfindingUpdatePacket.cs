@@ -5,6 +5,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using UnityEngine;
+using Klei.AI;
 
 namespace ONI_MP.Networking.Packets.DuplicantBehavior
 {
@@ -26,14 +27,14 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
         public List<int> AlternatePath;     // Alternative path cells if main route blocked
         public float PathingPriority;       // Priority for pathfinding conflicts
         public bool IsEmergencyNavigation;  // Emergency movement (fire, suffocation, etc.)
-        public DateTime PathStartTime;
+        public System.DateTime PathStartTime;
 
         public PacketType Type => PacketType.PathfindingUpdate;
 
         public PathfindingUpdatePacket()
         {
             AlternatePath = new List<int>();
-            PathStartTime = DateTime.UtcNow;
+            PathStartTime = System.DateTime.UtcNow;
         }
 
         public void Serialize(BinaryWriter writer)
@@ -98,7 +99,7 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
             
             PathingPriority = reader.ReadSingle();
             IsEmergencyNavigation = reader.ReadBoolean();
-            PathStartTime = DateTime.FromBinary(reader.ReadInt64());
+            PathStartTime = System.DateTime.FromBinary(reader.ReadInt64());
         }
 
         public void OnDispatched()
@@ -182,21 +183,20 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
             // Path has been calculated, start movement
             if (Grid.IsValidCell(DestinationCell))
             {
-                // Create target for navigation
-                var target = new GameObject($"PathTarget_{DuplicantNetId}");
-                target.transform.position = CurrentDestination;
-                var targetBehaviour = target.AddComponent<KMonoBehaviour>();
+                // Create target cell for navigation
+                var targetCell = Grid.PosToCell(CurrentDestination);
                 
                 // Clean up callback
                 System.Action cleanup = () => {
-                    if (target != null) UnityEngine.Object.Destroy(target);
+                    // Navigation completed or failed
+                    DebugConsole.Log($"[PathfindingUpdatePacket] Navigation completed for duplicant {DuplicantNetId}");
                 };
                 
                 navigator.Subscribe((int)GameHashes.DestinationReached, (data) => cleanup.Invoke());
                 navigator.Subscribe((int)GameHashes.NavigationFailed, (data) => cleanup.Invoke());
                 
                 // Start navigation
-                navigator.GoTo(targetBehaviour, new CellOffset[] { CellOffset.none });
+                navigator.GoTo(targetCell, new CellOffset[] { CellOffset.none });
             }
         }
 
@@ -338,20 +338,19 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
                 var finalCell = AlternatePath[AlternatePath.Count - 1];
                 var finalPos = Grid.CellToPosCBC(finalCell, Grid.SceneLayer.Move);
                 
-                var target = new GameObject($"AltPathTarget_{DuplicantNetId}");
-                target.transform.position = finalPos;
-                var targetBehaviour = target.AddComponent<KMonoBehaviour>();
+                var targetCell = Grid.PosToCell(finalPos);
                 
                 // Clean up callback
                 System.Action cleanup = () => {
-                    if (target != null) UnityEngine.Object.Destroy(target);
+                    // Navigation completed or failed
+                    DebugConsole.Log($"[PathfindingUpdatePacket] Alternate path navigation completed for duplicant {DuplicantNetId}");
                 };
                 
                 navigator.Subscribe((int)GameHashes.DestinationReached, (data) => cleanup.Invoke());
                 navigator.Subscribe((int)GameHashes.NavigationFailed, (data) => cleanup.Invoke());
                 
                 // Start alternate path navigation
-                navigator.GoTo(targetBehaviour, new CellOffset[] { CellOffset.none });
+                navigator.GoTo(targetCell, new CellOffset[] { CellOffset.none });
                 
                 DebugConsole.Log($"[PathfindingUpdatePacket] Using alternate path with {AlternatePath.Count} waypoints for {DuplicantNetId}");
             }
@@ -359,11 +358,12 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
 
         private void UpdateMovementSpeed(GameObject duplicantGO)
         {
+            // TODO: Implement proper movement speed modification
             // Update duplicant movement speed based on movement type and conditions
-            var attributeModifiers = duplicantGO.GetComponent<AttributeModifiers>();
+            /*var attributeModifiers = duplicantGO.GetComponent<Klei.AI.AttributeModifiers>();
             if (attributeModifiers != null)
             {
-                var speedModifier = new AttributeModifier(
+                var speedModifier = new Klei.AI.AttributeModifier(
                     Db.Get().Attributes.Athletics.Id,
                     MovementSpeed - 1.0f, // Adjust relative to base speed
                     "Pathfinding Speed",
@@ -373,10 +373,10 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
                 );
                 
                 attributeModifiers.Add(speedModifier);
-            }
+            }*/
 
             // Apply movement type effects
-            var effects = duplicantGO.GetComponent<Effects>();
+            var effects = duplicantGO.GetComponent<Klei.AI.Effects>();
             if (effects != null)
             {
                 switch (MovementType)
@@ -406,20 +406,19 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
             // Force high priority navigation
             if (Grid.IsValidCell(DestinationCell))
             {
-                var emergencyTarget = new GameObject($"EmergencyTarget_{DuplicantNetId}");
-                emergencyTarget.transform.position = CurrentDestination;
-                var targetBehaviour = emergencyTarget.AddComponent<KMonoBehaviour>();
+                var targetCell = Grid.PosToCell(CurrentDestination);
                 
                 // Clean up callback
                 System.Action cleanup = () => {
-                    if (emergencyTarget != null) UnityEngine.Object.Destroy(emergencyTarget);
+                    // Emergency navigation completed or failed
+                    DebugConsole.Log($"[PathfindingUpdatePacket] Emergency navigation completed for duplicant {DuplicantNetId}");
                 };
                 
                 navigator.Subscribe((int)GameHashes.DestinationReached, (data) => cleanup.Invoke());
                 navigator.Subscribe((int)GameHashes.NavigationFailed, (data) => cleanup.Invoke());
                 
                 // Force immediate navigation
-                navigator.GoTo(targetBehaviour, new CellOffset[] { CellOffset.none });
+                navigator.GoTo(targetCell, new CellOffset[] { CellOffset.none });
                 
                 DebugConsole.Log($"[PathfindingUpdatePacket] Emergency navigation activated for {DuplicantNetId}");
             }

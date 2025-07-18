@@ -26,7 +26,7 @@ namespace ONI_MP.Networking.Packets.Animation
         public bool IsInstantaneous;         // Whether speed change is immediate
         public float MinSpeed;               // Minimum allowed speed
         public float MaxSpeed;               // Maximum allowed speed
-        public DateTime SpeedChangeTime;     // When speed change was initiated
+        public System.DateTime SpeedChangeTime;     // When speed change was initiated
 
         public PacketType Type => PacketType.AnimationSpeed;
 
@@ -44,7 +44,7 @@ namespace ONI_MP.Networking.Packets.Animation
             writer.Write(IsInstantaneous);
             writer.Write(MinSpeed);
             writer.Write(MaxSpeed);
-            writer.Write(DateTime.UtcNow.ToBinary());
+            writer.Write(System.DateTime.UtcNow.ToBinary());
         }
 
         public void Deserialize(BinaryReader reader)
@@ -61,7 +61,7 @@ namespace ONI_MP.Networking.Packets.Animation
             IsInstantaneous = reader.ReadBoolean();
             MinSpeed = reader.ReadSingle();
             MaxSpeed = reader.ReadSingle();
-            SpeedChangeTime = DateTime.FromBinary(reader.ReadInt64());
+            SpeedChangeTime = System.DateTime.FromBinary(reader.ReadInt64());
         }
 
         public bool IsValid()
@@ -132,7 +132,7 @@ namespace ONI_MP.Networking.Packets.Animation
             try
             {
                 // Calculate current progress in speed transition
-                var elapsedTime = (DateTime.UtcNow - SpeedChangeTime).TotalSeconds;
+                var elapsedTime = (System.DateTime.UtcNow - SpeedChangeTime).TotalSeconds;
                 var progress = Mathf.Clamp01((float)(elapsedTime / SpeedTransitionTime));
                 
                 // Interpolate between current speed and target speed

@@ -27,7 +27,7 @@ namespace ONI_MP.Networking.Packets.Animation
         public float MovementSpeed;          // Movement speed for speed-based animations
         public string BlendAnimation;        // Secondary animation for blending
         public float BlendFactor;            // Blend factor between animations (0.0 to 1.0)
-        public DateTime LastUpdateTime;      // When this animation state was last updated
+        public System.DateTime LastUpdateTime;      // When this animation state was last updated
 
         public PacketType Type => PacketType.AnimationSync;
 
@@ -52,7 +52,7 @@ namespace ONI_MP.Networking.Packets.Animation
             writer.Write(MovementSpeed);
             writer.Write(BlendAnimation ?? "");
             writer.Write(BlendFactor);
-            writer.Write(DateTime.UtcNow.ToBinary());
+            writer.Write(System.DateTime.UtcNow.ToBinary());
         }
 
         public void Deserialize(BinaryReader reader)
@@ -80,7 +80,7 @@ namespace ONI_MP.Networking.Packets.Animation
             MovementSpeed = reader.ReadSingle();
             BlendAnimation = reader.ReadString();
             BlendFactor = reader.ReadSingle();
-            LastUpdateTime = DateTime.FromBinary(reader.ReadInt64());
+            LastUpdateTime = System.DateTime.FromBinary(reader.ReadInt64());
         }
 
         public bool IsValid()

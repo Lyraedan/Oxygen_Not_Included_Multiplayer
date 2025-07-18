@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Klei.AI;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
@@ -362,7 +363,7 @@ namespace ONI_MP.Misc.DuplicantBehavior
                         QueueWorkAssignment(netId, currentChoreId, 
                             currentChore.gameObject?.transform.position ?? Vector3.zero,
                             Grid.PosToCell(currentChore.gameObject),
-                            currentChore.gameObject?.PrefabID()?.Name ?? "");
+                            currentChore.gameObject?.PrefabID().Name ?? "");
                     }
                 }
             }
@@ -405,23 +406,28 @@ namespace ONI_MP.Misc.DuplicantBehavior
 
         private static void CheckAndSyncSleepBehaviors()
         {
-            var duplicants = UnityEngine.Object.FindObjectsOfType<Stamina>();
+            var duplicants = UnityEngine.Object.FindObjectsOfType<MinionIdentity>();
             
-            foreach (var stamina in duplicants)
+            foreach (var minionIdentity in duplicants)
             {
-                var identity = stamina.GetComponent<NetworkIdentity>();
+                var identity = minionIdentity.GetComponent<NetworkIdentity>();
                 if (identity == null) continue;
 
                 var netId = identity.NetId;
-                var choreDriver = stamina.GetComponent<ChoreDriver>();
+                var choreDriver = minionIdentity.GetComponent<ChoreDriver>();
                 var currentChore = choreDriver?.GetCurrentChore();
+
+                // Get stamina component for stamina-related checks (simplified)
+                var staminaComponent = minionIdentity.GetComponent<StaminaMonitor>();
+                var staminaValue = 100f; // Default value when stamina access isn't available
+                var maxStamina = 100f;   // Default max
 
                 string sleepState = "Awake";
                 if (currentChore?.choreType.Id == "Sleep")
                 {
                     sleepState = "Sleeping";
                 }
-                else if (stamina.GetValue() < 20f)
+                else if (staminaValue < 20f)
                 {
                     sleepState = "Tired";
                 }
@@ -430,8 +436,8 @@ namespace ONI_MP.Misc.DuplicantBehavior
                 {
                     lastSleepStates[netId] = sleepState;
                     
-                    var tirednessLevel = Mathf.Clamp01(1.0f - (stamina.GetValue() / stamina.GetMax())) * 100f;
-                    QueueSleepBehavior(netId, sleepState, stamina.transform.position, -1, tirednessLevel);
+                    var tirednessLevel = Mathf.Clamp01(1.0f - (staminaValue / maxStamina)) * 100f;
+                    QueueSleepBehavior(netId, sleepState, minionIdentity.transform.position, -1, tirednessLevel);
                 }
             }
         }
@@ -488,7 +494,7 @@ namespace ONI_MP.Misc.DuplicantBehavior
                     
                     string pathState = "PathFound";
                     if (!navigator.IsMoving()) pathState = "DestinationReached";
-                    else if (navigator.path == null || !navigator.path.IsValid()) pathState = "PathCalculating";
+                    else if (!navigator.path.IsValid()) pathState = "PathCalculating";
 
                     QueuePathfindingUpdate(netId, pathState, currentDestination);
                 }

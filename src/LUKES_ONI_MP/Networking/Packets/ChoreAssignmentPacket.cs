@@ -24,7 +24,7 @@ namespace ONI_MP.Networking.Packets
         public float Priority = 5.0f;
         public bool IsImmediate; // Whether this assignment should override current chore
         public bool IsUrgent;    // Whether this is an urgent assignment
-        public DateTime AssignedAt;
+        public System.DateTime AssignedAt;
 
         public PacketType Type => PacketType.ChoreAssignment;
 

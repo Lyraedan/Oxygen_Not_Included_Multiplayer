@@ -64,120 +64,125 @@ namespace ONI_MP.Networking.Packets.Architecture
         StressBehavior = 52,     // Stress responses, emotional outbursts, moods
         PathfindingUpdate = 53,  // Enhanced pathfinding coordination beyond basic NavigatorPath
         BehaviorState = 54,      // General duplicant behavior states (eating, working, moving, etc.)
+        DuplicantStress = 55,    // Duplicant stress level synchronization
+        DuplicantStamina = 56,   // Duplicant stamina level synchronization
+        DuplicantStressReaction = 57, // Duplicant stress reaction events
+        DuplicantStressBehavior = 58, // Duplicant stress-related behaviors
+        BuildingDamageFromStress = 59, // Building damage caused by stressed duplicants
         
-        // Enhanced Animation Synchronization (Types 55-59)
-        AnimationSync = 55,      // Comprehensive animation state synchronization
-        AnimationFrame = 56,     // Specific animation frame updates
-        AnimationLoop = 57,      // Animation loop control and timing
-        AnimationTransition = 58, // Smooth animation transitions between states
-        AnimationSpeed = 59,     // Dynamic animation speed adjustments
+        // Enhanced Animation Synchronization (Types 60-64)
+        AnimationSync = 60,      // Comprehensive animation state synchronization
+        AnimationFrame = 61,     // Specific animation frame updates
+        AnimationLoop = 62,      // Animation loop control and timing
+        AnimationTransition = 63, // Smooth animation transitions between states
+        AnimationSpeed = 64,     // Dynamic animation speed adjustments
         
-        // Building & Construction Systems (Types 60-69)
-        PipeBuild = 60,          // Pipe construction and connections - NOT IMPLEMENTED
-        PipeConnection = 61,     // Pipe connection states and flow - NOT IMPLEMENTED
-        BuildingRotation = 62,   // Building orientation and rotation sync - NOT IMPLEMENTED
-        MaterialSelection = 63,  // Construction material choices - NOT IMPLEMENTED
-        BuildingUpgrade = 64,    // Building upgrades and modifications - NOT IMPLEMENTED
-        BuildingConfig = 65,     // Building configuration and settings - NOT IMPLEMENTED
-        MultiTileBuilding = 66,  // Complex multi-tile building coordination - NOT IMPLEMENTED
-        BuildingDamage = 67,     // Building damage and repair states - NOT IMPLEMENTED
-        BlueprintShare = 68,     // Shared building blueprints - NOT IMPLEMENTED
-        BuildQueue = 69,         // Construction queue coordination - NOT IMPLEMENTED
+        // Building & Construction Systems (Types 65-74)
+        PipeBuild = 65,          // Pipe construction and connections - NOT IMPLEMENTED
+        PipeConnection = 66,     // Pipe connection states and flow - NOT IMPLEMENTED
+        BuildingRotation = 67,   // Building orientation and rotation sync - NOT IMPLEMENTED
+        MaterialSelection = 68,  // Construction material choices - NOT IMPLEMENTED
+        BuildingUpgrade = 69,    // Building upgrades and modifications - NOT IMPLEMENTED
+        BuildingConfig = 70,     // Building configuration and settings - NOT IMPLEMENTED
+        MultiTileBuilding = 71,  // Complex multi-tile building coordination - NOT IMPLEMENTED
+        BuildingDamage = 72,     // Building damage and repair states - NOT IMPLEMENTED
+        BlueprintShare = 73,     // Shared building blueprints - NOT IMPLEMENTED
+        BuildQueue = 74,         // Construction queue coordination - NOT IMPLEMENTED
         
-        // Advanced World Systems (Types 70-79)
-        PowerGrid = 70,          // Electrical power grid synchronization - NOT IMPLEMENTED
-        AutomationSignal = 71,   // Automation signals and logic - NOT IMPLEMENTED
-        ConveyorSystem = 72,     // Conveyor belt and rail systems - NOT IMPLEMENTED
-        ElevatorSync = 73,       // Elevator and transport tube sync - NOT IMPLEMENTED
-        TemperatureSync = 74,    // Real-time temperature propagation - NOT IMPLEMENTED
-        GasFlowSync = 75,        // Gas movement and pressure sync - NOT IMPLEMENTED
-        LiquidFlowSync = 76,     // Liquid flow in pipes and containers - NOT IMPLEMENTED
-        DiseaseSpread = 77,      // Disease propagation and infection - NOT IMPLEMENTED
-        WeatherSystem = 78,      // Weather events and meteor showers - NOT IMPLEMENTED
-        WorldgenSync = 79,       // World generation and asteroid sync - NOT IMPLEMENTED
+        // Advanced World Systems (Types 75-84)
+        PowerGrid = 75,          // Electrical power grid synchronization - NOT IMPLEMENTED
+        AutomationSignal = 76,   // Automation signals and logic - NOT IMPLEMENTED
+        ConveyorSystem = 77,     // Conveyor belt and rail systems - NOT IMPLEMENTED
+        ElevatorSync = 78,       // Elevator and transport tube sync - NOT IMPLEMENTED
+        TemperatureSync = 79,    // Real-time temperature propagation - NOT IMPLEMENTED
+        GasFlowSync = 80,        // Gas movement and pressure sync - NOT IMPLEMENTED
+        LiquidFlowSync = 81,     // Liquid flow in pipes and containers - NOT IMPLEMENTED
+        DiseaseSpread = 82,      // Disease propagation and infection - NOT IMPLEMENTED
+        WeatherSystem = 83,      // Weather events and meteor showers - NOT IMPLEMENTED
+        WorldgenSync = 84,       // World generation and asteroid sync - NOT IMPLEMENTED
         
-        // Duplicant Advanced Systems (Types 80-89)
-        DuplicantNeeds = 80,     // Hunger, oxygen, bladder, sleep needs - NOT IMPLEMENTED
-        DuplicantMoods = 81,     // Mood effects and emotional states - NOT IMPLEMENTED
-        DuplicantTraits = 82,    // Personality traits and characteristics - NOT IMPLEMENTED
-        DuplicantRelations = 83, // Social relationships between duplicants - NOT IMPLEMENTED
-        DuplicantHealth = 84,    // Health status, injuries, and medical - NOT IMPLEMENTED
-        DuplicantEquipment = 85, // Equipment and clothing synchronization - NOT IMPLEMENTED
-        DuplicantSchedule = 86,  // Work schedules and shift assignments - NOT IMPLEMENTED
-        DuplicantSkillUse = 87,  // Active skill usage and bonuses - NOT IMPLEMENTED
-        DuplicantMemory = 88,    // Memory system and learned behaviors - NOT IMPLEMENTED
-        DuplicantDeath = 89,     // Death, revival, and graveyard sync - NOT IMPLEMENTED
+        // Duplicant Advanced Systems (Types 85-94)
+        DuplicantNeeds = 85,     // Hunger, oxygen, bladder, sleep needs - NOT IMPLEMENTED
+        DuplicantMoods = 86,     // Mood effects and emotional states - NOT IMPLEMENTED
+        DuplicantTraits = 87,    // Personality traits and characteristics - NOT IMPLEMENTED
+        DuplicantRelations = 88, // Social relationships between duplicants - NOT IMPLEMENTED
+        DuplicantHealth = 89,    // Health status, injuries, and medical - NOT IMPLEMENTED
+        DuplicantEquipment = 90, // Equipment and clothing synchronization - NOT IMPLEMENTED
+        DuplicantSchedule = 91,  // Work schedules and shift assignments - NOT IMPLEMENTED
+        DuplicantSkillUse = 92,  // Active skill usage and bonuses - NOT IMPLEMENTED
+        DuplicantMemory = 93,    // Memory system and learned behaviors - NOT IMPLEMENTED
+        DuplicantDeath = 94,     // Death, revival, and graveyard sync - NOT IMPLEMENTED
         
-        // Resource & Economy Systems (Types 90-99)
-        ResourceProduction = 90, // Resource generation rates and production - NOT IMPLEMENTED
-        ResourceConsumption = 91, // Resource usage and consumption tracking - NOT IMPLEMENTED
-        ResourceQuality = 92,    // Resource quality and temperature states - NOT IMPLEMENTED
-        ResourceDiscovery = 93,  // New resource discoveries and geysers - NOT IMPLEMENTED
-        ResourceReservation = 94, // Resource allocation and reservations - NOT IMPLEMENTED
-        ResourceDecay = 95,      // Resource spoilage and decay timers - NOT IMPLEMENTED
-        CraftingQueue = 96,      // Manufacturing and crafting queues - NOT IMPLEMENTED
-        RecipeUnlock = 97,       // Recipe discoveries and cooking - NOT IMPLEMENTED
-        TradeSystem = 98,        // Resource trading between players - NOT IMPLEMENTED
-        EconomyBalance = 99,     // Economic balance and resource values - NOT IMPLEMENTED
+        // Resource & Economy Systems (Types 95-104)
+        ResourceProduction = 95, // Resource generation rates and production - NOT IMPLEMENTED
+        ResourceConsumption = 96, // Resource usage and consumption tracking - NOT IMPLEMENTED
+        ResourceQuality = 97,    // Resource quality and temperature states - NOT IMPLEMENTED
+        ResourceDiscovery = 98,  // New resource discoveries and geysers - NOT IMPLEMENTED
+        ResourceReservation = 99, // Resource allocation and reservations - NOT IMPLEMENTED
+        ResourceDecay = 100,      // Resource spoilage and decay timers - NOT IMPLEMENTED
+        CraftingQueue = 101,      // Manufacturing and crafting queues - NOT IMPLEMENTED
+        RecipeUnlock = 102,       // Recipe discoveries and cooking - NOT IMPLEMENTED
+        TradeSystem = 103,        // Resource trading between players - NOT IMPLEMENTED
+        EconomyBalance = 104,     // Economic balance and resource values - NOT IMPLEMENTED
         
-        // UI & Interface Systems (Types 100-109)
-        UIMenuSync = 100,        // Menu states and selections - NOT IMPLEMENTED
-        UIScreenShare = 101,     // Shared screen viewing (research, etc.) - NOT IMPLEMENTED
-        UINotification = 102,    // Alert and notification synchronization - NOT IMPLEMENTED
-        UIPriorityPanel = 103,   // Priority panel settings sync - NOT IMPLEMENTED
-        UIJobAssignment = 104,   // Job assignment interface sync - NOT IMPLEMENTED
-        UIResearchScreen = 105,  // Research screen coordination - NOT IMPLEMENTED
-        UIVitalsPanel = 106,     // Vitals and statistics panel sync - NOT IMPLEMENTED
-        UIWorldMap = 107,        // World map and asteroid view sync - NOT IMPLEMENTED
-        UIBuildMenu = 108,       // Building menu selections and filters - NOT IMPLEMENTED
-        UITimeControl = 109,     // Time control panel synchronization - NOT IMPLEMENTED
+        // UI & Interface Systems (Types 105-114)
+        UIMenuSync = 105,        // Menu states and selections - NOT IMPLEMENTED
+        UIScreenShare = 106,     // Shared screen viewing (research, etc.) - NOT IMPLEMENTED
+        UINotification = 107,    // Alert and notification synchronization - NOT IMPLEMENTED
+        UIPriorityPanel = 108,   // Priority panel settings sync - NOT IMPLEMENTED
+        UIJobAssignment = 109,   // Job assignment interface sync - NOT IMPLEMENTED
+        UIResearchScreen = 110,  // Research screen coordination - NOT IMPLEMENTED
+        UIVitalsPanel = 111,     // Vitals and statistics panel sync - NOT IMPLEMENTED
+        UIWorldMap = 112,        // World map and asteroid view sync - NOT IMPLEMENTED
+        UIBuildMenu = 113,       // Building menu selections and filters - NOT IMPLEMENTED
+        UITimeControl = 114,     // Time control panel synchronization - NOT IMPLEMENTED
         
-        // Advanced Features (Types 110-119)
-        PlayerPermissions = 110, // Player role and permission system - NOT IMPLEMENTED
-        SessionControl = 111,    // Session hosting and management - NOT IMPLEMENTED
-        ConflictResolution = 112, // Conflict resolution for simultaneous actions - NOT IMPLEMENTED
-        StateVersioning = 113,   // World state versioning and tracking - NOT IMPLEMENTED
-        PredictiveSync = 114,    // Predictive synchronization and smoothing - NOT IMPLEMENTED
-        PerformanceMetrics = 115, // Network and performance monitoring - NOT IMPLEMENTED
-        AntiCheat = 116,         // Anti-cheat and validation systems - NOT IMPLEMENTED
-        SaveGameSync = 117,      // Enhanced save game synchronization - NOT IMPLEMENTED
-        ModCompatibility = 118,  // Mod compatibility and synchronization - NOT IMPLEMENTED
-        CrossPlatform = 119,     // Cross-platform compatibility layer - NOT IMPLEMENTED
+        // Advanced Features (Types 115-124)
+        PlayerPermissions = 115, // Player role and permission system - NOT IMPLEMENTED
+        SessionControl = 116,    // Session hosting and management - NOT IMPLEMENTED
+        ConflictResolution = 117, // Conflict resolution for simultaneous actions - NOT IMPLEMENTED
+        StateVersioning = 118,   // World state versioning and tracking - NOT IMPLEMENTED
+        PredictiveSync = 119,    // Predictive synchronization and smoothing - NOT IMPLEMENTED
+        PerformanceMetrics = 120, // Network and performance monitoring - NOT IMPLEMENTED
+        AntiCheat = 121,         // Anti-cheat and validation systems - NOT IMPLEMENTED
+        SaveGameSync = 122,      // Enhanced save game synchronization - NOT IMPLEMENTED
+        ModCompatibility = 123,  // Mod compatibility and synchronization - NOT IMPLEMENTED
+        CrossPlatform = 124,     // Cross-platform compatibility layer - NOT IMPLEMENTED
         
-        // Specialized Game Systems (Types 120-129)
-        RocketSystem = 120,      // Rocket construction and space travel - NOT IMPLEMENTED
-        SpaceExploration = 121,  // Space missions and asteroid exploration - NOT IMPLEMENTED
-        AsteroidGeneration = 122, // Procedural asteroid generation sync - NOT IMPLEMENTED
-        CreatureSystem = 123,    // Critter behavior and breeding - NOT IMPLEMENTED
-        PlantGrowth = 124,       // Plant growth and farming cycles - NOT IMPLEMENTED
-        FoodSystem = 125,        // Food preparation and quality - NOT IMPLEMENTED
-        AtmosphereSystem = 126,  // Atmospheric composition detailed sync - NOT IMPLEMENTED
-        RadiationSystem = 127,   // Radiation exposure and protection - NOT IMPLEMENTED
-        MeteorShower = 128,      // Meteor impacts and damage - NOT IMPLEMENTED
-        GeysersSystem = 129,     // Geyser behavior and output - NOT IMPLEMENTED
+        // Specialized Game Systems (Types 125-134)
+        RocketSystem = 125,      // Rocket construction and space travel - NOT IMPLEMENTED
+        SpaceExploration = 126,  // Space missions and asteroid exploration - NOT IMPLEMENTED
+        AsteroidGeneration = 127, // Procedural asteroid generation sync - NOT IMPLEMENTED
+        CreatureSystem = 128,    // Critter behavior and breeding - NOT IMPLEMENTED
+        PlantGrowth = 129,       // Plant growth and farming cycles - NOT IMPLEMENTED
+        FoodSystem = 130,        // Food preparation and quality - NOT IMPLEMENTED
+        AtmosphereSystem = 131,  // Atmospheric composition detailed sync - NOT IMPLEMENTED
+        RadiationSystem = 132,   // Radiation exposure and protection - NOT IMPLEMENTED
+        MeteorShower = 133,      // Meteor impacts and damage - NOT IMPLEMENTED
+        GeysersSystem = 134,     // Geyser behavior and output - NOT IMPLEMENTED
         
-        // Future Expansion (Types 130-139)
-        CustomContent = 130,     // Custom content sharing system - NOT IMPLEMENTED
-        PlayerStats = 131,       // Player statistics and achievements - NOT IMPLEMENTED
-        VoiceChat = 132,         // Integrated voice communication - NOT IMPLEMENTED
-        ScreenShare = 133,       // Screen sharing and spectator mode - NOT IMPLEMENTED
-        Replay = 134,            // Game replay and recording system - NOT IMPLEMENTED
-        Tournaments = 135,       // Tournament and competitive modes - NOT IMPLEMENTED
-        Challenges = 136,        // Shared challenges and objectives - NOT IMPLEMENTED
-        Leaderboards = 137,      // Community leaderboards - NOT IMPLEMENTED
-        WorldSharing = 138,      // World template sharing - NOT IMPLEMENTED
-        CommunityFeatures = 139, // Community integration features - NOT IMPLEMENTED
+        // Future Expansion (Types 135-144)
+        CustomContent = 135,     // Custom content sharing system - NOT IMPLEMENTED
+        PlayerStats = 136,       // Player statistics and achievements - NOT IMPLEMENTED
+        VoiceChat = 137,         // Integrated voice communication - NOT IMPLEMENTED
+        ScreenShare = 138,       // Screen sharing and spectator mode - NOT IMPLEMENTED
+        Replay = 139,            // Game replay and recording system - NOT IMPLEMENTED
+        Tournaments = 140,       // Tournament and competitive modes - NOT IMPLEMENTED
+        Challenges = 141,        // Shared challenges and objectives - NOT IMPLEMENTED
+        Leaderboards = 142,      // Community leaderboards - NOT IMPLEMENTED
+        WorldSharing = 143,      // World template sharing - NOT IMPLEMENTED
+        CommunityFeatures = 144, // Community integration features - NOT IMPLEMENTED
         
-        // Debug & Development (Types 140-149)
-        DebugSync = 140,         // Debug information synchronization - NOT IMPLEMENTED
-        PerformanceProfiler = 141, // Network performance profiling - NOT IMPLEMENTED
-        StateInspector = 142,    // Real-time state inspection tools - NOT IMPLEMENTED
-        NetworkDiagnostics = 143, // Network diagnostics and troubleshooting - NOT IMPLEMENTED
-        ErrorReporting = 144,    // Automated error reporting system - NOT IMPLEMENTED
-        MetricsCollection = 145, // Usage metrics and analytics - NOT IMPLEMENTED
-        BetaFeatures = 146,      // Beta feature testing framework - NOT IMPLEMENTED
-        DeveloperTools = 147,    // Developer debugging and testing tools - NOT IMPLEMENTED
-        RemoteConsole = 148,     // Remote console and command execution - NOT IMPLEMENTED
-        SystemMonitoring = 149   // System resource monitoring - NOT IMPLEMENTED
+        // Debug & Development (Types 145-154)
+        DebugSync = 145,         // Debug information synchronization - NOT IMPLEMENTED
+        PerformanceProfiler = 146, // Network performance profiling - NOT IMPLEMENTED
+        StateInspector = 147,    // Real-time state inspection tools - NOT IMPLEMENTED
+        NetworkDiagnostics = 148, // Network diagnostics and troubleshooting - NOT IMPLEMENTED
+        ErrorReporting = 149,    // Automated error reporting system - NOT IMPLEMENTED
+        MetricsCollection = 150, // Usage metrics and analytics - NOT IMPLEMENTED
+        BetaFeatures = 151,      // Beta feature testing framework - NOT IMPLEMENTED
+        DeveloperTools = 152,    // Developer debugging and testing tools - NOT IMPLEMENTED
+        RemoteConsole = 153,     // Remote console and command execution - NOT IMPLEMENTED
+        SystemMonitoring = 154   // System resource monitoring - NOT IMPLEMENTED
     }
 }

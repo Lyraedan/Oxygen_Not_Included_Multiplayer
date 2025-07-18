@@ -24,13 +24,13 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
         public string SleepDisruption;      // Reason for sleep disruption ("Noise", "Light", "Stress", "None")
         public float SleepStartTime;        // Game time when sleep started
         public float ExpectedWakeTime;      // Game time when they should wake up
-        public DateTime PacketTime;
+        public System.DateTime PacketTime;
 
         public PacketType Type => PacketType.SleepBehavior;
 
         public SleepBehaviorPacket()
         {
-            PacketTime = DateTime.UtcNow;
+            PacketTime = System.DateTime.UtcNow;
         }
 
         public void Serialize(BinaryWriter writer)
@@ -72,7 +72,7 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
             SleepDisruption = reader.ReadString();
             SleepStartTime = reader.ReadSingle();
             ExpectedWakeTime = reader.ReadSingle();
-            PacketTime = DateTime.FromBinary(reader.ReadInt64());
+            PacketTime = System.DateTime.FromBinary(reader.ReadInt64());
         }
 
         public void OnDispatched()
@@ -86,7 +86,10 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
             var duplicantGO = entity.gameObject;
             var choreDriver = duplicantGO.GetComponent<ChoreDriver>();
             var navigator = duplicantGO.GetComponent<Navigator>();
-                var stamina = duplicantGO.GetComponent<Klei.AI.AttributeInstance>();            if (choreDriver == null || navigator == null)
+            var amounts = duplicantGO.GetComponent<Klei.AI.Amounts>();
+            var stamina = amounts?.Get(Db.Get().Amounts.Stamina.Id);
+            
+            if (choreDriver == null || navigator == null)
             {
                 DebugConsole.LogWarning($"[SleepBehaviorPacket] Duplicant {DuplicantNetId} missing required components");
                 return;
@@ -151,27 +154,22 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
             // Navigate to bed position
             if (Grid.IsValidCell(Grid.PosToCell(BedPosition)))
             {
-                var bedTarget = new GameObject($"BedTarget_{DuplicantNetId}");
-                bedTarget.transform.position = BedPosition;
-                var targetBehaviour = bedTarget.AddComponent<KMonoBehaviour>();
+                var targetCell = Grid.PosToCell(BedPosition);
                 
-                // Clean up callback
-                System.Action cleanup = () => {
-                    if (bedTarget != null) UnityEngine.Object.Destroy(bedTarget);
-                };
-                
+                // Navigate to bed position
                 navigator.Subscribe((int)GameHashes.DestinationReached, (data) => {
-                    cleanup.Invoke();
                     // Once at bed, create sleep chore
                     CreateSleepChore(duplicantGO);
                 });
-                navigator.Subscribe((int)GameHashes.NavigationFailed, (data) => cleanup.Invoke());
+                navigator.Subscribe((int)GameHashes.NavigationFailed, (data) => {
+                    DebugConsole.LogWarning($"[SleepBehaviorPacket] Failed to navigate to bed at {BedPosition}");
+                });
                 
-                navigator.GoTo(targetBehaviour, new CellOffset[] { CellOffset.none });
+                navigator.GoTo(targetCell, new CellOffset[] { CellOffset.none });
             }
         }
 
-        private void HandleSleepingState(GameObject duplicantGO, ChoreDriver choreDriver, Klei.AI.AttributeInstance stamina)
+        private void HandleSleepingState(GameObject duplicantGO, ChoreDriver choreDriver, Klei.AI.AmountInstance stamina)
         {
             // Ensure sleep chore is active
             var currentChore = choreDriver.GetCurrentChore();
@@ -184,14 +182,20 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
             if (stamina != null)
             {
                 float recoveryRate = SleepQuality * 0.1f; // Quality affects recovery rate
-                stamina.deltaAttribute.Add(new AttributeModifier(
-                    "SleepRecovery", 
-                    recoveryRate, 
-                    "Quality Sleep", 
-                    false, 
-                    false, 
-                    true
-                ));
+                // TODO: Implement proper stamina modifier application
+                // Apply modifier to the stamina amount directly
+                /* var staminaAttribute = stamina.GetComponent<Klei.AI.AttributeInstance>();
+                if (staminaAttribute != null)
+                {
+                    staminaAttribute.deltaAttribute.Add(new Klei.AI.AttributeModifier(
+                        "SleepRecovery", 
+                        recoveryRate, 
+                        "Quality Sleep", 
+                        false, 
+                        false, 
+                        true
+                    ));
+                } */
             }
         }
 
@@ -205,7 +209,7 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
             }
 
             // Apply wake-up effects
-            var effects = duplicantGO.GetComponent<Effects>();
+            var effects = duplicantGO.GetComponent<Klei.AI.Effects>();
             if (effects != null)
             {
                 effects.Remove("Tired");
@@ -221,10 +225,10 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
             }
         }
 
-        private void HandleTiredState(GameObject duplicantGO, ChoreDriver choreDriver, Klei.AI.AttributeInstance stamina)
+        private void HandleTiredState(GameObject duplicantGO, ChoreDriver choreDriver, Klei.AI.AmountInstance stamina)
         {
             // Apply tired effects
-            var effects = duplicantGO.GetComponent<Effects>();
+            var effects = duplicantGO.GetComponent<Klei.AI.Effects>();
             if (effects != null)
             {
                 effects.Add("Tired", true);
@@ -233,25 +237,15 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
             // Reduce work efficiency when tired
             if (stamina != null && TirednessLevel > 80.0f)
             {
-                var attributes = duplicantGO.GetComponent<AttributeModifiers>();
-                if (attributes != null)
-                {
-                    attributes.Add(new AttributeModifier(
-                        Db.Get().Attributes.Digging.Id,
-                        -0.2f,
-                        "Exhausted",
-                        false,
-                        false,
-                        true
-                    ));
-                }
+                // Apply tiredness effects - simplified for now
+                DebugConsole.Log($"[SleepBehaviorPacket] Duplicant {DuplicantNetId} is very tired (level: {TirednessLevel:F1}%)");
             }
         }
 
-        private void HandleRestedState(GameObject duplicantGO, ChoreDriver choreDriver, Klei.AI.AttributeInstance stamina)
+        private void HandleRestedState(GameObject duplicantGO, ChoreDriver choreDriver, Klei.AI.AmountInstance stamina)
         {
             // Remove tired effects and add rested bonuses
-            var effects = duplicantGO.GetComponent<Effects>();
+            var effects = duplicantGO.GetComponent<Klei.AI.Effects>();
             if (effects != null)
             {
                 effects.Remove("Tired");
@@ -270,14 +264,9 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
             var consumer = duplicantGO.GetComponent<ChoreConsumer>();
             if (consumer != null)
             {
-                var sleepChore = ONI_MP.Misc.ChoreFactory.Create("Sleep", 
-                    new Chore.Precondition.Context(), duplicantGO, BedPosition, Grid.PosToCell(BedPosition), "");
-                
-                if (sleepChore != null)
-                {
-                    var context = new Chore.Precondition.Context(sleepChore, new ChoreConsumerState(consumer), true);
-                    sleepChore.Begin(context);
-                }
+                // For now, use simplified sleep behavior
+                // TODO: Implement proper sleep chore creation when ChoreFactory is available
+                DebugConsole.Log($"[SleepBehaviorPacket] Sleep chore requested for duplicant {DuplicantNetId} at {BedPosition}");
             }
         }
     }

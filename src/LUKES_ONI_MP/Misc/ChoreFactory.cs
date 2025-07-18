@@ -7,8 +7,10 @@ using STRINGS;
 using UnityEngine;
 using static Chore;
 
-public static class ChoreFactory
+namespace ONI_MP.Misc
 {
+    public static class ChoreFactory
+    {
     public static Chore Create(string choreTypeId, Precondition.Context context, GameObject dupeGO, Vector3 pos, int cell, string prefabId)
     {
         var type = Db.Get().ChoreTypes.Get(choreTypeId);
@@ -717,6 +719,5 @@ public static class ChoreFactory
 
         return diggable.chore;
     }
-
-
+}
 }

@@ -14,10 +14,11 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
     public class BehaviorStatePacket : IPacket
     {
         public int DuplicantNetId;
-        public string BehaviorType;         // "Working", "Eating", "Moving", "Idle"
+        public string CurrentBehavior;      // "Working", "Eating", "Moving", "Idle"
         public string BehaviorSubtype;      // "Focused", "Distracted", "Fast", "Slow", etc.
-        public Vector3 BehaviorPosition;
-        public float BehaviorEfficiency;    // 0.0-2.0, 1.0 is normal
+        public Vector3 BehaviorLocation;
+        public float BehaviorProgress;      // Progress of current behavior (0.0-1.0)
+        public float EfficiencyModifier;    // 0.0-2.0, 1.0 is normal
         public string TargetObject;        // What they're interacting with
         public float BehaviorDuration;      // How long this behavior will last
         public bool IsInterruptible;       // Whether this behavior can be interrupted
@@ -27,12 +28,13 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(DuplicantNetId);
-            writer.Write(BehaviorType ?? "");
+            writer.Write(CurrentBehavior ?? "");
             writer.Write(BehaviorSubtype ?? "");
-            writer.Write(BehaviorPosition.x);
-            writer.Write(BehaviorPosition.y);
-            writer.Write(BehaviorPosition.z);
-            writer.Write(BehaviorEfficiency);
+            writer.Write(BehaviorLocation.x);
+            writer.Write(BehaviorLocation.y);
+            writer.Write(BehaviorLocation.z);
+            writer.Write(BehaviorProgress);
+            writer.Write(EfficiencyModifier);
             writer.Write(TargetObject ?? "");
             writer.Write(BehaviorDuration);
             writer.Write(IsInterruptible);
@@ -41,10 +43,11 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
         public void Deserialize(BinaryReader reader)
         {
             DuplicantNetId = reader.ReadInt32();
-            BehaviorType = reader.ReadString();
+            CurrentBehavior = reader.ReadString();
             BehaviorSubtype = reader.ReadString();
-            BehaviorPosition = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-            BehaviorEfficiency = reader.ReadSingle();
+            BehaviorLocation = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+            BehaviorProgress = reader.ReadSingle();
+            EfficiencyModifier = reader.ReadSingle();
             TargetObject = reader.ReadString();
             BehaviorDuration = reader.ReadSingle();
             IsInterruptible = reader.ReadBoolean();
@@ -52,7 +55,7 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
 
         public bool IsValid()
         {
-            return DuplicantNetId > 0 && !string.IsNullOrEmpty(BehaviorType);
+            return DuplicantNetId > 0 && !string.IsNullOrEmpty(CurrentBehavior);
         }
 
         public void Execute()
@@ -73,7 +76,7 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
 
             var effects = duplicantGO.GetComponent<Klei.AI.Effects>();
 
-            switch (BehaviorType)
+            switch (CurrentBehavior)
             {
                 case "Working":
                     HandleWorkingBehavior(duplicantGO, choreDriver, effects);
@@ -88,14 +91,14 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
                     HandleIdleBehavior(duplicantGO, choreDriver, effects);
                     break;
                 default:
-                    Debug.LogWarning($"Unknown behavior type: {BehaviorType}");
+                    Debug.LogWarning($"Unknown behavior type: {CurrentBehavior}");
                     break;
             }
 
             // Apply efficiency modifiers
             ApplyEfficiencyModifiers(duplicantGO, effects);
 
-            Debug.Log($"Applied behavior state {BehaviorType}:{BehaviorSubtype} to duplicant {DuplicantNetId} (efficiency: {BehaviorEfficiency:F2})");
+            Debug.Log($"Applied behavior state {CurrentBehavior}:{BehaviorSubtype} to duplicant {DuplicantNetId} (efficiency: {EfficiencyModifier:F2})");
         }
 
         private void HandleWorkingBehavior(GameObject duplicantGO, ChoreDriver choreDriver, Klei.AI.Effects effects)
@@ -182,12 +185,12 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
                 try
                 {
                     // Apply movement modifiers based on efficiency
-                    Debug.Log($"Duplicant {DuplicantNetId} moving with {BehaviorSubtype} behavior (efficiency: {BehaviorEfficiency:F2})");
+                    Debug.Log($"Duplicant {DuplicantNetId} moving with {BehaviorSubtype} behavior (efficiency: {EfficiencyModifier:F2})");
                     
                     // Move to behavior position if specified
-                    if (BehaviorPosition != Vector3.zero)
+                    if (BehaviorLocation != Vector3.zero)
                     {
-                        int targetCell = Grid.PosToCell(BehaviorPosition);
+                        int targetCell = Grid.PosToCell(BehaviorLocation);
                         if (Grid.IsValidCell(targetCell))
                         {
                             navigator.GoTo(targetCell);
@@ -238,16 +241,16 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
             try
             {
                 // Apply behavior-specific effects based on efficiency
-                if (BehaviorEfficiency > 1.2f)
+                if (EfficiencyModifier > 1.2f)
                 {
                     effects.Add("HighEfficiency", true);
                 }
-                else if (BehaviorEfficiency < 0.8f)
+                else if (EfficiencyModifier < 0.8f)
                 {
                     effects.Add("LowEfficiency", true);
                 }
                 
-                Debug.Log($"Applied efficiency modifiers for {BehaviorType} - {BehaviorSubtype} (efficiency: {BehaviorEfficiency:F2})");
+                Debug.Log($"Applied efficiency modifiers for {CurrentBehavior} - {BehaviorSubtype} (efficiency: {EfficiencyModifier:F2})");
             }
             catch (System.Exception ex)
             {
@@ -257,7 +260,7 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
 
         public override string ToString()
         {
-            return $"BehaviorStatePacket[DuplicantNetId={DuplicantNetId}, Type={BehaviorType}, Subtype={BehaviorSubtype}, Efficiency={BehaviorEfficiency:F2}]";
+            return $"BehaviorStatePacket[DuplicantNetId={DuplicantNetId}, Type={CurrentBehavior}, Subtype={BehaviorSubtype}, Efficiency={EfficiencyModifier:F2}]";
         }
 
         public void OnDispatched()

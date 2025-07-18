@@ -38,7 +38,7 @@ namespace ONI_MP.Networking.Packets.Animation
             writer.Write(TotalFrames);
             writer.Write(DeltaTime);
             writer.Write(ForceUpdate);
-            writer.Write(DateTime.UtcNow.Ticks);
+            writer.Write(System.DateTime.UtcNow.Ticks);
         }
 
         public void Deserialize(BinaryReader reader)
@@ -216,7 +216,7 @@ namespace ONI_MP.Networking.Packets.Animation
         private float CalculateNetworkLatency()
         {
             // Calculate latency based on timestamp difference
-            var currentTime = DateTime.UtcNow.Ticks;
+            var currentTime = System.DateTime.UtcNow.Ticks;
             var latencyTicks = currentTime - Timestamp;
             var latencySeconds = (float)latencyTicks / TimeSpan.TicksPerSecond;
             

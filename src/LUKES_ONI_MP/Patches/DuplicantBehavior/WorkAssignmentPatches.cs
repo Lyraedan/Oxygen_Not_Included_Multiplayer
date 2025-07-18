@@ -27,7 +27,7 @@ namespace ONI_MP.Patches.DuplicantBehavior
                 {
                     var targetPos = chore.gameObject?.transform.position ?? Vector3.zero;
                     var targetCell = Grid.PosToCell(chore.gameObject);
-                    var prefabId = chore.gameObject?.PrefabID()?.Name ?? "";
+                    var prefabId = chore.gameObject?.PrefabID().Name ?? "";
 
                     DuplicantBehaviorManager.QueueWorkAssignment(
                         identity.NetId,

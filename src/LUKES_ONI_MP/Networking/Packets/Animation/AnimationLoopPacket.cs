@@ -26,7 +26,7 @@ namespace ONI_MP.Networking.Packets.Animation
         public float LoopEndFrame;           // Frame where loop ends
         public string NextAnimation;         // Animation to transition to after loop ends
         public int MaxLoops;                 // Maximum number of loops (-1 = infinite)
-        public DateTime LoopStartTime;       // When current loop started
+        public System.DateTime LoopStartTime;       // When current loop started
 
         public PacketType Type => PacketType.AnimationLoop;
 
@@ -44,7 +44,7 @@ namespace ONI_MP.Networking.Packets.Animation
             writer.Write(LoopEndFrame);
             writer.Write(NextAnimation ?? "");
             writer.Write(MaxLoops);
-            writer.Write(DateTime.UtcNow.ToBinary());
+            writer.Write(System.DateTime.UtcNow.ToBinary());
         }
 
         public void Deserialize(BinaryReader reader)
@@ -61,7 +61,7 @@ namespace ONI_MP.Networking.Packets.Animation
             LoopEndFrame = reader.ReadSingle();
             NextAnimation = reader.ReadString();
             MaxLoops = reader.ReadInt32();
-            LoopStartTime = DateTime.FromBinary(reader.ReadInt64());
+            LoopStartTime = System.DateTime.FromBinary(reader.ReadInt64());
         }
 
         public bool IsValid()
@@ -269,7 +269,7 @@ namespace ONI_MP.Networking.Packets.Animation
             {
                 // Calculate expected loop completion time
                 var expectedLoopTime = LoopDuration / LoopSpeed;
-                var elapsedTime = (DateTime.UtcNow - LoopStartTime).TotalSeconds;
+                var elapsedTime = (System.DateTime.UtcNow - LoopStartTime).TotalSeconds;
                 
                 // If we're significantly out of sync, adjust
                 var expectedProgress = (float)(elapsedTime / expectedLoopTime) % 1f;

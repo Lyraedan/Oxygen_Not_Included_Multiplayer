@@ -22,6 +22,9 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
         public float IdleDuration;
         public float RecreationValue;       // How much recreation this provides
         public bool IsGroupActivity;        // Whether this is a group recreation activity
+        public float StressLevel;           // Current stress level of the duplicant
+        public bool IsScheduledBreak;       // Whether this is a scheduled downtime
+        public string IdleReason;           // Reason for being idle
 
         public PacketType Type => PacketType.IdleBehavior;
 
@@ -38,6 +41,9 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
             writer.Write(IdleDuration);
             writer.Write(RecreationValue);
             writer.Write(IsGroupActivity);
+            writer.Write(StressLevel);
+            writer.Write(IsScheduledBreak);
+            writer.Write(IdleReason ?? "");
         }
 
         public void Deserialize(BinaryReader reader)
@@ -51,6 +57,9 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
             IdleDuration = reader.ReadSingle();
             RecreationValue = reader.ReadSingle();
             IsGroupActivity = reader.ReadBoolean();
+            StressLevel = reader.ReadSingle();
+            IsScheduledBreak = reader.ReadBoolean();
+            IdleReason = reader.ReadString();
         }
 
         public bool IsValid()

@@ -25,14 +25,14 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
         public List<string> RequiredSkills;    // Skills needed for this work
         public bool IsUrgent;                  // Emergency or high-priority work
         public string AssignmentReason;        // Why this duplicant was chosen
-        public DateTime AssignedAt;
+        public System.DateTime AssignedAt;
 
         public PacketType Type => PacketType.WorkAssignment;
 
         public WorkAssignmentPacket()
         {
             RequiredSkills = new List<string>();
-            AssignedAt = DateTime.UtcNow;
+            AssignedAt = System.DateTime.UtcNow;
         }
 
         public void Serialize(BinaryWriter writer)
@@ -87,7 +87,7 @@ namespace ONI_MP.Networking.Packets.DuplicantBehavior
             
             IsUrgent = reader.ReadBoolean();
             AssignmentReason = reader.ReadString();
-            AssignedAt = DateTime.FromBinary(reader.ReadInt64());
+            AssignedAt = System.DateTime.FromBinary(reader.ReadInt64());
         }
 
         public void OnDispatched()

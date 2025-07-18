@@ -61,6 +61,25 @@ namespace ONI_MP.Networking
             return identities.TryGetValue(netId, out entity);
         }
 
+        public static int GetNetworkId(GameObject gameObject)
+        {
+            var networkIdentity = gameObject.GetComponent<NetworkIdentity>();
+            if (networkIdentity != null)
+            {
+                return networkIdentity.NetId;
+            }
+            return -1; // Invalid ID
+        }
+
+        public static GameObject GetGameObject(int netId)
+        {
+            if (identities.TryGetValue(netId, out var entity))
+            {
+                return entity.gameObject;
+            }
+            return null;
+        }
+
         public static void Clear()
         {
             identities.Clear();

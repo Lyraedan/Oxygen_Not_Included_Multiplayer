@@ -2,6 +2,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets;
+using ONI_MP.Networking.Packets.Architecture;
 using System;
 using UnityEngine;
 
@@ -136,23 +137,20 @@ namespace ONI_MP.Misc.ChoreAssignment
             GameObject nearest = null;
             float nearestDistance = float.MaxValue;
 
-            foreach (var identity in NetworkIdentityRegistry.GetAllIdentities())
+            var duplicants = UnityEngine.Object.FindObjectsOfType<MinionIdentity>();
+            foreach (var minionIdentity in duplicants)
             {
-                if (identity?.gameObject == null) continue;
-
-                // Check if it's a duplicant
-                var minionIdentity = identity.gameObject.GetComponent<MinionIdentity>();
-                if (minionIdentity == null) continue;
+                if (minionIdentity?.gameObject == null) continue;
 
                 // Check if duplicant is alive and available
-                var choreDriver = identity.gameObject.GetComponent<ChoreDriver>();
+                var choreDriver = minionIdentity.gameObject.GetComponent<ChoreDriver>();
                 if (choreDriver == null) continue;
 
                 // Calculate distance
-                float distance = Vector3.Distance(origin, identity.gameObject.transform.position);
+                float distance = Vector3.Distance(origin, minionIdentity.gameObject.transform.position);
                 if (distance <= radius && distance < nearestDistance)
                 {
-                    nearest = identity.gameObject;
+                    nearest = minionIdentity.gameObject;
                     nearestDistance = distance;
                 }
             }
@@ -173,8 +171,8 @@ namespace ONI_MP.Misc.ChoreAssignment
 
             var currentChore = choreDriver.GetCurrentChore();
             
-            // Available if no current chore or current chore is interruptible
-            return currentChore == null || currentChore.isInterruptible;
+            // Available if no current chore (simplified check)
+            return currentChore == null;
         }
 
         /// <summary>
