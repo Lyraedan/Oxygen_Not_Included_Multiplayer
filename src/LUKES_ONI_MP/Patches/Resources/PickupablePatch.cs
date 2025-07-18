@@ -5,6 +5,7 @@ using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Resources;
 using ONI_MP.Networking.Packets.Architecture;
 using Steamworks;
+using System;
 using UnityEngine;
 
 namespace ONI_MP.Patches.Resources
@@ -16,6 +17,9 @@ namespace ONI_MP.Patches.Resources
     {
         // NetworkIdentity is already added by SubstancePatch when resources are spawned
 
+        // NOTE: OnPickedUp method does not exist in current game version - temporarily disabled
+        // TODO: Find correct method name for pickup detection
+        /*
         [HarmonyPatch(typeof(Pickupable), "OnPickedUp")]
         public static class Pickupable_OnPickedUp_Patch
         {
@@ -52,7 +56,11 @@ namespace ONI_MP.Patches.Resources
                 }
             }
         }
+        */
 
+        // NOTE: OnDropped method may not exist in current game version - temporarily disabled
+        // TODO: Find correct method name for drop detection
+        /*
         [HarmonyPatch(typeof(Pickupable), "OnDropped")]
         public static class Pickupable_OnDropped_Patch
         {
@@ -83,12 +91,13 @@ namespace ONI_MP.Patches.Resources
                 }
             }
         }
+        */
 
         // Patch to prevent double resource spawning from digging
         [HarmonyPatch(typeof(Pickupable), nameof(Pickupable.TryAbsorb))]
         public static class Pickupable_TryAbsorb_Patch
         {
-            public static bool Prefix(Pickupable __instance, Pickupable other, bool hide_effects, bool allow_mass_change)
+            public static bool Prefix(Pickupable __instance, Pickupable other, bool hide_effects, bool allow_cross_storage)
             {
                 // Only allow host to process absorb operations
                 if (!MultiplayerSession.IsHost)
@@ -99,7 +108,7 @@ namespace ONI_MP.Patches.Resources
                 return true;
             }
             
-            public static void Postfix(Pickupable __instance, Pickupable other, bool hide_effects, bool allow_mass_change, bool __result)
+            public static void Postfix(Pickupable __instance, Pickupable other, bool hide_effects, bool allow_cross_storage, bool __result)
             {
                 if (!MultiplayerSession.IsHost || !__result) return;
                 
@@ -134,7 +143,7 @@ namespace ONI_MP.Patches.Resources
         }
 
         // Prevent clients from picking up items that are already reserved
-        [HarmonyPatch(typeof(Pickupable), nameof(Pickupable.CouldBePickedUpByMinion))]
+        [HarmonyPatch(typeof(Pickupable), nameof(Pickupable.CouldBePickedUpByMinion), new Type[] { typeof(GameObject) })]
         public static class Pickupable_CouldBePickedUpByMinion_Patch
         {
             public static void Postfix(Pickupable __instance, GameObject carrier, ref bool __result)

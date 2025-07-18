@@ -17,12 +17,13 @@ namespace ONI_MP.Patches.DuplicantBehavior
         private static Dictionary<int, int> duplicantRecreationBuildings = new Dictionary<int, int>();
         private static Dictionary<int, Vector3> lastIdlePositions = new Dictionary<int, Vector3>();
         private static Dictionary<int, float> idleStateTimestamps = new Dictionary<int, float>();
-        // private static readonly float IDLE_POSITION_THRESHOLD = 0.5f; // Position change threshold for sync
+        private static readonly float IDLE_POSITION_THRESHOLD = 0.5f; // Position change threshold for sync
         
         /// <summary>
         /// Synchronizes when duplicants start idle activities or recreation.
+        /// Note: Uses StandardChoreBase.Begin instead of abstract Chore.Begin which cannot be patched.
         /// </summary>
-        [HarmonyPatch(typeof(Chore), "Begin")]
+        [HarmonyPatch(typeof(StandardChoreBase), nameof(StandardChoreBase.Begin))]
         [HarmonyPostfix]
         public static void OnIdleChoreStarted(Chore __instance)
         {
@@ -74,7 +75,10 @@ namespace ONI_MP.Patches.DuplicantBehavior
         
         /// <summary>
         /// Synchronizes when duplicants end idle activities.
+        /// NOTE: Chore.Cleanup is abstract and cannot be patched - temporarily disabled
+        /// TODO: Find alternative method to detect chore completion
         /// </summary>
+        /*
         [HarmonyPatch(typeof(Chore), nameof(Chore.Cleanup))]
         [HarmonyPrefix]
         public static void OnIdleChoreEnded(Chore __instance)
@@ -106,10 +110,13 @@ namespace ONI_MP.Patches.DuplicantBehavior
                 Debug.LogError($"[IdleBehaviorPatches] Error in OnIdleChoreEnded: {ex.Message}");
             }
         }
+        */
         
         /// <summary>
         /// Synchronizes recreation activities at entertainment buildings.
+        /// NOTE: OnWorkCompleted method may not exist in current game version - temporarily disabled
         /// </summary>
+        /*
         [HarmonyPatch(typeof(Workable), "OnWorkCompleted")]
         [HarmonyPostfix]
         public static void OnRecreationCompleted(Workable __instance, WorkerBase worker)
@@ -140,6 +147,7 @@ namespace ONI_MP.Patches.DuplicantBehavior
                 Debug.LogError($"[IdleBehaviorPatches] Error in OnRecreationCompleted: {ex.Message}");
             }
         }
+        */
         
         /// <summary>
         /// Checks if a duplicant is currently idle.

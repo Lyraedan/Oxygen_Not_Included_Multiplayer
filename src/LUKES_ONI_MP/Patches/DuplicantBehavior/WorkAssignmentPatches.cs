@@ -13,6 +13,10 @@ namespace ONI_MP.Patches.DuplicantBehavior
     /// </summary>
     public static class WorkAssignmentPatches
     {
+        // NOTE: ChoreDriver.SetChore method signature changed in current game version
+        // Method now takes Context parameter instead of Chore parameter
+        // Temporarily disabled until we can adapt to the new signature
+        /*
         [HarmonyPatch(typeof(ChoreDriver), nameof(ChoreDriver.SetChore))]
         public static class ChoreDriver_SetChore_Patch
         {
@@ -72,7 +76,12 @@ namespace ONI_MP.Patches.DuplicantBehavior
                 };
             }
         }
+        */
 
+        // NOTE: Chore.Cancel is an abstract method and cannot be patched with HarmonyLib
+        // Abstract methods have no body to modify
+        // Temporarily disabled until we find an alternative approach
+        /*
         [HarmonyPatch(typeof(Chore), nameof(Chore.Cancel))]
         public static class Chore_Cancel_Patch
         {
@@ -101,7 +110,12 @@ namespace ONI_MP.Patches.DuplicantBehavior
                 DebugConsole.Log($"[WorkAssignmentPatch] Queued work cancellation for duplicant {identity.NetId}: {reason}");
             }
         }
+        */
 
+        // NOTE: ChoreConsumer.IsPermittedByUser method signature changed in current game version
+        // Method now takes ChoreGroup parameter instead of ChoreType parameter
+        // Temporarily disabled until we can adapt to the new signature
+        /*
         [HarmonyPatch(typeof(ChoreConsumer), nameof(ChoreConsumer.IsPermittedByUser))]
         public static class ChoreConsumer_IsPermittedByUser_Patch
         {
@@ -117,5 +131,6 @@ namespace ONI_MP.Patches.DuplicantBehavior
                 DebugConsole.Log($"[WorkAssignmentPatch] Duplicant {identity.NetId} permitted to do {chore_type.Id}");
             }
         }
+        */
     }
 }

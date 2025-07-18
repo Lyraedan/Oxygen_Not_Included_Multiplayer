@@ -5,6 +5,7 @@ using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Resources;
 using ONI_MP.Networking.Packets.Architecture;
 using Steamworks;
+using System;
 using UnityEngine;
 
 namespace ONI_MP.Patches.Resources
@@ -18,10 +19,10 @@ namespace ONI_MP.Patches.Resources
         private static float _lastSyncTime = 0f;
         private const float SYNC_INTERVAL = 2f; // Sync every 2 seconds to avoid spam
 
-        [HarmonyPatch(typeof(Storage), nameof(Storage.Store))]
+        [HarmonyPatch(typeof(Storage), nameof(Storage.Store), new Type[] { typeof(GameObject), typeof(bool), typeof(bool), typeof(bool), typeof(bool) })]
         public static class Storage_Store_Patch
         {
-            public static void Postfix(Storage __instance, GameObject go, bool hide_popups, bool block_tags, bool do_disease_transfer, bool do_notify_stored)
+            public static void Postfix(Storage __instance, GameObject go, bool hide_popups, bool block_events, bool do_disease_transfer, bool is_deserializing)
             {
                 if (!MultiplayerSession.IsHost) return;
                 
@@ -47,10 +48,10 @@ namespace ONI_MP.Patches.Resources
             }
         }
 
-        [HarmonyPatch(typeof(Storage), nameof(Storage.Drop))]
+        [HarmonyPatch(typeof(Storage), nameof(Storage.Drop), new Type[] { typeof(GameObject), typeof(bool) })]
         public static class Storage_Drop_Patch
         {
-            public static void Postfix(Storage __instance, GameObject go, bool do_copy_over_tags)
+            public static void Postfix(Storage __instance, GameObject go, bool do_disease_transfer)
             {
                 if (!MultiplayerSession.IsHost) return;
                 
@@ -76,7 +77,10 @@ namespace ONI_MP.Patches.Resources
             }
         }
 
-        [HarmonyPatch(typeof(Storage), nameof(Storage.DropAll))]
+        // NOTE: DropAll method signature may have changed in current game version
+        // Temporarily disabled until we can verify the correct signature
+        /*
+        [HarmonyPatch(typeof(Storage), nameof(Storage.DropAll), new Type[] { typeof(bool), typeof(bool), typeof(Vector3), typeof(bool) })]
         public static class Storage_DropAll_Patch
         {
             public static void Postfix(Storage __instance, bool vent_gas, bool dump_liquid, Vector3 offset, bool do_copy_over_tags)
@@ -100,8 +104,9 @@ namespace ONI_MP.Patches.Resources
                 }
             }
         }
+        */
 
-        [HarmonyPatch(typeof(Storage), nameof(Storage.ConsumeIgnoringDisease))]
+        [HarmonyPatch(typeof(Storage), nameof(Storage.ConsumeIgnoringDisease), new Type[] { typeof(Tag), typeof(float) })]
         public static class Storage_ConsumeIgnoringDisease_Patch
         {
             public static void Postfix(Storage __instance, Tag tag, float amount)
@@ -130,7 +135,10 @@ namespace ONI_MP.Patches.Resources
             }
         }
 
-        [HarmonyPatch(typeof(Storage), nameof(Storage.AddOre))]
+        // NOTE: AddOre method signature may have changed in current game version
+        // Temporarily disabled until we can verify the correct signature
+        /*
+        [HarmonyPatch(typeof(Storage), nameof(Storage.AddOre), new Type[] { typeof(SimHashes), typeof(float), typeof(float), typeof(byte), typeof(int) })]
         public static class Storage_AddOre_Patch
         {
             public static void Postfix(Storage __instance, SimHashes element, float mass, float temperature, byte disease_idx, int disease_count)
@@ -158,5 +166,6 @@ namespace ONI_MP.Patches.Resources
                 }
             }
         }
+        */
     }
 }

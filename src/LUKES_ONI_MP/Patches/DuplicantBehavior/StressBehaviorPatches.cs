@@ -69,7 +69,10 @@ namespace ONI_MP.Patches.DuplicantBehavior
         
         /// <summary>
         /// Synchronizes stress reactions when duplicants enter stress-induced states.
+        /// NOTE: OnStressReactionTrigger method does not exist in current game version - temporarily disabled
+        /// TODO: Find correct method name or alternative approach for stress reaction detection
         /// </summary>
+        /*
         [HarmonyPatch(typeof(StressMonitor), "OnStressReactionTrigger")]
         [HarmonyPostfix]
         public static void OnStressReactionTriggered(StressMonitor __instance, string reactionType)
@@ -83,7 +86,6 @@ namespace ONI_MP.Patches.DuplicantBehavior
                 Debug.LogWarning($"[StressBehaviorPatches] Stress reaction '{reactionType}' triggered but cannot access duplicant from StressMonitor");
                 return;
                 
-                /*
                 // Get the duplicant from the same GameObject that has the stress monitor
                 var duplicant = ((Component)__instance).GetComponent<MinionIdentity>();
                 if (duplicant == null) return;
@@ -109,17 +111,20 @@ namespace ONI_MP.Patches.DuplicantBehavior
                 PacketSender.SendToAllClients(packet);
                 
                 Debug.Log($"[StressBehaviorPatches] Synchronized stress reaction '{reactionType}' for duplicant {duplicantId}");
-                */
             }
             catch (Exception ex)
             {
                 Debug.LogError($"[StressBehaviorPatches] Error in OnStressReactionTriggered: {ex.Message}");
             }
         }
+        */
         
         /// <summary>
         /// Synchronizes when stress chores are completed or interrupted.
+        /// NOTE: Chore.Cleanup is abstract and cannot be patched - temporarily disabled
+        /// TODO: Find alternative method to detect chore completion
         /// </summary>
+        /*
         [HarmonyPatch(typeof(Chore), nameof(Chore.Cleanup))]
         [HarmonyPrefix]
         public static void OnStressChoreEnded(Chore __instance)
@@ -163,10 +168,14 @@ namespace ONI_MP.Patches.DuplicantBehavior
                 Debug.LogError($"[StressBehaviorPatches] Error in OnStressChoreEnded: {ex.Message}");
             }
         }
+        */
         
         /// <summary>
         /// Synchronizes stress-induced building destruction.
+        /// NOTE: BuildingHP.DoDamage method signature doesn't match - no 'source' parameter exists
+        /// TODO: Find correct method or alternative approach for tracking stress-induced building damage
         /// </summary>
+        /*
         [HarmonyPatch(typeof(BuildingHP), nameof(BuildingHP.DoDamage))]
         [HarmonyPrefix]
         public static void OnBuildingDamageFromStress(BuildingHP __instance, float damage, GameObject source)
@@ -205,10 +214,13 @@ namespace ONI_MP.Patches.DuplicantBehavior
                 Debug.LogError($"[StressBehaviorPatches] Error in OnBuildingDamageFromStress: {ex.Message}");
             }
         }
+        */
         
         /// <summary>
         /// Synchronizes stress-reducing activities like using massage tables.
+        /// NOTE: OnWorkCompleted method may not exist in current game version - temporarily disabled
         /// </summary>
+        /*
         [HarmonyPatch(typeof(Workable), "OnWorkCompleted")]
         [HarmonyPostfix]
         public static void OnStressReliefActivity(Workable __instance, WorkerBase worker)
@@ -230,15 +242,15 @@ namespace ONI_MP.Patches.DuplicantBehavior
                 if (duplicantId == -1 || buildingId == -1) return;
                 
                 // TODO: Implement StressReliefActivityPacket
-                /*var packet = new StressReliefActivityPacket
-                {
-                    DuplicantId = duplicantId,
-                    ActivityType = __instance.name,
-                    BuildingId = buildingId,
-                    Timestamp = System.DateTime.UtcNow.ToBinary()
-                };
+                //var packet = new StressReliefActivityPacket
+                //{
+                //    DuplicantId = duplicantId,
+                //    ActivityType = __instance.name,
+                //    BuildingId = buildingId,
+                //    Timestamp = System.DateTime.UtcNow.ToBinary()
+                //};
                 
-                PacketSender.SendPacket(packet);*/
+                //PacketSender.SendPacket(packet);
                 
                 Debug.Log($"[StressBehaviorPatches] Synchronized stress relief activity for duplicant {duplicantId}");
             }
@@ -247,6 +259,7 @@ namespace ONI_MP.Patches.DuplicantBehavior
                 Debug.LogError($"[StressBehaviorPatches] Error in OnStressReliefActivity: {ex.Message}");
             }
         }
+        */
         
         /// <summary>
         /// Clears cached stress data when a duplicant is removed.

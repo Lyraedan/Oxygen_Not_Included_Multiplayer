@@ -71,8 +71,9 @@ namespace ONI_MP.Patches.DuplicantBehavior
         
         /// <summary>
         /// Synchronizes when duplicants start sleeping in beds.
+        /// Note: Uses StandardChoreBase.Begin instead of abstract Chore.Begin which cannot be patched.
         /// </summary>
-        [HarmonyPatch(typeof(Chore), "Begin")]
+        [HarmonyPatch(typeof(StandardChoreBase), nameof(StandardChoreBase.Begin))]
         [HarmonyPostfix]
         public static void OnSleepChoreStarted(Chore __instance)
         {
@@ -152,7 +153,10 @@ namespace ONI_MP.Patches.DuplicantBehavior
         
         /// <summary>
         /// Synchronizes when duplicants wake up or stop sleeping.
+        /// NOTE: Chore.Cleanup is abstract and cannot be patched - temporarily disabled
+        /// TODO: Find alternative method to detect chore completion
         /// </summary>
+        /*
         [HarmonyPatch(typeof(Chore), nameof(Chore.Cleanup))]
         [HarmonyPrefix]
         public static void OnSleepChoreEnded(Chore __instance)
@@ -180,18 +184,18 @@ namespace ONI_MP.Patches.DuplicantBehavior
                 int bedId = duplicantBedAssignments.ContainsKey(duplicantId) ? duplicantBedAssignments[duplicantId] : -1;
                 
                 // TODO: Implement DuplicantSleepStatePacket
-                /*var packet = new DuplicantSleepStatePacket
-                {
-                    DuplicantId = duplicantId,
-                    IsSleeping = false,
-                    BedId = bedId,
-                    BedIsOwned = false,
-                    IsInterruptable = false,
-                    SleepStartTime = -1,
-                    Timestamp = System.DateTime.UtcNow.ToBinary()
-                };
-                
-                PacketSender.SendPacket(packet);*/
+                // var packet = new DuplicantSleepStatePacket
+                // {
+                //     DuplicantId = duplicantId,
+                //     IsSleeping = false,
+                //     BedId = bedId,
+                //     BedIsOwned = false,
+                //     IsInterruptable = false,
+                //     SleepStartTime = -1,
+                //     Timestamp = System.DateTime.UtcNow.ToBinary()
+                // };
+                // 
+                // PacketSender.SendPacket(packet);
                 
                 Debug.Log($"[SleepBehaviorPatches] Duplicant {duplicantId} stopped sleeping");
             }
@@ -200,10 +204,13 @@ namespace ONI_MP.Patches.DuplicantBehavior
                 Debug.LogError($"[SleepBehaviorPatches] Error in OnSleepChoreEnded: {ex.Message}");
             }
         }
+        */
         
         /// <summary>
         /// Synchronizes sleep quality effects and bonuses.
+        /// NOTE: OnWorkCompleted method may not exist in current game version - temporarily disabled
         /// </summary>
+        /*
         [HarmonyPatch(typeof(Workable), "OnWorkCompleted")]
         [HarmonyPostfix]
         public static void OnSleepQualityBonus(Workable __instance, WorkerBase worker)
@@ -225,16 +232,16 @@ namespace ONI_MP.Patches.DuplicantBehavior
                 if (duplicantId == -1 || buildingId == -1) return;
                 
                 // TODO: Implement SleepQualityPacket
-                /*var packet = new SleepQualityPacket
-                {
-                    DuplicantId = duplicantId,
-                    QualityType = __instance.name,
-                    BuildingId = buildingId,
-                    QualityBonus = 1.0f,
-                    Timestamp = System.DateTime.UtcNow.ToBinary()
-                };
+                //var packet = new SleepQualityPacket
+                //{
+                //    DuplicantId = duplicantId,
+                //    QualityType = __instance.name,
+                //    BuildingId = buildingId,
+                //    QualityBonus = 1.0f,
+                //    Timestamp = System.DateTime.UtcNow.ToBinary()
+                //};
                 
-                PacketSender.SendPacket(packet);*/
+                //PacketSender.SendPacket(packet);
                 
                 Debug.Log($"[SleepBehaviorPatches] Sleep quality bonus applied to duplicant {duplicantId}");
             }
@@ -243,6 +250,7 @@ namespace ONI_MP.Patches.DuplicantBehavior
                 Debug.LogError($"[SleepBehaviorPatches] Error in OnSleepQualityBonus: {ex.Message}");
             }
         }
+        */
         
         /// <summary>
         /// Resets all sleep synchronization data for new sessions.
