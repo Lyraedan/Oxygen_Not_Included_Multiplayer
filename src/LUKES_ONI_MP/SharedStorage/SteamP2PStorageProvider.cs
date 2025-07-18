@@ -39,6 +39,17 @@ namespace ONI_MP.SharedStorage
     }
 
     /// <summary>
+    /// Represents a single chunk to be sent
+    /// </summary>
+    internal class ChunkToSend
+    {
+        public P2PChunkRequestPacket Request { get; set; }
+        public int ChunkIndex { get; set; }
+        public string FilePath { get; set; }
+        public int TotalChunks { get; set; }
+    }
+
+    /// <summary>
     /// Steam P2P based storage provider that uses Steam networking for file transfer
     /// without exposing IP addresses. Files are distributed among lobby members.
     /// </summary>
@@ -56,6 +67,10 @@ namespace ONI_MP.SharedStorage
         // Chunk sending queue to prevent overlapping coroutines
         private readonly Queue<P2PChunkRequestPacket> _chunkRequestQueue = new Queue<P2PChunkRequestPacket>();
         private bool _isProcessingChunkRequests = false;
+        
+        // Individual chunk queue for better network control
+        private readonly Queue<ChunkToSend> _individualChunkQueue = new Queue<ChunkToSend>();
+        private bool _isProcessingIndividualChunks = false;
         
         public bool IsInitialized { get; private set; }
         public string ProviderName => "SteamP2P";
@@ -449,15 +464,24 @@ namespace ONI_MP.SharedStorage
             
             DebugConsole.Log($"[SteamP2PStorageProvider] Processing chunk request: {packet.RequestedChunks.Count} chunks of {packet.FileName}");
             
+            bool shouldStartProcessor = false;
+            
             // Add to queue to prevent overlapping transfers
             lock (_transferLock)
             {
                 _chunkRequestQueue.Enqueue(packet);
                 DebugConsole.Log($"[SteamP2PStorageProvider] Added chunk request to queue. Queue length: {_chunkRequestQueue.Count}");
+                
+                // Check if we need to start the processor
+                shouldStartProcessor = !_isProcessingChunkRequests;
+                if (shouldStartProcessor)
+                {
+                    DebugConsole.Log($"[SteamP2PStorageProvider] Starting queue processor");
+                }
             }
             
             // Start processing if not already running
-            if (Game.Instance != null && !_isProcessingChunkRequests)
+            if (Game.Instance != null && shouldStartProcessor)
             {
                 Game.Instance.StartCoroutine(ProcessChunkRequestQueue());
             }
@@ -601,6 +625,7 @@ namespace ONI_MP.SharedStorage
         private IEnumerator ProcessChunkRequestQueue()
         {
             _isProcessingChunkRequests = true;
+            DebugConsole.Log($"[SteamP2PStorageProvider] Started processing chunk request queue");
             
             while (true)
             {
@@ -617,15 +642,28 @@ namespace ONI_MP.SharedStorage
                 
                 if (nextRequest == null)
                 {
-                    // No more requests, exit
-                    break;
+                    // No more requests, check if any new ones came in while we were processing
+                    yield return new WaitForSeconds(0.1f);
+                    
+                    lock (_transferLock)
+                    {
+                        if (_chunkRequestQueue.Count == 0)
+                        {
+                            // Still no requests, exit
+                            break;
+                        }
+                        // New requests came in, continue processing
+                        DebugConsole.Log($"[SteamP2PStorageProvider] New requests arrived, continuing queue processing");
+                        continue;
+                    }
                 }
                 
-                // Process the request - this will complete before moving to the next
-                yield return Game.Instance.StartCoroutine(SendChunksAsync(nextRequest));
+                // Queue individual chunks instead of sending all at once
+                DebugConsole.Log($"[SteamP2PStorageProvider] Queuing individual chunks for {nextRequest.FileName}");
+                QueueIndividualChunks(nextRequest);
                 
-                // Small delay between transfers
-                yield return new WaitForSeconds(0.1f);
+                // Small delay between file requests
+                yield return new WaitForSeconds(0.05f);
             }
             
             _isProcessingChunkRequests = false;
@@ -633,73 +671,147 @@ namespace ONI_MP.SharedStorage
         }
         
         /// <summary>
-        /// Sends file chunks to a requesting peer
+        /// Queues individual chunks for a file request
         /// </summary>
-        private IEnumerator SendChunksAsync(P2PChunkRequestPacket request)
+        private void QueueIndividualChunks(P2PChunkRequestPacket request)
         {
             var localFilePath = Path.Combine(_localStoragePath, request.FileName);
             
             if (!File.Exists(localFilePath))
             {
-                DebugConsole.LogError($"[SteamP2PStorageProvider] Cannot send chunks for non-existent file: {request.FileName}");
-                yield break;
+                DebugConsole.LogError($"[SteamP2PStorageProvider] Cannot queue chunks for non-existent file: {request.FileName}");
+                return;
             }
             
-            DebugConsole.Log($"[SteamP2PStorageProvider] Starting to send {request.RequestedChunks.Count} chunks for {request.FileName}");
+            var fileInfo = new System.IO.FileInfo(localFilePath);
+            var totalChunks = (int)Math.Ceiling((double)fileInfo.Length / _chunkSize);
             
-            int sentCount = 0;
-            using (var fileStream = new FileStream(localFilePath, FileMode.Open, FileAccess.Read))
+            DebugConsole.Log($"[SteamP2PStorageProvider] Queuing {request.RequestedChunks.Count} individual chunks for {request.FileName} (total file chunks: {totalChunks})");
+            
+            bool shouldStartProcessor = false;
+            
+            lock (_transferLock)
             {
-                // Calculate the total number of chunks for the entire file
-                var totalChunks = (int)Math.Ceiling((double)fileStream.Length / _chunkSize);
-                
-                DebugConsole.Log($"[SteamP2PStorageProvider] File size: {fileStream.Length} bytes, Chunk size: {_chunkSize}, Total chunks: {totalChunks}");
-                
                 foreach (var chunkIndex in request.RequestedChunks)
                 {
-                    bool chunkSent = false;
-                    try
+                    _individualChunkQueue.Enqueue(new ChunkToSend
                     {
-                        var chunkData = new byte[_chunkSize];
-                        fileStream.Seek(chunkIndex * _chunkSize, SeekOrigin.Begin);
-                        var bytesRead = fileStream.Read(chunkData, 0, _chunkSize);
-                        
-                        // Resize chunk if it's the last chunk and smaller than chunk size
-                        if (bytesRead < _chunkSize)
-                        {
-                            Array.Resize(ref chunkData, bytesRead);
-                        }
-                        
-                        var chunkPacket = new P2PFileChunkPacket(
-                            MultiplayerSession.LocalSteamID, request.FileName, request.FileHash,
-                            chunkIndex, totalChunks, chunkData, request.TransferID);
-                        
-                        PacketSender.SendToPlayer(request.RequesterSteamID, chunkPacket);
-                        chunkSent = true;
-                        sentCount++;
-                        
-                        DebugConsole.Log($"[SteamP2PStorageProvider] Sent chunk {chunkIndex + 1}/{totalChunks} ({sentCount}/{request.RequestedChunks.Count} requested) - {bytesRead} bytes");
-                    }
-                    catch (Exception ex)
-                    {
-                        DebugConsole.LogError($"[SteamP2PStorageProvider] Failed to send chunk {chunkIndex}: {ex.Message}");
-                        
-                        var failurePacket = new P2PTransferCompletePacket(
-                            MultiplayerSession.LocalSteamID, request.FileName, request.FileHash, 
-                            request.TransferID, false, ex.Message);
-                        PacketSender.SendToPlayer(request.RequesterSteamID, failurePacket);
-                        yield break;
-                    }
-                    
-                    if (chunkSent)
-                    {
-                        // Small delay to avoid overwhelming the network
-                        yield return new WaitForSeconds(0.05f);
-                    }
+                        Request = request,
+                        ChunkIndex = chunkIndex,
+                        FilePath = localFilePath,
+                        TotalChunks = totalChunks
+                    });
+                }
+                
+                DebugConsole.Log($"[SteamP2PStorageProvider] Queued chunks. Individual chunk queue length: {_individualChunkQueue.Count}");
+                
+                // Check if we need to start the individual chunk processor
+                shouldStartProcessor = !_isProcessingIndividualChunks;
+                if (shouldStartProcessor)
+                {
+                    DebugConsole.Log($"[SteamP2PStorageProvider] Starting individual chunk processor");
                 }
             }
             
-            DebugConsole.Log($"[SteamP2PStorageProvider] Completed sending {sentCount} chunks to {request.RequesterSteamID}");
+            // Start processing individual chunks if not already running
+            if (Game.Instance != null && shouldStartProcessor)
+            {
+                Game.Instance.StartCoroutine(ProcessIndividualChunkQueue());
+            }
+        }
+        
+        /// <summary>
+        /// Processes individual chunks from the queue one by one
+        /// </summary>
+        private IEnumerator ProcessIndividualChunkQueue()
+        {
+            _isProcessingIndividualChunks = true;
+            DebugConsole.Log($"[SteamP2PStorageProvider] Started processing individual chunk queue");
+            
+            while (true)
+            {
+                ChunkToSend nextChunk = null;
+                
+                lock (_transferLock)
+                {
+                    if (_individualChunkQueue.Count > 0)
+                    {
+                        nextChunk = _individualChunkQueue.Dequeue();
+                    }
+                }
+                
+                if (nextChunk == null)
+                {
+                    // No more chunks, check if any new ones came in
+                    yield return new WaitForSeconds(0.05f);
+                    
+                    lock (_transferLock)
+                    {
+                        if (_individualChunkQueue.Count == 0)
+                        {
+                            // Still no chunks, exit
+                            break;
+                        }
+                        // New chunks came in, continue processing
+                        continue;
+                    }
+                }
+                
+                // Send the individual chunk
+                yield return SendSingleChunk(nextChunk);
+                
+                // Small delay between chunks to prevent network overwhelming
+                yield return new WaitForSeconds(0.02f);
+            }
+            
+            _isProcessingIndividualChunks = false;
+            DebugConsole.Log($"[SteamP2PStorageProvider] Finished processing individual chunk queue");
+        }
+        
+        /// <summary>
+        /// Sends a single chunk
+        /// </summary>
+        private IEnumerator SendSingleChunk(ChunkToSend chunkToSend)
+        {
+            try
+            {
+                using (var fileStream = new FileStream(chunkToSend.FilePath, FileMode.Open, FileAccess.Read))
+                {
+                    var chunkData = new byte[_chunkSize];
+                    fileStream.Seek(chunkToSend.ChunkIndex * _chunkSize, SeekOrigin.Begin);
+                    var bytesRead = fileStream.Read(chunkData, 0, _chunkSize);
+                    
+                    // Resize chunk if it's the last chunk and smaller than chunk size
+                    if (bytesRead < _chunkSize)
+                    {
+                        Array.Resize(ref chunkData, bytesRead);
+                    }
+                    
+                    var chunkPacket = new P2PFileChunkPacket(
+                        MultiplayerSession.LocalSteamID, 
+                        chunkToSend.Request.FileName, 
+                        chunkToSend.Request.FileHash,
+                        chunkToSend.ChunkIndex, 
+                        chunkToSend.TotalChunks, 
+                        chunkData, 
+                        chunkToSend.Request.TransferID);
+                    
+                    PacketSender.SendToPlayer(chunkToSend.Request.RequesterSteamID, chunkPacket);
+                    
+                    DebugConsole.Log($"[SteamP2PStorageProvider] Sent chunk {chunkToSend.ChunkIndex + 1}/{chunkToSend.TotalChunks} for {chunkToSend.Request.FileName} - {bytesRead} bytes (queue: {_individualChunkQueue.Count} remaining)");
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugConsole.LogError($"[SteamP2PStorageProvider] Failed to send chunk {chunkToSend.ChunkIndex} for {chunkToSend.Request.FileName}: {ex.Message}");
+                
+                var failurePacket = new P2PTransferCompletePacket(
+                    MultiplayerSession.LocalSteamID, chunkToSend.Request.FileName, chunkToSend.Request.FileHash, 
+                    chunkToSend.Request.TransferID, false, ex.Message);
+                PacketSender.SendToPlayer(chunkToSend.Request.RequesterSteamID, failurePacket);
+            }
+            
+            yield return null;
         }
         
         /// <summary>
