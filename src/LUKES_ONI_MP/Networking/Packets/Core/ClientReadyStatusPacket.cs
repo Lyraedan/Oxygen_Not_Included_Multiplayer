@@ -56,25 +56,25 @@ namespace ONI_MP.Networking.Packets.Core
 
             MultiplayerOverlay.Show(message);
 
-            if(GameServerHardSync.IsHardSyncInProgress)
-            {
-                if(allReady)
-                {
-                    ReadyManager.MarkAllAsUnready(); // Reset player ready states
-                    // StorageUtils functionality removed
-                }
-                return;
-            }
+            // if(GameServerHardSync.IsHardSyncInProgress)
+            // {
+            //     if(allReady)
+            //     {
+            //         ReadyManager.MarkAllAsUnready(); // Reset player ready states
+            //         // SendSaveFile(); 
+            //     }
+            //     return;
+            // }
 
-            if (allReady)
-            {
-                ReadyManager.SendAllReadyPacket();
-            }
-            else
-            {
-                // Broadcast updated overlay message to all clients
-                ReadyManager.SendStatusUpdatePacketToClients(message);
-            }
+            // if (allReady)
+            // {
+            //     ReadyManager.SendAllReadyPacket();
+            // }
+            // else
+            // {
+            //     // Broadcast updated overlay message to all clients
+            //     ReadyManager.SendStatusUpdatePacketToClients(message);
+            // }
         }
     }
 }

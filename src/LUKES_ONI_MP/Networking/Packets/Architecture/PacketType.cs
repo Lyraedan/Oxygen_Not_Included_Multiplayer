@@ -44,8 +44,7 @@ namespace ONI_MP.Networking.Packets.Architecture
         Disinfect = 34,
         SpeedChange = 35,
         PlayerCursor = 36,
-        GoogleDriveFileShare = 37,
-        SteamP2PFileShare = 38,
+        
         ResourceTransfer = 39,
         StorageUpdate = 40,
         InventorySync = 41,

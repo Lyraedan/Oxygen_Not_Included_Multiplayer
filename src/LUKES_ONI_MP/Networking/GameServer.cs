@@ -40,6 +40,8 @@ namespace ONI_MP.Networking
                 return;
             }
 
+            
+
             SetState(ServerState.Starting);
 
             // Create listen socket for P2P
@@ -178,8 +180,7 @@ namespace ONI_MP.Networking
             player.Connection = conn;
 
             DebugConsole.Log($"[GameServer] Connection to {clientId} fully established!");
-            //SaveFileRequestPacket.SendSaveFile(clientId); // Old method
-            //StorageUtils.UploadAndSendToClient(clientId); // Upload to shared access storage and send to the client
+            SaveFileRequestPacket.SendSaveFile(clientId);
         }
 
 
