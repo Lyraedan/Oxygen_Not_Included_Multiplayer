@@ -63,15 +63,17 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
                 return;
             }
 
-            var platformOptions = new Options
+            EOSConfig config = EOSConfig.LoadFromEmbeddedResource("ONI_MP.Assets.eos_config.json");
+
+            var platformOptions = new Epic.OnlineServices.Platform.Options
             {
-                ProductId = "d6ef1606c8284101a70dc560c2e990a0",
-                SandboxId = "5faf3ea257d349818d87aaf5517810e0",
-                DeploymentId = "b30a90d34ae34c92b4d9259c6540b037",
-                ClientCredentials = new ClientCredentials
+                ProductId = config.Options.ProductId,
+                SandboxId = config.Options.SandboxId,
+                DeploymentId = config.Options.DeploymentId,
+                ClientCredentials = new Epic.OnlineServices.Platform.ClientCredentials
                 {
-                    ClientId = "xyza7891UPTBdO5vIQGLOExreRxe5fGB",
-                    ClientSecret = "z/DAJ5j/22iEZTllVl3yCA1wV0x8BNX9Ijhk/My5cBg"
+                    ClientId = config.Options.ClientCredentials.ClientId,
+                    ClientSecret = config.Options.ClientCredentials.ClientSecret
                 }
             };
 

@@ -1,0 +1,11 @@
+{
+  "Options": {
+    "ProductId": "<product-id>",
+    "SandboxId": "<sandbox-id>",
+    "DeploymentId": "<deployment-id>",
+    "ClientCredentials": {
+      "ClientId": "<client-id>",
+      "ClientSecret": "<client-secret>"
+    }
+  }
+}
