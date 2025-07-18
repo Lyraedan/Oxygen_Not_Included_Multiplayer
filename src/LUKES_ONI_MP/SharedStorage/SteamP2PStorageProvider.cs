@@ -53,6 +53,10 @@ namespace ONI_MP.SharedStorage
         private readonly Dictionary<string, List<byte[]>> _receivedChunks;
         private readonly object _transferLock = new object();
         
+        // Chunk sending queue to prevent overlapping coroutines
+        private readonly Queue<P2PChunkRequestPacket> _chunkRequestQueue = new Queue<P2PChunkRequestPacket>();
+        private bool _isProcessingChunkRequests = false;
+        
         public bool IsInitialized { get; private set; }
         public string ProviderName => "SteamP2P";
         
@@ -445,10 +449,17 @@ namespace ONI_MP.SharedStorage
             
             DebugConsole.Log($"[SteamP2PStorageProvider] Processing chunk request: {packet.RequestedChunks.Count} chunks of {packet.FileName}");
             
-            // Send requested chunks
-            if (Game.Instance != null)
+            // Add to queue to prevent overlapping transfers
+            lock (_transferLock)
             {
-                Game.Instance.StartCoroutine(SendChunksAsync(packet));
+                _chunkRequestQueue.Enqueue(packet);
+                DebugConsole.Log($"[SteamP2PStorageProvider] Added chunk request to queue. Queue length: {_chunkRequestQueue.Count}");
+            }
+            
+            // Start processing if not already running
+            if (Game.Instance != null && !_isProcessingChunkRequests)
+            {
+                Game.Instance.StartCoroutine(ProcessChunkRequestQueue());
             }
         }
         
@@ -582,6 +593,43 @@ namespace ONI_MP.SharedStorage
                     transfer.TransferID, false, ex.Message);
                 PacketSender.SendToPlayer(transfer.ProviderSteamID, failurePacket);
             }
+        }
+        
+        /// <summary>
+        /// Processes chunk requests from the queue sequentially
+        /// </summary>
+        private IEnumerator ProcessChunkRequestQueue()
+        {
+            _isProcessingChunkRequests = true;
+            
+            while (true)
+            {
+                P2PChunkRequestPacket nextRequest = null;
+                
+                lock (_transferLock)
+                {
+                    if (_chunkRequestQueue.Count > 0)
+                    {
+                        nextRequest = _chunkRequestQueue.Dequeue();
+                        DebugConsole.Log($"[SteamP2PStorageProvider] Processing queued request for {nextRequest.FileName}. Remaining in queue: {_chunkRequestQueue.Count}");
+                    }
+                }
+                
+                if (nextRequest == null)
+                {
+                    // No more requests, exit
+                    break;
+                }
+                
+                // Process the request - this will complete before moving to the next
+                yield return Game.Instance.StartCoroutine(SendChunksAsync(nextRequest));
+                
+                // Small delay between transfers
+                yield return new WaitForSeconds(0.1f);
+            }
+            
+            _isProcessingChunkRequests = false;
+            DebugConsole.Log($"[SteamP2PStorageProvider] Finished processing chunk request queue");
         }
         
         /// <summary>
