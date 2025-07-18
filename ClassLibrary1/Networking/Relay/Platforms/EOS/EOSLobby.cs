@@ -209,7 +209,7 @@ namespace ONI_MP.Networking.Platforms.EOS
 
         public List<string> GetAllLobbyMembers()
         {
-            return new List<string>(_members);
+            return _members;
         }
 
         private void RefreshLobbyMembers()
