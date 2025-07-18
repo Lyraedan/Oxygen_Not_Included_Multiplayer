@@ -45,33 +45,80 @@ namespace ONI_MP.Networking.Platforms.EOS
             _onLobbyCreatedSuccess = onSuccess;
 
             MaxLobbySize = Configuration.GetHostProperty<int>("MaxLobbySize");
-            _currentLobbyId = EOSPlatform.LocalUserId.ToString(); // Use LocalUserId string as Lobby ID
 
-            PacketSender.Platform.GameServer.Start();
-            MultiplayerSession.SetHost(_currentLobbyId);
+            var lobbyInterface = EOSManager.Instance.GetPlatformInterface().GetLobbyInterface();
 
-            DebugConsole.Log($"[EOSLobby] Created lobby with LocalUserId: {_currentLobbyId}");
-            _onLobbyCreatedSuccess?.Invoke();
+            var createLobbyOptions = new Epic.OnlineServices.Lobby.CreateLobbyOptions
+            {
+                LocalUserId = EOSPlatform.LocalUserId,
+                MaxLobbyMembers = (uint)MaxLobbySize,
+                PermissionLevel = Epic.OnlineServices.Lobby.LobbyPermissionLevel.Publicadvertised,
+                PresenceEnabled = true
+            };
+
+            lobbyInterface.CreateLobby(createLobbyOptions, null, result =>
+            {
+                if (result.ResultCode == Epic.OnlineServices.Result.Success)
+                {
+                    _currentLobbyId = result.LobbyId;
+                    MultiplayerSession.SetHost(_currentLobbyId);
+
+                    DebugConsole.Log($"[EOSLobby] Created EOS lobby successfully with ID: {_currentLobbyId}");
+
+                    PacketSender.Platform.GameServer.Start();
+                    _onLobbyCreatedSuccess?.Invoke();
+                }
+                else
+                {
+                    DebugConsole.LogError($"[EOSLobby] Failed to create EOS lobby: {result.ResultCode}");
+                }
+            });
         }
+
 
         public void LeaveLobby()
         {
-            if (!InLobby) return;
+            if (!InLobby)
+                return;
 
             DebugConsole.Log("[EOSLobby] Leaving lobby...");
 
+            var lobbyInterface = EOSManager.Instance.GetPlatformInterface().GetLobbyInterface();
+
+            var leaveOptions = new Epic.OnlineServices.Lobby.LeaveLobbyOptions
+            {
+                LobbyId = _currentLobbyId,
+                LocalUserId = EOSPlatform.LocalUserId
+            };
+
+            lobbyInterface.LeaveLobby(leaveOptions, null, result =>
+            {
+                if (result.ResultCode == Epic.OnlineServices.Result.Success)
+                {
+                    DebugConsole.Log("[EOSLobby] Successfully left EOS lobby.");
+                }
+                else
+                {
+                    DebugConsole.LogError($"[EOSLobby] Failed to leave EOS lobby: {result.ResultCode}");
+                }
+            });
+
+            // Stop server/client as needed
             if (MultiplayerSession.IsHost)
                 PacketSender.Platform.GameServer.Shutdown();
 
             if (MultiplayerSession.IsClient)
                 PacketSender.Platform.GameClient.Disconnect();
 
+            // Clear internal state
             _currentLobbyId = null;
             MaxLobbySize = 0;
+            _members.Clear();
 
             NetworkIdentityRegistry.Clear();
             MultiplayerSession.Clear();
         }
+
 
         public void JoinLobby(string lobbyId, Action<string> onJoinedLobby = null)
         {
@@ -89,16 +136,76 @@ namespace ONI_MP.Networking.Platforms.EOS
 
             _onLobbyJoined = onJoinedLobby;
 
-            _currentLobbyId = lobbyId;
-            MultiplayerSession.Clear();
-            MultiplayerSession.SetHost(lobbyId);
+            const int MAX_SEARCH_RESULTS = 10;
+            var lobbyInterface = EOSManager.Instance.GetPlatformInterface().GetLobbyInterface();
 
-            DebugConsole.Log($"[EOSLobby] Joined lobby hosted by: {lobbyId}");
-            _onLobbyJoined?.Invoke(lobbyId);
+            lobbyInterface.CreateLobbySearch(new Epic.OnlineServices.Lobby.CreateLobbySearchOptions
+            {
+                MaxResults = MAX_SEARCH_RESULTS
+            }, out var searchHandle);
 
-            PacketSender.Platform.GameClient.ConnectToHost(lobbyId);
-            RefreshLobbyMembers();
+            if (searchHandle == null)
+            {
+                DebugConsole.LogError("[EOSLobby] Failed to create lobby search.");
+                return;
+            }
+
+            searchHandle.SetLobbyId(new Epic.OnlineServices.Lobby.LobbySearchSetLobbyIdOptions
+            {
+                LobbyId = lobbyId
+            });
+
+            searchHandle.Find(new Epic.OnlineServices.Lobby.LobbySearchFindOptions
+            {
+                LocalUserId = EOSPlatform.LocalUserId
+            }, null, findResult =>
+            {
+                if (findResult.ResultCode != Epic.OnlineServices.Result.Success)
+                {
+                    DebugConsole.LogError($"[EOSLobby] Lobby search failed: {findResult.ResultCode}");
+                    return;
+                }
+
+                searchHandle.CopySearchResultByIndex(new Epic.OnlineServices.Lobby.LobbySearchCopySearchResultByIndexOptions
+                {
+                    LobbyIndex = 0
+                }, out var lobbyDetails);
+
+                if (lobbyDetails == null)
+                {
+                    DebugConsole.LogError("[EOSLobby] Lobby not found after search.");
+                    return;
+                }
+
+                var joinOptions = new Epic.OnlineServices.Lobby.JoinLobbyOptions
+                {
+                    LobbyDetailsHandle = lobbyDetails,
+                    LocalUserId = EOSPlatform.LocalUserId,
+                    PresenceEnabled = true
+                };
+
+                lobbyInterface.JoinLobby(joinOptions, null, joinResult =>
+                {
+                    if (joinResult.ResultCode == Epic.OnlineServices.Result.Success)
+                    {
+                        _currentLobbyId = joinResult.LobbyId;
+                        MultiplayerSession.Clear();
+                        MultiplayerSession.SetHost(_currentLobbyId);
+
+                        DebugConsole.Log($"[EOSLobby] Successfully joined EOS lobby: {_currentLobbyId}");
+                        _onLobbyJoined?.Invoke(_currentLobbyId);
+
+                        PacketSender.Platform.GameClient.ConnectToHost(_currentLobbyId);
+                        RefreshLobbyMembers();
+                    }
+                    else
+                    {
+                        DebugConsole.LogError($"[EOSLobby] Failed to join lobby: {joinResult.ResultCode}");
+                    }
+                });
+            });
         }
+
 
         public List<string> GetAllLobbyMembers()
         {
