@@ -27,7 +27,7 @@ namespace ONI_MP.Networking
 
         public static bool InSession = false;
 
-        public static bool IsHost => !string.IsNullOrEmpty(HostId) && HostId == LocalId;
+        public static bool IsHost => InSession && !string.IsNullOrEmpty(HostId) && HostId == LocalId;
 
         public static bool IsClient => InSession && !IsHost;
 

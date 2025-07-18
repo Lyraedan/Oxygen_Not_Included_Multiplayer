@@ -189,6 +189,9 @@ namespace ONI_MP.Networking.Platforms.Steam
             _onLobbyJoined?.Invoke(CurrentLobby.ToString());
             RefreshLobbyMembers();
 
+            string name = PacketSender.Platform.GetPlayerName(MultiplayerSession.LocalId);
+            ChatScreen.QueueMessage($"<color=yellow>[System]</color> <b>{name}</b> joined the game.");
+
             if (!MultiplayerSession.IsHost && hostSteamID.IsValid())
                 PacketSender.Platform.GameClient.ConnectToHost(hostSteamID.ToString());
         }
@@ -206,6 +209,7 @@ namespace ONI_MP.Networking.Platforms.Steam
 
                 DebugConsole.Log($"[SteamLobby] {name} joined the lobby.");
                 ChatScreen.QueueMessage($"<color=yellow>[System]</color> <b>{name}</b> joined the game.");
+                RefreshLobbyMembers();
             }
 
             if ((change & EChatMemberStateChange.k_EChatMemberStateChangeLeft) != 0 ||
