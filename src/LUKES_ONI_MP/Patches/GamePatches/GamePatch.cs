@@ -32,6 +32,21 @@ namespace ONI_MP.Patches.GamePatches
         [HarmonyPostfix]
         public static void OnSpawnPostfix()
         {
+            DebugConsole.Log($"[GamePatch] Game OnSpawn called. ShouldHostAfterLoad: {MultiplayerSession.ShouldHostAfterLoad}");
+            
+            // Check if we should create a lobby after loading
+            if (MultiplayerSession.ShouldHostAfterLoad)
+            {
+                DebugConsole.Log("[GamePatch] Proceeding with lobby creation...");
+                MultiplayerSession.ShouldHostAfterLoad = false; // Reset the flag
+                
+                DebugConsole.Log("[GamePatch] CreateLobbyNow called - creating Steam lobby...");
+                SteamLobby.CreateLobby(onSuccess: () => {
+                    DebugConsole.Log("[Multiplayer] Lobby created after world load.");
+                    DebugConsole.Log("[GamePatch] Lobby creation success callback executed");
+                });
+            }
+            
             // Initialize behavior systems when game starts
             if (MultiplayerSession.InSession)
             {
