@@ -44,19 +44,19 @@ namespace ONI_MP.Cloud
         /// Initializes the Google Drive service using user-provided credentials and token,
         /// and an ApplicationName pulled from the GoogleDriveSettings.
         /// </summary>
-        public void Initialize()
+        public bool Initialize()
         {
             if (IsInitialized)
             {
                 DebugConsole.Log("GoogleDrive already initialized.");
-                return;
+                return false;
             }
 
             if (!File.Exists(CredentialsPath))
             {
                 DebugConsole.LogError($"GoogleDrive: credentials.json not found at {CredentialsPath}", false);
                 //throw new FileNotFoundException("credentials.json missing", credentialsPath);
-                return;
+                return false;
             }
 
             _applicationName = Configuration.GetGoogleDriveProperty<string>("ApplicationName");
@@ -89,6 +89,7 @@ namespace ONI_MP.Cloud
             DebugConsole.Log($"GoogleDrive: Initialized successfully with application name '{_applicationName}'.");
             _initialized = _service != null;
             OnInitialized.Invoke();
+            return true;
         }
     }
 }

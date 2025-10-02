@@ -147,13 +147,19 @@ namespace ONI_MP
                     });
                 });
 
-                GoogleDrive.Instance.Initialize();
-                DebugConsole.Log("GoogleDrive initialized and ready!");
+                bool cloud_ready = GoogleDrive.Instance.Initialize();
+                if (cloud_ready)
+                {
+                    DebugConsole.Log("GoogleDrive initialized and ready!");
+                } else
+                {
+                    DebugConsole.Log("GoogleDrive failed to initialize, please check config!");
+                }
 
             }
             catch (Exception ex)
             {
-                DebugConsole.LogError($"GoogleDrive init failed: {ex.Message}");
+                DebugConsole.LogError($"GoogleDrive initialization failed: {ex.Message}");
             }
         }
 
