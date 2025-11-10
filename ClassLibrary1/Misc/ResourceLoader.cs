@@ -65,7 +65,7 @@ namespace ONI_MP.Misc
             }
             else
             {
-                DebugConsole.Log($"LoadShaderFromBundle: Successfully loaded shader '{shaderName}' from bundle '{bundleKey}'.");
+                DebugConsole.LogSuccess($"LoadShaderFromBundle: Successfully loaded shader '{shaderName}' from bundle '{bundleKey}'.");
             }
 
             return shader;

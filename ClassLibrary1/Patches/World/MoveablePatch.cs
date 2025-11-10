@@ -11,11 +11,11 @@ public static class MoveablePatch
     public static void Postfix(Movable __instance)
     {
         __instance.onPickupComplete += OnPickup;
-        DebugConsole.Log($"[Movable.OnSpawn] Attached to: {__instance.gameObject.name} ({__instance.GetInstanceID()})");
+        DebugConsole.LogNonImportant($"[Movable.OnSpawn] Attached to: {__instance.gameObject.name} ({__instance.GetInstanceID()})");
     }
     static void OnPickup(GameObject go)
     {
-        DebugConsole.Log($"[Movable.onPickupComplete] Picked up {go.name}");
+        DebugConsole.LogNonImportant($"[Movable.onPickupComplete] Picked up {go.name}");
 
         if (!MultiplayerSession.IsHost)
             return;
@@ -26,7 +26,7 @@ public static class MoveablePatch
         if (!go.TryGetComponent<NetworkIdentity>(out var identity))
             return;
 
-        DebugConsole.Log($"[Movable.onPickupComplete] Picked up NetID {identity.NetId}");
+        DebugConsole.LogNonImportant($"[Movable.onPickupComplete] Picked up NetID {identity.NetId}");
 
         // Optional: PacketSender.SendToAll(new DespawnPacket { NetId = identity.NetId });
     }

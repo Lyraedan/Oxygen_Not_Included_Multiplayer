@@ -23,7 +23,7 @@ public static class DuplicantPatch
         if (networkIdentity == null)
         {
             networkIdentity = __result.AddOrGet<NetworkIdentity>();
-            DebugConsole.Log("[NetworkIdentity] Injected into Duplicant");
+            DebugConsole.LogSuccess("[NetworkIdentity] Injected into Duplicant");
         }
 
         __result.AddOrGet<EntityPositionHandler>();

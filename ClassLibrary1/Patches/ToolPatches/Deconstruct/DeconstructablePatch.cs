@@ -18,7 +18,7 @@ namespace ONI_MP.Patches.ToolPatches.Deconstruct
             var packet = new DeconstructCompletePacket { Cell = cell };
             PacketSender.SendToAllClients(packet);
 
-            DebugConsole.Log($"[DeconstructComplete] Host sent DeconstructCompletePacket for cell {cell}");
+            DebugConsole.LogSuccess($"[DeconstructComplete] Host sent DeconstructCompletePacket for cell {cell}");
         }
     }
 }

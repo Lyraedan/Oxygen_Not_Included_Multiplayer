@@ -69,6 +69,32 @@ namespace ONI_MP
             return JsonConvert.DeserializeObject<Configuration>(existingJson);
         }
 
+        public static void SetClientProperty<T>(string propertyName, T value)
+        {
+            Instance.SetProperty(Instance.Client, propertyName, value);
+
+            Instance.Save();
+        }
+
+        public static void SetHostProperty<T>(string propertyName, T value)
+        {
+            Instance.SetProperty(Instance.Host, propertyName, value);
+            Instance.Save();
+        }
+
+        private void SetProperty<T>(object obj, string propertyName, T value)
+        {
+            var prop = obj.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
+
+            if (prop == null)
+                throw new ArgumentException($"Property '{propertyName}' not found on {obj.GetType().Name}");
+
+            if (!typeof(T).IsAssignableFrom(prop.PropertyType))
+                throw new InvalidCastException($"Value of type {typeof(T)} cannot be assigned to property '{propertyName}' of type {prop.PropertyType}");
+
+            prop.SetValue(obj, value);
+        }
+
         public void Save()
         {
             string json = JsonConvert.SerializeObject(this, Formatting.Indented);

@@ -42,12 +42,12 @@ namespace ONI_MP.Patches.ToolPatches.Dig
             if (MultiplayerSession.IsHost)
             {
                 PacketSender.SendToAllClients(packet);
-                DebugConsole.Log($"[Chores/Dig] Host sent DiggablePacket to all for cell {cell}");
+                DebugConsole.LogSuccess($"[Chores/Dig] Host sent DiggablePacket to all for cell {cell}");
             }
             else
             {
                 PacketSender.SendToHost(packet);
-                DebugConsole.Log($"[Chores/Dig] Client sent DiggablePacket to host for cell {cell}");
+                DebugConsole.LogSuccess($"[Chores/Dig] Client sent DiggablePacket to host for cell {cell}");
             }
         }
     }

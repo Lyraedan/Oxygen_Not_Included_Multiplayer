@@ -52,11 +52,11 @@ namespace ONI_MP
 
             LoadAssetBundles();
 
-            DebugConsole.Log("[ONI_MP] Loaded Oxygen Not Included Together Multiplayer Mod.");
+            DebugConsole.LogSuccess("[ONI_MP] Loaded Oxygen Not Included Together Multiplayer Mod.");
 
             foreach (var res in Assembly.GetExecutingAssembly().GetManifestResourceNames())
             {
-                DebugConsole.Log("Embedded Resource: " + res);
+                DebugConsole.LogAssert("Embedded Resource: " + res);
             }
 
             //Misc.Scheduler.Instance.Demo(); // Make sure scheduler works
@@ -97,7 +97,7 @@ namespace ONI_MP
             var steamPlatform = new SteamPlatform();
             PacketSender.Platform = steamPlatform;
 
-            DebugConsole.Log("Steam platform initialized.");
+            DebugConsole.LogSuccess("Steam platform initialized.");
 
             PacketSender.Platform.GameClient.Init();
             WasPlatformInitialized = true;
@@ -118,12 +118,12 @@ namespace ONI_MP
 
                 if (localUserId == null || !localUserId.IsValid())
                 {
-                    DebugConsole.LogError("[InitializePlatform] Invalid EOS LocalUserId.");
+                    DebugConsole.LogError("[InitializePlatform] Invalid EOS LocalUserId.", false);
                     return;
                 }
 
                 EOSPlatform.Initialize(localUserId, p2pInterface, connectInterface);
-                DebugConsole.Log("EOS platform initialized.");
+                DebugConsole.LogSuccess("EOS platform initialized.");
 
                 PacketSender.Platform.GameClient.Init();
                 WasPlatformInitialized = true;
@@ -153,10 +153,10 @@ namespace ONI_MP
                 bool cloud_ready = GoogleDrive.Instance.Initialize();
                 if (cloud_ready)
                 {
-                    DebugConsole.Log("GoogleDrive initialized and ready!");
+                    DebugConsole.LogSuccess("GoogleDrive initialized and ready!");
                 } else
                 {
-                    DebugConsole.Log("GoogleDrive failed to initialize, please check config!");
+                    DebugConsole.LogError("GoogleDrive failed to initialize, please check config!", false);
                 }
 
             }
@@ -189,7 +189,7 @@ namespace ONI_MP
         {
             if (LoadedBundles.TryGetValue(bundleKey, out var bundle))
             {
-                DebugConsole.Log($"LoadAssetBundle: Reusing cached AssetBundle '{bundleKey}'.");
+                DebugConsole.LogSuccess($"LoadAssetBundle: Reusing cached AssetBundle '{bundleKey}'.");
                 return bundle;
             }
 
@@ -199,21 +199,21 @@ namespace ONI_MP
             if (bundle != null)
             {
                 LoadedBundles[bundleKey] = bundle;
-                DebugConsole.Log($"LoadAssetBundle: Successfully loaded AssetBundle '{bundleKey}' from resource '{resourceName}'.");
+                DebugConsole.LogSuccess($"LoadAssetBundle: Successfully loaded AssetBundle '{bundleKey}' from resource '{resourceName}'.");
 
                 foreach (var name in bundle.GetAllAssetNames())
                 {
-                    DebugConsole.Log($"[ONI_MP] Bundle Asset: {name}");
+                    DebugConsole.LogSuccess($"Bundle Asset: {name}");
                 }
 
                 foreach (var name in bundle.GetAllScenePaths())
                 {
-                    DebugConsole.Log($"[ONI_MP] Scene: {name}");
+                    DebugConsole.LogSuccess($"Scene: {name}");
                 }
 
                 foreach (var name in bundle.GetAllAssetNames())
                 {
-                    DebugConsole.Log($"[ONI_MP] Asset: {name}");
+                    DebugConsole.LogSuccess($"Asset: {name}");
                 }
                 return bundle;
             }

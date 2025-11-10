@@ -61,12 +61,12 @@ namespace ONI_MP.Patches.ToolPatches.Build
             if (MultiplayerSession.IsHost)
             {
                 PacketSender.SendToAllClients(packet);
-                DebugConsole.Log($"[Build] Host sent BuildPacket to all clients for {def.PrefabID} at {cell}");
+                DebugConsole.LogSuccess($"[Build] Host sent BuildPacket to all clients for {def.PrefabID} at {cell}");
             }
             else
             {
                 PacketSender.SendToHost(packet);
-                DebugConsole.Log($"[Build] Client sent BuildPacket to host for {def.PrefabID} at {cell}");
+                DebugConsole.LogSuccess($"[Build] Client sent BuildPacket to host for {def.PrefabID} at {cell}");
             }
         }
     }

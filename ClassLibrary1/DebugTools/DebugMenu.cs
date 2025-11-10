@@ -23,7 +23,6 @@ namespace ONI_MP.DebugTools
         private bool showMenu = false;
         private Rect windowRect = new Rect(10, 10, 250, 300); // Position and size
         private HierarchyViewer hierarchyViewer;
-        private DebugConsole debugConsole;
 
         private Vector2 scrollPosition = Vector2.zero;
 
@@ -45,7 +44,6 @@ namespace ONI_MP.DebugTools
         private void Awake()
         {
             hierarchyViewer = gameObject.AddComponent<HierarchyViewer>();
-            debugConsole = gameObject.AddComponent<DebugConsole>();
         }
 
         private void Update()
@@ -76,9 +74,6 @@ namespace ONI_MP.DebugTools
 
             if (GUILayout.Button("Toggle Hierarchy Viewer"))
                 hierarchyViewer.Toggle();
-
-            if (GUILayout.Button("Toggle Debug Console"))
-                debugConsole.Toggle();
 
             GUILayout.Space(10);
             if (MultiplayerMod.WasPlatformInitialized)

@@ -103,7 +103,7 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
                 {
                     Type = LoginCredentialType.PersistentAuth
                 },
-                ScopeFlags = AuthScopeFlags.BasicProfile | AuthScopeFlags.FriendsList | AuthScopeFlags.Presence
+                ScopeFlags = AuthScopeFlags.BasicProfile | AuthScopeFlags.FriendsList
             };
 
             _platformInterface.GetAuthInterface().Login(loginOptions, null, OnAuthLoginWithPersistentAuthComplete);
@@ -141,7 +141,7 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
                 Credentials = new Epic.OnlineServices.Auth.Credentials() {
                     Type = LoginCredentialType.AccountPortal
                 },
-                ScopeFlags = AuthScopeFlags.BasicProfile | AuthScopeFlags.FriendsList | AuthScopeFlags.Presence
+                ScopeFlags = AuthScopeFlags.BasicProfile | AuthScopeFlags.FriendsList
             };
 
             _platformInterface.GetAuthInterface().Login(loginOptions, null, OnAuthLoginWithAccountPortalAuthComplete);
@@ -198,6 +198,7 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
                 };
                 connect.Login(connectLoginOptions, null, OnConnectLoginComplete);
             }
+
         }
 
         private void OnConnectLoginComplete(Epic.OnlineServices.Connect.LoginCallbackInfo data)
