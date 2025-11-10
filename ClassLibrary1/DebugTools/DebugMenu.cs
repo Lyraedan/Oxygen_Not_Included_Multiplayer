@@ -117,19 +117,34 @@ namespace ONI_MP.DebugTools
                 GUILayout.Label($"Network relay is not initialized!");
                 if(PacketSender.Platform.ID == "Epic Online Services")
                 {
-                    if (GUILayout.Button("Authenticate Account Portal"))
+                    if (!EOSManager.Instance.LoggedIn)
                     {
-                        EOSManager.Instance.Login_AccountPortal();
-                    }
+                        if (GUILayout.Button("Authenticate Account Portal"))
+                        {
+                            EOSManager.Instance.LoginWithAccountPortal();
+                        }
 
-                    if (GUILayout.Button("Authentical Persistent"))
-                    {
-                        EOSManager.Instance.Login_Persistent();
+                        if (GUILayout.Button("Authenticate Persistent"))
+                        {
+                            EOSManager.Instance.AttemptLoginWithPersistentAuth();
+                        }
                     }
-
-                    if (GUILayout.Button("Manual Connect Login"))
+                    else
                     {
-                        EOSManager.Instance.ManualConnectLogin();
+                        if (GUILayout.Button("Logout"))
+                        {
+                            EOSManager.Instance.Logout();
+                        }
+
+                        if (GUILayout.Button("Clear persistent auth"))
+                        {
+                            EOSManager.Instance.ClearPersistentAuth();
+                        }
+
+                        if (GUILayout.Button("Login via Connect Interface"))
+                        {
+                            EOSManager.Instance.HandleConnect();
+                        }
                     }
                 }
             }

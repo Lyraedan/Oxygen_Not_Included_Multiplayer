@@ -110,12 +110,6 @@ namespace ONI_MP
             PacketSender.Platform = eosPlatform;
             var eosManager = new EOSManager();
 
-            eosManager.OnCreatedDeviceId += () =>
-            {
-                DebugConsole.Log("Created device id!");
-                eosManager.Login(Epic.OnlineServices.Auth.LoginCredentialType.DeviceCode);
-            };
-
             eosManager.OnLoginSuccessful += () =>
             {
                 var localUserId = eosManager.GetLocalUserId();
