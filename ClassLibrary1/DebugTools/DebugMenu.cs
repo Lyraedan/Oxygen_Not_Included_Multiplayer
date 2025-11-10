@@ -10,6 +10,9 @@ using ONI_MP.Cloud;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Relay.Platforms.Steam;
 using ONI_MP.Networking.Platforms.Steam;
+using ONI_MP.Networking.Relay.Platforms.EOS;
+using System.IO;
+using System.Diagnostics;
 
 namespace ONI_MP.DebugTools
 {
@@ -24,6 +27,10 @@ namespace ONI_MP.DebugTools
 
         private Vector2 scrollPosition = Vector2.zero;
 
+        private static readonly string ModDirectory = Path.Combine(
+                    Path.GetDirectoryName(typeof(DebugMenu).Assembly.Location),
+                    "oni_mp.dll"
+                );
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         public static void Init()
@@ -61,6 +68,12 @@ namespace ONI_MP.DebugTools
         {
             scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.Width(windowRect.width - 20), GUILayout.Height(windowRect.height - 40));
 
+            if (GUILayout.Button("Open Mod Directory"))
+            {
+                string directory = Path.GetDirectoryName(ModDirectory);
+                Process.Start(directory);
+            }
+
             if (GUILayout.Button("Toggle Hierarchy Viewer"))
                 hierarchyViewer.Toggle();
 
@@ -68,36 +81,60 @@ namespace ONI_MP.DebugTools
                 debugConsole.Toggle();
 
             GUILayout.Space(10);
-            GUILayout.Label("Multiplayer");
-
-            if (GUILayout.Button("Create Lobby"))
-                PacketSender.Platform.Lobby.CreateLobby(onSuccess: () => {
-                    SpeedControlScreen.Instance?.Unpause(false);
-                });
-
-            if (GUILayout.Button("Leave lobby"))
-                PacketSender.Platform.Lobby.LeaveLobby();
-
-            if (GUILayout.Button("Client disconnect"))
+            if (MultiplayerMod.WasPlatformInitialized)
             {
-                PacketSender.Platform.GameClient.CacheCurrentServer();
-                PacketSender.Platform.GameClient.Disconnect();
+                GUILayout.Label("Multiplayer");
+
+                if (GUILayout.Button("Create Lobby"))
+                    PacketSender.Platform.Lobby.CreateLobby(onSuccess: () =>
+                    {
+                        SpeedControlScreen.Instance?.Unpause(false);
+                    });
+
+                if (GUILayout.Button("Leave lobby"))
+                    PacketSender.Platform.Lobby.LeaveLobby();
+
+                if (GUILayout.Button("Client disconnect"))
+                {
+                    PacketSender.Platform.GameClient.CacheCurrentServer();
+                    PacketSender.Platform.GameClient.Disconnect();
+                }
+
+                if (GUILayout.Button("Reconnect"))
+                    PacketSender.Platform.GameClient.ReconnectFromCache();
+
+                GUILayout.Space(10);
+                GUILayout.Label("Session details");
+                GUILayout.Label($"Platform: {PacketSender.Platform.ID}");
+                GUILayout.Label($"Connected clients: {PacketSender.Platform.ConnectedClients.Count}");
+                GUILayout.Label($"Is Host: {MultiplayerSession.IsHost}");
+                GUILayout.Label($"Is Client: {MultiplayerSession.IsClient}");
+                GUILayout.Label($"In Session: {MultiplayerSession.InSession}");
+                GUILayout.Label($"Local ID: {MultiplayerSession.LocalId}");
+                GUILayout.Label($"Host ID: {MultiplayerSession.HostId}");
+            } else
+            {
+                GUILayout.Label($"Network relay is not initialized!");
+                if(PacketSender.Platform.ID == "Epic Online Services")
+                {
+                    if (GUILayout.Button("Authenticate Account Portal"))
+                    {
+                        EOSManager.Instance.Login_AccountPortal();
+                    }
+
+                    if (GUILayout.Button("Authentical Persistent"))
+                    {
+                        EOSManager.Instance.Login_Persistent();
+                    }
+
+                    if (GUILayout.Button("Manual Connect Login"))
+                    {
+                        EOSManager.Instance.ManualConnectLogin();
+                    }
+                }
             }
 
-            if (GUILayout.Button("Reconnect"))
-                PacketSender.Platform.GameClient.ReconnectFromCache();
-
-            GUILayout.Space(10);
-            GUILayout.Label("Session details");
-            GUILayout.Label($"Platform: {PacketSender.Platform.ID}");
-            GUILayout.Label($"Connected clients: {PacketSender.Platform.ConnectedClients.Count}");
-            GUILayout.Label($"Is Host: {MultiplayerSession.IsHost}");
-            GUILayout.Label($"Is Client: {MultiplayerSession.IsClient}");
-            GUILayout.Label($"In Session: {MultiplayerSession.InSession}");
-            GUILayout.Label($"Local ID: {MultiplayerSession.LocalId}");
-            GUILayout.Label($"Host ID: {MultiplayerSession.HostId}");
-
-            GUILayout.Space(10);
+                GUILayout.Space(10);
 
             try
             {

@@ -108,22 +108,26 @@ namespace ONI_MP.Patches.Navigation
         public static bool Prefix(Navigator __instance, ref bool __result)
         {
             var is_moving = __instance.smi.IsInsideState(__instance.smi.sm.normal.moving); // Default functionality
+            __result = is_moving;
 
             // Singleplayer
             if (!MultiplayerSession.InSession)
             {
-                __result = is_moving;
-                return false;
+                return __result;
+            }
+
+            if (MultiplayerSession.IsHost)
+            {
+                return __result;
             }
 
             if (__instance.TryGetComponent<EntityPositionHandler>(out var handler))
             {
                 __result = handler.IsMoving;
-                return false;
+                return __result;
             }
 
-            __result = is_moving;
-            return false;
+            return __result;
         }
     }
 

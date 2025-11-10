@@ -14,6 +14,8 @@ namespace ONI_MP.Networking.Relay.Platforms.Steam
     {
         string INetworkPlatform.ID => "Steam";
 
+        public string LocalID => SteamUser.GetSteamID().ToString();
+
         public bool IsHost => MultiplayerSession.IsHost;
 
         private INetworkConnection _cachedHostConnection;

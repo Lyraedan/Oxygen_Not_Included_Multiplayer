@@ -137,7 +137,7 @@ namespace ONI_MP.DebugTools
                 Debug.LogError($"[ONI_MP] {message}");
             }
             EnsureInstance();
-            _instance.HandleLog($"[ONI_MP] {message}", "", LogType.Error);
+            _instance.HandleLog($"{message}", "", LogType.Error);
         }
 
         public static void LogException(System.Exception ex)

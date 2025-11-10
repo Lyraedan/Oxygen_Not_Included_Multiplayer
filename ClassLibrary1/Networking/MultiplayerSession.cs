@@ -20,7 +20,7 @@ namespace ONI_MP.Networking
         public static readonly Dictionary<string, MultiplayerPlayer> ConnectedPlayers = new Dictionary<string, MultiplayerPlayer>();
 
         // Local ID as string
-        public static string LocalId => SteamUser.GetSteamID().ToString();
+        public static string LocalId => PacketSender.Platform.LocalID; //SteamUser.GetSteamID().ToString();
 
         // Host ID as string
         public static string HostId { get; set; } = string.Empty;

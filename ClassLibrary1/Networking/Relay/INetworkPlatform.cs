@@ -12,6 +12,9 @@ namespace ONI_MP.Networking.Relay
     {
         string ID { get; }
         bool IsHost { get; }
+
+        string LocalID { get; }
+
         INetworkConnection HostConnection { get; }
         IReadOnlyCollection<INetworkConnection> ConnectedClients { get; }
 

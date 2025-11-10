@@ -15,6 +15,7 @@ using ONI_MP.Networking.Platforms.Steam;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Relay.Platforms.EOS;
 using ONI_MP.Networking.Platforms.EOS;
+using Epic.OnlineServices;
 
 namespace ONI_MP
 {
@@ -22,10 +23,13 @@ namespace ONI_MP
 
     public class MultiplayerMod : UserMod2
     {
+        public static MultiplayerMod singleton;
 
         public static readonly Dictionary<string, AssetBundle> LoadedBundles = new Dictionary<string, AssetBundle>();
 
         public static System.Action OnPostSceneLoaded;
+
+        public static bool WasPlatformInitialized = false;
 
         public override void OnLoad(Harmony harmony)
         {
@@ -56,6 +60,8 @@ namespace ONI_MP
             }
 
             //Misc.Scheduler.Instance.Demo(); // Make sure scheduler works
+
+            singleton = this;
         }
 
         private void InitializePlatform()
@@ -90,28 +96,24 @@ namespace ONI_MP
         {
             var steamPlatform = new SteamPlatform();
             PacketSender.Platform = steamPlatform;
+
             DebugConsole.Log("Steam platform initialized.");
 
             PacketSender.Platform.GameClient.Init();
+            WasPlatformInitialized = true;
         }
 
         private void InitEos()
         {
             EOSLoader.LoadNativeLibrary();
+            var eosPlatform = new EOSPlatform();
+            PacketSender.Platform = eosPlatform;
             var eosManager = new EOSManager();
-            eosManager.Initialize();
-
-            if (!eosManager.IsInitialized)
-            {
-                DebugConsole.LogError("[InitializePlatform] EOSManager is not initialized!");
-                return;
-            }
-
 
             eosManager.OnCreatedDeviceId += () =>
             {
                 DebugConsole.Log("Created device id!");
-                eosManager.Login();
+                eosManager.Login(Epic.OnlineServices.Auth.LoginCredentialType.DeviceCode);
             };
 
             eosManager.OnLoginSuccessful += () =>
@@ -126,13 +128,20 @@ namespace ONI_MP
                     return;
                 }
 
-                var eosPlatform = new EOSPlatform();
                 EOSPlatform.Initialize(localUserId, p2pInterface, connectInterface);
-                PacketSender.Platform = eosPlatform;
                 DebugConsole.Log("EOS platform initialized.");
 
                 PacketSender.Platform.GameClient.Init();
+                WasPlatformInitialized = true;
             };
+
+            eosManager.Initialize();
+
+            if (!eosManager.IsInitialized)
+            {
+                DebugConsole.LogError("[InitializePlatform] EOSManager is not initialized!");
+                return;
+            }
         }
 
         void InitializeCloud()
@@ -232,6 +241,11 @@ namespace ONI_MP
                 default:
                     return windows_bundle;
             }
+        }
+
+        public void ReInitializeNetworkPlatform()
+        {
+            InitializePlatform();
         }
     }
 }

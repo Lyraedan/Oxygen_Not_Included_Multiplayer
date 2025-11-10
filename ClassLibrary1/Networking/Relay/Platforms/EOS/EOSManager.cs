@@ -24,11 +24,14 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
         public PlatformInterface GetPlatformInterface() => _platformInterface;
 
         public System.Action OnCreatedDeviceId;
+        public System.Action<ContinuanceToken> OnAuthLoginSuccessful;
         public System.Action OnLoginSuccessful;
 
         private EpicAccountId _epicAccountId;
 
         public EpicAccountId GetEpicAccountId() => _epicAccountId;
+
+        private Token token;
 
         private static readonly string TokenPath = Path.Combine(
             Path.GetDirectoryName(typeof(Configuration).Assembly.Location),
@@ -43,6 +46,15 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
                 throw new InvalidOperationException("EOSManager already created");
 
             Instance = this;
+
+            // WHY ON EARTH DO YOU CRASH
+            //OnAuthLoginSuccessful += HandleAuthLoginSuccess;
+
+            OnAuthLoginSuccessful += (continuanceToken) =>
+            {
+                //var connect = _platformInterface.GetConnectInterface();
+                //ConnectLogin(connect);
+            };
         }
 
         public void Initialize()
@@ -85,7 +97,8 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
             }
 
             _initialized = true;
-            Login();
+            //Login_Persistent();
+            Login_AccountPortal();
         }
 
         private void SaveRefreshToken(string token)
@@ -119,7 +132,146 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
             return null;
         }
 
-        public void Login()
+        public void Login_Persistent()
+        {
+            Login(LoginCredentialType.PersistentAuth);
+        }
+
+        public void Login_AccountPortal()
+        {
+            Login(LoginCredentialType.AccountPortal);
+        }
+
+        public void Login(LoginCredentialType credentialsType)
+        {
+            var auth = _platformInterface.GetAuthInterface();
+
+            var loginOptions = new Epic.OnlineServices.Auth.LoginOptions
+            {
+                Credentials = new Epic.OnlineServices.Auth.Credentials
+                {
+                    Type = credentialsType
+                },
+                ScopeFlags = AuthScopeFlags.BasicProfile | AuthScopeFlags.FriendsList
+            };
+
+            auth.Login(loginOptions, null, loginResult =>
+            {
+                if (loginResult.ResultCode == Epic.OnlineServices.Result.Success)
+                {
+                    DebugConsole.Log($"[EOSManager] Epic login successful. EpicAccountId = {loginResult.LocalUserId}");
+
+                    auth.CopyUserAuthToken(
+                        new CopyUserAuthTokenOptions(),
+                        loginResult.LocalUserId,
+                        out var token
+                    );
+
+                    _epicAccountId = loginResult.LocalUserId;
+                    this.token = token;
+                    OnAuthLoginSuccessful.Invoke(loginResult.ContinuanceToken);
+                }
+                else
+                {
+                    DebugConsole.LogError($"[EOSManager] Epic login failed: {loginResult.ResultCode}");
+                    if(credentialsType == LoginCredentialType.PersistentAuth)
+                    {
+                        Login_AccountPortal();
+                    }
+                }
+            });
+        }
+
+        public void HandleAuthLoginSuccess(ContinuanceToken continueanceToken)
+        {
+            var connect = _platformInterface.GetConnectInterface();
+
+            if (continueanceToken != null)
+            {
+                CreateUser(connect, continueanceToken);
+            }
+            else
+            {
+                ConnectLogin(connect);
+            }
+        }
+
+        private void CreateUser(ConnectInterface connect, ContinuanceToken continuanceToken)
+        {
+            var linkOptions = new CreateUserOptions
+            {
+                ContinuanceToken = continuanceToken
+            };
+
+            connect.CreateUser(linkOptions, null, linkResult =>
+            {
+                if (linkResult.ResultCode == Epic.OnlineServices.Result.Success)
+                {
+                    _localUserId = linkResult.LocalUserId;
+                    _initialized = true;
+                    OnLoginSuccessful?.Invoke();
+                    DebugConsole.Log($"[EOSManager] Created new EOS user. ProductUserId = {_localUserId}");
+                }
+                else
+                {
+                    DebugConsole.LogError($"[EOSManager] CreateUser failed: {linkResult.ResultCode}");
+                }
+            });
+        }
+
+        public void ManualConnectLogin()
+        {
+            var connect = _platformInterface.GetConnectInterface();
+            ConnectLogin(connect);
+        }
+
+        private void ConnectLogin(ConnectInterface connect)
+        {
+            if(string.IsNullOrEmpty(this.token.AccessToken))
+            {
+                DebugConsole.LogError("Failed to connect login! Access token is invalid!");
+                return;
+            }
+
+            var connectLoginOptions = new Epic.OnlineServices.Connect.LoginOptions
+            {
+                Credentials = new Epic.OnlineServices.Connect.Credentials
+                {
+                    Type = Epic.OnlineServices.Connect.ExternalCredentialType.Epic,
+                    Token = token.AccessToken
+                }
+            };
+
+            try
+            {
+                connect.Login(connectLoginOptions, null, connectLoginResult =>
+                {
+                    DebugConsole.Log($"[EOSManager] Connect.Login callback received. Result = {connectLoginResult.ResultCode}");
+                    if (connectLoginResult.ResultCode == Epic.OnlineServices.Result.Success ||
+                    connectLoginResult.ResultCode == Epic.OnlineServices.Result.AlreadyConfigured)
+                    {
+                        _localUserId = connectLoginResult.LocalUserId;
+                        _initialized = true;
+                        OnLoginSuccessful?.Invoke();
+                        DebugConsole.Log($"[EOSManager] Connected existing EOS user. ProductUserId = {_localUserId}");
+                    }
+                    else if (connectLoginResult.ResultCode == Epic.OnlineServices.Result.InvalidUser)
+                    {
+                        DebugConsole.LogWarning("[EOSManager] Connect.Login returned InvalidUser — need to create a new one.");
+                        CreateUser(connect, connectLoginResult.ContinuanceToken);
+                    }
+                    else
+                    {
+                        DebugConsole.LogError($"[EOSManager] Connect.Login failed: {connectLoginResult.ResultCode}");
+                    }
+                });
+            } catch(Exception ex)
+            {
+                DebugConsole.LogError($"[EOSManager] Failed to connect login: {ex}");
+            }
+        }
+
+        public void Login_OLD()
         {
             var auth = _platformInterface.GetAuthInterface();
             string savedRefreshToken = LoadRefreshToken();
@@ -130,9 +282,7 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
                 {
                     Type = string.IsNullOrEmpty(savedRefreshToken)
                         ? LoginCredentialType.AccountPortal
-                        : LoginCredentialType.RefreshToken,
-                    Token = savedRefreshToken,
-                    Id = null
+                        : LoginCredentialType.PersistentAuth,
                 },
                 ScopeFlags = AuthScopeFlags.BasicProfile | AuthScopeFlags.FriendsList
             };
@@ -181,6 +331,7 @@ namespace ONI_MP.Networking.Relay.Platforms.EOS
                             }
                         });
                     }
+
                 }
                 else
                 {
