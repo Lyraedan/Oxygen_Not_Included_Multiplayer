@@ -28,6 +28,9 @@ namespace ONI_MP.DebugTools
         private bool useRandomColor = false;
         private Vector3 playerColor = new Vector3(1f, 1f, 1f);
 
+        // Alert popup
+        private bool showRestartPrompt = false;
+
         private static readonly string ModDirectory = Path.Combine(
             Path.GetDirectoryName(typeof(DevToolMultiplayer).Assembly.Location),
             "oni_mp.dll"
@@ -38,6 +41,8 @@ namespace ONI_MP.DebugTools
             Name = "Multiplayer";
             RequiresGameRunning = false;
             console = DebugConsole.Init();
+
+            _currentPlatformIndex = Configuration.GetClientProperty<int>("Platform");
 
             ColorRGB loadedColor = Configuration.GetClientProperty<ColorRGB>("PlayerColor");
             playerColor = new Vector3(loadedColor.R / 255, loadedColor.G / 255, loadedColor.B / 255);
@@ -77,7 +82,7 @@ namespace ONI_MP.DebugTools
                     UseShellExecute = true
                 });
             }
-
+            ImGui.SameLine();
             if (ImGui.Button("Toggle Debug Console"))
             {
                 console?.Toggle();
@@ -85,6 +90,7 @@ namespace ONI_MP.DebugTools
             }
             console?.ShowWindow();
 
+            ImGui.NewLine();
             ImGui.Separator();
 
             string previewValue = Platforms[_currentPlatformIndex];
@@ -100,6 +106,7 @@ namespace ONI_MP.DebugTools
                             _currentPlatformIndex = i;
                             Configuration.SetClientProperty("Platform", _currentPlatformIndex);
                             MultiplayerMod.singleton.ReInitializeNetworkPlatform(); // Maybe prompt a restart instead
+                            showRestartPrompt = true;
                         }
                     }
 
@@ -112,6 +119,14 @@ namespace ONI_MP.DebugTools
 
                 // End the Combo Box context
                 ImGui.EndCombo();
+            }
+
+            if(showRestartPrompt)
+            {
+                ShowAlertPrompt(ref showRestartPrompt, "Network Relay Changed!", "The network relay has changed!\nA restart is required!", "Restart", "Ignore", () =>
+                {
+                    App.instance.Restart();
+                });
             }
 
             if (ImGui.CollapsingHeader("Player Color"))
@@ -144,22 +159,26 @@ namespace ONI_MP.DebugTools
                     });
                 }
 
+                ImGui.SameLine();
                 if (ImGui.Button("Leave Lobby"))
                 {
                     PacketSender.Platform.Lobby.LeaveLobby();
                 }
 
+                ImGui.NewLine();
                 if (ImGui.Button("Client Disconnect"))
                 {
                     PacketSender.Platform.GameClient.CacheCurrentServer();
                     PacketSender.Platform.GameClient.Disconnect();
                 }
 
+                ImGui.SameLine();
                 if (ImGui.Button("Reconnect"))
                 {
                     PacketSender.Platform.GameClient.ReconnectFromCache();
                 }
 
+                ImGui.NewLine();
                 ImGui.Separator();
 
                 ImGui.Text("Session details:");
@@ -268,6 +287,35 @@ namespace ONI_MP.DebugTools
                     else
                         ImGui.Text($"{playerName} ({playerId})");
                 }
+            }
+        }
+
+        private void ShowAlertPrompt(
+            ref bool isVisible,
+            string title,
+            string message,
+            string confirmText,
+            string cancelText,
+            System.Action onConfirmAction)
+        {
+            if (ImGui.BeginPopupModal(title, ref isVisible, ImGuiWindowFlags.AlwaysAutoResize))
+            {
+                ImGui.Text(message);
+                ImGui.Separator();
+
+                if (ImGui.Button(confirmText, new Vector2(150, 0)))
+                {
+                    isVisible = false;
+
+                    onConfirmAction.Invoke();
+                }
+
+                ImGui.SameLine();
+                if (ImGui.Button(cancelText, new Vector2(150, 0)))
+                {
+                    isVisible = false;
+                }
+                ImGui.EndPopup();
             }
         }
     }

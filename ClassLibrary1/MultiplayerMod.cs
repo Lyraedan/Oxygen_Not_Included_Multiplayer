@@ -239,6 +239,7 @@ namespace ONI_MP
 
         public void ReInitializeNetworkPlatform()
         {
+            WasPlatformInitialized = false;
             InitializePlatform();
         }
     }
