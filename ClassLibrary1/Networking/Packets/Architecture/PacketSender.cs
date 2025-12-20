@@ -86,7 +86,7 @@ namespace ONI_MP.Networking
 		}
 
 		/// Original single-exclude overload
-		public static void SendToAll(IPacket packet, CSteamID? exclude = null, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
+		public static void SendToAll(IPacket packet, CSteamID? exclude = null, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
 		{
 			foreach (var player in MultiplayerSession.ConnectedPlayers.Values)
 			{
@@ -98,7 +98,7 @@ namespace ONI_MP.Networking
 			}
 		}
 
-		public static void SendToAllClients(IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
+		public static void SendToAllClients(IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
 		{
 			if (!MultiplayerSession.IsHost)
 			{
@@ -108,7 +108,7 @@ namespace ONI_MP.Networking
 			SendToAll(packet, MultiplayerSession.HostSteamID, sendType);
 		}
 
-		public static void SendToAllExcluding(IPacket packet, HashSet<CSteamID> excludedIds, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
+		public static void SendToAllExcluding(IPacket packet, HashSet<CSteamID> excludedIds, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
 		{
 			foreach (var player in MultiplayerSession.ConnectedPlayers.Values)
 			{
