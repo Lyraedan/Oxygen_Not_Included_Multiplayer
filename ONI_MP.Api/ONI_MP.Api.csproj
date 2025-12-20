@@ -2,21 +2,19 @@
 
 	<!-- General Package Properties -->
 	<PropertyGroup>
-		<PackageId>ItsLukesMultiplayerMod</PackageId>
-		<Version>2.6.0-test</Version>
-		<Authors>ItsLuke,[insert others]</Authors>
+		<PackageId>ItsLukesMultiplayerModApi</PackageId>
+		<Version>0.1</Version>
+		<Authors>ItsLuke</Authors>
 		<Copyright>$(AssemblyCopyright)</Copyright>
 	</PropertyGroup>
 
 
 	<!-- Mod Info, used to generate yaml files on the fly -->
 	<PropertyGroup>
-		<ModName>Oxygen Not Included Together</ModName>
-		<ModDescription>Adds multiplayer to Oxygen Not Included! By Lyraedan</ModDescription>
+		<ModName>Oxygen Not Included Together API</ModName>
+		<ModDescription>An API for integrating with the Oxygen Not Included Together Mod</ModDescription>
 		<MinimumSupportedBuild>$(TargetGameVersion)</MinimumSupportedBuild>
 		<APIVersion>2</APIVersion>
-		<ForbiddenDlcIds>EXPANSION_1_ID</ForbiddenDlcIds>
-		<!-- Block spaced out. Not supported right now -->
 	</PropertyGroup>
 
 	<!-- Build Properties -->
@@ -24,9 +22,9 @@
 		<TargetFramework>net472</TargetFramework>
 		<ImplicitUsings>false</ImplicitUsings>
 		<!--exports the mod to the deployment folder-->
-		<IsMod>true</IsMod>
+		<IsMod>false</IsMod>
 		<!--Generates Yaml files-->
-		<GenerateMetadata>true</GenerateMetadata>
+		<GenerateMetadata>false</GenerateMetadata>
 		<!--Merges dlls into one, becomes relevant if PLib is added, does not play nice with gDrives transitive nuget requirements-->
 		<IsPacked>false</IsPacked>
 	</PropertyGroup>
