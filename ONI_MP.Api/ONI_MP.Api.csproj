@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<!-- General Package Properties -->
+	<PropertyGroup>
+		<PackageId>ItsLukesMultiplayerMod</PackageId>
+		<Version>2.6.0-test</Version>
+		<Authors>ItsLuke,[insert others]</Authors>
+		<Copyright>$(AssemblyCopyright)</Copyright>
+	</PropertyGroup>
+
+
+	<!-- Mod Info, used to generate yaml files on the fly -->
+	<PropertyGroup>
+		<ModName>Oxygen Not Included Together</ModName>
+		<ModDescription>Adds multiplayer to Oxygen Not Included! By Lyraedan</ModDescription>
+		<MinimumSupportedBuild>$(TargetGameVersion)</MinimumSupportedBuild>
+		<APIVersion>2</APIVersion>
+		<ForbiddenDlcIds>EXPANSION_1_ID</ForbiddenDlcIds>
+		<!-- Block spaced out. Not supported right now -->
+	</PropertyGroup>
+
+	<!-- Build Properties -->
+	<PropertyGroup>
+		<TargetFramework>net472</TargetFramework>
+		<ImplicitUsings>false</ImplicitUsings>
+		<!--exports the mod to the deployment folder-->
+		<IsMod>true</IsMod>
+		<!--Generates Yaml files-->
+		<GenerateMetadata>true</GenerateMetadata>
+		<!--Merges dlls into one, becomes relevant if PLib is added, does not play nice with gDrives transitive nuget requirements-->
+		<IsPacked>false</IsPacked>
+	</PropertyGroup>
+
+</Project>
