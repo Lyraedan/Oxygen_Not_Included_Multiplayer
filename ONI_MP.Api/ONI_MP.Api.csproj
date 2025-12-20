@@ -28,5 +28,8 @@
 		<!--Merges dlls into one, becomes relevant if PLib is added, does not play nice with gDrives transitive nuget requirements-->
 		<IsPacked>false</IsPacked>
 	</PropertyGroup>
+	<ItemGroup>
+	  <PackageReference Include="PLib" Version="4.19.0" />
+	</ItemGroup>
 
 </Project>
