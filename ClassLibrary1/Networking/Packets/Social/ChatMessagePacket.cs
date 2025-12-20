@@ -1,5 +1,5 @@
-﻿using ONI_MP.Networking.Components;
-using ONI_MP.Networking.Packets.Architecture;
+﻿using ONI_MP.Api.Networking.Packets.Architecture;
+using ONI_MP.Networking.Components;
 using ONI_MP.UI;
 using Steamworks;
 using System.Collections.Generic;

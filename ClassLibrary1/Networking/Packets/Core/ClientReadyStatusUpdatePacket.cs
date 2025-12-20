@@ -1,5 +1,5 @@
-﻿using ONI_MP.Menus;
-using ONI_MP.Networking.Packets.Architecture;
+﻿using ONI_MP.Api.Networking.Packets.Architecture;
+using ONI_MP.Menus;
 using System.IO;
 
 namespace ONI_MP.Networking.Packets.Core

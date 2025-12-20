@@ -1,5 +1,5 @@
-﻿using ONI_MP.DebugTools;
-using ONI_MP.Networking.Packets.Architecture;
+﻿using ONI_MP.Api.Networking.Packets.Architecture;
+using ONI_MP.DebugTools;
 using ONI_MP.Patches;
 using System;
 using System.IO;

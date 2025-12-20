@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<PackageId>ItsLukesMultiplayerModApi</PackageId>
+		<Version>0.1</Version>
+		<Authors>ItsLuke</Authors>
+		<Copyright>$(AssemblyCopyright)</Copyright>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<ModName>Oxygen Not Included Together API</ModName>
+		<ModDescription>The API required for integration with Oxygen Not Included Together</ModDescription>
+		<MinimumSupportedBuild>$(TargetGameVersion)</MinimumSupportedBuild>
+		<APIVersion>2</APIVersion>
+	</PropertyGroup>
+
+	<PropertyGroup>
+	  <TargetFramework>net472</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

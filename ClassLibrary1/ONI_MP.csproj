@@ -52,4 +52,8 @@
 		<EmbeddedResource Include="Assets\bundles\playercursor_lin.bundle" />
 		<!--<EmbeddedResource Include="Assets\cloud_status.png" />-->
 	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\ONI_MP.Api\ONI_MP.Api.csproj" />
+	</ItemGroup>
 </Project>

@@ -1,4 +1,6 @@
-﻿using ONI_MP.DebugTools;
+﻿using ONI_MP.Api.Networking;
+using ONI_MP.Api.Networking.Packets.Architecture;
+using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using Steamworks;
 using System;
@@ -8,7 +10,7 @@ using System.Runtime.InteropServices;
 namespace ONI_MP.Networking
 {
 
-	public static class PacketSender
+	internal static class PacketSender
 	{
 		public static int MAX_PACKET_SIZE_RELIABLE = 512;
 		public static int MAX_PACKET_SIZE_UNRELIABLE = 1024;
@@ -25,9 +27,6 @@ namespace ONI_MP.Networking
 			}
 		}
 
-		/// <summary>
-		/// Send to one connection by HSteamNetConnection handle.
-		/// </summary>
 		/// <summary>
 		/// Send to one connection by HSteamNetConnection handle.
 		/// </summary>

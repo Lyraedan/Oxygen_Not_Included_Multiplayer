@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using KMod;
+using ONI_MP.Api;
 using ONI_MP.Components;
 using ONI_MP.DebugTools;
 using ONI_MP.Misc;
@@ -30,7 +31,9 @@ namespace ONI_MP
 			try
 			{
 				DebugConsole.Init(); // Init console first to catch logs
-				DebugConsole.Log("[ONI_MP] Loaded Oxygen Not Included Together Multiplayer Mod.");
+                MultiplayerApi.PacketSender = new PacketSenderFacade();
+
+                DebugConsole.Log("[ONI_MP] Loaded Oxygen Not Included Together Multiplayer Mod.");
 
                 PacketRegistry.RegisterDefaults();
 

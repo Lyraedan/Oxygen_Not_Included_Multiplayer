@@ -1,5 +1,5 @@
 using Klei.AI;
-using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Api.Networking.Packets.Architecture;
 using System.IO;
 
 namespace ONI_MP.Networking.Packets.DuplicantActions

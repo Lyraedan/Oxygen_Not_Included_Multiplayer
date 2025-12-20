@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace ONI_MP.Networking.Packets.Architecture
+namespace ONI_MP.Api.Networking.Packets.Architecture
 {
 	public interface IPacket
 	{

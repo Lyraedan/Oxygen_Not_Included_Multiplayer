@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ONI_MP.Networking
+namespace ONI_MP.Api.Networking
 {
 	/// <summary>
 	/// A recreation of steam networking types

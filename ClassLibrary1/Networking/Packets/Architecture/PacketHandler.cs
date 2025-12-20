@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using ONI_MP.Api.Networking.Packets.Architecture;
 using ONI_MP.DebugTools;
 
 namespace ONI_MP.Networking.Packets.Architecture
