@@ -90,7 +90,7 @@ namespace ONI_MP.Networking
 				Connection = null;
 				SetState(ClientState.Disconnected);
 				MultiplayerSession.InSession = false;
-				SaveHelper.CaptureWorldSnapshot();
+				//SaveHelper.CaptureWorldSnapshot();
 			}
 			else
 			{
@@ -270,7 +270,7 @@ namespace ONI_MP.Networking
 		private static IEnumerator ShowMessageAndReturnToTitle()
 		{
 			MultiplayerOverlay.Show("Connection to the host was lost!");
-            SaveHelper.CaptureWorldSnapshot();
+            //SaveHelper.CaptureWorldSnapshot();
             yield return new WaitForSeconds(3f);
             //PauseScreen.TriggerQuitGame(); // Force exit to frontend, getting a crash here
 
