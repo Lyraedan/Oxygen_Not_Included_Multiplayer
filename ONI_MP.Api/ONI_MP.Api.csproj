@@ -14,10 +14,16 @@
 		<APIVersion>2</APIVersion>
 	</PropertyGroup>
 
+	<!-- Build Properties -->
 	<PropertyGroup>
-	  <TargetFramework>net472</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+		<TargetFramework>net472</TargetFramework>
+		<ImplicitUsings>false</ImplicitUsings>
+		<!--exports the mod to the deployment folder-->
+		<IsMod>true</IsMod>
+		<!--Generates Yaml files-->
+		<GenerateMetadata>true</GenerateMetadata>
+		<!--Merges dlls into one, becomes relevant if PLib is added, does not play nice with gDrives transitive nuget requirements-->
+		<IsPacked>false</IsPacked>
+	</PropertyGroup>
 
 </Project>
