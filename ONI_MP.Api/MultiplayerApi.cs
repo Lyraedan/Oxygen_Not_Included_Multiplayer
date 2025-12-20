@@ -7,8 +7,8 @@ namespace ONI_MP.Api
     public static class MultiplayerApi
     {
         /// <summary>
-        /// Null if core mod is not loaded or multiplayer is not initialized.
+        /// Uses dud packet sender if core mod is not loaded or multiplayer is not initialized.
         /// </summary>
-        public static IPacketSender? PacketSender { get; internal set; } = new NullPacketSender();
+        public static IPacketSender PacketSender { get; internal set; } = new NullPacketSender();
     }
 }
