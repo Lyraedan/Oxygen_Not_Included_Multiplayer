@@ -2,6 +2,10 @@
 .downloaded
 .generated
 
+# Build-specific
+/Directory.Build.props.user
+/PublicisedAssembly
+
 
 ## || VISUAL STUDIO STUFF BELOW || ##
 ## Ignore Visual Studio temporary files, build results, and
@@ -410,8 +414,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+.idea
 
 # AI Agent notes (private, not uploaded to GitHub)
 .agent/
-/Directory.Build.props.user
-/PublicisedAssembly
