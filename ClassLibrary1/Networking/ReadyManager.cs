@@ -69,7 +69,8 @@ namespace ONI_MP.Networking
 
 				player.readyState = ClientReadyState.Unready;
 			}
-		}
+			RefreshScreen();
+        }
 
 		public static void SetPlayerReadyState(MultiplayerPlayer player, ClientReadyState state)
 		{

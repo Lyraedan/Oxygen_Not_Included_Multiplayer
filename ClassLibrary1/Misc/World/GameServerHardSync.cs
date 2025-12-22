@@ -37,7 +37,7 @@ namespace ONI_MP.Networking
 			SpeedControlScreen.Instance?.Pause(false); // Pause the game
 			MultiplayerOverlay.Show("Hard sync in progress!");
 
-			numberOfClientsAtTimeOfSync = MultiplayerSession.ConnectedPlayers.Count;
+            numberOfClientsAtTimeOfSync = MultiplayerSession.ConnectedPlayers.Count;
 			var packet = new HardSyncPacket();
 			PacketSender.SendToAllClients(packet);
 
@@ -55,7 +55,11 @@ namespace ONI_MP.Networking
 		{
 			hardSyncInProgress = true;
 
-			int fileSize = SaveHelper.GetWorldSave().Length;
+            ReadyManager.MarkAllAsUnready();
+            SaveFileRequestPacket.SendSaveFileToAll();
+            ReadyManager.RefreshScreen(); // Bring up ready screen for host
+
+            int fileSize = SaveHelper.GetWorldSave().Length;
 			int chunkSize = SaveHelper.SAVEFILE_CHUNKSIZE_KB * 1024;
 			int chunkCount = Mathf.CeilToInt(fileSize / (float)chunkSize);
 			float estimatedTransferDuration = chunkCount * SaveFileRequestPacket.SAVE_DATA_SEND_DELAY;

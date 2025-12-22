@@ -55,20 +55,17 @@ namespace ONI_MP.Networking.Packets.Core
 
 			ReadyManager.RefreshScreen();
 			bool allReady = ReadyManager.IsEveryoneReady();
+            DebugConsole.Log($"[ClientReadyStatusPacket] Is everyone ready? {allReady}");
 
-			if (GameServerHardSync.IsHardSyncInProgress)
-			{
-				if (allReady)
-				{
-					ReadyManager.MarkAllAsUnready(); // Reset player ready states
-					//GoogleDriveUtils.UploadAndSendToAllClients();
-					// Replace with ability to send new save to all clients without them requesting
-					//SaveFileRequestPacket.SendSaveFile(clientId); // Need this method but all clients
-					SaveFileRequestPacket.SendSaveFileToAll(); // WIP, buggy right now thanks to packet loss
-
-				}
-				return;
-			}
+            //if (GameServerHardSync.IsHardSyncInProgress)
+			//{
+			//	if (allReady)
+			//	{
+			//		ReadyManager.MarkAllAsUnready(); // Reset player ready states
+			//		SaveFileRequestPacket.SendSaveFileToAll();
+			//	}
+			//	return;
+			//}
 
 			if (allReady)
 			{
