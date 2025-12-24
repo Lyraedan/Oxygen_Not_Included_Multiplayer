@@ -1,5 +1,7 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Networking.Packets.Handshake;
+using ONI_MP.Networking.Compatibility;
 using ONI_MP.Networking.States;
 using Steamworks;
 using System;
@@ -69,6 +71,9 @@ namespace ONI_MP.Networking
 			MultiplayerSession.InSession = true;
 			//MultiplayerOverlay.Close();
 
+			// Initialize mod compatibility manager for host
+			ModCompatibilityManager.Initialize();
+
 			SetState(ServerState.Started);
 		}
 
@@ -93,6 +98,10 @@ namespace ONI_MP.Networking
 				SteamNetworkingSockets.CloseListenSocket(ListenSocket);
 
 			MultiplayerSession.InSession = false;
+
+			// Shutdown mod compatibility manager
+			ModCompatibilityManager.Shutdown();
+
 			DebugConsole.Log("[GameServer] Shutdown complete.");
 		}
 

@@ -139,6 +139,9 @@ namespace ONI_MP.Networking.Packets.Architecture
             TryRegister(typeof(ResearchCompletePacket));
             TryRegister(typeof(EntitySpawnPacket));
             TryRegister(typeof(AssignmentPacket));
+            TryRegister(typeof(ModVerificationPacket));
+            TryRegister(typeof(ModVerificationResponsePacket));
+            TryRegister(typeof(ModListRequestPacket));
 		}
 
         public static void TryRegister(Type packetType, string nameOverride = "")
