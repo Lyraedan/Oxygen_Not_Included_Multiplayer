@@ -109,6 +109,7 @@ namespace ONI_MP
         public int MaxMessagesPerPoll { get; set; } = 128;
         public int SaveFileTransferChunkKB { get; set; } = 256;
         public LobbySettings Lobby { get; set; } = new LobbySettings();
+        public bool HardSyncAfterCycleComplete { get; set; } = false;
     }
 
     class LobbySettings

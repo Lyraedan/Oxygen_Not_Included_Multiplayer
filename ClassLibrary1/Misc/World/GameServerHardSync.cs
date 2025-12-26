@@ -55,9 +55,9 @@ namespace ONI_MP.Networking
 		{
 			hardSyncInProgress = true;
 
-            ReadyManager.MarkAllAsUnready();
             SaveFileRequestPacket.SendSaveFileToAll();
-            ReadyManager.RefreshScreen(); // Bring up ready screen for host
+            //ReadyManager.MarkAllAsUnready();
+            //ReadyManager.RefreshScreen(); // Bring up ready screen for host
 
             int fileSize = SaveHelper.GetWorldSave().Length;
 			int chunkSize = SaveHelper.SAVEFILE_CHUNKSIZE_KB * 1024;
@@ -68,8 +68,8 @@ namespace ONI_MP.Networking
 			hardSyncDoneThisCycle = true;
             hardSyncInProgress = false;
 			// With the ready state I do not think this is needed anymore
-			//SpeedControlScreen.Instance?.Unpause(false);
-			//MultiplayerOverlay.Close();
+			SpeedControlScreen.Instance?.Unpause(false);
+			MultiplayerOverlay.Close();
 		}
 	}
 }

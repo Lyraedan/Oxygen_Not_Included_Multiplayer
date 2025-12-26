@@ -61,8 +61,12 @@ namespace ONI_MP.Patches.GamePatches
 
                 DebugConsole.Log($"[HardSync] New cycle detected ({currentCycle}) — Hard Sync disabled.");
 
-				// Hard Sync Removed by request
-				// CoroutineRunner.RunOne(DelayedHardSync());
+				bool DoHardSyncAfterCycle = Configuration.GetHostProperty<bool>("HardSyncAfterCycleComplete");
+				if (DoHardSyncAfterCycle)
+				{
+					// Hard Sync Removed by request
+					CoroutineRunner.RunOne(DelayedHardSync());
+				}
 			}
 		}
 

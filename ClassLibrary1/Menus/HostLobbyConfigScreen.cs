@@ -18,6 +18,8 @@ namespace ONI_MP.Menus
         private static GameObject _screenGO;
 
         private Toggle _privateToggle;
+        private Toggle _hardsyncToggle;
+        private TextMeshProUGUI _hardSyncLabel;
         private TMP_InputField _passwordInput;
         private TextMeshProUGUI _privateLabel;
         private TMP_InputField _lobbySizeInput;
@@ -178,6 +180,9 @@ namespace ONI_MP.Menus
             // Private/Public Toggle
             CreateVisibilityOption(contentGO.transform);
 
+            // Hardsync Toggle
+            CreateHardSyncOption(contentGO.transform);
+
             // Lobby Size input
             CreateLobbySizeOption(contentGO.transform);
 
@@ -209,7 +214,8 @@ namespace ONI_MP.Menus
             CreateLabel(container.transform, MP_STRINGS.UI.HOSTLOBBYCONFIGSCREEN.LOBBY_SIZE, 16, 25);
 
             // Input field
-            _lobbySizeInput = CreateInputField(container.transform, "4", 45, TMP_InputField.ContentType.IntegerNumber);
+            int max_lobby_size = Configuration.GetHostProperty<int>("MaxLobbySize");
+            _lobbySizeInput = CreateInputField(container.transform, $"{max_lobby_size}", 45, TMP_InputField.ContentType.IntegerNumber);
         }
 
         private void CreateVisibilityOption(Transform parent)
@@ -285,6 +291,100 @@ namespace ONI_MP.Menus
             _privateLabel.fontSize = 16;
             _privateLabel.alignment = TextAlignmentOptions.MidlineLeft;
             UpdatePrivateLabel();
+        }
+
+        private void CreateHardSyncOption(Transform parent)
+        {
+            var container = new GameObject("HardSyncOption", typeof(RectTransform), typeof(HorizontalLayoutGroup));
+            container.transform.SetParent(parent, false);
+
+            var layout = container.GetComponent<HorizontalLayoutGroup>();
+            layout.spacing = 15;
+            layout.childAlignment = TextAnchor.MiddleLeft;
+            layout.childControlWidth = false;
+            layout.childForceExpandWidth = false;
+
+            var rt = container.GetComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(0, 40);
+
+            // Label
+            var labelGO = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+            labelGO.transform.SetParent(container.transform, false);
+            var labelRT = labelGO.GetComponent<RectTransform>();
+            labelRT.sizeDelta = new Vector2(200, 40);
+
+            var labelTmp = labelGO.GetComponent<TextMeshProUGUI>();
+            labelTmp.text = MP_STRINGS.UI.HOSTLOBBYCONFIGSCREEN.HARD_SYNC;
+            labelTmp.fontSize = 16;
+            labelTmp.alignment = TextAlignmentOptions.MidlineLeft;
+            labelTmp.color = Color.white;
+
+            // Toggle container
+            var toggleContainer = new GameObject("ToggleContainer", typeof(RectTransform), typeof(HorizontalLayoutGroup));
+            toggleContainer.transform.SetParent(container.transform, false);
+            var toggleLayout = toggleContainer.GetComponent<HorizontalLayoutGroup>();
+            toggleLayout.spacing = 10;
+            toggleLayout.childAlignment = TextAnchor.MiddleLeft;
+            toggleLayout.childControlWidth = false;
+
+            var toggleContainerRT = toggleContainer.GetComponent<RectTransform>();
+            toggleContainerRT.sizeDelta = new Vector2(180, 40);
+
+            // Create toggle background
+            var toggleBG = new GameObject("ToggleBG", typeof(RectTransform), typeof(Image), typeof(Toggle));
+            toggleBG.transform.SetParent(toggleContainer.transform, false);
+            var toggleBGRT = toggleBG.GetComponent<RectTransform>();
+            toggleBGRT.sizeDelta = new Vector2(50, 30);
+
+            var bgImage = toggleBG.GetComponent<Image>();
+            bgImage.color = new Color(0.2f, 0.2f, 0.25f);
+
+            // Create checkmark
+            var checkmark = new GameObject("Checkmark", typeof(RectTransform), typeof(Image));
+            checkmark.transform.SetParent(toggleBG.transform, false);
+            var checkRT = checkmark.GetComponent<RectTransform>();
+            checkRT.anchorMin = Vector2.zero;
+            checkRT.anchorMax = Vector2.one;
+            checkRT.offsetMin = new Vector2(4, 4);
+            checkRT.offsetMax = new Vector2(-4, -4);
+
+            var checkImage = checkmark.GetComponent<Image>();
+            checkImage.color = new Color(0.4f, 0.7f, 1f);
+
+            _hardsyncToggle = toggleBG.GetComponent<Toggle>();
+            _hardsyncToggle.graphic = checkImage;
+            _hardsyncToggle.isOn = Configuration.Instance.Host.HardSyncAfterCycleComplete;
+            _hardsyncToggle.onValueChanged.AddListener(OnHardSyncToggleChanged);
+
+            // Status label
+            var statusGO = new GameObject("StatusLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
+            statusGO.transform.SetParent(toggleContainer.transform, false);
+            var statusRT = statusGO.GetComponent<RectTransform>();
+            statusRT.sizeDelta = new Vector2(100, 30);
+
+            _hardSyncLabel = statusGO.GetComponent<TextMeshProUGUI>();
+            _hardSyncLabel.fontSize = 16;
+            _hardSyncLabel.alignment = TextAlignmentOptions.MidlineLeft;
+            UpdateHardSyncLabel();
+        }
+        public void OnHardSyncToggleChanged(bool DoHardSync)
+        {
+            UpdateHardSyncLabel();
+            Configuration.Instance.Host.HardSyncAfterCycleComplete = DoHardSync;
+        }
+
+        private void UpdateHardSyncLabel()
+        {
+            if (_hardsyncToggle.isOn)
+            {
+                _hardSyncLabel.text = MP_STRINGS.UI.HOSTLOBBYCONFIGSCREEN.HARD_SYNC_ENABLED;
+                _hardSyncLabel.color = new Color(0.0f, 1.0f, 0.0f);
+            }
+            else
+            {
+                _hardSyncLabel.text = MP_STRINGS.UI.HOSTLOBBYCONFIGSCREEN.HARD_SYNC_DISABLED;
+                _hardSyncLabel.color = new Color(1.0f, 0.0f, 0.0f);
+            }
         }
 
         private void OnPrivateToggleChanged(bool isPrivate)

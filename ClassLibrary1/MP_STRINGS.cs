@@ -51,6 +51,9 @@ namespace ONI_MP
                 public static LocString CONTINUE = "Continue";
                 public static LocString CANCEL = "Cancel";
 				public static LocString LOBBY_SIZE = "Lobby Size:";
+                public static LocString HARD_SYNC = "Hard sync after each cycle:";
+                public static LocString HARD_SYNC_ENABLED = "Enabled";
+                public static LocString HARD_SYNC_DISABLED = "Disabled";
             }
 
             public class JOINBYDIALOGMENU
@@ -106,6 +109,11 @@ namespace ONI_MP
 				public class MULTIPLAYER
 				{
 					public static LocString LABEL = "Multiplayer";
+				}
+
+				public class HARDSYNC
+				{
+					public static LocString LABEL = "Hard sync after each cycle:";
 				}
 
 				//maybe add tooltips to these later in some way?
