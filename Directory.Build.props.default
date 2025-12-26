@@ -1,10 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Instead of modifying this file, create a copy named Directory.Build.props.user and modify it to match the paths in your installation -->
+<!-- Instead of modifying this file, create a copy named Directory.Build.props.user and modify it to match the paths in your installation if needed. -->
 <Project>
-	<PropertyGroup>
-		<!--Gamedata Folder, adjust to your own ONI installation-->
-		<GameLibsFolder>E:\SteamLibrary\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed</GameLibsFolder>
-		<!--OutputModFolder, adjust it to your own dev folder-->
-		<ModFolder>$(UserProfile)\Documents\Klei\OxygenNotIncluded\mods\dev</ModFolder>
-	</PropertyGroup>
+    <!-- GameLibs -->
+    <!-- Windows -->
+    <PropertyGroup Condition="'$(GameLibsFolderTemp)' == ''">
+        <GameLibsFolderTemp Condition="Exists('$(ProgramFiles)\Steam\steamapps\common\OxygenNotIncluded\')">$(ProgramFiles)\Steam\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed</GameLibsFolderTemp>
+        <GameLibsFolderTemp Condition="Exists('$(LOCALAPPDATA)\Steam\steamapps\common\OxygenNotIncluded\')">$(LOCALAPPDATA)\Steam\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed</GameLibsFolderTemp>
+    </PropertyGroup>
+
+    <!-- Linux/Mac/Proton -->
+    <PropertyGroup Condition="'$(GameLibsFolderTemp)' == '' And '$(HOME)' != ''">
+        <GameLibsFolderTemp Condition="Exists('$(HOME)/.steam/Steam/steamapps/common/OxygenNotIncluded/OxygenNotIncluded_Data/Managed')">$(HOME)/.steam/Steam/steamapps/common/OxygenNotIncluded/OxygenNotIncluded_Data/Managed</GameLibsFolderTemp>
+        <!-- .local not needed as it appears to be covered by $(LOCALAPPDATA) -->
+        <!-- <GameLibsFolderTemp Condition="Exists('$(HOME)/.local/share/Steam/steamapps/common/OxygenNotIncluded/OxygenNotIncluded_Data/Managed')">$(HOME)/.steam/Steam/steamapps/common/OxygenNotIncluded/OxygenNotIncluded_Data/Managed</GameLibsFolderTemp>-->
+    </PropertyGroup>
+
+    <!-- Fallback to manual -->
+    <PropertyGroup>
+        <GameLibsFolderTemp Condition="'$(GameLibsFolderTemp)' == ''">Put ONI installation path here.</GameLibsFolderTemp>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <InstallationPathError Condition="'$(GameLibsFolderTemp)' == 'Put ONI installation path here.'">true</InstallationPathError>
+        <GameLibsFolder Condition="'$(GameLibsFolderTemp)' != ''">$(GameLibsFolderTemp)</GameLibsFolder>
+    </PropertyGroup>
+
+    <!-- Mods Folder -->
+    <!-- Windows -->
+    <PropertyGroup Condition="'$(ModsParentFolderTemp)' == ''">
+        <ModsParentFolderTemp Condition="Exists('$(UserProfile)\Documents\Klei\OxygenNotIncluded\mods')">$(UserProfile)\Documents\Klei\OxygenNotIncluded\mods</ModsParentFolderTemp>
+    </PropertyGroup>
+
+    <!-- Linux/Mac/Proton -->
+    <PropertyGroup Condition="'$(ModsParentFolderTemp)' == '' And '$(HOME)' != ''">
+        <ModsParentFolderTemp Condition="Exists('$(HOME)/.config/unity3d/Klei/Oxygen Not Included/mods')">$(HOME)/.config/unity3d/Klei/Oxygen Not Included/mods</ModsParentFolderTemp>
+        <ModsParentFolderTemp Condition="Exists('$(HOME)/Documents/Klei/OxygenNotIncluded/mods')">$(HOME)/Documents/Klei/OxygenNotIncluded/mods</ModsParentFolderTemp>
+    </PropertyGroup>
+
+    <!-- Fallback to manual -->
+    <PropertyGroup>
+        <ModsParentFolderTemp Condition="'$(ModsParentFolderTemp)' == ''">Put ONI mods folder path here.</ModsParentFolderTemp>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <ModsParentFolder Condition="'$(ModsParentFolderTemp)' != ''">$(ModsParentFolderTemp)</ModsParentFolder>
+        <ModPathError Condition="'$(ModsParentFolderTemp)' == 'Put ONI mods folder path here.'">true</ModPathError>
+    </PropertyGroup>
+
+    <!-- Finalize -->
+    <PropertyGroup Condition="'$(ModFolder)' == ''">
+        <ModFolder>$(ModsParentFolder)/Local/</ModFolder>
+    </PropertyGroup>
+
+    <Target Name="CreateDevModFolder" BeforeTargets="BeforeResolveReferences" Condition="'$(ModFolder)' != '' And !Exists('$(ModFolder)')">
+        <MakeDir Directories="$(ModFolder)"/>
+        <Message Text="Created dev mod folder: '$(ModFolder)'" Importance="high"/>
+    </Target>
+
+    <Target Name="PrintGameLibs" BeforeTargets="BeforeResolveReferences" Condition="'$(GameLibsFolder)' != ''">
+        <Message Text="Detected GameLibsFolder: '$(GameLibsFolder)'" Importance="high"/>
+    </Target>
+
+    <Target Name="PrintModFolder" BeforeTargets="BeforeResolveReferences" Condition="'$(ModFolder)' != ''">
+        <Message Text="Detected/Created ModFolder: '$(ModFolder)'" Importance="high"/>
+    </Target>
+
+    <Target Name="CheckGameLibs" BeforeTargets="BeforeResolveReferences" Condition="('$(GameLibsFolder)' == '' or '$(InstallationPathError)' == 'true')">
+        <Warning Text="Unable to detect the Oxygen Not Included installation path."/>
+        <Warning Text="Checked locations:"/>
+        <Warning Text="  - $(ProgramFiles)\Steam\steamapps\common\OxygenNotIncluded"/>
+        <Warning Text="  - $(LOCALAPPDATA)\Steam\steamapps\common\OxygenNotIncluded"/>
+        <Warning Text="  - $(HOME)/.steam/Steam/steamapps/common/OxygenNotIncluded"/>
+        <!-- .local not needed as it appears to be covered by $(LOCALAPPDATA) -->
+        <!-- <Warning Text="  - $(HOME)/.local/share/Steam/steamapps/common/OxygenNotIncluded"/>-->
+        <Error Text="GameLibsFolder could not be found automatically. Please enter your ONI installation path here."/>
+    </Target>
+
+    <Target Name="CheckModFolder" BeforeTargets="BeforeResolveReferences" Condition="('$(ModsParentFolder)' == '' or '$(ModPathError)' == 'true')">
+        <Warning Text="Unable to detect the ONI mods folder path."/>
+        <Warning Text="Checked locations:"/>
+        <Warning Text="  - $(HOME)/.config/unity3d/Klei/Oxygen Not Included/mods"/>
+        <Warning Text="  - $(HOME)/Documents/Klei/OxygenNotIncluded/mods"/>
+        <Warning Text="  - $(UserProfile)\Documents\Klei\OxygenNotIncluded\mods"/>
+        <Error Text="Mods parent folder could not be found automatically. Please enter your mods path here."/>
+    </Target>
 </Project>
