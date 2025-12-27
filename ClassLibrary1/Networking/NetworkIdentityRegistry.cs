@@ -1,6 +1,7 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Networking.Components;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace ONI_MP.Networking
 {
@@ -23,7 +24,13 @@ namespace ONI_MP.Networking
 
 		public static void Unregister(int netId)
 		{
-			identities.Remove(netId);
+			if (identities.ContainsKey(netId))
+			{
+				identities.Remove(netId);
+			} else
+			{
+				DebugConsole.LogWarning($"Tried to unregister an unregistered net id: {netId}");
+			}
 		}
 
 		public static void RegisterExisting(NetworkIdentity entity, int netId)
@@ -71,5 +78,5 @@ namespace ONI_MP.Networking
 		}
 
 		public static IEnumerable<NetworkIdentity> AllIdentities => identities.Values;
-	}
+    }
 }

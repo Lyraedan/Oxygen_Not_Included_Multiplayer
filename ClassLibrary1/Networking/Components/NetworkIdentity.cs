@@ -1,6 +1,7 @@
 ﻿using KSerialization;
 using ONI_MP.DebugTools;
 using System.IO;
+using UnityEngine;
 
 namespace ONI_MP.Networking.Components
 {
@@ -87,5 +88,83 @@ namespace ONI_MP.Networking.Components
 			DebugConsole.Log($"[NetworkIdentity] Unregistered NetId {NetId} for {gameObject.name}");
 			base.OnCleanUp();
 		}
-	}
+
+        public static bool TryAddNetworkIdentity_API(GameObject gameObject, out int netId)
+        {
+			if (!gameObject)
+			{
+				netId = 0;
+				return false;
+			}
+
+            NetworkIdentity identity = gameObject.AddOrGet<NetworkIdentity>();
+            if (identity)
+            {
+				netId = identity.NetId;
+                return true;
+            }
+
+			netId = 0;
+            return false;
+        }
+
+        public static bool TryGetNetworkIdentity_API(GameObject gameObject, out int netId)
+        {
+			if (!gameObject)
+			{
+				netId = 0;
+				return false;
+			}
+
+            NetworkIdentity identity = gameObject.GetComponent<NetworkIdentity>();
+            if (identity)
+            {
+				netId = identity.NetId;
+                return true;
+            }
+
+			netId = 0;
+            return false;
+        }
+
+		public static bool RegisterIdentity_API(GameObject entity, out int registered_netId)
+		{
+			if (!entity)
+			{
+				registered_netId = 0;
+				return false;
+			}
+
+			NetworkIdentity identity = entity.GetComponent<NetworkIdentity>();
+			if(identity)
+			{
+				registered_netId = identity.NetId;
+				identity.RegisterIdentity();
+				return true;
+			}
+
+			registered_netId = 0;
+			return false;
+		}
+
+		public static bool OverrideNetId_API(GameObject entity, int new_netid, out int new_registered_netid)
+		{
+            if (!entity)
+            {
+				new_registered_netid = 0;
+                return false;
+            }
+
+            NetworkIdentity identity = entity.GetComponent<NetworkIdentity>();
+            if (identity)
+            {
+				identity.OverrideNetId(new_netid);
+                new_registered_netid = new_netid;
+                return true;
+            }
+
+			new_registered_netid = 0;
+            return false;
+        }
+    }
 }
