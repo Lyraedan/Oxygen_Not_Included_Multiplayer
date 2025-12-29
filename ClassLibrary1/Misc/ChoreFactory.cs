@@ -17,11 +17,11 @@ public static class ChoreFactory
 		{
 			case "Aggressive": return CreateAggressive(consumer);
 			case "Attack": return CreateAttack(consumer);
-			case "BalloonArtist":
-			case "Banshee":
-			case "RoboDancer":
-			case "Sigh":
-			case "UglyCry":
+			case "BalloonArtist": return null;
+			case "Banshee": return null;
+			case "RoboDancer": return null;
+			case "Sigh": return null;
+			case "UglyCry": return null;
 			case "StressEmote": return CreateNamedEmote(choreTypeId, type, consumer);
 			case "BeIncapacitated": return CreateBeIncapacitated(consumer);
 			case "BeOffline": return CreateBeOffline(consumer);
@@ -72,7 +72,7 @@ public static class ChoreFactory
 			case "StressShock": return CreateStressShock(dupeGO);
 			case "Sweep": return CreateWorkChore<Pickupable>(type, consumer, cell);
 			case "SwitchRoleHat": return CreateSwitchRoleHat(dupeGO);
-			//case "TakeMedicine": return CreateTakeMedicine(dupeGO, pillWorkable); // TODO Figure out
+			case "TakeMedicine": return null; //return CreateTakeMedicine(dupeGO, pillWorkable); // TODO Figure out how to get the pill workable
 			case "TakeOffHat": return CreateTakeOffHat(dupeGO);
 			case "UseSolidLubricant": return CreateUseSolidLubricant(consumer);
 			case "Vomit": return CreateVomit(dupeGO);

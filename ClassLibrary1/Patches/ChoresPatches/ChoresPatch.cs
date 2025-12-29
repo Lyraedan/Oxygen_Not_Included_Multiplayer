@@ -57,13 +57,20 @@ namespace ONI_MP.Patches.Chores
 	[HarmonyPatch(typeof(StandardChoreBase), nameof(StandardChoreBase.Begin))]
 	public static class StandardChoreBase_Begin_Patch
 	{
-		//public static bool Prefix(Chore __instance)
-		//{
-		//	return false;
-		//}
+		public static bool Prefix(Chore __instance)
+		{
+            if (!MultiplayerSession.InSession) return true;
+            if (MultiplayerSession.IsClient) return false; // Clients can't begin chores
+			
+			return true;
+		}
+
 		public static void Postfix(Chore __instance)
 		{
-            ChoresPatch.SendAssignmentPacket(__instance);
+            if (!MultiplayerSession.InSession) return;
+            
+			ChoresPatch.SendAssignmentPacket(__instance);
+			return;
 		}
 	}
 
