@@ -47,7 +47,7 @@ namespace ONI_MP.Patches.Chores
 				TargetPrefabId = __instance.gameObject?.PrefabID().Name ?? ""
 			};
 
-			PacketSender.SendToAll(packet);
+			PacketSender.SendToAllClients(packet);
 
 			DebugConsole.Log($"[Chores] Sent ChoreAssignmentPacket: NetId={packet.NetId}, ChoreId={packet.ChoreTypeId}, Type={choreType.Name}:{choreType.Id}");
 		}
@@ -57,10 +57,13 @@ namespace ONI_MP.Patches.Chores
 	[HarmonyPatch(typeof(StandardChoreBase), nameof(StandardChoreBase.Begin))]
 	public static class StandardChoreBase_Begin_Patch
 	{
+		//public static bool Prefix(Chore __instance)
+		//{
+		//	return false;
+		//}
 		public static void Postfix(Chore __instance)
 		{
-			return; // Disabled for now
-			ChoresPatch.SendAssignmentPacket(__instance);
+            ChoresPatch.SendAssignmentPacket(__instance);
 		}
 	}
 
