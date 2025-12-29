@@ -26,10 +26,14 @@ namespace ONI_MP.Patches.Chores
 				var driver = consumer.choreDriver;
 
 				// Cancel current chore
-				var current = driver.GetCurrentChore();
-				if (current != null)
+				if (driver.HasChore())
 				{
-					current.Cancel("Override chore from MP");
+					var current = driver.GetCurrentChore();
+					if (current != null)
+					{
+						current.Cancel("Override chore from MP");
+					}
+					driver.StopChore(); // Just trying to figure this out
 				}
 
 				// Build context and begin
