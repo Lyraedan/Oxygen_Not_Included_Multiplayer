@@ -60,7 +60,7 @@ namespace ONI_MP.Patches.Chores
 		public static bool Prefix(Chore __instance)
 		{
             if (!MultiplayerSession.InSession) return true;
-            if (MultiplayerSession.IsClient) return false; // Clients can't begin chores
+            if (MultiplayerSession.IsClient) return __instance.MP().CanBegin; // Clients can't begin chores
 			
 			return true;
 		}
