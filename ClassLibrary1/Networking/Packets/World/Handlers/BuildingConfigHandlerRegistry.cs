@@ -26,6 +26,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 			// Register all handlers here
 			// Each handler will be registered for each of its supported ConfigHashes
 			RegisterHandler(new ActivationRangeHandler());
+			RegisterHandler(new BuildingEnableHandler());
 			RegisterHandler(new ThresholdSwitchHandler());
 			RegisterHandler(new SliderControlHandler());
 			RegisterHandler(new CapacityHandler());

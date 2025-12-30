@@ -151,5 +151,26 @@ namespace ONI_MP.Patches.World.SideScreen
 			if (MultiplayerSession.IsHost) PacketSender.SendToAllClients(packet);
 			else PacketSender.SendToHost(packet);
 		}
-	}
+
+        public static void SyncBuildingEnabledStateChange(GameObject target, bool queuedToggle)
+        {
+            if (BuildingConfigPacket.IsApplyingPacket) return;
+            if (target == null) return;
+
+            var identity = target.AddOrGet<NetworkIdentity>();
+            identity.RegisterIdentity();
+
+            var packet = new BuildingConfigPacket
+            {
+                NetId = identity.NetId,
+                Cell = Grid.PosToCell(target),
+                ConfigHash = "BuildingEnableState".GetHashCode(),
+                Value = queuedToggle ? 1f : 0f,
+                ConfigType = BuildingConfigType.Boolean
+            };
+
+            if (MultiplayerSession.IsHost) PacketSender.SendToAllClients(packet);
+            else PacketSender.SendToHost(packet);
+        }
+    }
 }
