@@ -4,6 +4,7 @@ using ONI_MP.Networking;
 using Steamworks;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -122,6 +123,63 @@ namespace ONI_MP.Patches
 
             }
 		}
+
+		[HarmonyPatch(typeof(KModalScreen), nameof(KModalScreen.OnShow), new[] { typeof(bool) })]
+		public static class ModalPauseScreen_PreventPauses
+		{
+            static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> insts)
+			{
+                var pauseTarget = AccessTools.Method(
+					typeof(SpeedControlScreen),
+					nameof(SpeedControlScreen.Pause),
+					new[] { typeof(bool), typeof(bool) });
+                var unpauseTarget = AccessTools.Method(
+					typeof(SpeedControlScreen),
+					nameof(SpeedControlScreen.Unpause),
+					new[] { typeof(bool) });
+				var pauseReplacement = AccessTools.Method(
+					typeof(ModalPauseScreen_PreventPauses),
+					nameof(ModalPauseScreen_PreventPauses.ConditionalPause),
+					new[] { typeof(SpeedControlScreen), typeof(bool), typeof(bool) });
+				var unpauseReplacement = AccessTools.Method(
+					typeof(ModalPauseScreen_PreventPauses),
+					nameof(ModalPauseScreen_PreventPauses.ConditionalUnpause),
+					new[] { typeof(SpeedControlScreen), typeof(bool) });
+
+                foreach (var inst in insts)
+				{
+					// Replace the method call to pause or unpause with our method.
+					if (inst.Calls(pauseTarget))
+					{
+						yield return new CodeInstruction(OpCodes.Call, pauseReplacement);
+					}
+					else if (inst.Calls(unpauseTarget))
+					{
+						yield return new CodeInstruction(OpCodes.Call, unpauseReplacement);
+					}
+					else
+					{
+						yield return inst;
+					}
+				}
+			}
+
+			static void ConditionalPause(SpeedControlScreen inst, bool playSound, bool isCrash)
+			{
+				// Only pause if we arent in a multiplayer session
+				if (MultiplayerSession.InSession) return;
+				
+				SpeedControlScreen.Instance.Pause(playSound, isCrash);
+			}
+
+            static void ConditionalUnpause(SpeedControlScreen inst, bool playSound)
+            {
+				// Only unpause if we arent in a multiplayer session
+				if (MultiplayerSession.InSession) return;
+
+				SpeedControlScreen.Instance.Unpause(playSound);
+            }
+        }
 
 		private static void AddButton(PauseScreen __instance, string label, System.Action onClicked, string placeAfter = "Resume")
 		{
