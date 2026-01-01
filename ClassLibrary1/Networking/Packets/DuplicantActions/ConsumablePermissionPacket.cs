@@ -40,7 +40,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		private void Apply()
 		{
-			if (!NetworkIdentityRegistry.TryGet(NetId, out var identity))
+			if (!NetworkIdentityRegistry.TryGet(NetId, out var identity) || identity == null)
 			{
 				DebugConsole.LogWarning($"[ConsumablePermissionPacket] NetId {NetId} not found.");
 				return;
@@ -58,7 +58,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 			{
 				// ConsumableConsumer.SetPermitted(string consumable_id, bool is_allowed)
 				consumer.SetPermitted(ConsumableId, IsAllowed);
-				Traverse.Create(ManagementMenu.Instance.consumablesScreen).Method("MarkRowsDirty")?.GetValue();
+				ManagementMenu.Instance.consumablesScreen.MarkRowsDirty();
 				// DebugConsole.Log($"[ConsumablePermissionPacket] Set {ConsumableId} to {IsAllowed} for {identity.name}");
 			}
 			finally
