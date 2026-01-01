@@ -43,11 +43,11 @@ namespace ONI_MP.Menus
             try
             {
                 // Build a detailed message for the overlay with mod IDs
-                var detailedMessage = "MOD COMPATIBILITY ERROR!\n\n";
+                var detailedMessage = $"{MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.HEADER_TITLE}\n\n";
 
                 if (missingMods != null && missingMods.Length > 0)
                 {
-                    detailedMessage += $"MISSING MODS (install these):\n";
+                    detailedMessage += $"{MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.MISSING_MODS}\n";
                     foreach (var mod in missingMods)
                     {
                         detailedMessage += $"• {mod}\n";
@@ -57,25 +57,25 @@ namespace ONI_MP.Menus
 
                 if (extraMods != null && extraMods.Length > 0)
                 {
-                    detailedMessage += $"EXTRA MODS (disable these):\n";
+                    detailedMessage += $"{MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.EXTRA_MODS}\n";
                     foreach (var mod in extraMods)
                     {
-                        detailedMessage += $"• {mod}\n";
+                        detailedMessage += $"{MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.MOD_ENTRY}\n";
                     }
                     detailedMessage += "\n";
                 }
 
                 if (versionMismatches != null && versionMismatches.Length > 0)
                 {
-                    detailedMessage += $"VERSION MISMATCHES:\n";
+                    detailedMessage += $"{MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.VERSION_MISMATCHES}\n";
                     foreach (var mod in versionMismatches)
                     {
-                        detailedMessage += $"• {mod}\n";
+                        detailedMessage += $"{MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.MOD_ENTRY}\n";
                     }
                     detailedMessage += "\n";
                 }
 
-                detailedMessage += "Install/disable mods, then reconnect.\nPress ESC to close.";
+                detailedMessage += MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.INSTALL_DISABLE_RECONNECT;
 
                 // Show the error using MultiplayerOverlay with detailed mod info
                 MultiplayerOverlay.Show(detailedMessage);
@@ -95,7 +95,7 @@ namespace ONI_MP.Menus
 
         private static void ShowViaKModalScreen(string reason, string[] missingMods, string[] extraMods, string[] versionMismatches)
         {
-            string title = "Mod Compatibility Error";
+            string title = MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.HEADER_TITLE;
             string message = BuildMessage(reason, missingMods, extraMods, versionMismatches);
 
             // Create a modal dialog similar to how the game handles critical errors
@@ -118,7 +118,7 @@ namespace ONI_MP.Menus
 
         private static void ShowViaInfoDialog(string reason, string[] missingMods, string[] extraMods, string[] versionMismatches)
         {
-            string title = "Mod Compatibility Error";
+            string title = MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.HEADER_TITLE;
             string message = BuildMessage(reason, missingMods, extraMods, versionMismatches);
 
             // Try using InfoDialogScreen instead
@@ -135,16 +135,16 @@ namespace ONI_MP.Menus
 
         private static void ShowViaNotification(string reason, string[] missingMods, string[] extraMods, string[] versionMismatches)
         {
-            string message = $"MOD COMPATIBILITY ERROR: {reason}";
+            string message = string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.HEADER_TITLE_ERROR, reason);
 
             // Add critical mods info
             if (missingMods != null && missingMods.Length > 0)
             {
-                message += $"\nMissing: {missingMods.Length} mods";
+                message += $"\n{string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.MANAGER.MISSING_MODS, missingMods.Length)}";
             }
             if (extraMods != null && extraMods.Length > 0)
             {
-                message += $"\nExtra: {extraMods.Length} mods";
+                message += $"\n{string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.MANAGER.EXTRA_MODS,extraMods.Length)}";
             }
 
             // Just log the critical message - this is the safest fallback
@@ -193,7 +193,7 @@ namespace ONI_MP.Menus
 
             if (missingMods != null && missingMods.Length > 0)
             {
-                message += "MISSING MODS (Install these):\n";
+                message += $"{MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.MISSING_MODS}\n";
                 foreach (var mod in missingMods)
                 {
                     message += $"• {mod}\n";
@@ -203,7 +203,7 @@ namespace ONI_MP.Menus
 
             if (extraMods != null && extraMods.Length > 0)
             {
-                message += "EXTRA MODS (Disable these):\n";
+                message += $"{MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.EXTRA_MODS}\n";
                 foreach (var mod in extraMods)
                 {
                     message += $"• {mod}\n";
@@ -213,7 +213,7 @@ namespace ONI_MP.Menus
 
             if (versionMismatches != null && versionMismatches.Length > 0)
             {
-                message += "VERSION MISMATCHES (Update these):\n";
+                message += $"{MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.VERSION_MISMATCHES}\n";
                 foreach (var mod in versionMismatches)
                 {
                     message += $"• {mod}\n";
@@ -221,7 +221,7 @@ namespace ONI_MP.Menus
                 message += "\n";
             }
 
-            message += "Please ensure your mods match the host's configuration.";
+            message += MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.ENSURE_HOST_CONFIG;
             return message;
         }
 

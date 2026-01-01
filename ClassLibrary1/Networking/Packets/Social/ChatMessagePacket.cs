@@ -65,7 +65,12 @@ namespace ONI_MP.Networking.Packets.Social
                 senderName = SteamFriends.GetFriendPersonaName(SenderId);
             }
 			string colorHex = ColorUtility.ToHtmlStringRGB(PlayerColor);
-			ChatScreen.QueueMessage(Timestamp, $"<color=#{colorHex}>{senderName}:</color> {Message}");
+			ChatScreen.PendingMessage message = new ChatScreen.PendingMessage()
+			{
+				timestamp = Timestamp,
+				message = string.Format("<color=#{0}>{1}:</color> {2}", colorHex, senderName, Message)
+			};
+			ChatScreen.QueueMessage(message);
 
 			if (MultiplayerSession.IsHost)
 			{

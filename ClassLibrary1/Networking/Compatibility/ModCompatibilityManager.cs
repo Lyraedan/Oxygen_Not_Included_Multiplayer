@@ -93,7 +93,7 @@ namespace ONI_MP.Networking.Compatibility
             if (!MultiplayerSession.IsHost)
             {
                 DebugConsole.LogWarning("[ModCompatibilityManager] ValidateClientMods called on non-host!");
-                return CompatibilityResult.CreateRejected("Internal error: not a host");
+                return CompatibilityResult.CreateRejected(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYRESULT.REJECT_NOT_A_HOST);
             }
 
             if (_hostMods == null)
@@ -112,7 +112,7 @@ namespace ONI_MP.Networking.Compatibility
                 var hostGameVersion = LaunchInitializer.BuildPrefix();
                 if (clientPacket.GameVersion != hostGameVersion)
                 {
-                    result.RejectReason = $"Game version mismatch: Host={hostGameVersion}, Client={clientPacket.GameVersion}";
+                    result.RejectReason = string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYRESULT.REJECT_GAME_VERSION_MISMATCH, hostGameVersion, clientPacket.GameVersion);
                     DebugConsole.Log($"[ModCompatibilityManager] {result.RejectReason}");
                     return result;
                 }
@@ -192,7 +192,7 @@ namespace ONI_MP.Networking.Compatibility
                     {
                         DebugConsole.Log($"[ModCompatibilityManager] Hash mismatch: Host={hostHash:X16}, Client={clientPacket.ModsHash:X16}");
                         // Don't reject by hash, as it could be mod order difference
-                        result.AddWarning("Mod hash mismatch - possible mod order difference");
+                        result.AddWarning(MP_STRINGS.UI.MODCOMPATIBILITY.MANAGER.WARNING_MOD_HASH_MISMATCH);
                     }
                 }
 
@@ -203,12 +203,12 @@ namespace ONI_MP.Networking.Compatibility
                     result.IsCompatible = true;
                     if (result.ExtraMods.Count > 0)
                     {
-                        result.RejectReason = $"Compatible (client has {result.ExtraMods.Count} extra mod(s))";
+                        result.RejectReason = string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYRESULT.APPROVED_EXTRA, result.ExtraMods.Count);
                         DebugConsole.Log($"[ModCompatibilityManager] Client {clientPacket.ClientSteamID} APPROVED with extra mods");
                     }
                     else
                     {
-                        result.RejectReason = "Compatible";
+                        result.RejectReason = MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYRESULT.APPROVED_COMPATIBLE;
                         DebugConsole.Log($"[ModCompatibilityManager] Client {clientPacket.ClientSteamID} APPROVED");
                     }
                 }
@@ -218,13 +218,13 @@ namespace ONI_MP.Networking.Compatibility
                     var issues = new List<string>();
 
                     if (result.MissingMods.Count > 0)
-                        issues.Add($"{result.MissingMods.Count} missing mods");
+                        issues.Add(string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.MANAGER.MISSING_MODS, result.MissingMods.Count));
                     if (result.ExtraMods.Count > 0)
-                        issues.Add($"{result.ExtraMods.Count} extra mods");
+                        issues.Add(string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.MANAGER.EXTRA_MODS, result.ExtraMods.Count));
                     if (result.VersionMismatches.Count > 0)
-                        issues.Add($"{result.VersionMismatches.Count} version mismatches");
+                        issues.Add(string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.MANAGER.VERSION_MISMATCHES, result.VersionMismatches.Count));
 
-                    result.RejectReason = $"Mod incompatibility: {string.Join(", ", issues)}";
+                    result.RejectReason = string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.MANAGER.MOD_INCOMPATIBILITY, string.Join(", ", issues));
 
                     DebugConsole.Log($"[ModCompatibilityManager] Client {clientPacket.ClientSteamID} REJECTED: {result.RejectReason}");
                 }

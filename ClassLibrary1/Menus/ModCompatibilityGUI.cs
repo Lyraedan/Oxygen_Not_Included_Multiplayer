@@ -204,7 +204,7 @@ namespace ONI_MP.Menus
             textStyle.wordWrap = true;
             textStyle.normal.textColor = new Color(1f, 1f, 1f, alpha);
 
-            GUI.Label(notificationRect, "Mods enabled successfully!\nPlease restart the game for changes to take effect.", textStyle);
+            GUI.Label(notificationRect, MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.MODS_ENABLED_SUCCESSFULLY, textStyle);
 
             GUI.color = Color.white;
         }
@@ -220,7 +220,7 @@ namespace ONI_MP.Menus
             headerStyle.alignment = TextAnchor.MiddleCenter;
             headerStyle.normal.textColor = Color.red;
 
-            GUILayout.Label("Mod Compatibility Error", headerStyle);
+            GUILayout.Label(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.HEADER_TITLE, headerStyle);
             GUILayout.Space(10);
 
             // Scroll area for content
@@ -236,7 +236,7 @@ namespace ONI_MP.Menus
                 restartStyle.alignment = TextAnchor.MiddleCenter;
                 restartStyle.normal.textColor = Color.green;
 
-                GUILayout.Label("All mods have been enabled!", restartStyle);
+                GUILayout.Label(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.ALL_MODS_ENABLED, restartStyle);
                 GUILayout.Space(10);
 
                 GUIStyle restartInstructionStyle = new GUIStyle(GUI.skin.label);
@@ -246,7 +246,7 @@ namespace ONI_MP.Menus
                 restartInstructionStyle.alignment = TextAnchor.MiddleCenter;
                 restartInstructionStyle.normal.textColor = Color.yellow;
 
-                GUILayout.Label("Close this window to restart the game and apply changes.", restartInstructionStyle);
+                GUILayout.Label(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.RESTART, restartInstructionStyle);
                 GUILayout.Space(10);
             }
             // Show modification message (if mods were changed but not all enabled yet)
@@ -259,7 +259,7 @@ namespace ONI_MP.Menus
                 modifiedStyle.alignment = TextAnchor.MiddleCenter;
                 modifiedStyle.normal.textColor = Color.cyan;
 
-                GUILayout.Label("Mods have been enabled. Close this window to restart the game.", modifiedStyle);
+                GUILayout.Label(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.MODS_CHANGED, modifiedStyle);
                 GUILayout.Space(10);
             }
             // Reason text
@@ -302,14 +302,14 @@ namespace ONI_MP.Menus
                 // Mostrar apenas mods realmente em falta
                 if (trulyMissingMods.Count > 0)
                 {
-                    DrawModSection("MISSING MODS (install these):", trulyMissingMods.ToArray(), Color.red, "Install");
+                    DrawModSection(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.MISSING_MODS, trulyMissingMods.ToArray(), Color.red, MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.BUTTON_INSTALL);
                     GUILayout.Space(10);
                 }
 
                 // Mostrar mods instalados mas desabilitados separadamente
                 if (installedButDisabledMods.Count > 0)
                 {
-                    DrawModSection("DISABLED MODS (enable these):", installedButDisabledMods.ToArray(), Color.yellow, "Enable");
+                    DrawModSection(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.DISABLE_MODS, installedButDisabledMods.ToArray(), Color.yellow, MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.BUTTON_ENABLE);
                     GUILayout.Space(10);
                 }
             }
@@ -319,19 +319,19 @@ namespace ONI_MP.Menus
                 (dialogMissingMods == null || dialogMissingMods.Length == 0) &&
                 (dialogVersionMismatches == null || dialogVersionMismatches.Length == 0))
             {
-                DrawInfoSection("You have extra mods (this is allowed):", dialogExtraMods);
+                DrawInfoSection(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.YOU_HAVE_EXTRA_MODS_ALLOWED, dialogExtraMods);
                 GUILayout.Space(10);
             }
             else if (dialogExtraMods != null && dialogExtraMods.Length > 0)
             {
-                DrawModSection("EXTRA MODS (you have these):", dialogExtraMods, Color.yellow, "View");
+                DrawModSection(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.EXTRA_MODS_YOU_HAVE, dialogExtraMods, Color.yellow, MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.BUTTON_VIEW);
                 GUILayout.Space(10);
             }
 
             // Version mismatches section
             if (dialogVersionMismatches != null && dialogVersionMismatches.Length > 0)
             {
-                DrawModSection("VERSION MISMATCHES (update these):", dialogVersionMismatches, Color.cyan, "Update");
+                DrawModSection(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.VERSION_MISMATCHES, dialogVersionMismatches, Color.cyan, MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.BUTTON_UPDATE);
                 GUILayout.Space(10);
             }
 
@@ -343,11 +343,11 @@ namespace ONI_MP.Menus
 
             if (dialogMissingMods.Length > 0 || dialogVersionMismatches.Length > 0)
             {
-                GUILayout.Label("Install/disable the required mods, then try connecting again.", instructionStyle);
+                GUILayout.Label(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.INSTRUCTIONS, instructionStyle);
             }
             else if (dialogExtraMods.Length > 0)
             {
-                GUILayout.Label("Connection allowed. Your extra mods shouldn't cause issues.", instructionStyle);
+                GUILayout.Label(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.CONNECTION_ALLOWED, instructionStyle);
             }
 
             GUILayout.EndScrollView();
@@ -391,7 +391,7 @@ namespace ONI_MP.Menus
                     installAllStyle.fontStyle = FontStyle.Bold;
                     installAllStyle.normal.textColor = Color.cyan;
 
-                    if (GUILayout.Button("Install All", installAllStyle, GUILayout.Height(35)))
+                    if (GUILayout.Button(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.BUTTON_INSTALL_ALL, installAllStyle, GUILayout.Height(35)))
                     {
                         InstallAllMods();
                     }
@@ -407,7 +407,7 @@ namespace ONI_MP.Menus
                     enableAllStyle.fontStyle = FontStyle.Bold;
                     enableAllStyle.normal.textColor = Color.green;
 
-                    if (GUILayout.Button("Enable All", enableAllStyle, GUILayout.Height(35)))
+                    if (GUILayout.Button(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.BUTTON_ENABLE_ALL, enableAllStyle, GUILayout.Height(35)))
                     {
                         EnableAllMods();
                     }
@@ -426,7 +426,7 @@ namespace ONI_MP.Menus
             buttonStyle.fontSize = 14;
             buttonStyle.fontStyle = FontStyle.Bold;
 
-            if (GUILayout.Button("Close", buttonStyle, GUILayout.Height(35)))
+            if (GUILayout.Button(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.BUTTON_CLOSE, buttonStyle, GUILayout.Height(35)))
             {
                 CloseDialog();
             }
@@ -473,7 +473,7 @@ namespace ONI_MP.Menus
                     enableButtonStyle.fontSize = 9;
                     enableButtonStyle.normal.textColor = Color.green;
 
-                    if (GUILayout.Button("Enable", enableButtonStyle, GUILayout.Width(55), GUILayout.Height(20)))
+                    if (GUILayout.Button(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.BUTTON_ENABLE, enableButtonStyle, GUILayout.Width(55), GUILayout.Height(20)))
                     {
                         EnableMod(mod);
                     }
@@ -510,7 +510,7 @@ namespace ONI_MP.Menus
                 modStyle.normal.textColor = Color.green;
                 modStyle.wordWrap = true;
 
-                GUILayout.Label($"• {mod}", modStyle);
+                GUILayout.Label(string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.MOD_ENTRY, mod), modStyle);
             }
         }
 
@@ -826,6 +826,7 @@ namespace ONI_MP.Menus
             }
         }
 
+        // This needs testing, I can't see it do anything on my end - Luke
         private void InstallAllMods()
         {
             try

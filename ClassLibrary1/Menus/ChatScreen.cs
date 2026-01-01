@@ -134,7 +134,7 @@ namespace ONI_MP.UI
 			header.transform.SetAsLastSibling();
 
 			PendingMessage init_message = GeneratePendingMessage(MP_STRINGS.UI.MP_CHATWINDOW.CHAT_INITIALIZED);
-			QueueMessage(init_message.timestamp, init_message.message);
+			QueueMessage(init_message);
 			ProcessMessageQueue();
 
 			StartCoroutine(FixInputFieldDisplay());
@@ -143,11 +143,16 @@ namespace ONI_MP.UI
 		public void ProcessMessageQueue()
 		{
 			foreach (var pending in pendingMessages)
-				QueueMessage(pending.timestamp, pending.message);
+				QueueMessage(pending);
 			pendingMessages.Clear();
 		}
 
-		public static void QueueMessage(long timestamp, string msg)
+		public static void QueueMessage(PendingMessage message)
+		{
+			QueueMessage(message.timestamp, message.message);
+		}
+
+		private static void QueueMessage(long timestamp, string msg)
 		{
 			if (string.IsNullOrEmpty(msg))
 			{
@@ -394,7 +399,7 @@ namespace ONI_MP.UI
 
 				string colorHex = ColorUtility.ToHtmlStringRGB(CursorManager.Instance.color);
 				PendingMessage message = GeneratePendingMessage($"<color=#{colorHex}>{senderName}:</color> {text}");
-				QueueMessage(message.timestamp, message.message);
+                QueueMessage(message);
 				inputField.text = "";
 
 				var packet = new ChatMessagePacket(text);

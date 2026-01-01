@@ -141,7 +141,7 @@ namespace ONI_MP.Menus
             layoutGroup.padding = new RectOffset(20, 20, 20, 20);
 
             // Create header
-            CreateHeader(panel, "Mod Compatibility Error");
+            CreateHeader(panel, MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.HEADER_TITLE);
 
             // Create content area
             CreateContent(panel, reason, missingMods, extraMods, versionMismatches);
@@ -248,10 +248,10 @@ namespace ONI_MP.Menus
             // Add missing mods section
             if (missingMods != null && missingMods.Length > 0)
             {
-                CreateTextElement(content, "MISSING MODS (install these):", new Color(1f, 0.5f, 0.5f, 1f), 14f, FontStyles.Bold);
+                CreateTextElement(content, MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.MISSING_MODS, new Color(1f, 0.5f, 0.5f, 1f), 14f, FontStyles.Bold);
                 foreach (var mod in missingMods)
                 {
-                    CreateModEntryWithButton(content, mod, "Install", new Color(1f, 0.7f, 0.7f, 1f), new Color(0.2f, 0.6f, 0.2f, 1f));
+                    CreateModEntryWithButton(content, mod, MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.BUTTON_INSTALL, new Color(1f, 0.7f, 0.7f, 1f), new Color(0.2f, 0.6f, 0.2f, 1f));
                 }
                 CreateTextElement(content, "", Color.white, 8f); // Spacer
             }
@@ -259,10 +259,10 @@ namespace ONI_MP.Menus
             // Add extra mods section
             if (extraMods != null && extraMods.Length > 0)
             {
-                CreateTextElement(content, "EXTRA MODS (disable these):", new Color(1f, 0.8f, 0.2f, 1f), 14f, FontStyles.Bold);
+                CreateTextElement(content, MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.EXTRA_MODS, new Color(1f, 0.8f, 0.2f, 1f), 14f, FontStyles.Bold);
                 foreach (var mod in extraMods)
                 {
-                    CreateModEntryWithButton(content, mod, "View", new Color(1f, 0.9f, 0.5f, 1f), new Color(0.8f, 0.4f, 0.1f, 1f));
+                    CreateModEntryWithButton(content, mod, MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.BUTTON_VIEW, new Color(1f, 0.9f, 0.5f, 1f), new Color(0.8f, 0.4f, 0.1f, 1f));
                 }
                 CreateTextElement(content, "", Color.white, 8f); // Spacer
             }
@@ -270,16 +270,16 @@ namespace ONI_MP.Menus
             // Add version mismatches section
             if (versionMismatches != null && versionMismatches.Length > 0)
             {
-                CreateTextElement(content, "VERSION MISMATCHES (update these):", new Color(0.5f, 0.8f, 1f, 1f), 14f, FontStyles.Bold);
+                CreateTextElement(content, MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.VERSION_MISMATCHES, new Color(0.5f, 0.8f, 1f, 1f), 14f, FontStyles.Bold);
                 foreach (var mod in versionMismatches)
                 {
-                    CreateModEntryWithButton(content, mod, "Update", new Color(0.7f, 0.9f, 1f, 1f), new Color(0.2f, 0.4f, 0.8f, 1f));
+                    CreateModEntryWithButton(content, mod, MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.BUTTON_UPDATE, new Color(0.7f, 0.9f, 1f, 1f), new Color(0.2f, 0.4f, 0.8f, 1f));
                 }
                 CreateTextElement(content, "", Color.white, 8f); // Spacer
             }
 
             // Add instructions
-            CreateTextElement(content, "Install/disable the required mods, then try connecting again.",
+            CreateTextElement(content, MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.INSTRUCTIONS,
                 new Color(0.8f, 0.8f, 0.8f, 1f), 12f, FontStyles.Italic);
         }
 
@@ -622,7 +622,7 @@ namespace ONI_MP.Menus
             layoutGroup.padding = new RectOffset(20, 20, 20, 20);
 
             // Create header
-            CreateInfoHeader(panel, "Connection Allowed");
+            CreateInfoHeader(panel, MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.CONNECTION_ALLOWED_HEADER);
 
             // Create content area
             CreateInfoContent(panel, extraMods);
@@ -661,19 +661,19 @@ namespace ONI_MP.Menus
         private static void CreateInfoContent(GameObject parent, string[] extraMods)
         {
             // Create content message
-            CreateTextElement(parent, $"You have {extraMods.Length} extra mod(s) that the host doesn't have.",
+            CreateTextElement(parent, string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.YOU_HAVE_EXTRA_MODS, extraMods.Length),
                 new Color(0.9f, 0.9f, 0.9f, 1f), 14f);
 
-            CreateTextElement(parent, "This is allowed and shouldn't cause issues.",
+            CreateTextElement(parent, MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.ALLOWED_SHOULDNT_CAUSE_ISSUES,
                 new Color(0.7f, 0.9f, 0.7f, 1f), 12f);
 
             CreateTextElement(parent, "", Color.white, 8f); // Spacer
 
             // Show the extra mods
-            CreateTextElement(parent, "Your extra mods:", new Color(0.8f, 0.8f, 0.8f, 1f), 12f, FontStyles.Bold);
+            CreateTextElement(parent, MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.YOUR_EXTRA_MODS, new Color(0.8f, 0.8f, 0.8f, 1f), 12f, FontStyles.Bold);
             foreach (var mod in extraMods)
             {
-                CreateTextElement(parent, $"• {mod}", new Color(0.6f, 0.8f, 0.6f, 1f), 11f);
+                CreateTextElement(parent, string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.MOD_ENTRY, mod), new Color(0.6f, 0.8f, 0.6f, 1f), 11f);
             }
         }
 
@@ -712,7 +712,7 @@ namespace ONI_MP.Menus
             buttonTextObj.transform.SetParent(buttonObj.transform, false);
 
             TextMeshProUGUI buttonText = buttonTextObj.AddComponent<TextMeshProUGUI>();
-            buttonText.text = "OK";
+            buttonText.text = MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYDIALOG.BUTTON_OK;
             buttonText.fontSize = 14f;
             buttonText.color = Color.white;
             buttonText.alignment = TextAlignmentOptions.Center;

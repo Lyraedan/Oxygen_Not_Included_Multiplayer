@@ -6,6 +6,7 @@ using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Compatibility;
 using ONI_MP.DebugTools;
 using Steamworks;
+using ONI_MP.UI;
 
 namespace ONI_MP.Networking.Packets.Handshake
 {
@@ -150,7 +151,8 @@ namespace ONI_MP.Networking.Packets.Handshake
                 if (!result.IsCompatible)
                 {
                     var clientName = SteamFriends.GetFriendPersonaName(ClientSteamID);
-                    ONI_MP.UI.ChatScreen.QueueMessage(System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), $"<color=red>System:</color> {clientName} was rejected due to mod incompatibility: {result.RejectReason}");
+                    ChatScreen.PendingMessage systemMessage = ChatScreen.GeneratePendingMessage(string.Format(MP_STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_REJECTED, clientName, result.RejectReason));
+                    ChatScreen.QueueMessage(systemMessage);
                 }
 
                 // Enviar resposta de volta
@@ -174,7 +176,7 @@ namespace ONI_MP.Networking.Packets.Handshake
                 // Send a rejection response even if there was an error
                 try
                 {
-                    var errorResult = Compatibility.CompatibilityResult.CreateRejected($"Verification error: {ex.Message}");
+                    var errorResult = CompatibilityResult.CreateRejected(string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYRESULT.REJECT_VERIFICATION_ERROR, ex.Message));
                     var response = new ModVerificationResponsePacket(ClientSteamID, errorResult);
                     PacketSender.SendToPlayer(ClientSteamID, response);
                     DebugConsole.Log("[ModVerificationPacket] Error response sent.");

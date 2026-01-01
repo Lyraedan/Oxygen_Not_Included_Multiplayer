@@ -26,7 +26,7 @@ namespace ONI_MP.Networking.Compatibility
             return new CompatibilityResult
             {
                 IsCompatible = true,
-                RejectReason = "Approved"
+                RejectReason = MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYRESULT.APPROVED
             };
         }
 
@@ -83,16 +83,16 @@ namespace ONI_MP.Networking.Compatibility
         {
             if (IsCompatible)
             {
-                return $"Compatible: {RejectReason}";
+                return string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYRESULT.COMPATIBILITY_ISCOMPATIBLE, RejectReason);
             }
             else
             {
                 var issues = new List<string>();
-                if (MissingMods.Count > 0) issues.Add($"{MissingMods.Count} missing");
-                if (ExtraMods.Count > 0) issues.Add($"{ExtraMods.Count} extra");
-                if (VersionMismatches.Count > 0) issues.Add($"{VersionMismatches.Count} version mismatches");
+                if (MissingMods.Count > 0) issues.Add(string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYRESULT.COMPATIBILITY_MISSING, MissingMods.Count));
+                if (ExtraMods.Count > 0) issues.Add(string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYRESULT.COMPATIBILITY_EXTRA, ExtraMods.Count));
+                if (VersionMismatches.Count > 0) issues.Add(string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYRESULT.COMPATIBILITY_MISMATCH, VersionMismatches.Count));
 
-                return $"Incompatible: {RejectReason} ({string.Join(", ", issues)})";
+                return string.Format(MP_STRINGS.UI.MODCOMPATIBILITY.COMPATIBILITYRESULT.COMPATIBILITY_INCOMPATIBLE, RejectReason, string.Join(", ", issues));
             }
         }
     }

@@ -201,8 +201,8 @@ namespace ONI_MP.Networking
                 }
 
 				DebugConsole.Log($"[SteamLobby] {name} joined the lobby.");
-				ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage($"<color=yellow>[System]</color> <b>{name}</b> joined the game.");
-				ChatScreen.QueueMessage(pending.timestamp, pending.message);
+				ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(MP_STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_JOINED, name));
+				ChatScreen.QueueMessage(pending);
 			}
 
 			if ((stateChange & EChatMemberStateChange.k_EChatMemberStateChangeLeft) != 0 ||
@@ -216,8 +216,8 @@ namespace ONI_MP.Networking
 
 				RefreshLobbyMembers();
 				DebugConsole.Log($"[SteamLobby] {name} left the lobby.");
-                ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage($"<color=yellow>[System]</color> <b>{name}</b> left the game.");
-                ChatScreen.QueueMessage(pending.timestamp, pending.message);
+                ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(MP_STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, name));
+                ChatScreen.QueueMessage(pending);
 			}
 		}
 
