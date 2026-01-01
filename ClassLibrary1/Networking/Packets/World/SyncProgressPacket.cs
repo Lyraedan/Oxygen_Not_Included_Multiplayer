@@ -81,7 +81,7 @@ namespace ONI_MP.Networking.Packets.World
             try
             {
                 var progressLines = new List<string>();
-                progressLines.Add("=== Client Sync Progress ===");
+                progressLines.Add(MP_STRINGS.UI.MP_OVERLAY.SYNC.CLIENT_SYNC_PROGRESS);
                 progressLines.Add("");
 
                 foreach (var kvp in ClientProgress)
@@ -91,15 +91,23 @@ namespace ONI_MP.Networking.Packets.World
 
                     // Show visual progress bar with player name
                     string progressBar = CreateProgressBar(info.ProgressPercent);
-                    string clientLine = $"{info.ClientName}: {progressBar} {info.ProgressPercent}%";
+                    string clientName = info.ClientName;
+                    bool isFriends = SteamFriends.HasFriend(client, EFriendFlags.k_EFriendFlagImmediate);
+                    if(isFriends)
+                    {
+                        // Display the friends name as we have them on our friends list
+                        clientName = SteamFriends.GetFriendPersonaName(client);
+                    }
+
+                    string clientLine = string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.CLIENT_PROGRESS, clientName, progressBar, info.ProgressPercent);
 
                     if (info.ProgressPercent < 100)
                     {
-                        clientLine += $" ({info.ReceivedChunks}/{info.TotalChunks})";
+                        clientLine += $" {string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.CLIENT_CHUNK_SYNC_DATA, info.ReceivedChunks, info.TotalChunks)}";
                     }
                     else
                     {
-                        clientLine += " [COMPLETE]";
+                        clientLine += $" {MP_STRINGS.UI.MP_OVERLAY.SYNC.CLIENT_SYNC_COMPLETE}";
                     }
 
                     progressLines.Add(clientLine);
@@ -119,7 +127,7 @@ namespace ONI_MP.Networking.Packets.World
                 if (allComplete && ClientProgress.Count > 0)
                 {
                     progressLines.Add("");
-                    progressLines.Add("*** ALL CLIENTS SYNCHRONIZED! ***");
+                    progressLines.Add(MP_STRINGS.UI.MP_OVERLAY.SYNC.ALL_CLIENTS_SYNCED);
 
                     // Clear progress display after completion
                     // Note: Could schedule removal after delay, but keeping simple for now
@@ -143,12 +151,12 @@ namespace ONI_MP.Networking.Packets.World
             for (int i = 0; i < barLength; i++)
             {
                 if (i < filled)
-                    bar += "=";  // ASCII - funciona sempre
+                    bar += MP_STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR_FILLED;  // ASCII - funciona sempre
                 else
-                    bar += "-";  // ASCII - funciona sempre
+                    bar += MP_STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR_EMPTY;  // ASCII - funciona sempre
             }
 
-            return $"[{bar}]";
+            return string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR, bar);
         }
 
         /// <summary>

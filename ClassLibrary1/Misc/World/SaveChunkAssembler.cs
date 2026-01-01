@@ -92,7 +92,7 @@ namespace ONI_MP.Misc.World
 
 				// Show initial progress bar (0%) to client
 				string initialProgressBar = CreateClientProgressBar(0);
-				string initialDisplay = $"Downloading Save File\n\n{initialProgressBar} 0%\n(0/{save.TotalChunks} chunks)";
+                string initialDisplay = string.Format(MP_STRINGS.UI.MP_OVERLAY.CLIENT.DOWNLOADING_SAVE_FILE, initialProgressBar, "0", "0", save.TotalChunks);
 				MultiplayerOverlay.Show(initialDisplay);
 			}
 
@@ -129,7 +129,7 @@ namespace ONI_MP.Misc.World
 
 			// Create visual progress bar for client
 			string progressBar = CreateClientProgressBar(percent);
-			string progressDisplay = $"Downloading Save File\n\n{progressBar} {percent}%\n({receivedChunks}/{save.TotalChunks} chunks)";
+			string progressDisplay = string.Format(MP_STRINGS.UI.MP_OVERLAY.CLIENT.DOWNLOADING_SAVE_FILE, progressBar, percent, receivedChunks, save.TotalChunks);
 
 			MultiplayerOverlay.Show(progressDisplay);
 
@@ -143,14 +143,14 @@ namespace ONI_MP.Misc.World
 			// SMART APPROACH: Check if all chunks received
 			if (save.IsComplete())
 			{
-				DebugConsole.Log($"[ChunkAssembler] ✅ Download COMPLETE for '{chunk.FileName}' - all {save.TotalChunks} chunks received!");
+				DebugConsole.Log($"[ChunkAssembler] Download COMPLETE for '{chunk.FileName}' - all {save.TotalChunks} chunks received!");
 
 				// Send final progress (100%) to host
 				SendProgressToHost(chunk.FileName, save.TotalChunks, save.TotalChunks, 100);
 
 				// Show completion visual to client
 				string completeProgressBar = CreateClientProgressBar(100);
-				string completeDisplay = $"Download Complete!\n\n{completeProgressBar} 100%\n({save.TotalChunks}/{save.TotalChunks} chunks)\n\nLoading world...";
+                string completeDisplay = string.Format(MP_STRINGS.UI.MP_OVERLAY.CLIENT.DOWNLOAD_COMPLETE, completeProgressBar, save.TotalChunks, save.TotalChunks);
 				MultiplayerOverlay.Show(completeDisplay);
 
 				InProgress.Remove(chunk.FileName);
@@ -183,12 +183,12 @@ namespace ONI_MP.Misc.World
 				save.LastCheckTime = System.DateTime.Now;
 				save.MissingChunkRequestCount++;
 
-				DebugConsole.LogWarning($"[ChunkAssembler] ⚠️ Possible transfer stall for '{fileName}' - received {receivedChunks}/{save.TotalChunks}, missing {missingChunks.Count}, contiguous: {contiguousChunks}");
+				DebugConsole.LogWarning($"[ChunkAssembler] Possible transfer stall for '{fileName}' - received {receivedChunks}/{save.TotalChunks}, missing {missingChunks.Count}, contiguous: {contiguousChunks}");
 
 				// More attempts allowed
 				if (save.MissingChunkRequestCount > 3)
 				{
-					DebugConsole.LogWarning($"[ChunkAssembler] ❌ Transfer appears stalled for '{fileName}' after 3 checks. Requesting full resend.");
+					DebugConsole.LogError($"[ChunkAssembler] Transfer appears stalled for '{fileName}' after 3 checks. Requesting full resend.", false);
 					RequestSpecificChunks(fileName, missingChunks);
 				}
 				else
@@ -262,12 +262,12 @@ namespace ONI_MP.Misc.World
 			for (int i = 0; i < barLength; i++)
 			{
 				if (i < filled)
-					bar += "=";  // Filled
+					bar += MP_STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR_FILLED;  // Filled
 				else
-					bar += "-";  // Empty
+					bar += MP_STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR_EMPTY;  // Empty
 			}
 
-			return $"[{bar}]";
+			return string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR, bar);
 		}
 
 		/// <summary>

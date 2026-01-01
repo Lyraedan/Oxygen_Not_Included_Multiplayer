@@ -221,7 +221,7 @@ namespace ONI_MP
 				public class HOST
 				{
 					public static LocString STARTINGHOSTING = "Hosting game...";
-				}
+                }
 				public class CLIENT
 				{
 					public static LocString DOWNLOADING_GAME = "Downloading world: {0}%";
@@ -229,13 +229,29 @@ namespace ONI_MP
 					public static LocString MISSING_SAVE_FILE = "Downloaded save file not found.";
 					public static LocString CONNECTING_TO_HOST = "Connecting to {0}!";
 					public static LocString WAITING_FOR_PLAYER = "Waiting for {0}...";
-				}
+
+					public static LocString DOWNLOADING_SAVE_FILE = "Downloading Save File\n\n{0} {1}%\n({2}/{3} chunks)";
+					public static LocString DOWNLOAD_COMPLETE = "Download Complete!\n\n{0} 100%\n({1}/{2} chunks)\n\nLoading world...";
+
+                }
 				public class SYNC
 				{
 					public static LocString HARDSYNC_INPROGRESS = "Hard sync in progress!";
 					public static LocString FINALIZING_SYNC = "All players are ready!\nPlease wait...";
 					public static LocString WAITING_FOR_PLAYERS_SYNC = "Waiting for players ({0}/{1} ready)...\n";
-					public class READYSTATE
+
+					// New world sync menu
+                    public static LocString CLIENT_SYNC_PROGRESS = "Client Sync Progress";
+                    public static LocString CLIENT_PROGRESS = "{0}: {1} {2}%";
+                    public static LocString CLIENT_CHUNK_SYNC_DATA = "({0}/{1})";
+                    public static LocString CLIENT_SYNC_COMPLETE = "[COMPLETE]";
+                    public static LocString ALL_CLIENTS_SYNCED = "ALL CLIENTS SYNCHRONIZED!\nWAITING FOR THEM TO LOAD!";
+
+					public static LocString PROGRESS_BAR_FILLED = "=";
+					public static LocString PROGRESS_BAR_EMPTY = "-";
+					public static LocString PROGRESS_BAR = "[{0}]";
+
+                    public class READYSTATE
 					{
 						public static LocString READY = "Ready";
 						public static LocString UNREADY = "Loading";
