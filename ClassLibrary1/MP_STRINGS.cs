@@ -247,8 +247,8 @@ namespace ONI_MP
                     public static LocString CLIENT_SYNC_COMPLETE = "[COMPLETE]";
                     public static LocString ALL_CLIENTS_SYNCED = "ALL CLIENTS SYNCHRONIZED!\nWAITING FOR THEM TO LOAD!";
 
-					public static LocString PROGRESS_BAR_FILLED = "=";
-					public static LocString PROGRESS_BAR_EMPTY = "-";
+					public static LocString PROGRESS_BAR_FILLED = "|";
+					public static LocString PROGRESS_BAR_EMPTY = " ";
 					public static LocString PROGRESS_BAR = "[{0}]";
 
                     public class READYSTATE
