@@ -2,6 +2,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
+using HarmonyLib;
 
 namespace ONI_MP.Networking.Packets.DuplicantActions
 {
@@ -80,6 +81,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 				try
 				{
 					consumer.SetPersonalPriority(targetGroup, Priority);
+					Traverse.Create(ManagementMenu.Instance.jobsScreen).Method("MarkRowsDirty")?.GetValue();
 					DebugConsole.Log($"[DuplicantPriorityPacket] Applied {ChoreGroupId} = {Priority} to {identity.name}");
 				}
 				finally
