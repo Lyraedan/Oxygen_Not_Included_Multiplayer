@@ -79,7 +79,11 @@ namespace ONI_MP.Networking.Packets.World
 			int chunksPerFrame = 2;
 			int chunksSentThisFrame = 0;
 
-			DebugConsole.Log($"[SaveFileRequest] Starting transfer of '{fileName}' ({Utils.FormatBytes(data.Length)}) to {steamID} in {totalChunks} chunks.");
+			DebugConsole.Log($"[SaveFileRequest] Starting SECURE transfer of '{fileName}' ({Utils.FormatBytes(data.Length)}) to {steamID} in {totalChunks} chunks.");
+
+			// SUA IDEIA: Registra transferência no manager para rastrear ACKs
+			string transferId = fileName.Replace(" ", "_").Replace(".sav", "");
+			SaveFileTransferManager.StartTransfer(steamID, transferId, fileName, data, chunkSize);
 
 			for (int offset = 0; offset < data.Length; /* increments manually */)
 			{
@@ -95,10 +99,22 @@ namespace ONI_MP.Networking.Packets.World
 					Chunk = chunk
 				};
 
-				bool success = PacketSender.SendToPlayer(steamID, chunkPacket);
+				// Wrap in secure transfer packet for integrity validation
+				var securePacket = new SecureTransferPacket
+				{
+					SequenceNumber = offset / chunkSize,  // Calculate chunk index from offset
+					TransferId = fileName.Replace(" ", "_").Replace(".sav", ""),
+					PayloadBytes = SecureTransferPacket.SerializeSaveFileChunk(chunkPacket)
+				};
+
+				bool success = PacketSender.SendToPlayer(steamID, securePacket);
 
 				if (success)
 				{
+					// SUA IDEIA: Marca chunk como enviado no sistema ACK
+					int chunkIndex = offset / chunkSize;
+					SaveFileTransferManager.MarkChunkSent(steamID, transferId, chunkIndex);
+
 					offset += chunkSize; // Only advance if sent successfully
 					chunksSentThisFrame++;
 					if (chunksSentThisFrame >= chunksPerFrame)
@@ -116,7 +132,7 @@ namespace ONI_MP.Networking.Packets.World
 				}
 			}
 
-			DebugConsole.Log($"[SaveFileRequest] Transfer complete. Sent {totalChunks} chunks to {steamID}.");
+			DebugConsole.Log($"[SaveFileRequest] SECURE transfer complete. Sent {totalChunks} chunks to {steamID}. Client will validate integrity.");
 		}
 
     }

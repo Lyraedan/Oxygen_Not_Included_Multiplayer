@@ -98,7 +98,6 @@ namespace ONI_MP
 
 			ReadyManager.SetupListeners();
 		}
-
 		public static AssetBundle LoadAssetBundle(string bundleKey, string resourceName)
 		{
 			if (LoadedBundles.TryGetValue(bundleKey, out var bundle))

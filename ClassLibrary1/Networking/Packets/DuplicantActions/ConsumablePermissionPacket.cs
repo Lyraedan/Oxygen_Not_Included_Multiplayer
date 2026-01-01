@@ -1,6 +1,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
+using HarmonyLib;
 
 namespace ONI_MP.Networking.Packets.DuplicantActions
 {
@@ -57,6 +58,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 			{
 				// ConsumableConsumer.SetPermitted(string consumable_id, bool is_allowed)
 				consumer.SetPermitted(ConsumableId, IsAllowed);
+				Traverse.Create(ManagementMenu.Instance.consumablesScreen).Method("MarkRowsDirty")?.GetValue();
 				// DebugConsole.Log($"[ConsumablePermissionPacket] Set {ConsumableId} to {IsAllowed} for {identity.name}");
 			}
 			finally

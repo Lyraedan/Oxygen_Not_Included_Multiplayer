@@ -4,6 +4,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Core;
 using ONI_MP.Networking.Packets.DuplicantActions;
 using ONI_MP.Networking.Packets.Events;
+using ONI_MP.Networking.Packets.Handshake;
 using ONI_MP.Networking.Packets.Social;
 using ONI_MP.Networking.Packets.Tools;
 using ONI_MP.Networking.Packets.Tools.Build;
@@ -93,8 +94,11 @@ namespace ONI_MP.Networking.Packets.Architecture
 		{
            Shared.Helpers.PacketRegistrationHelper.AutoRegisterPackets(Assembly.GetExecutingAssembly(), (t=>TryRegister(t)), out int count, out var duration);
 			DebugConsole.LogSuccess($"[PacketRegistry] Auto-registering {count} packets took {duration.TotalMilliseconds} ms");
-			//DebugConsole.LogSuccess($"[PacketRegistry] Manual Packet Registration");
-            //TryRegister(typeof(HostBroadcastPacket));
+
+			// Manual registration for our custom mod compatibility packets (if not auto-registered)
+            TryRegister(typeof(ModVerificationPacket));
+            TryRegister(typeof(ModVerificationResponsePacket));
+            TryRegister(typeof(ModListRequestPacket));
 		}
 
         public static void TryRegister(Type packetType, string nameOverride = "")

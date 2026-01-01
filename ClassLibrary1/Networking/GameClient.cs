@@ -4,6 +4,8 @@ using ONI_MP.Misc;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.World;
+using ONI_MP.Networking.Packets.Handshake;
+using ONI_MP.Networking.Compatibility;
 using ONI_MP.Networking.States;
 using ONI_MP.Patches.ToolPatches;
 using Steamworks;
@@ -27,6 +29,7 @@ namespace ONI_MP.Networking
 		private static CachedConnectionInfo? _cachedConnectionInfo = null;
 
 		public static bool IsHardSyncInProgress = false;
+		private static bool _modVerificationSent = false;
 
 		private static SteamNetConnectionRealTimeStatus_t? connectionHealth = null;
 
@@ -77,6 +80,9 @@ namespace ONI_MP.Networking
 
 		public static void ConnectToHost(CSteamID hostSteamId, bool showLoadingScreen = true)
 		{
+			// Reset mod verification for new connection attempts
+			_modVerificationSent = false;
+
 			if (showLoadingScreen)
 			{
 				MultiplayerOverlay.Show(string.Format(MP_STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTING_TO_HOST, SteamFriends.GetFriendPersonaName(hostSteamId)));
@@ -151,6 +157,8 @@ namespace ONI_MP.Networking
 				case ClientState.InGame:
 					if (Connection.HasValue)
 						ProcessIncomingMessages(Connection.Value);
+					else
+						DebugConsole.LogWarning($"[GameClient] Poll() - Connection is null! State: {State}");
 					break;
 				case ClientState.Connecting:
 				case ClientState.Disconnected:
@@ -166,6 +174,11 @@ namespace ONI_MP.Networking
 			IntPtr[] messages = new IntPtr[maxMessagesPerConnectionPoll];
 			int msgCount = SteamNetworkingSockets.ReceiveMessagesOnConnection(conn, messages, maxMessagesPerConnectionPoll);
 
+			if (msgCount > 0)
+			{
+				DebugConsole.Log($"[GameClient] ProcessIncomingMessages() - Received {msgCount} messages");
+			}
+
 			for (int i = 0; i < msgCount; i++)
 			{
 				var msg = Marshal.PtrToStructure<SteamNetworkingMessage_t>(messages[i]);
@@ -174,11 +187,12 @@ namespace ONI_MP.Networking
 
 				try
 				{
+					DebugConsole.Log($"[GameClient] Processing packet {i+1}/{msgCount}, size: {msg.m_cbSize} bytes, readyToProcess: {PacketHandler.readyToProcess}");
 					PacketHandler.HandleIncoming(data);
 				}
 				catch (Exception ex)
 				{
-					DebugConsole.LogError($"[GameClient] Failed to handle incoming packet: {ex}", false); // I'm sick and tired of you crashing the game
+					DebugConsole.LogWarning($"[GameClient] Failed to handle incoming packet: {ex}"); // Prevent crashes from packet handling
 				}
 
 				SteamNetworkingMessage_t.Release(messages[i]);
@@ -228,14 +242,82 @@ namespace ONI_MP.Networking
 			MultiplayerSession.ConnectedPlayers[hostId].Connection = Connection;
 
 			DebugConsole.Log("[GameClient] Connection to host established!");
-            ReadyManager.SendReadyStatusPacket(ClientReadyState.Unready);
 
-            if (Utils.IsInMenu())
+			// Skip mod verification if we are the host
+			if (MultiplayerSession.IsHost)
 			{
+				DebugConsole.Log("[GameClient] Skipping mod verification - we are the host");
+				ContinueConnectionFlow();
+				return;
+			}
+
+			// Reset mod verification state on new connection
+			_modVerificationSent = false;
+
+			// CRITICAL: Enable packet processing BEFORE mod verification
+			// Otherwise, the mod verification response will be discarded!
+			PacketHandler.readyToProcess = true;
+			DebugConsole.Log("[GameClient] PacketHandler.readyToProcess = true (before mod verification)");
+
+			// First step: Send mod verification packet to host (CLIENTS ONLY)
+			if (!_modVerificationSent)
+			{
+				DebugConsole.Log("[GameClient] Sending mod verification to host...");
+				// Overlay removed at user's request - verification happens silently
+
+				try
+				{
+					var modVerificationPacket = new ModVerificationPacket(MultiplayerSession.LocalSteamID);
+					PacketSender.SendToHost(modVerificationPacket);
+					_modVerificationSent = true;
+					DebugConsole.Log("[GameClient] Mod verification packet sent successfully. Waiting for response...");
+				}
+				catch (System.Exception ex)
+				{
+					DebugConsole.LogWarning($"[GameClient] Failed to send mod verification: {ex.Message}");
+					MultiplayerOverlay.Close();
+					return;
+				}
+
+				// Wait for host response before proceeding
+				return;
+			}
+
+			DebugConsole.LogWarning("[GameClient] Mod verification was sent but no response received yet. Still waiting...");
+			// We should only reach here if verification was sent but no response received yet
+
+			// Continue with normal connection flow only if mod verification passed
+			ContinueConnectionFlow();
+		}
+
+		private static void ContinueConnectionFlow()
+		{
+			// CRITICAL: Only execute on client, never on server
+			if (MultiplayerSession.IsHost)
+			{
+				DebugConsole.Log("[GameClient] ContinueConnectionFlow called on host - ignoring");
+				return;
+			}
+
+			DebugConsole.Log($"[GameClient] ContinueConnectionFlow - IsInMenu: {Utils.IsInMenu()}, IsInGame: {Utils.IsInGame()}, HardSyncInProgress: {IsHardSyncInProgress}");
+
+			ReadyManager.SendReadyStatusPacket(ClientReadyState.Unready);
+
+			if (Utils.IsInMenu())
+			{
+				DebugConsole.Log("[GameClient] Client is in menu - requesting save file or sending ready status");
+
+				// CRITICAL: Enable packet processing BEFORE requesting save file
+				// Otherwise, host packets will be discarded!
+				PacketHandler.readyToProcess = true;
+				DebugConsole.Log("[GameClient] PacketHandler.readyToProcess = true (menu)");
+
+				// Show overlay with localized message
 				MultiplayerOverlay.Show(string.Format(MP_STRINGS.UI.MP_OVERLAY.CLIENT.WAITING_FOR_PLAYER, SteamFriends.GetFriendPersonaName(MultiplayerSession.HostSteamID)));
 				if (!IsHardSyncInProgress)
 				{
-                    var packet = new SaveFileRequestPacket
+					DebugConsole.Log("[GameClient] Requesting save file from host");
+					var packet = new SaveFileRequestPacket
 					{
 						Requester = MultiplayerSession.LocalSteamID
 					};
@@ -243,23 +325,42 @@ namespace ONI_MP.Networking
 				}
 				else
 				{
+					DebugConsole.Log("[GameClient] Hard sync in progress, sending ready status");
 					// Tell the host we're ready
 					ReadyManager.SendReadyStatusPacket(ClientReadyState.Ready);
 				}
 			}
 			else if (Utils.IsInGame())
 			{
+				DebugConsole.Log("[GameClient] Client is in game - treating as reconnection");
+
 				// We're in game already. Consider this a reconnection
 				SetState(ClientState.InGame);
+
+				// CRÍTICO: Habilitar processamento de pacotes
 				PacketHandler.readyToProcess = true;
+				DebugConsole.Log("[GameClient] PacketHandler.readyToProcess = true");
+
 				if (IsHardSyncInProgress)
+				{
 					IsHardSyncInProgress = false;
+					DebugConsole.Log("[GameClient] Cleared HardSyncInProgress flag");
+				}
 
 				ReadyManager.SendReadyStatusPacket(ClientReadyState.Ready);
 				MultiplayerSession.CreateConnectedPlayerCursors();
 
 				//CursorManager.Instance.AssignColor();
 				SelectToolPatch.UpdateColor();
+
+				// Fechar overlay se reconectou com sucesso
+				MultiplayerOverlay.Close();
+
+				DebugConsole.Log("[GameClient] Reconnection setup complete");
+			}
+			else
+			{
+				DebugConsole.LogWarning("[GameClient] Client is neither in menu nor in game - unexpected state");
 			}
 		}
 
@@ -473,6 +574,86 @@ namespace ONI_MP.Networking
 		{
 			_pollingPaused = false;
 			DebugConsole.Log("[GameClient] Networking callbacks resumed.");
+		}
+
+		public static void OnModVerificationApproved()
+		{
+			DebugConsole.Log("[GameClient] Mod verification approved by host!");
+
+			// DO NOT close overlay here - let connection flow manage it
+			DebugConsole.Log("[GameClient] Mod verification approved, continuing connection flow");
+
+			// Continue with normal connection flow
+			ContinueConnectionFlow();
+		}
+
+		public static void OnModVerificationRejected(string reason, string[] missingMods, string[] extraMods, string[] versionMismatches, ulong[] steamModIds)
+		{
+			DebugConsole.Log($"[GameClient] Mod verification REJECTED by host: {reason}");
+			DebugConsole.Log($"[GameClient] Steam mods available for auto-install: {steamModIds?.Length ?? 0}");
+			DebugConsole.Log("[GameClient] Disconnecting client due to mod incompatibility...");
+
+			// Show detailed error to user with option to install mods
+			ShowModIncompatibilityError(reason, missingMods, extraMods, versionMismatches, steamModIds);
+
+			// Disconnect from host immediately
+			Disconnect();
+
+			DebugConsole.Log("[GameClient] Client disconnected successfully due to mod incompatibility");
+		}
+
+		private static void ShowModIncompatibilityError(string reason, string[] missingMods, string[] extraMods, string[] versionMismatches, ulong[] steamModIds)
+		{
+			try
+			{
+				// DO NOT close MultiplayerOverlay here - we need it to show the error message
+				// MultiplayerOverlay.Close(); // REMOVED - was causing popup to disappear
+
+				// Build detailed error message for console log
+				var errorMessage = $"Mod compatibility check failed:\n{reason}\n\n";
+
+				if (missingMods != null && missingMods.Length > 0)
+				{
+					errorMessage += $"Missing mods (install these):\n";
+					foreach (var mod in missingMods)
+					{
+						errorMessage += $"• {mod}\n";
+					}
+					errorMessage += "\n";
+				}
+
+				if (extraMods != null && extraMods.Length > 0)
+				{
+					errorMessage += $"Extra mods (disable these):\n";
+					foreach (var mod in extraMods)
+					{
+						errorMessage += $"• {mod}\n";
+					}
+					errorMessage += "\n";
+				}
+
+				if (versionMismatches != null && versionMismatches.Length > 0)
+				{
+					errorMessage += $"Version mismatches (update these):\n";
+					foreach (var mod in versionMismatches)
+					{
+						errorMessage += $"• {mod}\n";
+					}
+					errorMessage += "\n";
+				}
+
+				errorMessage += "Please ensure your mods match the host's configuration.";
+
+				// Log error to console
+				DebugConsole.Log($"[GameClient] {errorMessage}");
+
+				// Show UI popup with mod compatibility details with auto-install option - this will keep overlay visible
+				ModCompatibilityPopup.ShowIncompatibilityError(reason, missingMods, extraMods, versionMismatches, steamModIds);
+			}
+			catch (Exception ex)
+			{
+				DebugConsole.LogWarning($"[GameClient] Error showing mod incompatibility dialog: {ex.Message}");
+			}
 		}
 
 		public static void DisableMessageHandlers()

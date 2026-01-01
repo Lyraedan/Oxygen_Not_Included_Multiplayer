@@ -69,6 +69,13 @@ namespace ONI_MP.Networking
 		/// </summary>
 		public static bool SendToPlayer(CSteamID steamID, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
 		{
+			// Prevent host from sending packets to itself (can cause loops and errors)
+			if (MultiplayerSession.IsHost && steamID == MultiplayerSession.HostSteamID)
+			{
+				DebugConsole.LogWarning($"[PacketSender] Host attempted to send packet {packet.GetType().Name} to itself - blocked");
+				return false;
+			}
+
 			if (!MultiplayerSession.ConnectedPlayers.TryGetValue(steamID, out var player) || player.Connection == null)
 			{
 				DebugConsole.LogWarning($"[PacketSender] No connection found for SteamID {steamID}");
