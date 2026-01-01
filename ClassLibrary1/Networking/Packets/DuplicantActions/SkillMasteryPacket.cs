@@ -1,6 +1,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
+using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.DuplicantActions
 {
@@ -81,6 +82,10 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 				// But for now, let's call the game method.
 
 				resume.MasterSkill(SkillId); // This deducts points and triggers effects.
+
+				SkillsScreen skillScreen = Object.FindObjectOfType< SkillsScreen >();
+				if( skillScreen != null )
+					skillScreen.RefreshAll();
 
 				DebugConsole.Log($"[SkillMasteryPacket] Applied Skill {SkillId} to {identity.name}");
 			}
