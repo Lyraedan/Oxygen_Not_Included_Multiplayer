@@ -1,14 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <Nullable>enable</Nullable>
-	  <IsPacked>true</IsPacked>
-	  <DoNotBuildAsMod>true</DoNotBuildAsMod>
+    <IsPacked>true</IsPacked>
+    <DoNotBuildAsMod>true</DoNotBuildAsMod>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
-
 </Project>
