@@ -1,4 +1,5 @@
 ﻿using ONI_MP.DebugTools;
+using ONI_MP.Menus;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
@@ -154,10 +155,33 @@ namespace ONI_MP.Networking
 		private static void OnLobbyJoinRequested(GameLobbyJoinRequested_t callback)
 		{
 			DebugConsole.Log($"[SteamLobby] Joining lobby invited by {callback.m_steamIDFriend}");
-			JoinLobby(callback.m_steamIDLobby);
-		}
+			CSteamID lobbyId = callback.m_steamIDLobby;
 
-		private static void OnLobbyEntered(LobbyEnter_t callback)
+            SteamMatchmaking.RequestLobbyData(lobbyId);
+            CoroutineRunner.RunOne(CheckLobbyPasswordAfterDelay(lobbyId));
+        }
+
+        private static System.Collections.IEnumerator CheckLobbyPasswordAfterDelay(CSteamID lobbyId)
+        {
+            yield return new WaitForSeconds(0.5f);
+
+            // Check if lobby requires password
+            string hasPassword = SteamMatchmaking.GetLobbyData(lobbyId, "has_password");
+
+            if (hasPassword == "1")
+            {
+                // Display password entry
+                var canvas = UnityEngine.Object.FindObjectOfType<Canvas>();
+                LobbyBrowserScreen.ShowPasswordDialog(canvas.transform, lobbyId);
+            }
+            else
+            {
+                // No password needed, join directly
+                JoinLobby(lobbyId);
+            }
+        }
+
+        private static void OnLobbyEntered(LobbyEnter_t callback)
 		{
 			CurrentLobby = new CSteamID(callback.m_ulSteamIDLobby);
 			DebugConsole.Log($"[SteamLobby] Entered lobby: {CurrentLobby}");

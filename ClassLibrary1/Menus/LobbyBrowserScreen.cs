@@ -510,7 +510,12 @@ namespace ONI_MP.Menus
             }
         }
 
-        private void ShowPasswordDialog(Transform parent, LobbyListEntry lobby)
+        public static void ShowPasswordDialog(Transform parent, LobbyListEntry lobby)
+        {
+            ShowPasswordDialog(parent, lobby.LobbyId);
+        }
+
+        public static void ShowPasswordDialog(Transform parent, CSteamID lobbyID)
         {
             // Create password dialog
             var dialogGO = new GameObject("PasswordDialog", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
@@ -607,10 +612,10 @@ namespace ONI_MP.Menus
             CreateButton(btnContainer.transform, MP_STRINGS.UI.SERVERBROWSER.JOIN_BUTTON, () =>
             {
                 string password = inputField.text;
-                if (SteamLobby.ValidateLobbyPassword(lobby.LobbyId, password))
+                if (SteamLobby.ValidateLobbyPassword(lobbyID, password))
                 {
                     Destroy(dialogGO);
-                    SteamLobby.JoinLobby(lobby.LobbyId, (lobbyId) =>
+                    SteamLobby.JoinLobby(lobbyID, (lobbyId) =>
                     {
                         DebugConsole.Log($"[LobbyBrowser] Successfully joined lobby: {lobbyId}");
                         Close();
@@ -646,7 +651,7 @@ namespace ONI_MP.Menus
             return tmp;
         }
 
-        private void CreateButton(Transform parent, string text, System.Action onClick, float width, float height, bool is_button_interactable = true)
+        public static void CreateButton(Transform parent, string text, System.Action onClick, float width, float height, bool is_button_interactable = true)
         {
             var mainMenu = FindObjectOfType<MainMenu>();
             var templateButton = mainMenu?.Button_NewGame;
