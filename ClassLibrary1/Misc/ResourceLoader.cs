@@ -71,6 +71,43 @@ namespace ONI_MP.Misc
 			return shader;
 		}
 
+        public static GameObject LoadGameObjectFromBundle(string bundleKey, string prefabName)
+        {
+            if (!MultiplayerMod.LoadedBundles.TryGetValue(bundleKey, out var bundle))
+            {
+                DebugConsole.LogError($"LoadGameObjectFromBundle: AssetBundle with key '{bundleKey}' is not loaded!");
+                return null;
+            }
 
-	}
+            GameObject prefab = bundle.LoadAsset<GameObject>(prefabName);
+            if (prefab == null)
+            {
+                DebugConsole.LogError($"LoadGameObjectFromBundle: GameObject '{prefabName}' not found in bundle '{bundleKey}'!");
+            }
+            else
+            {
+                DebugConsole.Log($"LoadGameObjectFromBundle: Successfully loaded GameObject '{prefabName}' from bundle '{bundleKey}'.");
+            }
+
+            return prefab;
+        }
+
+        public static GameObject InstantiateGameObjectFromBundle(string bundleKey, string prefabName, Transform parent = null, Vector3? position = null, Quaternion? rotation = null)
+        {
+            GameObject prefab = LoadGameObjectFromBundle(bundleKey, prefabName);
+            if (prefab == null)
+                return null;
+
+            GameObject instance = Object.Instantiate(
+                prefab,
+                position ?? Vector3.zero,
+                rotation ?? Quaternion.identity,
+                parent
+            );
+
+            return instance;
+        }
+
+
+    }
 }
