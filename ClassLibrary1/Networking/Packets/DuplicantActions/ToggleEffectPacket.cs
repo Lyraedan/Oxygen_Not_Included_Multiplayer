@@ -56,11 +56,11 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 			if(!NetworkIdentityRegistry.TryGet(MinionNetId, out var minionId))
 			{
-				DebugConsole.LogError("Could not find minion with net id " + MinionNetId + " to toggle effect " + EffectId + " to " + (IsAdding ? "on" : "off"));
+				DebugConsole.LogError("Could not find minion with net id " + MinionNetId + " to toggle effect " + EffectId + " to " + (IsAdding ? "on" : "off"), false);
 			}
 			if(!minionId.TryGetComponent<Effects>(out var minionEffects))
 			{
-				DebugConsole.LogError("Could not find effects instance on minion "+minionId.gameObject.GetProperName());
+				DebugConsole.LogError("Could not find effects instance on minion "+minionId.gameObject.GetProperName(), false);
 			}
 			if (IsAdding)
 			{
