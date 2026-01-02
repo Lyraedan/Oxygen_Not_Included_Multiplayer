@@ -96,7 +96,7 @@ namespace ONI_MP.Networking
 			SetColor(Color.white);
 			SetVisibility(false);
 
-			playerCursorShader = ResourceLoader.LoadShaderFromBundle("playercursorbundle", "assets/playercursoraction/playercursoraction.shader");
+			playerCursorShader = ResourceLoader.LoadFromBundle<Shader>("playercursorbundle", "assets/playercursoraction/playercursoraction.shader");
 
 			if (playerCursorShader != null)
 			{

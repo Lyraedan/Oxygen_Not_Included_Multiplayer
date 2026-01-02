@@ -27,6 +27,8 @@ namespace ONI_MP.Misc
 			}
 		}
 
+		// TODO: Maybe add caching to these asset bundle functions, Would it be easier to have a typed <T> loader instead of individual functions?
+
 		public static AssetBundle LoadEmbeddedAssetBundle(string resourceName)
 		{
 			var assembly = Assembly.GetExecutingAssembly();
@@ -50,51 +52,29 @@ namespace ONI_MP.Misc
 			}
 		}
 
-		public static Shader LoadShaderFromBundle(string bundleKey, string shaderName)
-		{
-			if (!MultiplayerMod.LoadedBundles.TryGetValue(bundleKey, out var bundle))
-			{
-				DebugConsole.LogError($"LoadShaderFromBundle: AssetBundle with key '{bundleKey}' is not loaded!");
-				return null;
-			}
-
-			Shader shader = bundle.LoadAsset<Shader>(shaderName);
-			if (shader == null)
-			{
-				DebugConsole.LogError($"LoadShaderFromBundle: Shader '{shaderName}' not found in bundle '{bundleKey}'!");
-			}
-			else
-			{
-				DebugConsole.Log($"LoadShaderFromBundle: Successfully loaded shader '{shaderName}' from bundle '{bundleKey}'.");
-			}
-
-			return shader;
-		}
-
-        public static GameObject LoadGameObjectFromBundle(string bundleKey, string prefabName)
+		public static T LoadFromBundle<T>(string bundleKey, string resourceName) where T : UnityEngine.Object
         {
-            if (!MultiplayerMod.LoadedBundles.TryGetValue(bundleKey, out var bundle))
-            {
-                DebugConsole.LogError($"LoadGameObjectFromBundle: AssetBundle with key '{bundleKey}' is not loaded!");
-                return null;
+			if(!MultiplayerMod.LoadedBundles.TryGetValue(bundleKey, out var bundle))
+			{
+                DebugConsole.LogError($"LoadFromBundle: AssetBundle with key '{bundleKey}' is not loaded!");
+				return null;
             }
 
-            GameObject prefab = bundle.LoadAsset<GameObject>(prefabName);
-            if (prefab == null)
-            {
-                DebugConsole.LogError($"LoadGameObjectFromBundle: GameObject '{prefabName}' not found in bundle '{bundleKey}'!");
-            }
-            else
-            {
-                DebugConsole.Log($"LoadGameObjectFromBundle: Successfully loaded GameObject '{prefabName}' from bundle '{bundleKey}'.");
+			T asset = bundle.LoadAsset<T>(resourceName);
+			if (asset == null)
+			{
+                DebugConsole.LogError($"LoadFromBundle: Asset '{resourceName}' not found in bundle '{bundleKey}'!");
+            } else
+			{
+                DebugConsole.Log($"LoadShaderFromBundle: Successfully loaded asset '{resourceName}' from bundle '{bundleKey}'.");
             }
 
-            return prefab;
+			return asset;
         }
 
         public static GameObject InstantiateGameObjectFromBundle(string bundleKey, string prefabName, Transform parent = null, Vector3? position = null, Quaternion? rotation = null)
         {
-            GameObject prefab = LoadGameObjectFromBundle(bundleKey, prefabName);
+            GameObject prefab = LoadFromBundle<GameObject>(bundleKey, prefabName);
             if (prefab == null)
                 return null;
 
