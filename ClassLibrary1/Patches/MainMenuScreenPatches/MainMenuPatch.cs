@@ -303,13 +303,6 @@ internal static class MainMenuPatch
 		var discordSprite = ResourceLoader.LoadEmbeddedTexture("ONI_MP.Assets.discord.png");
 		AddSocialButton(socialsContainer.transform, MP_STRINGS.UI.MAINMENU.DISCORD_INFO, "https://discord.gg/jpxveK6mmY", discordSprite);
 
-		/*
-		var statusSprite = ResourceLoader.LoadEmbeddedTexture("ONI_MP.Assets.cloud_status.png");
-		AddStatusIndicator(socialsContainer.transform, "cloud_indicator", GoogleDrive.Instance.IsInitialized, statusSprite,
-				new string[] { "Multiplayer Hosting: Not Ready!\n<color=#FFFF00>Click to view guide</color>", "Multiplayer Hosting: Ready!" },
-				new string[] { "https://github.com/Lyraedan/Oxygen_Not_Included_Multiplayer/wiki/Google-Drive-Setup-Guide ", "" });
-		*/
-
 		// Automatically resize the container to properly fit the buttons
 		int buttonCount = socialsContainer.transform.childCount;
 		float buttonWidth = 96f;
@@ -354,41 +347,6 @@ internal static class MainMenuPatch
 		button.onClick.AddListener(() =>
 		{
 			Application.OpenURL(url);
-		});
-	}
-
-	private static void AddStatusIndicator(Transform parent, string id, bool state, Texture2D spriteSheet, string[] tooltips, string[] urls)
-	{
-		if (spriteSheet == null)
-			return;
-
-		GameObject buttonGO = new GameObject($"SocialButton_{id}", typeof(RectTransform));
-		buttonGO.transform.SetParent(parent, false);
-
-		var buttonImage = buttonGO.AddComponent<Image>();
-
-		var button = buttonGO.AddComponent<Button>();
-
-		var rectTransform = button.GetComponent<RectTransform>();
-		rectTransform.sizeDelta = new Vector2(96f, 96f);
-
-		// slice the spritesheet (3 frames horizontally)
-		Sprite falseState = Sprite.Create(spriteSheet, new Rect(0, 0, 512, 512), new Vector2(0.5f, 0.5f));
-		Sprite trueState = Sprite.Create(spriteSheet, new Rect(512, 0, 512, 512), new Vector2(0.5f, 0.5f));
-
-		buttonImage.sprite = state ? trueState : falseState;
-
-		var tooltipComp = buttonGO.AddComponent<ToolTip>();
-		string tooltip = state ? tooltips[1] : tooltips[0];
-		tooltipComp.toolTip = tooltip;
-
-		button.onClick.AddListener(() =>
-		{
-			string url = state ? urls[1] : urls[0];
-			if (!string.IsNullOrEmpty(url))
-			{
-				Application.OpenURL(url);
-			}
 		});
 	}
 }
