@@ -15,7 +15,7 @@ namespace ONI_MP.Networking
 			int id;
 			do
 			{
-				id = new Guid().GetHashCode();
+				id = rng.Next(100000, 1000000000); // Stay below deterministic range (1B+)
 			} while (identities.ContainsKey(id));
 
 			identities[id] = entity;
