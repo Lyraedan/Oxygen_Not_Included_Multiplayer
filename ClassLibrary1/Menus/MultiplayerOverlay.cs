@@ -109,7 +109,10 @@ namespace ONI_MP.Menus
 
 		public static void Show(string text)
 		{
-			overlay = new MultiplayerOverlay();
+			if (overlay == null)
+			{
+				overlay = new MultiplayerOverlay();
+			}
 			Text = text;
 		}
 

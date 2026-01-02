@@ -84,8 +84,8 @@ namespace ONI_MP
 		{
 			// Load custom asset bundles
 			string cursor_bundle = GetBundleBasedOnPlatform("ONI_MP.Assets.bundles.playercursor_win.bundle",
-																											"ONI_MP.Assets.bundles.playercursor_mac.bundle",
-																											"ONI_MP.Assets.bundles.playercursor_lin.bundle");
+															"ONI_MP.Assets.bundles.playercursor_mac.bundle",
+															"ONI_MP.Assets.bundles.playercursor_lin.bundle");
 			LoadAssetBundle("playercursorbundle", cursor_bundle);
 		}
 
@@ -112,21 +112,21 @@ namespace ONI_MP
 			if (bundle != null)
 			{
 				LoadedBundles[bundleKey] = bundle;
-				DebugConsole.Log($"LoadAssetBundle: Successfully loaded AssetBundle '{bundleKey}' from resource '{resourceName}'.");
+				DebugConsole.LogSuccess($"LoadAssetBundle: Successfully loaded AssetBundle '{bundleKey}' from resource '{resourceName}'.");
 
 				foreach (var name in bundle.GetAllAssetNames())
 				{
-					DebugConsole.Log($"[ONI_MP] Bundle Asset: {name}");
+					DebugConsole.LogAssert($"[ONI_MP] Bundle Asset: {name}");
 				}
 
 				foreach (var name in bundle.GetAllScenePaths())
 				{
-					DebugConsole.Log($"[ONI_MP] Scene: {name}");
+					DebugConsole.LogAssert($"[ONI_MP] Scene: {name}");
 				}
 
 				foreach (var name in bundle.GetAllAssetNames())
 				{
-					DebugConsole.Log($"[ONI_MP] Asset: {name}");
+					DebugConsole.LogAssert($"[ONI_MP] Asset: {name}");
 				}
 				return bundle;
 			}
