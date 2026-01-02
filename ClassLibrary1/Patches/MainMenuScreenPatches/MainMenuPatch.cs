@@ -286,7 +286,7 @@ internal static class MainMenuPatch
 
 		// place right next to the promos
 		socialsRect.anchoredPosition = new Vector2(
-				promoContainer.GetComponent<RectTransform>().anchoredPosition.x + 920f,
+				promoContainer.GetComponent<RectTransform>().anchoredPosition.x + 925f,
 				30f
 		);
 
