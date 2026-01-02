@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using ONI_MP;
+using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
 using Steamworks;
@@ -63,35 +64,18 @@ internal static class MainMenuPatch
 
 	private static void UpdatePlacements(MainMenu __instance)
 	{
-		var buttonParent = Traverse.Create(__instance).Field("buttonParent").GetValue<GameObject>();
+		var buttonParent = __instance.buttonParent;
 		if (buttonParent != null)
 		{
 			var children = buttonParent.GetComponentsInChildren<KButton>(true);
 
-            var newGameBtn = children.FirstOrDefault(b =>
-                    b.GetComponentInChildren<LocText>()?.text.ToUpper().Contains("NEW GAME") == true);
-
-            // Find "Load Game" button
-            var loadGameBtn = children.FirstOrDefault(b =>
-					b.GetComponentInChildren<LocText>()?.text.ToUpper().Contains("LOAD GAME") == true);
-
 			// Find Multiplayer button
-			var multiplayerBtn = children.FirstOrDefault(b =>
-					b.GetComponentInChildren<LocText>()?.text.ToUpper().Contains("MULTIPLAYER") == true);
+			var multiplayerBtn = children.FirstOrDefault(b => b.GetComponentInChildren<LocText>()?.text.ToUpper().Contains(MP_STRINGS.UI.MAINMENU.MULTIPLAYER.LABEL) == true);
 
-			if (loadGameBtn != null && multiplayerBtn != null)
-			{
-				int loadGameIdx = loadGameBtn.transform.GetSiblingIndex();
-				// Move Multiplayer immediately after "Load Game"
-				multiplayerBtn.transform.SetSiblingIndex(loadGameIdx + 1);
-			} else if(loadGameBtn == null && newGameBtn != null && multiplayerBtn != null)
-			{
-				int newGameIdx = newGameBtn.transform.GetSiblingIndex();
-                // Move Multiplayer immediately after "New Game"
-                multiplayerBtn.transform.SetSiblingIndex(newGameIdx + 1);
-            }
+			int siblingIndex = children.Length >= 10 ? 4 : 3;
+            multiplayerBtn.transform.SetSiblingIndex(siblingIndex);
         }
-	}
+    }
 
 	private static void UpdateLogo()
 	{
@@ -220,11 +204,23 @@ internal static class MainMenuPatch
 		socialsRect.anchorMax = new Vector2(0f, 0f);
 		socialsRect.pivot = new Vector2(0f, 0f);
 
-		// place right next to the promos
-		socialsRect.anchoredPosition = new Vector2(
-				promoContainer.GetComponent<RectTransform>().anchoredPosition.x + 925f,
-				30f
-		);
+		bool spacedOutEnabled = DlcManager.IsContentSubscribed(DlcManager.EXPANSION1_ID);
+		DebugConsole.Log($"Spacedout enabled: {spacedOutEnabled}");
+		if (!spacedOutEnabled)
+		{
+			// place right next to the promos
+			socialsRect.anchoredPosition = new Vector2(
+					promoContainer.GetComponent<RectTransform>().anchoredPosition.x + 925f,
+					30f
+			);
+		} else
+		{
+			// place left next to promos
+            socialsRect.anchoredPosition = new Vector2(
+                    promoContainer.GetComponent<RectTransform>().anchoredPosition.x - 525f,
+                    30f
+            );
+        }
 
 
 		var layout = socialsContainer.AddComponent<HorizontalLayoutGroup>();
