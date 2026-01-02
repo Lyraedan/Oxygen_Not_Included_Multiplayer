@@ -27,7 +27,7 @@ namespace ONI_MP.Networking.Packets.Social
 		{
 			if (!MultiplayerSession.InSession) return;
 
-			DebugConsole.Log($"[ImmigrantSelectionPacket] Received selection: world index {PrintingPodWorldIndex}, IsHost: {MultiplayerSession.IsHost}");
+			DebugConsole.Log($"[ImmigrantSelectionPacket] Received selection: world index {PrintingPodWorldIndex}, IsHost: {MultiplayerSession.IsHost} with id: {selectedOption.GetId()}");
 
 			// Handle client receiving notification from host
 			if (!MultiplayerSession.IsHost)
@@ -119,14 +119,15 @@ namespace ONI_MP.Networking.Packets.Social
 						//telepad.OnAcceptDelivery(stats);
 						///Delivery is handled via EntityDeliverPatch to send EntitySpawnPacket
 						DebugConsole.Log($"[ImmigrantSelectionPacket] Spawned duplicant via Telepad: {opt.Name}");
+						telepad.OnAcceptDelivery(deliverable);
 					}
 					else if (deliverable is CarePackageInfo pkg)
 					{
 						//var spawnedGO = pkg.Deliver(position);
 						///Delivery is handled via EntityDeliverPatch to send EntitySpawnPacket
 						DebugConsole.Log($"[ImmigrantSelectionPacket] Spawned care package via Telepad: {opt.CarePackageId} x{opt.Quantity}");
+						telepad.OnAcceptDelivery(deliverable);
 					}
-					telepad.OnAcceptDelivery(deliverable);
 
 					// Clear options and notify clients (with -2 to just close screens, EntitySpawnPacket handles spawning)
 					ONI_MP.Patches.GamePatches.ImmigrantScreenPatch.ClearOptionsLock();
