@@ -152,7 +152,7 @@ namespace ONI_MP.Patches.World.SideScreen
 			else PacketSender.SendToHost(packet);
 		}
 
-        public static void SyncBuildingEnabledStateChange(GameObject target, bool queuedToggle)
+        public static void SyncQueueBuildingEnabledToggle(GameObject target, bool queuedToggle)
         {
             if (BuildingConfigPacket.IsApplyingPacket) return;
             if (target == null) return;
@@ -164,13 +164,38 @@ namespace ONI_MP.Patches.World.SideScreen
             {
                 NetId = identity.NetId,
                 Cell = Grid.PosToCell(target),
-                ConfigHash = "BuildingEnableState".GetHashCode(),
+                ConfigHash = "QueueBuildingEnableStateChange".GetHashCode(),
                 Value = queuedToggle ? 1f : 0f,
                 ConfigType = BuildingConfigType.Boolean
             };
 
+            DebugConsole.Log($"[SideScreenSyncHelper.SyncQueueBuildingEnabledToggle] Sending packet: ConfigHash={packet.ConfigHash}, Value={packet.Value}");
+
             if (MultiplayerSession.IsHost) PacketSender.SendToAllClients(packet);
             else PacketSender.SendToHost(packet);
         }
+
+        public static void SyncBuildingEnabledChange(GameObject target, bool buildingEnabled)
+        {
+            if (BuildingConfigPacket.IsApplyingPacket) return;
+            if (target == null) return;
+
+            var identity = target.AddOrGet<NetworkIdentity>();
+            identity.RegisterIdentity();
+
+            var packet = new BuildingConfigPacket
+			{
+				NetId = identity.NetId,
+				Cell = Grid.PosToCell(target),
+				ConfigHash = "BuildingEnableStateChange".GetHashCode(),
+				Value = buildingEnabled ? 1f : 0f,
+				ConfigType = BuildingConfigType.Boolean
+			};
+
+            DebugConsole.Log($"[SideScreenSyncHelper.SyncBuildingEnabledChange] Sending packet: ConfigHash={packet.ConfigHash}, Value={packet.Value}");
+
+            // Only hosts sync building enabled state to clients
+            if (MultiplayerSession.IsHost) PacketSender.SendToAllClients(packet);
+		}
     }
 }
