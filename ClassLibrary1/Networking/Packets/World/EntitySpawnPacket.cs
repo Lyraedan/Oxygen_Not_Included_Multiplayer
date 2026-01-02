@@ -50,9 +50,10 @@ namespace ONI_MP.Networking.Packets.World
 				GameObject entity = deliverable.Deliver(Pos);
 				NetworkIdentity identity = entity.AddOrGet<NetworkIdentity>();
 				identity.OverrideNetId(NetId);
-				if (EntityData.IsDuplicant && entity.TryGetComponent<KBatchedAnimController>(out var kbac))
+				///this is somewhat of a hack to force playing the "throw out of the printer" anim instead of being invisible
+				if (EntityData.IsDuplicant && entity.TryGetComponent<ChoreProvider>(out var choreProvider))
 				{
-					kbac.Play("anim_interacts_portal_kanim");
+					EmoteChore emoteChore = new EmoteChore(choreProvider, Db.Get().ChoreTypes.EmoteHighPriority, (HashedString)"anim_interacts_portal_kanim", Telepad.PortalBirthAnim);
 				}
 			}
 			catch (System.Exception ex)
