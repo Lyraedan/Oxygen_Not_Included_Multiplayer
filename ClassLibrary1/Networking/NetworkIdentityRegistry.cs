@@ -1,5 +1,6 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Networking.Components;
+using System;
 using System.Collections.Generic;
 
 namespace ONI_MP.Networking
@@ -14,7 +15,7 @@ namespace ONI_MP.Networking
 			int id;
 			do
 			{
-				id = rng.Next(100000, 1000000000); // Stay below deterministic range (1B+)
+				id = new Guid().GetHashCode();
 			} while (identities.ContainsKey(id));
 
 			identities[id] = entity;
@@ -52,6 +53,7 @@ namespace ONI_MP.Networking
 				DebugConsole.Log($"[NetEntityRegistry] Registered overridden NetId {netId} for {entity.name}");
 			}
 		}
+		public static bool Exists(int netId) => identities.ContainsKey(netId);
 
 
 

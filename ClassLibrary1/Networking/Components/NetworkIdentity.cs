@@ -37,10 +37,18 @@ namespace ONI_MP.Networking.Components
 			// Try to handle deterministic ID for buildings first
 			if (NetId == 0)
 			{
-				var building = GetComponent<Building>();
-				if (building != null)
+				if (TryGetComponent<Building>(out var building))
 				{
 					int detId = NetIdHelper.GetDeterministicBuildingId(gameObject);
+					if (detId != 0)
+					{
+						NetId = detId;
+						// DebugConsole.Log($"[NetworkIdentity] Generated Deterministic NetId {detId} for building {gameObject.name}");
+					}
+				}
+				else 
+				{
+					int detId = NetIdHelper.GetDeterministicEntityId(gameObject);
 					if (detId != 0)
 					{
 						NetId = detId;
