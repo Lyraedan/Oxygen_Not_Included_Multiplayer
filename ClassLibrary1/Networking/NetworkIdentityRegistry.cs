@@ -2,6 +2,7 @@
 using ONI_MP.Networking.Components;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace ONI_MP.Networking
 {
@@ -12,10 +13,10 @@ namespace ONI_MP.Networking
 
 		public static int Register(NetworkIdentity entity)
 		{
-			int id;
+			int id, attempt = 0;
 			do
 			{
-				id = rng.Next(100000, 1000000000); // Stay below deterministic range (1B+)
+				id = Guid.NewGuid().GetHashCode() + attempt++;
 			} while (identities.ContainsKey(id));
 
 			identities[id] = entity;

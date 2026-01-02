@@ -47,6 +47,9 @@ namespace ONI_MP.Patches.Duplicant
 			{
 				if (!MultiplayerSession.InSession) return true;
 
+				if (!__instance.HasTag(GameTags.BaseMinion))
+					return true;
+
 				if (MultiplayerSession.IsClient && !TogglingEffectFromPacket)
 					return false;
 
@@ -65,6 +68,9 @@ namespace ONI_MP.Patches.Duplicant
 				if (!MultiplayerSession.InSession) return true;
 				if (MultiplayerSession.IsClient && !TogglingEffectFromPacket)
 					return false;
+
+				if (!__instance.HasTag(GameTags.BaseMinion))
+					return true;
 
 				if (MultiplayerSession.IsHost)
 					PacketSender.SendToAllClients(new ToggleEffectPacket(__instance, effect_id));
