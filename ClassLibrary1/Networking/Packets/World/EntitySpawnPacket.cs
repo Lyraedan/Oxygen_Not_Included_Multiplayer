@@ -50,6 +50,10 @@ namespace ONI_MP.Networking.Packets.World
 				GameObject entity = deliverable.Deliver(Pos);
 				NetworkIdentity identity = entity.AddOrGet<NetworkIdentity>();
 				identity.OverrideNetId(NetId);
+				if (EntityData.IsDuplicant && entity.TryGetComponent<KBatchedAnimController>(out var kbac))
+				{
+					kbac.Play("anim_interacts_portal_kanim");
+				}
 			}
 			catch (System.Exception ex)
 			{

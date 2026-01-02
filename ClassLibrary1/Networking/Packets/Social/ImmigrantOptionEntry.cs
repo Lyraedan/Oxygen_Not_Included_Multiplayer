@@ -162,7 +162,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public static ImmigrantOptionEntry FromGameDeliverable(ITelepadDeliverable deliverable)
 		{
-			//DebugConsole.Log("FromGameDeliverable type: " + (deliverable.GetType()));
+			DebugConsole.Log("FromGameDeliverable type: " + (deliverable.GetType()));
 
 			if (deliverable is CarePackageInfo ci)
 			{
