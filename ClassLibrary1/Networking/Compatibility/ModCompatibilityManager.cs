@@ -15,7 +15,7 @@ namespace ONI_MP.Networking.Compatibility
         private static bool _allowVersionMismatches = false;
 
         // Ignore version checking for now - focus only on mod presence
-        private const bool IGNORE_VERSION_CHECKS = true;
+        private static  bool IGNORE_VERSION_CHECKS = true;
 
         public static void Initialize()
         {
