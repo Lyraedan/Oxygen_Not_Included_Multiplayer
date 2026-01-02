@@ -132,6 +132,46 @@ namespace ONI_MP.Networking
 
 		/// <summary>
 		/// Sends a packet to all other players.
+		/// Forces the packet origin to be on the host itself
+		/// if sent from the host, it goes to all clients.
+		/// otherwise it is wrapped in a HostBroadcastPacket and sent to the host for rebroadcasting.
+		/// 
+		/// </summary>
+		/// <param name="packet"></param>
+		public static void SendToAllOtherPeersFromHost(IPacket packet)
+		{
+			if (!MultiplayerSession.InSession)
+			{
+				DebugConsole.LogWarning("[PacketSender] Not in a multiplayer session, cannot send to other peers");
+				return;
+			}
+			DebugConsole.Log("[PacketSender] Sending packet to all other peers: " + packet.GetType().Name);
+
+			if (MultiplayerSession.IsHost)
+				SendToAllClients(packet);
+			else
+				SendToHost(new HostBroadcastPacket(packet, CSteamID.Nil));
+		}
+
+		public static void SendToAllOtherPeersFromHost_API(object api_packet)
+		{
+			var type = api_packet.GetType();
+			if (!PacketRegistry.HasRegisteredPacket(type))
+			{
+				DebugConsole.LogError($"[PacketSender] Attempted to send unregistered packet type: {type.Name}");
+				return;
+			}
+			if (!API_Helper.WrapApiPacket(api_packet, out var packet))
+			{
+				DebugConsole.LogError($"[PacketSender] Failed to wrap API packet of type: {type.Name}");
+				return;
+			}
+			SendToAllOtherPeersFromHost(packet);
+		}
+
+
+		/// <summary>
+		/// Sends a packet to all other players.
 		/// if sent from the host, it goes to all clients.
 		/// otherwise it is wrapped in a HostBroadcastPacket and sent to the host for rebroadcasting.
 		/// </summary>

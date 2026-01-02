@@ -25,6 +25,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void OnDispatched()
 		{
+			if (!MultiplayerSession.InSession) return;
+
 			DebugConsole.Log($"[ImmigrantSelectionPacket] Received selection: world index {PrintingPodWorldIndex}, IsHost: {MultiplayerSession.IsHost}");
 
 			// Handle client receiving notification from host
@@ -61,14 +63,15 @@ namespace ONI_MP.Networking.Packets.Social
 				}
 				return;
 			}
-			DebugConsole.Log("[ImmigrantSelectionPacket] Host: Processing client selection using AvailableOptions");
+			else
+			{
+				DebugConsole.Log("[ImmigrantSelectionPacket] Host: Processing client selection using AvailableOptions");
 
-			// Close host's screen if open
-			if (ImmigrantScreen.instance != null && ImmigrantScreen.instance.gameObject.activeInHierarchy)
-			{
-				ImmigrantScreen.instance.Deactivate();
-			}
-			{
+				// Close host's screen if open
+				if (ImmigrantScreen.instance != null && ImmigrantScreen.instance.gameObject.activeInHierarchy)
+				{
+					ImmigrantScreen.instance.Deactivate();
+				}
 				// Screen is closed - spawn directly using cached options
 				DebugConsole.Log("[ImmigrantSelectionPacket] Host: Screen is closed, spawning using cached options");
 
@@ -112,26 +115,18 @@ namespace ONI_MP.Networking.Packets.Social
 					var deliverable = opt.ToGameDeliverable();
 					var position = Grid.CellToPosCBC(Grid.PosToCell(telepad), Grid.SceneLayer.Move);
 					if (deliverable is MinionStartingStats stats)
-					{						
-						var spawnedGO = stats.Deliver(position);
-
+					{
+						//telepad.OnAcceptDelivery(stats);
 						///Delivery is handled via EntityDeliverPatch to send EntitySpawnPacket
 						DebugConsole.Log($"[ImmigrantSelectionPacket] Spawned duplicant via Telepad: {opt.Name}");
 					}
-					else if(deliverable is CarePackageInfo pkg)
+					else if (deliverable is CarePackageInfo pkg)
 					{
-						var spawnedGO = pkg.Deliver(position);
+						//var spawnedGO = pkg.Deliver(position);
 						///Delivery is handled via EntityDeliverPatch to send EntitySpawnPacket
-
-
 						DebugConsole.Log($"[ImmigrantSelectionPacket] Spawned care package via Telepad: {opt.CarePackageId} x{opt.Quantity}");
 					}
-
-					// End immigration cycle
-					if (Immigration.Instance != null)
-					{
-						Immigration.Instance.EndImmigration();
-					}
+					telepad.OnAcceptDelivery(deliverable);
 
 					// Clear options and notify clients (with -2 to just close screens, EntitySpawnPacket handles spawning)
 					ONI_MP.Patches.GamePatches.ImmigrantScreenPatch.ClearOptionsLock();
@@ -144,15 +139,16 @@ namespace ONI_MP.Networking.Packets.Social
 				{
 					DebugConsole.LogError($"[ImmigrantSelectionPacket] Failed to spawn: {ex.Message}");
 				}
-			}
 
-			if (PrintingPodWorldIndex == -1) // Reject All
-			{
-				if (ImmigrantScreen.instance != null)
+
+				if (PrintingPodWorldIndex == -1) // Reject All
 				{
-					ImmigrantScreen.instance.Deactivate();
+					if (ImmigrantScreen.instance != null)
+					{
+						ImmigrantScreen.instance.Deactivate();
+					}
+					DebugConsole.Log("[ImmigrantSelectionPacket] Host rejected all");
 				}
-				DebugConsole.Log("[ImmigrantSelectionPacket] Host rejected all");
 			}
 		}
 	}

@@ -94,11 +94,6 @@ namespace ONI_MP.Networking.Packets.Architecture
 		{
            Shared.Helpers.PacketRegistrationHelper.AutoRegisterPackets(Assembly.GetExecutingAssembly(), (t=>TryRegister(t)), out int count, out var duration);
 			DebugConsole.LogSuccess($"[PacketRegistry] Auto-registering {count} packets took {duration.TotalMilliseconds} ms");
-
-			// Manual registration for our custom mod compatibility packets (if not auto-registered)
-            TryRegister(typeof(ModVerificationPacket));
-            TryRegister(typeof(ModVerificationResponsePacket));
-            TryRegister(typeof(ModListRequestPacket));
 		}
 
         public static void TryRegister(Type packetType, string nameOverride = "")

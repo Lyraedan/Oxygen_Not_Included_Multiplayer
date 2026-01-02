@@ -10,7 +10,6 @@ namespace ONI_MP.Networking.Components
 		[Serialize]
 		public int NetId;
 
-
 		public void Serialize(BinaryWriter writer)
 		{
 			//DebugConsole.Log($"[NetworkIdentity] SERIALIZING: NetId = {NetId} on {gameObject.name}");
