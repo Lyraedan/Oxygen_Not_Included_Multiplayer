@@ -155,8 +155,10 @@ namespace ONI_MP.DebugTools
             ImGui.Text($"Host ID: {MultiplayerSession.HostSteamID}");
 
             DisplayNetworkStatistics();
+			ImGui.Separator();
+			DisplayNetIdHolders();
 
-            ImGui.Separator();
+			ImGui.Separator();
 
             try
             {
