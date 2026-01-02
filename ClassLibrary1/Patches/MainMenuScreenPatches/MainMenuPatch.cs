@@ -23,30 +23,6 @@ internal static class MainMenuPatch
 
 		var makeButton = __instance.GetType().GetMethod("MakeButton", BindingFlags.NonPublic | BindingFlags.Instance);
 
-		// Host Game
-
-		//string host_text = GoogleDrive.Instance.IsInitialized ? "Host Game" : "Host Game [Setup]";
-		//var hostInfo = CreateButtonInfo(
-		//		"Host Game",
-		//		new System.Action(() =>
-		//		{
-		//			/*
-		//			if (!GoogleDrive.Instance.IsInitialized)
-		//			{
-		//				Application.OpenURL("https://github.com/Lyraedan/Oxygen_Not_Included_Multiplayer/wiki/Google-Drive-Setup-Guide");
-		//				return;
-		//			}
-		//			*/
-
-		//			MultiplayerSession.ShouldHostAfterLoad = true;
-		//			__instance.Button_ResumeGame.SignalClick(KKeyCode.Mouse0);
-		//		}),
-		//		normalFontSize,
-		//		normalStyle,
-		//		buttonInfoType
-		//);
-		//makeButton.Invoke(__instance, new object[] { hostInfo });
-
 		// Multiplayer - Opens the multiplayer screen with all options
 		var multiplayerInfo = CreateButtonInfo(
 				MP_STRINGS.UI.MAINMENU.MULTIPLAYER.LABEL,
@@ -65,12 +41,6 @@ internal static class MainMenuPatch
 		);
 		makeButton.Invoke(__instance, new object[] { multiplayerInfo });
 
-		/* I don't like this anymore - Luke
-		bool useCustomMenu = Configuration.GetClientProperty<bool>("UseCustomMainMenu");
-		if (useCustomMenu)
-		{
-			InsertStaticBackground(__instance);
-		}*/
 		UpdatePromos();
 		UpdateDLC();
 		UpdateBuildNumber();
@@ -146,40 +116,6 @@ internal static class MainMenuPatch
 		}
 
 	}
-
-	private static void InsertStaticBackground(MainMenu menu)
-	{
-		var border = menu.transform.Find("FrontEndBackground/mainmenu_border");
-		if (border == null)
-			return;
-
-		Texture2D texture = ResourceLoader.LoadEmbeddedTexture("ONI_MP.Assets.background-static.png");
-
-		if (texture == null)
-			return;
-
-		Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), texture.width);
-
-		// Step 3: Create Image GameObject if it doesn't exist
-		if (staticBgGO == null)
-		{
-			staticBgGO = new GameObject("ONI_MP_StaticBackground", typeof(UnityEngine.UI.Image));
-			staticBgGO.transform.SetParent(border, false);
-
-			var rect = staticBgGO.GetComponent<RectTransform>();
-			rect.anchorMin = Vector2.zero;
-			rect.anchorMax = Vector2.one;
-			rect.offsetMin = Vector2.zero;
-			rect.offsetMax = Vector2.zero;
-
-			staticBgGO.transform.SetAsLastSibling();
-		}
-
-		var image = staticBgGO.GetComponent<UnityEngine.UI.Image>();
-		image.sprite = sprite;
-		image.preserveAspect = true;
-	}
-
 	private static void UpdatePromos()
 	{
 		GameObject uiGroup = GameObject.Find("UI Group");
