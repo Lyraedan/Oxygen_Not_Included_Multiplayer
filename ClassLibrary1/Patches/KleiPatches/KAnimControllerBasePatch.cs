@@ -91,7 +91,7 @@ namespace ONI_MP.Patches.KleiPatches
 
 				var go = __instance.gameObject;
 				if (go.TryGetComponent<KPrefabID>(out var id) &&
-						id.HasTag(GameTags.Minions.Models.Standard) &&
+						id.HasTag(GameTags.BaseMinion) &&
 						MultiplayerSession.IsHost &&
 						go.TryGetComponent<NetworkIdentity>(out var netIdentity))
 				{
