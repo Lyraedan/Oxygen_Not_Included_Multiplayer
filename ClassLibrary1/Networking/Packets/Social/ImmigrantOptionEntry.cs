@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ONI_MP.DebugTools;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -161,6 +162,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public static ImmigrantOptionEntry FromGameDeliverable(ITelepadDeliverable deliverable)
 		{
+			DebugConsole.Log("FromGameDeliverable type: " + (deliverable.GetType()));
+
 			if (deliverable is CarePackageInfo ci)
 			{
 				return new()
@@ -169,6 +172,16 @@ namespace ONI_MP.Networking.Packets.Social
 					CarePackageId = ci.id,
 					Quantity = ci.quantity,
 					CarePackageFacadeId = ci.facadeID ?? string.Empty
+				};
+			}
+			else if (deliverable is CarePackageContainer.CarePackageInstanceData cpid)
+			{
+				return new()
+				{
+					EntryType = 1,
+					CarePackageId = cpid.info.id,
+					Quantity = cpid.info.quantity,
+					CarePackageFacadeId = cpid.facadeID ?? string.Empty
 				};
 			}
 			else if (deliverable is MinionStartingStats ms)
@@ -189,8 +202,19 @@ namespace ONI_MP.Networking.Packets.Social
 			}
 			return INVALID;
 		}
+		public static void ListAllFieldValues(object s)
+		{
+			Console.WriteLine("Listing all fields of: " + s.ToString());
+
+			foreach (var p in s.GetType().GetFields())
+			{
+				Console.WriteLine(p + ": " + p.GetValue(s));
+			}
+		}
 		public ITelepadDeliverable ToGameDeliverable()
 		{
+			//Console.WriteLine("ToDeliverable: " + EntryType);
+			//ListAllFieldValues(this);
 			if (EntryType < 0)
 				return null;
 			if (EntryType == 1)

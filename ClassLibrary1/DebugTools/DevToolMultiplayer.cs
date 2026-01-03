@@ -155,8 +155,10 @@ namespace ONI_MP.DebugTools
             ImGui.Text($"Host ID: {MultiplayerSession.HostSteamID}");
 
             DisplayNetworkStatistics();
+			ImGui.Separator();
+			DisplayNetIdHolders();
 
-            ImGui.Separator();
+			ImGui.Separator();
 
             try
             {
@@ -285,6 +287,36 @@ namespace ONI_MP.DebugTools
                 }
             }
         }
-    }
+		public void DisplayNetIdHolders()
+		{
+			if (ImGui.CollapsingHeader("Net Id Holders"))
+			{
+				var all_identities = NetworkIdentityRegistry.AllIdentities;
+				if (ImGui.BeginTable("net_identity_table", 2,
+						ImGuiTableFlags.Borders |
+						ImGuiTableFlags.RowBg |
+						ImGuiTableFlags.ScrollY, new UnityEngine.Vector2(0, 400)))
+				{
+					ImGui.TableSetupColumn("Name");
+					ImGui.TableSetupColumn("Network ID");
+
+					ImGui.TableHeadersRow();
+
+					foreach (var identity in all_identities)
+					{
+						ImGui.TableNextRow();
+
+						ImGui.TableSetColumnIndex(0);
+						ImGui.Text(identity.gameObject.name);
+
+						ImGui.TableSetColumnIndex(1);
+						ImGui.Text(identity.NetId.ToString());
+					}
+
+					ImGui.EndTable();
+				}
+			}
+		}
+	}
 }
 #endif

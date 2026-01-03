@@ -5,7 +5,7 @@ using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using UnityEngine;
 
-[HarmonyPatch(typeof(MinionConfig), nameof(MinionConfig.CreatePrefab))]
+[HarmonyPatch(typeof(BaseMinionConfig), nameof(BaseMinionConfig.BaseMinion))]
 public static class DuplicantPatch
 {
 	public static void Postfix(GameObject __result)
@@ -48,17 +48,17 @@ public static class DuplicantPatch
 	}
 }
 
-[HarmonyPatch(typeof(MinionConfig), "OnSpawn")]
+[HarmonyPatch(typeof(BaseMinionConfig), nameof(BaseMinionConfig.BaseOnSpawn))]
 public static class DuplicantSpawnPatch
 {
 	public static void Postfix(GameObject go)
 	{
-		if (!go.HasTag(GameTags.Minions.Models.Standard) || go.HasTag(GameTags.Minions.Models.Bionic)) return;
+		if (!MultiplayerSession.InSession) return;
+
+		if (!go.HasTag(GameTags.BaseMinion)) return;
 
 		var identity = go.GetComponent<NetworkIdentity>();
 		if (identity == null) return;
-
-		if (!MultiplayerSession.InSession) return;
 
 		// If we are a client, disable the brain/chores so the dupe is just a puppet
 		if (MultiplayerSession.IsClient)

@@ -2,6 +2,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
+using System.Security.Principal;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World.SideScreen
@@ -18,12 +19,7 @@ namespace ONI_MP.Patches.World.SideScreen
 			if (!MultiplayerSession.InSession) return;
 			if (target == null) return;
 
-			var identity = target.GetComponent<NetworkIdentity>();
-			if (identity == null)
-			{
-				identity = target.gameObject.AddOrGet<NetworkIdentity>();
-				identity.RegisterIdentity();
-			}
+			var identity = target.gameObject.AddOrGet<NetworkIdentity>();
 
 			var packet = new BuildingConfigPacket
 			{
@@ -51,7 +47,6 @@ namespace ONI_MP.Patches.World.SideScreen
 			if (target == null) return;
 			
 			var identity = target.AddOrGet<NetworkIdentity>();
-			identity.RegisterIdentity();
 
 			var packet = new BuildingConfigPacket
 			{
@@ -74,7 +69,6 @@ namespace ONI_MP.Patches.World.SideScreen
 			if (target == null) return;
 
 			var identity = target.AddOrGet<NetworkIdentity>();
-			identity.RegisterIdentity();
 
 			var packet = new BuildingConfigPacket
 			{
@@ -95,7 +89,6 @@ namespace ONI_MP.Patches.World.SideScreen
 			if (target == null) return;
 
 			var identity = target.AddOrGet<NetworkIdentity>();
-			identity.RegisterIdentity();
 
 			var packet = new BuildingConfigPacket
 			{
@@ -116,7 +109,6 @@ namespace ONI_MP.Patches.World.SideScreen
 			if (target == null) return;
 
 			var identity = target.AddOrGet<NetworkIdentity>();
-			identity.RegisterIdentity();
 
 			var packet = new BuildingConfigPacket
 			{
@@ -137,7 +129,6 @@ namespace ONI_MP.Patches.World.SideScreen
 			if (target == null) return;
 
 			var identity = target.AddOrGet<NetworkIdentity>();
-			identity.RegisterIdentity();
 
 			var packet = new BuildingConfigPacket
 			{

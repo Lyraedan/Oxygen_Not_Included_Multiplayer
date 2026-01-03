@@ -232,6 +232,8 @@ namespace ONI_MP.Patches.GamePatches
 	{
 		public static bool Prefix(ImmigrantScreen __instance)
 		{
+			if (!MultiplayerSession.InSession) return true;
+
 			if (MultiplayerSession.IsHost)
 			{
 				// Host: Clear the lock after printing (Postfix will handle this)

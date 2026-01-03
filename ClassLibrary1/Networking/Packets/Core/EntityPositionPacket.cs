@@ -12,6 +12,8 @@ public class EntityPositionPacket : IPacket
 	public Vector3 Velocity;
 	public bool FacingLeft;
 	public NavType NavType;
+	public float SendInterval;
+	public long Timestamp;
 
 	public void Serialize(BinaryWriter writer)
 	{
@@ -24,6 +26,8 @@ public class EntityPositionPacket : IPacket
 		writer.Write(Velocity.z);
 		writer.Write(FacingLeft);
 		writer.Write((byte)NavType);
+		writer.Write(SendInterval);
+		writer.Write(Timestamp);
 	}
 
 	public void Deserialize(BinaryReader reader)
@@ -39,6 +43,8 @@ public class EntityPositionPacket : IPacket
 		Velocity = new Vector3(vx, vy, vz);
 		FacingLeft = reader.ReadBoolean();
 		NavType = (NavType)reader.ReadByte();
+		SendInterval = reader.ReadSingle();
+		Timestamp = reader.ReadInt64();
 	}
 
 	public void OnDispatched()
@@ -47,8 +53,19 @@ public class EntityPositionPacket : IPacket
 
 		if (NetworkIdentityRegistry.TryGet(NetId, out var entity))
 		{
-			// Check if this is a duplicant with our client controller
-			var clientController = entity.GetComponent<DuplicantClientController>();
+			EntityPositionHandler handler = entity.GetComponent<EntityPositionHandler>();
+			if (!handler)
+				return;
+
+			if (handler.lastPositionTimestamp > Timestamp)
+			{
+				return; // Recieved out of date position packet, ignore.
+			}
+
+			handler.lastPositionTimestamp = Timestamp;
+
+            // Check if this is a duplicant with our client controller
+            var clientController = entity.GetComponent<DuplicantClientController>();
 			if (clientController != null)
 			{
 				clientController.OnPositionReceived(Position, Velocity, FacingLeft, NavType);
@@ -75,7 +92,7 @@ public class EntityPositionPacket : IPacket
 	private System.Collections.IEnumerator InterpolateKAnimPosition(KBatchedAnimController anim, Vector3 targetPos, bool facingLeft)
 	{
 		Vector3 startPos = anim.transform.GetPosition();
-		float duration = EntityPositionHandler.SendInterval * 1.2f;
+		float duration = SendInterval * 1.2f;
 		float elapsed = 0f;
 
 		anim.FlipX = facingLeft;

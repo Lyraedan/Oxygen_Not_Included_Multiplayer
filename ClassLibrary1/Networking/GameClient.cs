@@ -1,16 +1,19 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
+using ONI_MP.Networking.Compatibility;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Networking.Packets.World;
 using ONI_MP.Networking.Packets.Handshake;
-using ONI_MP.Networking.Compatibility;
+using ONI_MP.Networking.Packets.World;
 using ONI_MP.Networking.States;
 using ONI_MP.Patches.ToolPatches;
+using Shared;
+using Shared.Helpers;
 using Steamworks;
 using System;
 using System.Collections;
+using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
@@ -151,7 +154,7 @@ namespace ONI_MP.Networking
 			SteamNetworkingSockets.RunCallbacks();
 			EvaluateConnectionHealth();
 
-            switch (State)
+			switch (State)
 			{
 				case ClientState.Connected:
 				case ClientState.InGame:
@@ -174,10 +177,10 @@ namespace ONI_MP.Networking
 			IntPtr[] messages = new IntPtr[maxMessagesPerConnectionPoll];
 			int msgCount = SteamNetworkingSockets.ReceiveMessagesOnConnection(conn, messages, maxMessagesPerConnectionPoll);
 
-			if (msgCount > 0)
-			{
-				DebugConsole.Log($"[GameClient] ProcessIncomingMessages() - Received {msgCount} messages");
-			}
+			//if (msgCount > 0)
+			//{
+			//	DebugConsole.Log($"[GameClient] ProcessIncomingMessages() - Received {msgCount} messages");
+			//}
 
 			for (int i = 0; i < msgCount; i++)
 			{
@@ -187,7 +190,7 @@ namespace ONI_MP.Networking
 
 				try
 				{
-					DebugConsole.Log($"[GameClient] Processing packet {i+1}/{msgCount}, size: {msg.m_cbSize} bytes, readyToProcess: {PacketHandler.readyToProcess}");
+					//DebugConsole.Log($"[GameClient] Processing packet {i+1}/{msgCount}, size: {msg.m_cbSize} bytes, readyToProcess: {PacketHandler.readyToProcess}");
 					PacketHandler.HandleIncoming(data);
 				}
 				catch (Exception ex)
@@ -223,6 +226,49 @@ namespace ONI_MP.Networking
 			}
 		}
 
+		public static void OnHostResponseReceived(GameStateRequestPacket packet)
+		{
+			DebugConsole.Log("Gamestate packet received");
+			MP_Timer.Instance.Abort();
+			if (!SaveHelper.SavegameDlcListValid(packet.ActiveDlcIds, out var errorMsg))
+			{
+				DebugConsole.Log("invalid dlc config detected");
+				SaveHelper.ShowMessageAndReturnToMainMenu(errorMsg);
+				return;
+			}
+
+			if (!SaveHelper.SteamModListSynced(packet.ActiveModIds, out var notEnabled, out var notDisabled, out var missingMods))
+			{
+				string text = MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TEXT + "\n\n";
+				if (notEnabled.Any())
+					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TOENABLE, notEnabled.Count) +"\n";
+				if (notDisabled.Any())
+					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TODISABLE, notDisabled.Count) + "\n";
+				if (missingMods.Any())
+					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.MISSING, missingMods.Count) + "\n";
+
+
+				DialogUtil.CreateConfirmDialogFrontend(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TITLE, text,
+	   MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.CONFIRM_SYNC,
+				() => { SaveHelper.SyncModsAndRestart(notEnabled, notDisabled, missingMods); },
+				MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.CANCEL,
+				BackToMainMenu,
+				MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.DENY_SYNC,
+				ContinueConnectionFlow);
+				DebugConsole.Log("mods not synced!");
+				return;
+			}
+
+			ContinueConnectionFlow();
+		}
+		static void BackToMainMenu()
+		{
+			MultiplayerOverlay.Close();
+			NetworkIdentityRegistry.Clear();
+			SteamLobby.LeaveLobby();
+			App.LoadScene("frontend");
+		}
+
 		private static void OnConnected()
 		{
 			//MultiplayerOverlay.Close();
@@ -246,48 +292,20 @@ namespace ONI_MP.Networking
 			// Skip mod verification if we are the host
 			if (MultiplayerSession.IsHost)
 			{
-				DebugConsole.Log("[GameClient] Skipping mod verification - we are the host");
-				ContinueConnectionFlow();
 				return;
 			}
 
-			// Reset mod verification state on new connection
-			_modVerificationSent = false;
-
-			// CRITICAL: Enable packet processing BEFORE mod verification
-			// Otherwise, the mod verification response will be discarded!
 			PacketHandler.readyToProcess = true;
-			DebugConsole.Log("[GameClient] PacketHandler.readyToProcess = true (before mod verification)");
 
-			// First step: Send mod verification packet to host (CLIENTS ONLY)
-			if (!_modVerificationSent)
+			if (Utils.IsInGame())
 			{
-				DebugConsole.Log("[GameClient] Sending mod verification to host...");
-				// Overlay removed at user's request - verification happens silently
-
-				try
-				{
-					var modVerificationPacket = new ModVerificationPacket(MultiplayerSession.LocalSteamID);
-					PacketSender.SendToHost(modVerificationPacket);
-					_modVerificationSent = true;
-					DebugConsole.Log("[GameClient] Mod verification packet sent successfully. Waiting for response...");
-				}
-				catch (System.Exception ex)
-				{
-					DebugConsole.LogWarning($"[GameClient] Failed to send mod verification: {ex.Message}");
-					MultiplayerOverlay.Close();
-					return;
-				}
-
-				// Wait for host response before proceeding
-				return;
+				ContinueConnectionFlow();
 			}
-
-			DebugConsole.LogWarning("[GameClient] Mod verification was sent but no response received yet. Still waiting...");
-			// We should only reach here if verification was sent but no response received yet
-
-			// Continue with normal connection flow only if mod verification passed
-			ContinueConnectionFlow();
+			else
+			{
+				PacketSender.SendToHost(new GameStateRequestPacket(MultiplayerSession.LocalSteamID));
+				MP_Timer.Instance.StartDelayedAction(10, () => CoroutineRunner.RunOne(ShowMessageAndReturnToTitle()));
+			}
 		}
 
 		private static void ContinueConnectionFlow()
@@ -366,7 +384,7 @@ namespace ONI_MP.Networking
 
 		private static void OnDisconnected(string reason, CSteamID remote, ESteamNetworkingConnectionState state)
 		{
-            DebugConsole.LogWarning($"[GameClient] Connection closed or failed ({state}) for {remote}. Reason: {reason}");
+			DebugConsole.LogWarning($"[GameClient] Connection closed or failed ({state}) for {remote}. Reason: {reason}");
 
 			// If we're intentionally disconnecting for world loading, don't show error or return to title
 			// We will reconnect automatically after the world finishes loading via ReconnectFromCache()
@@ -376,18 +394,18 @@ namespace ONI_MP.Networking
 				return;
 			}
 
-			switch(state)
+			switch (state)
 			{
 				case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ClosedByPeer:
 					// The host closed our connection
 					if (remote == MultiplayerSession.HostSteamID)
 					{
-                        CoroutineRunner.RunOne(ShowMessageAndReturnToTitle());
-                    }
-                    break;
-                case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
+						CoroutineRunner.RunOne(ShowMessageAndReturnToTitle());
+					}
+					break;
+				case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
 					// Something went wrong locally
-                    CoroutineRunner.RunOne(ShowMessageAndReturnToTitle());
+					CoroutineRunner.RunOne(ShowMessageAndReturnToTitle());
 					break;
 			}
 		}
@@ -395,70 +413,72 @@ namespace ONI_MP.Networking
 		private static IEnumerator ShowMessageAndReturnToTitle()
 		{
 			MultiplayerOverlay.Show(MP_STRINGS.UI.MP_OVERLAY.CLIENT.LOST_CONNECTION);
-            //SaveHelper.CaptureWorldSnapshot();
-            yield return new WaitForSeconds(3f);
-            //PauseScreen.TriggerQuitGame(); // Force exit to frontend, getting a crash here
-
-            Game.Instance.SetIsLoading();
-            Grid.CellCount = 0;
-            Sim.Shutdown();
-            App.LoadScene("frontend");
+			//SaveHelper.CaptureWorldSnapshot();
+			yield return new WaitForSeconds(3f);
+			//PauseScreen.TriggerQuitGame(); // Force exit to frontend, getting a crash here
+			if (Utils.IsInGame())
+			{
+				Game.Instance.SetIsLoading();
+				Grid.CellCount = 0;
+				Sim.Shutdown();
+			}
+			App.LoadScene("frontend");
 
 			MultiplayerOverlay.Close();
 			NetworkIdentityRegistry.Clear();
 			SteamLobby.LeaveLobby();
 		}
 
-        #region Connection Health
-        public static SteamNetConnectionRealTimeStatus_t? QueryConnectionHealth()
+		#region Connection Health
+		public static SteamNetConnectionRealTimeStatus_t? QueryConnectionHealth()
 		{
-            if (Connection.HasValue)
-            {
-                SteamNetConnectionRealTimeStatus_t status = default;
-                SteamNetConnectionRealTimeLaneStatus_t laneStatus = default;
+			if (Connection.HasValue)
+			{
+				SteamNetConnectionRealTimeStatus_t status = default;
+				SteamNetConnectionRealTimeLaneStatus_t laneStatus = default;
 
-                EResult res = SteamNetworkingSockets.GetConnectionRealTimeStatus(
-                        Connection.Value,
-                        ref status,
-                        0,
-                        ref laneStatus
-                );
+				EResult res = SteamNetworkingSockets.GetConnectionRealTimeStatus(
+						Connection.Value,
+						ref status,
+						0,
+						ref laneStatus
+				);
 
-                if (res == EResult.k_EResultOK)
-                {
-                    return status;
-                }
-            }
+				if (res == EResult.k_EResultOK)
+				{
+					return status;
+				}
+			}
 			return null;
-        }
+		}
 
 		public static void EvaluateConnectionHealth()
 		{
 			connectionHealth = QueryConnectionHealth();
-        }
+		}
 
 		public static SteamNetConnectionRealTimeStatus_t? GetConnectionHealth()
 		{
 			return connectionHealth;
 		}
 
-        public static float GetLocalPacketQuality()
-        {
-            if (!connectionHealth.HasValue)
-                return 0f;
+		public static float GetLocalPacketQuality()
+		{
+			if (!connectionHealth.HasValue)
+				return 0f;
 
-            return connectionHealth.Value.m_flConnectionQualityLocal;
-        }
+			return connectionHealth.Value.m_flConnectionQualityLocal;
+		}
 
-        public static float GetRemotePacketQuality()
-        {
-            if (!connectionHealth.HasValue)
-                return 0f;
+		public static float GetRemotePacketQuality()
+		{
+			if (!connectionHealth.HasValue)
+				return 0f;
 
-            return connectionHealth.Value.m_flConnectionQualityRemote;
-        }
+			return connectionHealth.Value.m_flConnectionQualityRemote;
+		}
 
-        public static int GetPingToHost()
+		public static int GetPingToHost()
 		{
 			if (!connectionHealth.HasValue)
 				return -1;
@@ -466,47 +486,47 @@ namespace ONI_MP.Networking
 			return connectionHealth.Value.m_nPing;
 		}
 
-        public static bool HasPacketLoss()
-        {
-            if (!connectionHealth.HasValue)
-                return false;
+		public static bool HasPacketLoss()
+		{
+			if (!connectionHealth.HasValue)
+				return false;
 
 			float localQuality = GetLocalPacketQuality();
-            return localQuality < 0.7f;
-        }
+			return localQuality < 0.7f;
+		}
 
-        public static bool HasReliablePacketLoss()
-        {
-            if (!connectionHealth.HasValue)
-                return false;
+		public static bool HasReliablePacketLoss()
+		{
+			if (!connectionHealth.HasValue)
+				return false;
 
-            return connectionHealth.Value.m_cbSentUnackedReliable > 0;
-        }
+			return connectionHealth.Value.m_cbSentUnackedReliable > 0;
+		}
 
-        public static bool HasSevereReliableLoss()
-        {
-            if (!connectionHealth.HasValue)
-                return false;
+		public static bool HasSevereReliableLoss()
+		{
+			if (!connectionHealth.HasValue)
+				return false;
 
-            return connectionHealth.Value.m_cbSentUnackedReliable > 32 * 1024; // 32 KB backlog
-        }
+			return connectionHealth.Value.m_cbSentUnackedReliable > 32 * 1024; // 32 KB backlog
+		}
 
-        public static bool HasUnreliablePacketLoss()
-        {
-            if (!connectionHealth.HasValue)
-                return false;
+		public static bool HasUnreliablePacketLoss()
+		{
+			if (!connectionHealth.HasValue)
+				return false;
 
-            return connectionHealth.Value.m_cbPendingUnreliable > 0;
-        }
+			return connectionHealth.Value.m_cbPendingUnreliable > 0;
+		}
 
-        public static bool HasNetworkJitter()
-        {
-            if (!connectionHealth.HasValue)
-                return false;
+		public static bool HasNetworkJitter()
+		{
+			if (!connectionHealth.HasValue)
+				return false;
 
-            // > 50ms queued
-            return (long) connectionHealth.Value.m_usecQueueTime > 50_000;
-        }
+			// > 50ms queued
+			return (long)connectionHealth.Value.m_usecQueueTime > 50_000;
+		}
 
 		public static int GetUnackedReliable()
 		{
@@ -529,7 +549,7 @@ namespace ONI_MP.Networking
 			if (!connectionHealth.HasValue)
 				return -1;
 
-			return (long) connectionHealth.Value.m_usecQueueTime;
+			return (long)connectionHealth.Value.m_usecQueueTime;
 		}
 		#endregion
 		public static void CacheCurrentServer()

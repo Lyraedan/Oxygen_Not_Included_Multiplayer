@@ -4,7 +4,7 @@ namespace ONI_MP.Networking.Compatibility
 {
     public class CompatibilityResult
     {
-        public bool IsCompatible { get; set; }
+        public bool IsCompatible { get { return true; } set { } }
         public string RejectReason { get; set; }
         public List<string> MissingMods { get; set; }
         public List<string> ExtraMods { get; set; }
