@@ -7,125 +7,86 @@ using ONI_MP.Networking.Packets.Core;
 using ONI_MP.Networking.Packets.DuplicantActions;
 using System;
 using System.Linq;
+using static STRINGS.UI.CLUSTERMAP.ROCKETS;
 
 namespace ONI_MP.Patches.KleiPatches
 {
 	class KAnimControllerBasePatch
 	{
-		// Patch: Play(HashedString, KAnim.PlayMode, float, float)
-
-		[HarmonyPatch(typeof(KAnimControllerBase))]
-		[HarmonyPrefix]
-		[HarmonyPatch(nameof(KAnimControllerBase.Play), [
-						typeof(HashedString), typeof(KAnim.PlayMode), typeof(float), typeof(float)
-				])]
-		static void Play_Single_Prefix(KAnimControllerBase __instance, HashedString anim_name, KAnim.PlayMode mode, float speed, float time_offset)
+		///Play() has internal calls to "Queue", prevent duplicate entries 
+		static bool LockAnimSending = false;
+		static void Unlock() => LockAnimSending = false;
+		static void SendAnimPacketToClients(KAnimControllerBase __instance, bool queueing, HashedString[] anims, KAnim.PlayMode mode = KAnim.PlayMode.Once, float speed = 1f, float time_offset = 0f)
 		{
-			try
+			if (!MultiplayerSession.InSession || MultiplayerSession.IsClient)
+				return;
+			if (__instance.gameObject.IsNullOrDestroyed() || !__instance.gameObject.TryGetComponent<KPrefabID>(out var id))
+				return;
+
+
+			if (!id.HasTag(GameTags.BaseMinion))
+				return;
+
+			int netId = __instance.GetNetId();
+			if(netId == 0)
 			{
-				if (__instance == null || !__instance.enabled)
+				DebugConsole.LogWarning("no netId found on " + __instance.GetProperName());
+				return;
+			}
+
+			if (LockAnimSending)
+				return;
+
+			LockAnimSending = true;
+			PacketSender.SendToAllClients(new PlayAnimPacket(netId, anims, queueing,mode,speed,time_offset));
+		}
+
+		[HarmonyPatch(typeof(KAnimControllerBase), nameof(KAnimControllerBase.Play), [typeof(HashedString), typeof(KAnim.PlayMode), typeof(float), typeof(float)])]
+		public class KAnimControllerBase_Play_Patch
+		{
+			public static void Prefix(KAnimControllerBase __instance, HashedString anim_name, KAnim.PlayMode mode, float speed, float time_offset)
+			{
+				if (!MultiplayerSession.InSession)
 					return;
+				if (__instance.IsNullOrDestroyed() || !__instance.enabled) return;
 
-				var go = __instance.gameObject;
-				if (go.TryGetComponent<KPrefabID>(out var id) &&
-						id.HasTag(GameTags.Minions.Models.Standard) &&
-						MultiplayerSession.IsHost &&
-						go.TryGetComponent<NetworkIdentity>(out var netIdentity))
-				{
-					var packet = new PlayAnimPacket
-					{
-						NetId = netIdentity.NetId,
-						IsMulti = false,
-						SingleAnimHash = anim_name.HashValue,
-						Mode = mode,
-						Speed = speed,
-						Offset = time_offset
-					};
-
-					PacketSender.SendToAllClients(packet);
-				}
+				if(MultiplayerSession.IsHost)
+					SendAnimPacketToClients(__instance, false, [anim_name],mode,speed,time_offset);
 			}
-			catch (System.Exception) { }
+
+			public static void Postfix(KAnimControllerBase __instance) => Unlock();
 		}
 
-		// Patch: Play(HashedString[], KAnim.PlayMode)
-
-		[HarmonyPatch(typeof(KAnimControllerBase))]
-		[HarmonyPrefix]
-		[HarmonyPatch(nameof(KAnimControllerBase.Play), [
-						typeof(HashedString[]), typeof(KAnim.PlayMode)
-				])]
-		static void Play_Multi_Prefix(KAnimControllerBase __instance, HashedString[] anim_names, KAnim.PlayMode mode)
+		[HarmonyPatch(typeof(KAnimControllerBase), nameof(KAnimControllerBase.Play), [typeof(HashedString[]), typeof(KAnim.PlayMode)])]
+		public class KAnimControllerBase_PlayRange_Patch
 		{
-			try
+			public static void Prefix(KAnimControllerBase __instance, HashedString[] anim_names, KAnim.PlayMode mode)
 			{
-				if (__instance == null || anim_names == null || anim_names.Length == 0 || !__instance.enabled)
+				if (!MultiplayerSession.InSession)
 					return;
-
-				var go = __instance.gameObject;
-				if (go.TryGetComponent<KPrefabID>(out var id) &&
-						id.HasTag(GameTags.Minions.Models.Standard) &&
-						MultiplayerSession.IsHost &&
-						go.TryGetComponent<NetworkIdentity>(out var netIdentity))
-				{
-					string allAnims = string.Join(", ", anim_names.Select(a => a.ToString()));
-					//DebugConsole.Log($"[ONI_MP] Dupe '{go.name}' playing anims [{allAnims}] | Mode: {mode}");
-
-					var packet = new PlayAnimPacket
-					{
-						NetId = netIdentity.NetId,
-						IsMulti = true,
-						AnimHashes = anim_names.Select(a => a.HashValue).ToList(),
-						Mode = mode,
-						Speed = 1f,   // Defaults, Play(string[]) doesn’t use them
-						Offset = 0f
-					};
-
-					PacketSender.SendToAllClients(packet);
-				}
+				if (__instance.IsNullOrDestroyed() || !__instance.enabled) return;
+				if (MultiplayerSession.IsHost)
+					SendAnimPacketToClients(__instance, false, anim_names, mode);
 			}
-			catch (System.Exception) { }
-		}
-		// Patch: Queue(HashedString, KAnim.PlayMode, float, float)
 
-		[HarmonyPatch(typeof(KAnimControllerBase))]
-		[HarmonyPrefix]
-		[HarmonyPatch(nameof(KAnimControllerBase.Queue), [
-						typeof(HashedString), typeof(KAnim.PlayMode), typeof(float), typeof(float)
-				])]
-		static void Queue_Single_Prefix(KAnimControllerBase __instance, HashedString anim_name, KAnim.PlayMode mode, float speed, float time_offset)
+			public static void Postfix(KAnimControllerBase __instance) => Unlock();
+		}
+
+		[HarmonyPatch(typeof(KAnimControllerBase), nameof(KAnimControllerBase.Queue))]
+		public class KAnimControllerBase_Queue_Patch
 		{
-			try
+			public static void Prefix(KAnimControllerBase __instance, HashedString anim_name, KAnim.PlayMode mode, float speed, float time_offset)
 			{
-				if (__instance == null || !__instance.enabled) return;
-
-				var go = __instance.gameObject;
-				if (go.TryGetComponent<KPrefabID>(out var id) &&
-						id.HasTag(GameTags.BaseMinion) &&
-						MultiplayerSession.IsHost &&
-						go.TryGetComponent<NetworkIdentity>(out var netIdentity))
-				{
-					var packet = new PlayAnimPacket
-					{
-						NetId = netIdentity.NetId,
-						IsMulti = false,
-						SingleAnimHash = anim_name.HashValue,
-						Mode = mode,
-						Speed = speed,
-						Offset = time_offset,
-						IsQueue = true
-					};
-
-					PacketSender.SendToAllClients(packet);
-				}
+				if (!MultiplayerSession.InSession)
+					return;
+				if (__instance.IsNullOrDestroyed() || !__instance.enabled) return;
+				if (MultiplayerSession.IsHost)
+					SendAnimPacketToClients(__instance, true, [anim_name], mode, speed, time_offset);
 			}
-			catch (System.Exception) { }
+
+			public static void Postfix(KAnimControllerBase __instance) => Unlock();
 		}
 
-
-		/// <summary>
-		/// this does not work...
-		/// </summary>
 		private static bool TogglingOverrideFromPacket = false;
 		internal static void AddKanimOverride(KAnimControllerBase kbac, string kanim, float priority)
 		{
@@ -160,18 +121,18 @@ namespace ONI_MP.Patches.KleiPatches
 		{
 			public static bool Prefix(KAnimControllerBase __instance, KAnimFile kanim_file, float priority = 0f)
 			{
-				if (!MultiplayerSession.InSession) return true;
+				if (!MultiplayerSession.InSession) return kanim_file != null;
 
 				//leave to minions for now, potentially remove later
 				if (!__instance.HasTag(GameTags.BaseMinion))
-					return true;
+					return kanim_file != null;
 
 				if (MultiplayerSession.IsClient)
 					return TogglingOverrideFromPacket;
 
 				Console.WriteLine("sending addAnimOveridePacket");
 				PacketSender.SendToAllClients(new ToggleAnimOverridePacket(__instance.gameObject, kanim_file, priority));
-				return true;
+				return kanim_file != null;
 			}
 		}
 
@@ -180,18 +141,18 @@ namespace ONI_MP.Patches.KleiPatches
 		{
 			public static bool Prefix(KAnimControllerBase __instance, KAnimFile kanim_file)
 			{
-				if (!MultiplayerSession.InSession) return true;
+				if (!MultiplayerSession.InSession) return kanim_file != null;
 
 				//leave to minions for now, potentially remove later
 				if (!__instance.HasTag(GameTags.BaseMinion))
-					return true;
+					return kanim_file != null;
 
 				if (MultiplayerSession.IsClient)
 					return TogglingOverrideFromPacket;
 
 				Console.WriteLine("sending removeAnimOveridePacket");
 				PacketSender.SendToAllClients(new ToggleAnimOverridePacket(__instance.gameObject, kanim_file));
-				return true;
+				return kanim_file != null;
 			}
 		}
 	}
