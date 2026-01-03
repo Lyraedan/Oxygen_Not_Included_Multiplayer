@@ -125,15 +125,27 @@ namespace ONI_MP.Patches.KleiPatches
 
 
 		private static bool TogglingOverrideFromPacket = false;
-		internal static void AddKanimOverride(KAnimControllerBase kbac, string kanim, object shouldSave)
+		internal static void AddKanimOverride(KAnimControllerBase kbac, string kanim, float priority)
 		{
 			TogglingOverrideFromPacket = true;
+			if (Assets.TryGetAnim(kanim, out var anim))
+			{
+				kbac.AddAnimOverrides(anim, priority);
+			}
+			else
+				DebugConsole.LogWarning("could not find anim " + kanim);
 			TogglingOverrideFromPacket = false;
 		}
 
 		internal static void RemoveKanimOverride(KAnimControllerBase kbac, string kanim)
 		{
 			TogglingOverrideFromPacket = true;
+			if (Assets.TryGetAnim(kanim, out var anim))
+			{
+				kbac.RemoveAnimOverrides(anim);
+			}
+			else
+				DebugConsole.LogWarning("could not find anim " + kanim);
 			TogglingOverrideFromPacket = false;
 		}
 
@@ -151,7 +163,7 @@ namespace ONI_MP.Patches.KleiPatches
 
 				if (MultiplayerSession.IsClient)
 					return TogglingOverrideFromPacket;
-				
+
 				PacketSender.SendToAllClients(new ToggleAnimOverridePacket(__instance.gameObject, kanim_file, priority));
 				return true;
 			}
@@ -170,7 +182,7 @@ namespace ONI_MP.Patches.KleiPatches
 
 				if (MultiplayerSession.IsClient)
 					return TogglingOverrideFromPacket;
-				
+
 				PacketSender.SendToAllClients(new ToggleAnimOverridePacket(__instance.gameObject, kanim_file));
 				return true;
 			}
