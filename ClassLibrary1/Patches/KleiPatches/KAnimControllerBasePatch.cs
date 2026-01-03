@@ -16,7 +16,7 @@ namespace ONI_MP.Patches.KleiPatches
 		static bool _allowedToPlayAnims = false;
 		public static void AllowAnims() => _allowedToPlayAnims = true;
 		public static void ForbidAnims() => _allowedToPlayAnims = false;
-		public static bool CanPlayAnims => (MultiplayerSession.InSession && MultiplayerSession.IsClient) ? _allowedToPlayAnims : true;
+		public static bool CanPlayAnims => true;// (MultiplayerSession.InSession && MultiplayerSession.IsClient) ? _allowedToPlayAnims : true;
 
 
 
@@ -31,8 +31,8 @@ namespace ONI_MP.Patches.KleiPatches
 				return;
 
 
-			//if (!id.HasTag(GameTags.BaseMinion)||id.HasTag(GameTags.UnderConstruction)
-			//	return;
+			if (!id.HasTag(GameTags.BaseMinion))
+				return;
 
 			int netId = __instance.GetNetId();
 			if(netId == 0)
