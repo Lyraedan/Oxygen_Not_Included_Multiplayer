@@ -226,10 +226,13 @@ namespace ONI_MP.Networking
 
 		public static void OnHostResponseReceived(GameStateRequestPacket packet)
 		{
+			DebugConsole.Log("Gamestate packet received");
 			MP_Timer.Instance.Abort();
 			if (!SaveHelper.SavegameDlcListValid(packet.ActiveDlcIds, out var errorMsg))
 			{
+				DebugConsole.Log("Gamestate packet was not valid");
 				SaveHelper.ShowMessageAndReturnToMainMenu(errorMsg);
+				return;
 			}
 
 			ContinueConnectionFlow();
