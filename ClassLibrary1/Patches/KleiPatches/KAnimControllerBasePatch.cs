@@ -24,13 +24,13 @@ namespace ONI_MP.Patches.KleiPatches
 				return;
 
 
-			if (!id.HasTag(GameTags.BaseMinion))
-				return;
+			//if (!id.HasTag(GameTags.BaseMinion)||id.HasTag(GameTags.UnderConstruction)
+			//	return;
 
 			int netId = __instance.GetNetId();
 			if(netId == 0)
 			{
-				DebugConsole.LogWarning("no netId found on " + __instance.GetProperName());
+				//DebugConsole.LogWarning("no netId found on " + __instance.GetProperName());
 				return;
 			}
 

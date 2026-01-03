@@ -32,9 +32,11 @@ namespace ONI_MP.Networking
 
 
 			int hash = go.transform.position.GetHashCode() ^ go.PrefabID().GetHashCode() ^ go.GetProperName().GetHashCode() ^ primaryElement.ElementID.GetHashCode() ^ primaryElement.Mass.GetHashCode();
-			if (NetworkIdentityRegistry.Exists(hash))
-				return 0;
-
+			int breakoff = 0;
+			while (NetworkIdentityRegistry.Exists(hash + breakoff))
+			{
+				breakoff++;
+			}
 			return hash;
 		}
 	}
