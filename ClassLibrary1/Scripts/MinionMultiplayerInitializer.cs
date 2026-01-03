@@ -19,10 +19,10 @@ namespace ONI_MP.Scripts
 			base.OnSpawn();
 			Game.Instance?.Subscribe(MP_HASHES.GameClient_OnConnectedInGame, InitializeMP); // Client listener
 			Game.Instance?.Subscribe(MP_HASHES.GameServer_OnServerStarted, InitializeMP); // Host listener
+			// Why does it proc 3 times if you host in the game, and not at all if you host from the main menu
 		}
 		void InitializeMP(object _)
 		{
-			DebugConsole.Log("INIT MP");
 			var go = gameObject;
 			if (!MultiplayerSession.InSession) return;
 
