@@ -21,7 +21,7 @@ namespace ONI_MP.Networking
 {
 	public static class GameClient
 	{
-		private static Callback<SteamNetConnectionStatusChangedCallback_t> _connectionStatusChangedCallback;
+        private static Callback<SteamNetConnectionStatusChangedCallback_t> _connectionStatusChangedCallback;
 		public static HSteamNetConnection? Connection { get; private set; }
 
 		private static ClientState _state = ClientState.Disconnected;
