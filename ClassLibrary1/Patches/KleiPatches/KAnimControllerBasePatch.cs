@@ -75,6 +75,7 @@ namespace ONI_MP.Patches.KleiPatches
 				if (__instance.IsNullOrDestroyed() || !__instance.enabled) return CanPlayAnims;
 				if (MultiplayerSession.IsHost)
 					SendAnimPacketToClients(__instance, false, anim_names, mode);
+				return CanPlayAnims;
 			}
 
 			public static void Postfix(KAnimControllerBase __instance) => Unlock();
