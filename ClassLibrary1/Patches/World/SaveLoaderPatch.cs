@@ -36,8 +36,9 @@ namespace ONI_MP.Patches.World
             TryCreateLobbyAfterLoad("[Multiplayer] Lobby created after world load.");
             if (MultiplayerSession.InSession)
             {
-                SpeedControlScreen.Instance?.Unpause(false); // Unpause the game
-            }
+				SpeedControlScreen.Instance?.Unpause(false); // Unpause the game
+				Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
+			}
             //ReadyManager.SendReadyStatusPacket(Networking.States.ClientReadyState.Ready);
         }
 
@@ -51,6 +52,7 @@ namespace ONI_MP.Patches.World
 				{
 					SpeedControlScreen.Instance?.Unpause(false);
 					DebugConsole.Log(logMessage);
+					Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
 				});
 			}
 		}
