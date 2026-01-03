@@ -13,6 +13,7 @@ using Shared.Helpers;
 using Steamworks;
 using System;
 using System.Collections;
+using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
@@ -236,16 +237,36 @@ namespace ONI_MP.Networking
 				return;
 			}
 
-			if(!SaveHelper.SteamModListSynced(packet.ActiveModIds, out var notEnabled, out var notDisabled, out var missingMods))
+			if (!SaveHelper.SteamModListSynced(packet.ActiveModIds, out var notEnabled, out var notDisabled, out var missingMods))
 			{
-				DialogUtil.CreateConfirmDialogFrontend("Yo mods r not synced!",
-				"mod differences detected in steam mods:\n" + notEnabled.Count + " are not yet enabled,\n" + notDisabled.Count + " should be disabled\n" + missingMods.Count + " are not subbed yet.",
-			"sync mods and restart", () => { SaveHelper.SyncModsAndRestart(notEnabled, notDisabled, missingMods); }, "Connect anyway", () => ContinueConnectionFlow());
+				string text = MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TEXT + "\n\n";
+				if (notEnabled.Any())
+					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TOENABLE, notEnabled.Count);
+				if (notDisabled.Any())
+					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TODISABLE, notDisabled.Count);
+				if (missingMods.Any())
+					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.MISSING, missingMods.Count);
+
+
+				DialogUtil.CreateConfirmDialogFrontend(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TITLE, text,
+	   MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.CONFIRM_SYNC,
+				() => { SaveHelper.SyncModsAndRestart(notEnabled, notDisabled, missingMods); },
+				MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.CANCEL,
+				BackToMainMenu,
+				MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.DENY_SYNC,
+				ContinueConnectionFlow);
 				DebugConsole.Log("mods not synced!");
 				return;
 			}
 
 			ContinueConnectionFlow();
+		}
+		static void BackToMainMenu()
+		{
+			MultiplayerOverlay.Close();
+			NetworkIdentityRegistry.Clear();
+			SteamLobby.LeaveLobby();
+			App.LoadScene("frontend");
 		}
 
 		private static void OnConnected()
