@@ -13,6 +13,13 @@ namespace ONI_MP.Patches.KleiPatches
 {
 	class KAnimControllerBasePatch
 	{
+		static bool _allowedToPlayAnims = false;
+		public static void AllowAnims() => _allowedToPlayAnims = true;
+		public static void ForbidAnims() => _allowedToPlayAnims = false;
+		public static bool CanPlayAnims => (MultiplayerSession.InSession && MultiplayerSession.IsClient) ? _allowedToPlayAnims : true;
+
+
+
 		///Play() has internal calls to "Queue", prevent duplicate entries 
 		static bool LockAnimSending = false;
 		static void Unlock() => LockAnimSending = false;
@@ -30,7 +37,7 @@ namespace ONI_MP.Patches.KleiPatches
 			int netId = __instance.GetNetId();
 			if(netId == 0)
 			{
-				//DebugConsole.LogWarning("no netId found on " + __instance.GetProperName());
+				DebugConsole.LogWarning("no netId found on " + __instance.GetProperName());
 				return;
 			}
 
@@ -44,14 +51,15 @@ namespace ONI_MP.Patches.KleiPatches
 		[HarmonyPatch(typeof(KAnimControllerBase), nameof(KAnimControllerBase.Play), [typeof(HashedString), typeof(KAnim.PlayMode), typeof(float), typeof(float)])]
 		public class KAnimControllerBase_Play_Patch
 		{
-			public static void Prefix(KAnimControllerBase __instance, HashedString anim_name, KAnim.PlayMode mode, float speed, float time_offset)
+			public static bool Prefix(KAnimControllerBase __instance, HashedString anim_name, KAnim.PlayMode mode, float speed, float time_offset)
 			{
 				if (!MultiplayerSession.InSession)
-					return;
-				if (__instance.IsNullOrDestroyed() || !__instance.enabled) return;
+					return true;
+				if (__instance.IsNullOrDestroyed() || !__instance.enabled) return CanPlayAnims;
 
 				if(MultiplayerSession.IsHost)
 					SendAnimPacketToClients(__instance, false, [anim_name],mode,speed,time_offset);
+				return CanPlayAnims;
 			}
 
 			public static void Postfix(KAnimControllerBase __instance) => Unlock();
@@ -60,11 +68,11 @@ namespace ONI_MP.Patches.KleiPatches
 		[HarmonyPatch(typeof(KAnimControllerBase), nameof(KAnimControllerBase.Play), [typeof(HashedString[]), typeof(KAnim.PlayMode)])]
 		public class KAnimControllerBase_PlayRange_Patch
 		{
-			public static void Prefix(KAnimControllerBase __instance, HashedString[] anim_names, KAnim.PlayMode mode)
+			public static bool Prefix(KAnimControllerBase __instance, HashedString[] anim_names, KAnim.PlayMode mode)
 			{
 				if (!MultiplayerSession.InSession)
-					return;
-				if (__instance.IsNullOrDestroyed() || !__instance.enabled) return;
+					return true;
+				if (__instance.IsNullOrDestroyed() || !__instance.enabled) return CanPlayAnims;
 				if (MultiplayerSession.IsHost)
 					SendAnimPacketToClients(__instance, false, anim_names, mode);
 			}
@@ -75,13 +83,14 @@ namespace ONI_MP.Patches.KleiPatches
 		[HarmonyPatch(typeof(KAnimControllerBase), nameof(KAnimControllerBase.Queue))]
 		public class KAnimControllerBase_Queue_Patch
 		{
-			public static void Prefix(KAnimControllerBase __instance, HashedString anim_name, KAnim.PlayMode mode, float speed, float time_offset)
+			public static bool Prefix(KAnimControllerBase __instance, HashedString anim_name, KAnim.PlayMode mode, float speed, float time_offset)
 			{
 				if (!MultiplayerSession.InSession)
-					return;
-				if (__instance.IsNullOrDestroyed() || !__instance.enabled) return;
+					return true;
+				if (__instance.IsNullOrDestroyed() || !__instance.enabled) return CanPlayAnims;
 				if (MultiplayerSession.IsHost)
 					SendAnimPacketToClients(__instance, true, [anim_name], mode, speed, time_offset);
+				return CanPlayAnims;
 			}
 
 			public static void Postfix(KAnimControllerBase __instance) => Unlock();

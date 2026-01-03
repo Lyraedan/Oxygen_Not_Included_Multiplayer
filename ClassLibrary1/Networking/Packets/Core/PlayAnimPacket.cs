@@ -2,6 +2,7 @@
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Patches.KleiPatches;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -106,14 +107,24 @@ public class PlayAnimPacket : IPacket
 
 		if (MultipleAnims)
 		{
+			KAnimControllerBasePatch.AllowAnims();
 			kbac.Play(AnimHashes, Mode);
+			KAnimControllerBasePatch.ForbidAnims();
 		}
 		else
 		{
 			if (IsQueue)
+			{
+				KAnimControllerBasePatch.AllowAnims();
 				kbac.Queue(AnimHashes.FirstOrDefault(), Mode, Speed, TimeOffset);
+				KAnimControllerBasePatch.ForbidAnims();
+			}
 			else
+			{
+				KAnimControllerBasePatch.AllowAnims();
 				kbac.Play(AnimHashes.FirstOrDefault(), Mode, Speed, TimeOffset);
+				KAnimControllerBasePatch.ForbidAnims();
+			}
 
 		}
 		ForceAnimUpdate(kbac);
