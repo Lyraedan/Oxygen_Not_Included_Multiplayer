@@ -275,9 +275,16 @@ namespace ONI_MP.Networking
 			}
 
 			PacketHandler.readyToProcess = true;
-			PacketSender.SendToHost(new GameStateRequestPacket(MultiplayerSession.LocalSteamID));
 
-			MP_Timer.Instance.StartDelayedAction(10, () => CoroutineRunner.RunOne(ShowMessageAndReturnToTitle()));
+			if (Utils.IsInGame())
+			{
+				ContinueConnectionFlow();
+			}
+			else
+			{
+				PacketSender.SendToHost(new GameStateRequestPacket(MultiplayerSession.LocalSteamID));
+				MP_Timer.Instance.StartDelayedAction(10, () => CoroutineRunner.RunOne(ShowMessageAndReturnToTitle()));
+			}
 		}
 
 		private static void ContinueConnectionFlow()
