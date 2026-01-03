@@ -17,12 +17,16 @@ namespace ONI_MP.Scripts
 
 		public override void OnSpawn()
 		{
-			return;
 			base.OnSpawn();
-			InitializeMP(null);
+
+			if (MultiplayerSession.InSession)
+				InitializeMP(null); 
+
 			Game.Instance?.Subscribe(MP_HASHES.OnMultiplayerGameSessionInitialized, InitializeMP);
 			Game.Instance?.Subscribe(MP_HASHES.GameClient_OnConnectedInGame, InitializeMP);
 		}
+
+
 		void InitializeMP(object _)
 		{
 			DebugConsole.Log("OnMultiplayerGameSessionInitialized");
