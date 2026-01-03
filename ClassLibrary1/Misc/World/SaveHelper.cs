@@ -8,11 +8,13 @@ using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.States;
+using Steamworks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using static SaveGame;
@@ -103,6 +105,55 @@ public static class SaveHelper
             App.LoadScene("frontend");
 		}
 	}
+
+	public static void SubToAllMissing(ulong[] ids)
+	{
+		foreach(ulong id in ids)	
+			SubToMissing(id);
+	}
+
+	static void SubToMissing(ulong steamID)
+	{
+		SteamUGC.SubscribeItem(new PublishedFileId_t(steamID));
+	}
+	static StringBuilder sb = new();
+	public static bool SteamModListSynced(List<ulong> steamMods, out HashSet<ulong> toEnable, out HashSet<ulong> toDisable, out HashSet<ulong> missingMods)
+	{
+		//response = null;
+		//return true;
+		sb.Clear();
+
+		HashSet<ulong> modsToBeActive = steamMods.ToHashSet();
+		HashSet<ulong> currentlyActiveSteamMods = [];
+		toEnable = [];
+		toDisable = [];
+		int diffCount = 0;
+
+
+		foreach (var mod in Global.Instance.modManager.mods)
+		{
+			if (mod.label.distribution_platform != KMod.Label.DistributionPlatform.Steam
+			|| !ulong.TryParse(mod.label.id, out var localId))
+				continue;
+
+			bool isCurrentlyActive = mod.IsEnabledForActiveDlc();
+			if(modsToBeActive.Contains(localId) != isCurrentlyActive)
+			{
+				diffCount++;
+
+				if (isCurrentlyActive)
+					toDisable.Add(localId);
+				else
+					toEnable.Add(localId);
+			}
+			modsToBeActive.Remove(localId);
+		}
+		missingMods = [.. modsToBeActive];
+
+
+		return diffCount == 0;
+	}
+
 
 	public static bool SavegameDlcListValid(IEnumerable<string> dlcIds, out string errorMsg)
 	{

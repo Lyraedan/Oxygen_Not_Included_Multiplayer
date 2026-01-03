@@ -1,19 +1,20 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
+using ONI_MP.Networking.Compatibility;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Networking.Packets.World;
 using ONI_MP.Networking.Packets.Handshake;
-using ONI_MP.Networking.Compatibility;
+using ONI_MP.Networking.Packets.World;
 using ONI_MP.Networking.States;
 using ONI_MP.Patches.ToolPatches;
+using Shared;
+using Shared.Helpers;
 using Steamworks;
 using System;
 using System.Collections;
 using System.Runtime.InteropServices;
 using UnityEngine;
-using Shared;
 
 namespace ONI_MP.Networking
 {
@@ -230,8 +231,17 @@ namespace ONI_MP.Networking
 			MP_Timer.Instance.Abort();
 			if (!SaveHelper.SavegameDlcListValid(packet.ActiveDlcIds, out var errorMsg))
 			{
-				DebugConsole.Log("Gamestate packet was not valid");
+				DebugConsole.Log("invalid dlc config detected");
 				SaveHelper.ShowMessageAndReturnToMainMenu(errorMsg);
+				return;
+			}
+
+			if(!SaveHelper.SteamModListSynced(packet.ActiveModIds, out var notEnabled, out var notDisabled, out var missingMods))
+			{
+				DialogUtil.CreateConfirmDialogFrontend("Yo mods r not synced!",
+				"mod differences detected in steam mods:\n" + notEnabled.Count + " are not yet enabled,\n" + notDisabled.Count + " should be disabled\n" + missingMods.Count + " are not subbed yet.",
+			"sync mods and restart", () => { }, "Connect anyway", () => ContinueConnectionFlow());
+				DebugConsole.Log("mods not synced!");
 				return;
 			}
 
