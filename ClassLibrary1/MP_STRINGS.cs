@@ -257,6 +257,14 @@ namespace ONI_MP
 						public static LocString UNREADY = "Loading";
 						public static LocString UNKNOWN = "Unknown";
 					}
+
+					public class DLCSYNC
+					{
+						public static LocString WRONGDLC_BASEGAME = "Server requires Spaced Out, cannot join without SpacedOut active!";
+						public static LocString WRONGDLC_SPACEDOUT = "Server requires Base Game, cannot join with Spaced Out active!";
+						public static LocString WRONGDLC_LISTHEADER = "Server requires the following DLCs which are not installed or active:";
+						
+					}
 				}
 			}
 		}

@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using static SaveGame;
 
 public static class SaveHelper
 {
@@ -102,19 +103,15 @@ public static class SaveHelper
             App.LoadScene("frontend");
 		}
 	}
-	public static bool SavegameDlcListValid(byte[] saveBytes, out string errorMsg)
-	{
-		errorMsg = null;
-		IReader reader = new FastReader(saveBytes);
-		//read the gameInfo to advance the filereader
-		SaveGame.GameInfo gameInfo = SaveGame.GetHeader(reader, out SaveGame.Header header, "MP-Mod-Server-Save");
-		///check if all dlcs of the savegame are currently active
 
+	public static bool SavegameDlcListValid(IEnumerable<string> dlcIds, out string errorMsg)
+	{
+		errorMsg = string.Empty;
 		HashSet<string> missingDLCs = new HashSet<string>();
 
-		bool spacedOutSave = gameInfo.dlcIds.Contains(DlcManager.EXPANSION1_ID);
+		bool spacedOutSave = dlcIds.Contains(DlcManager.EXPANSION1_ID);
 
-		foreach (var dlcId in gameInfo.dlcIds)
+		foreach (var dlcId in dlcIds)
 		{
 			if (!DlcManager.IsContentSubscribed(dlcId))
 			{
@@ -125,19 +122,30 @@ public static class SaveHelper
 		if (spacedOutSave != DlcManager.IsExpansion1Active())
 		{
 			errorMsg = spacedOutSave
-				? "Server requires Spaced Out, cannot join without SpacedOut active!"
-				: "Server requires Base Game, cannot join with Spaced Out active!";
+				? MP_STRINGS.UI.MP_OVERLAY.SYNC.DLCSYNC.WRONGDLC_BASEGAME
+				: MP_STRINGS.UI.MP_OVERLAY.SYNC.DLCSYNC.WRONGDLC_SPACEDOUT;
 			return false;
 		}
 
 
 		if (missingDLCs.Any())
 		{
-			errorMsg = "Server requires the following DLCs which are not installed or active:\n" + string.Join(", ", missingDLCs.Select(id => DlcManager.GetDlcTitleNoFormatting(id)));
+			errorMsg = MP_STRINGS.UI.MP_OVERLAY.SYNC.DLCSYNC.WRONGDLC_LISTHEADER+"\n" + string.Join(", ", missingDLCs.Select(id => DlcManager.GetDlcTitleNoFormatting(id)));
 			return false;
 		}
-
 		return true;
+	}
+
+	public static bool SavegameDlcListValid(byte[] saveBytes, out string errorMsg)
+	{
+		errorMsg = null;
+		IReader reader = new FastReader(saveBytes);
+		//read the gameInfo to advance the filereader
+		SaveGame.GameInfo gameInfo = SaveGame.GetHeader(reader, out SaveGame.Header header, "MP-Mod-Server-Save");
+		///check if all dlcs of the savegame are currently active
+
+
+		return SavegameDlcListValid(gameInfo.dlcIds, out errorMsg);
 
 		///this is for later use if we want game mod syncing
 		KSerialization.Manager.DeserializeDirectory(reader);
