@@ -69,6 +69,9 @@ namespace ONI_MP.Networking
 			{
 				_state = newState;
 				DebugConsole.Log($"[GameClient] State changed to: {_state}");
+
+				if(newState == ClientState.Connected)
+					Game.Instance?.Trigger(GameServer.OnConnected);
 			}
 		}
 
