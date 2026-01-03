@@ -240,7 +240,7 @@ namespace ONI_MP.Networking
 			{
 				DialogUtil.CreateConfirmDialogFrontend("Yo mods r not synced!",
 				"mod differences detected in steam mods:\n" + notEnabled.Count + " are not yet enabled,\n" + notDisabled.Count + " should be disabled\n" + missingMods.Count + " are not subbed yet.",
-			"sync mods and restart", () => { }, "Connect anyway", () => ContinueConnectionFlow());
+			"sync mods and restart", () => { SaveHelper.SyncModsAndRestart(notEnabled, notDisabled, missingMods); }, "Connect anyway", () => ContinueConnectionFlow());
 				DebugConsole.Log("mods not synced!");
 				return;
 			}
