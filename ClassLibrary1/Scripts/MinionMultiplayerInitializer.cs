@@ -17,7 +17,9 @@ namespace ONI_MP.Scripts
 
 		public override void OnSpawn()
 		{
+			return;
 			base.OnSpawn();
+			InitializeMP(null);
 			Game.Instance?.Subscribe(MP_HASHES.OnMultiplayerGameSessionInitialized, InitializeMP);
 			Game.Instance?.Subscribe(MP_HASHES.GameClient_OnConnectedInGame, InitializeMP);
 		}
