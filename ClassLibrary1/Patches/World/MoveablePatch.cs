@@ -10,7 +10,7 @@ public static class MoveablePatch
 	public static void Postfix(Movable __instance)
 	{
 		__instance.onPickupComplete += OnPickup;
-		DebugConsole.Log($"[Movable.OnSpawn] Attached to: {__instance.gameObject.name} ({__instance.GetInstanceID()})");
+		DebugConsole.Log($"[Movable.OnSpawn] Attached to: {STRINGS.UI.StripLinkFormatting(__instance.gameObject.GetProperName())} ({__instance.GetInstanceID()})");
 	}
 	static void OnPickup(GameObject go)
 	{

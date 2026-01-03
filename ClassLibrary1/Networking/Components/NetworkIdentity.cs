@@ -10,6 +10,9 @@ namespace ONI_MP.Networking.Components
 		[Serialize]
 		public int NetId;
 
+		[SkipSaveFileSerialization]
+		private bool IsRegistered = false;
+
 		public void Serialize(BinaryWriter writer)
 		{
 			//DebugConsole.Log($"[NetworkIdentity] SERIALIZING: NetId = {NetId} on {gameObject.name}");
@@ -28,7 +31,10 @@ namespace ONI_MP.Networking.Components
 
 		public void RegisterIdentity()
 		{
-			if (Grid.WidthInCells == 0) 
+			if (IsRegistered)
+				return;
+
+			if (Grid.WidthInCells == 0)
 			{
 				// DebugConsole.LogWarning($"[NetworkIdentity] Skipping registration for {gameObject.name} - Grid not ready");
 				return;
@@ -46,7 +52,7 @@ namespace ONI_MP.Networking.Components
 						// DebugConsole.Log($"[NetworkIdentity] Generated Deterministic NetId {detId} for building {gameObject.name}");
 					}
 				}
-				else 
+				else
 				{
 					int detId = NetIdHelper.GetDeterministicEntityId(gameObject);
 					if (detId != 0)
@@ -67,6 +73,7 @@ namespace ONI_MP.Networking.Components
 				NetworkIdentityRegistry.RegisterExisting(this, NetId);
 				// DebugConsole.Log($"[NetworkIdentity] Registered Existing NetId {NetId} for {gameObject.name}");
 			}
+			IsRegistered = true;
 		}
 
 		/// <summary>
