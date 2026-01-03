@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ONI_MP.Scripts
+namespace ONI_MP.Scripts.Duplicants
 {
 	internal class MinionMultiplayerInitializer : KMonoBehaviour
 	{
@@ -29,7 +29,7 @@ namespace ONI_MP.Scripts
 
 		void InitializeMP(object _ = null)
 		{
-			this.StartCoroutine(DelayedInit());
+			StartCoroutine(DelayedInit());
 		}
 
 		IEnumerator DelayedInit()

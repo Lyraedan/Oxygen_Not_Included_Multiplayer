@@ -4,7 +4,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
-using ONI_MP.Scripts;
+using ONI_MP.Scripts.Duplicants;
 using UnityEngine;
 
 [HarmonyPatch(typeof(BaseMinionConfig), nameof(BaseMinionConfig.BaseMinion))]

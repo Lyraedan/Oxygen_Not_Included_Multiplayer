@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ONI_MP.Scripts
+namespace ONI_MP.Scripts.Duplicants
 {
 	internal class MinionNavigatorSender : KMonoBehaviour
 	{
+		//not yet used.
 		[MyCmpGet] KPrefabID kpref;
 		[MyCmpGet] Navigator navigator;
 		public override void OnSpawn()
