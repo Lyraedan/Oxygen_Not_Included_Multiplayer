@@ -3,6 +3,7 @@ using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using Shared;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,14 +27,24 @@ namespace ONI_MP.Scripts
 			Game.Instance?.Subscribe(MP_HASHES.GameClient_OnConnectedInGame, InitializeMP);
 		}
 
-
-		void InitializeMP(object _)
+		void InitializeMP(object _ = null)
 		{
-			DebugConsole.Log("OnMultiplayerGameSessionInitialized");
+			this.StartCoroutine(DelayedInit());
+		}
+
+		IEnumerator DelayedInit()
+		{
+			yield return null;
+			FinalizeInit();
+		}
+
+		void FinalizeInit()
+		{
 			var go = gameObject;
-			if (!MultiplayerSession.InSession) return;
+			if (MultiplayerSession.NotInSession) return;
 			if (!kpref?.HasTag(GameTags.BaseMinion) ?? false) return;
 
+			DebugConsole.Log("OnMultiplayerGameSessionInitialized");
 			// If we are a client, disable the brain/chores so the dupe is just a puppet
 			if (MultiplayerSession.IsClient)
 			{

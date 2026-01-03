@@ -15,6 +15,7 @@ namespace ONI_MP.Patches.World
 		{
 			if (__result)
 				TryCreateLobbyAfterLoad("[Multiplayer] Lobby created after new world gen.");
+
 		}
 
         [HarmonyPostfix]
@@ -37,7 +38,6 @@ namespace ONI_MP.Patches.World
             if (MultiplayerSession.InSession)
             {
 				SpeedControlScreen.Instance?.Unpause(false); // Unpause the game
-				Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
 			}
             //ReadyManager.SendReadyStatusPacket(Networking.States.ClientReadyState.Ready);
         }
