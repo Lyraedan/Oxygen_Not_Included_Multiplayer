@@ -55,8 +55,8 @@ public static class DuplicantSpawnPatch
 {
 	public static void Postfix(GameObject go)
 	{
-		//go.AddOrGet<MinionMultiplayerInitializer>(); // Doesn't work (yet)
-		CoroutineRunner.RunOne(DelayedOnSpawn(go));
+		go.AddOrGet<MinionMultiplayerInitializer>(); // Doesn't work (yet)
+		//CoroutineRunner.RunOne(DelayedOnSpawn(go));
 	}
 
 	static IEnumerator DelayedOnSpawn(GameObject go)
