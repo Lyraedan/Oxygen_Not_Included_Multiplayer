@@ -196,6 +196,7 @@ public static class SaveHelper
 			if (modsToBeActive.Contains(localId) != isCurrentlyActive)
 			{
 				diffCount++;
+				DebugConsole.Log("mod " + mod.title + " is different from host, it should be: " + (isCurrentlyActive ? "disabled" : "enabled"));
 
 				if (isCurrentlyActive)
 					toDisable.Add(localId);

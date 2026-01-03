@@ -6,6 +6,7 @@ using ONI_MP.Networking.Packets.Social;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using static STRINGS.UI.CLUSTERMAP;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -47,6 +48,7 @@ namespace ONI_MP.Networking.Packets.World
 			try
 			{
 				var deliverable = EntityData.ToGameDeliverable();
+				Pos.x -= 0.5f;
 				GameObject entity = deliverable.Deliver(Pos);
 				NetworkIdentity identity = entity.AddOrGet<NetworkIdentity>();
 				identity.OverrideNetId(NetId);
