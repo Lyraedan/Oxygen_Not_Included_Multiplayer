@@ -17,10 +17,12 @@ namespace ONI_MP.Scripts
 		public override void OnSpawn()
 		{
 			base.OnSpawn();
-			Game.Instance.Subscribe(GameClient.OnConnectedInGame, InitializeMP);
+			Game.Instance?.Subscribe(MP_HASHES.GameClient_OnConnectedInGame, InitializeMP); // Client listener
+			Game.Instance?.Subscribe(MP_HASHES.GameServer_OnServerStarted, InitializeMP); // Host listener
 		}
 		void InitializeMP(object _)
 		{
+			DebugConsole.Log("INIT MP");
 			var go = gameObject;
 			if (!MultiplayerSession.InSession) return;
 

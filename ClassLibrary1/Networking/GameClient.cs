@@ -21,8 +21,6 @@ namespace ONI_MP.Networking
 {
 	public static class GameClient
 	{
-        public static readonly ModHashes OnConnectedInGame = new("MP_OnConnectedInGame");
-
         private static Callback<SteamNetConnectionStatusChangedCallback_t> _connectionStatusChangedCallback;
 		public static HSteamNetConnection? Connection { get; private set; }
 
@@ -70,10 +68,7 @@ namespace ONI_MP.Networking
 			if (_state != newState)
 			{
 				_state = newState;
-				DebugConsole.Log($"[GameClient] State changed to: {_state}");
-
-				if(newState == ClientState.Connected)
-					Game.Instance?.Trigger(GameServer.OnConnected);
+				DebugConsole.Log($"[GameClient] State changed to: {_state}");					
 			}
 		}
 
@@ -280,8 +275,10 @@ namespace ONI_MP.Networking
 
 			// We've reconnected in game
 			MultiplayerSession.InSession = true;
+            Game.Instance?.Trigger(MP_HASHES.OnConnected);
+            SetState(ClientState.Connected);
 
-			var hostId = MultiplayerSession.HostSteamID;
+            var hostId = MultiplayerSession.HostSteamID;
 			if (!MultiplayerSession.ConnectedPlayers.ContainsKey(hostId))
 			{
 				var hostPlayer = new MultiplayerPlayer(hostId);
@@ -310,7 +307,6 @@ namespace ONI_MP.Networking
 				PacketSender.SendToHost(new GameStateRequestPacket(MultiplayerSession.LocalSteamID));
 				MP_Timer.Instance.StartDelayedAction(10, () => CoroutineRunner.RunOne(ShowMessageAndReturnToTitle()));
 			}
-            SetState(ClientState.Connected);
         }
 
         private static void ContinueConnectionFlow()
@@ -370,7 +366,7 @@ namespace ONI_MP.Networking
 					DebugConsole.Log("[GameClient] Cleared HardSyncInProgress flag");
 				}
 
-				Game.Instance?.Trigger(OnConnectedInGame);
+				Game.Instance?.Trigger(MP_HASHES.GameClient_OnConnectedInGame);
                 ReadyManager.SendReadyStatusPacket(ClientReadyState.Ready);
 				MultiplayerSession.CreateConnectedPlayerCursors();
 

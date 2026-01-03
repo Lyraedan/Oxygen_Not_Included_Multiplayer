@@ -1,0 +1,19 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Shared;
+
+namespace ONI_MP
+{
+    public static class MP_HASHES
+    {
+        public static readonly ModHashes GameServer_OnStateChanged = new("Server_OnStateChanged");
+        public static readonly ModHashes GameServer_OnServerStarted = new("Server_OnStarted");
+
+        public static readonly ModHashes OnConnected = new("MP_OnConnected");
+
+        public static readonly ModHashes GameClient_OnConnectedInGame = new("MP_OnConnectedInGame");
+    }
+}
