@@ -64,6 +64,7 @@ namespace ONI_MP.Patches
 								SteamLobby.CreateLobby(onSuccess: () =>
 								{
 									SpeedControlScreen.Instance?.Unpause(false);
+									Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
 								});
 							});
 						}

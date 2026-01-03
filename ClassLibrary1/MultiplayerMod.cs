@@ -25,6 +25,9 @@ namespace ONI_MP
 		public override void OnLoad(Harmony harmony)
 		{
 			base.OnLoad(harmony);
+
+			ModAssets.LoadAssetBundles();
+
             string logPath = System.IO.Path.Combine(Application.dataPath, "../ONI_MP_Log.txt");
 
 			try

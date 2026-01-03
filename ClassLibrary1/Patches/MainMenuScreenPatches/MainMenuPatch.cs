@@ -3,6 +3,7 @@ using ONI_MP;
 using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
+using ONI_MP.UI;
 using Steamworks;
 using System;
 using System.Linq;
@@ -15,10 +16,10 @@ internal static class MainMenuPatch
 {
 	private static GameObject staticBgGO;
 
-	private static void Postfix(MainMenu __instance)
+	public static void Postfix(MainMenu __instance)
 	{
 		int normalFontSize = 20;
-		var normalStyle = __instance.normalButtonStyle; 
+		var normalStyle = __instance.normalButtonStyle;
 
 		var buttonInfoType = __instance.GetType().GetNestedType("ButtonInfo", BindingFlags.NonPublic);
 
@@ -29,6 +30,8 @@ internal static class MainMenuPatch
 				MP_STRINGS.UI.MAINMENU.MULTIPLAYER.LABEL,
 				new System.Action(() =>
 				{
+					//UnityMultiplayerScreen.OpenFromMainMenu();
+
 					// Open the multiplayer screen
 					var canvas = UnityEngine.Object.FindObjectOfType<Canvas>();
 					if (canvas != null)
@@ -73,9 +76,9 @@ internal static class MainMenuPatch
 			var multiplayerBtn = children.FirstOrDefault(b => b.GetComponentInChildren<LocText>()?.text.ToUpper().Contains(MP_STRINGS.UI.MAINMENU.MULTIPLAYER.LABEL) == true);
 
 			int siblingIndex = children.Length >= 10 ? 4 : 3;
-            multiplayerBtn.transform.SetSiblingIndex(siblingIndex);
-        }
-    }
+			multiplayerBtn.transform.SetSiblingIndex(siblingIndex);
+		}
+	}
 
 	private static void UpdateLogo()
 	{
@@ -213,14 +216,15 @@ internal static class MainMenuPatch
 					promoContainer.GetComponent<RectTransform>().anchoredPosition.x + 925f,
 					30f
 			);
-		} else
+		}
+		else
 		{
 			// place left next to promos
-            socialsRect.anchoredPosition = new Vector2(
-                    promoContainer.GetComponent<RectTransform>().anchoredPosition.x - 525f,
-                    30f
-            );
-        }
+			socialsRect.anchoredPosition = new Vector2(
+					promoContainer.GetComponent<RectTransform>().anchoredPosition.x - 525f,
+					30f
+			);
+		}
 
 
 		var layout = socialsContainer.AddComponent<HorizontalLayoutGroup>();
