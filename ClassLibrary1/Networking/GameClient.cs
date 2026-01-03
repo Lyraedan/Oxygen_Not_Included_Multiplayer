@@ -1,7 +1,6 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
-using ONI_MP.Networking.Compatibility;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Handshake;
@@ -607,75 +606,6 @@ namespace ONI_MP.Networking
 
 			// Continue with normal connection flow
 			ContinueConnectionFlow();
-		}
-
-		public static void OnModVerificationRejected(string reason, string[] missingMods, string[] extraMods, string[] versionMismatches, ulong[] steamModIds)
-		{
-			DebugConsole.Log($"[GameClient] Mod verification REJECTED by host: {reason}");
-			DebugConsole.Log($"[GameClient] Steam mods available for auto-install: {steamModIds?.Length ?? 0}");
-			DebugConsole.Log("[GameClient] Disconnecting client due to mod incompatibility...");
-
-			// Show detailed error to user with option to install mods
-			ShowModIncompatibilityError(reason, missingMods, extraMods, versionMismatches, steamModIds);
-
-			// Disconnect from host immediately
-			Disconnect();
-
-			DebugConsole.Log("[GameClient] Client disconnected successfully due to mod incompatibility");
-		}
-
-		private static void ShowModIncompatibilityError(string reason, string[] missingMods, string[] extraMods, string[] versionMismatches, ulong[] steamModIds)
-		{
-			try
-			{
-				// DO NOT close MultiplayerOverlay here - we need it to show the error message
-				// MultiplayerOverlay.Close(); // REMOVED - was causing popup to disappear
-
-				// Build detailed error message for console log
-				var errorMessage = $"Mod compatibility check failed:\n{reason}\n\n";
-
-				if (missingMods != null && missingMods.Length > 0)
-				{
-					errorMessage += $"Missing mods (install these):\n";
-					foreach (var mod in missingMods)
-					{
-						errorMessage += $"• {mod}\n";
-					}
-					errorMessage += "\n";
-				}
-
-				if (extraMods != null && extraMods.Length > 0)
-				{
-					errorMessage += $"Extra mods (disable these):\n";
-					foreach (var mod in extraMods)
-					{
-						errorMessage += $"• {mod}\n";
-					}
-					errorMessage += "\n";
-				}
-
-				if (versionMismatches != null && versionMismatches.Length > 0)
-				{
-					errorMessage += $"Version mismatches (update these):\n";
-					foreach (var mod in versionMismatches)
-					{
-						errorMessage += $"• {mod}\n";
-					}
-					errorMessage += "\n";
-				}
-
-				errorMessage += "Please ensure your mods match the host's configuration.";
-
-				// Log error to console
-				DebugConsole.Log($"[GameClient] {errorMessage}");
-
-				// Show UI popup with mod compatibility details with auto-install option - this will keep overlay visible
-				ModCompatibilityPopup.ShowIncompatibilityError(reason, missingMods, extraMods, versionMismatches, steamModIds);
-			}
-			catch (Exception ex)
-			{
-				DebugConsole.LogWarning($"[GameClient] Error showing mod incompatibility dialog: {ex.Message}");
-			}
 		}
 
 		public static void DisableMessageHandlers()
