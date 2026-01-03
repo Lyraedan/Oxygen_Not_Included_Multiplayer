@@ -7,16 +7,18 @@ namespace ONI_MP.Networking.Packets.Tools.Deconstruct
 {
 	public class DeconstructCompletePacket : IPacket
 	{
-		public int Cell;
+		public int Cell, ObjectLayer;
 
 		public void Serialize(BinaryWriter writer)
 		{
 			writer.Write(Cell);
+			writer.Write(ObjectLayer);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
 			Cell = reader.ReadInt32();
+			ObjectLayer = reader.ReadInt32();
 		}
 
 		public void OnDispatched()
@@ -24,18 +26,14 @@ namespace ONI_MP.Networking.Packets.Tools.Deconstruct
 			if (!Grid.IsValidCell(Cell))
 				return;
 
-			for (int i = 0; i < 45; i++)
-			{
-				GameObject go = Grid.Objects[Cell, i];
-				if (go == null)
-					continue;
+			GameObject go = Grid.Objects[Cell, ObjectLayer];
+			if (go == null)
+				return;
 
-				var deconstructable = go.GetComponent<Deconstructable>();
-				if (deconstructable != null && !deconstructable.HasBeenDestroyed)
-				{
-					DebugConsole.Log($"[DeconstructCompletePacket] Forcing deconstruct at cell {Cell} on client.");
-					deconstructable.ForceDestroyAndGetMaterials();
-				}
+			if (go.TryGetComponent<Deconstructable>(out var deconstructable) && !deconstructable.HasBeenDestroyed)
+			{
+				DebugConsole.Log($"[DeconstructCompletePacket] Forcing deconstruct at cell {Cell} on objectlayer {ObjectLayer} on client.");
+				deconstructable.ForceDestroyAndGetMaterials();
 			}
 		}
 	}

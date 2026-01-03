@@ -1,4 +1,5 @@
 ﻿using ONI_MP.DebugTools;
+using Shared;
 using Steamworks;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +8,7 @@ namespace ONI_MP.Networking
 {
 	public static class MultiplayerSession
 	{
+
 		public static bool ShouldHostAfterLoad = false;
 
 		/// <summary>
@@ -19,6 +21,7 @@ namespace ONI_MP.Networking
 		public static CSteamID HostSteamID { get; set; } = CSteamID.Nil;
 
 		public static bool InSession = false;
+		public static bool NotInSession => !InSession;
 
 		public static bool IsHost => HostSteamID == LocalSteamID;
 

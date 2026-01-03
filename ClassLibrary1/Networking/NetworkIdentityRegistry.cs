@@ -28,6 +28,7 @@ namespace ONI_MP.Networking
 			identities.Remove(netId);
 		}
 
+
 		public static void RegisterExisting(NetworkIdentity entity, int netId)
 		{
 			if (!identities.ContainsKey(netId))
@@ -66,6 +67,16 @@ namespace ONI_MP.Networking
 				DebugConsole.LogWarning($"[NetEntityRegistry] ERROR: Requested NetId {netId} NOT FOUND in registry. Current count: {identities.Count}");
 			}
 			return found;
+		}
+
+		public static bool TryGetComponent<T>(int netId, out T component)
+		{
+			component = default(T);
+			if (!TryGet(netId, out var ni))
+				return false;
+			if(ni.gameObject.IsNullOrDestroyed())
+				return false;
+			return !ni.gameObject.TryGetComponent<T>(out component);
 		}
 
 		public static void Clear()

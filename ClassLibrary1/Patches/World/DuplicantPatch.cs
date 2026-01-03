@@ -4,6 +4,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
+using ONI_MP.Scripts;
 using UnityEngine;
 
 [HarmonyPatch(typeof(BaseMinionConfig), nameof(BaseMinionConfig.BaseMinion))]
@@ -54,7 +55,7 @@ public static class DuplicantSpawnPatch
 {
 	public static void Postfix(GameObject go)
 	{
-		CoroutineRunner.RunOne(DelayedOnSpawn(go));
+		go.AddOrGet<MinionMultiplayerInitializer>();
 	}
 
 	static IEnumerator DelayedOnSpawn(GameObject go)

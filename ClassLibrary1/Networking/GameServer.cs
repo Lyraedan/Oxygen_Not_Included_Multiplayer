@@ -1,8 +1,9 @@
 ﻿using ONI_MP.DebugTools;
+using ONI_MP.Networking.Compatibility;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Handshake;
-using ONI_MP.Networking.Compatibility;
 using ONI_MP.Networking.States;
+using Shared;
 using Steamworks;
 using System;
 using System.Runtime.InteropServices;
@@ -11,6 +12,8 @@ namespace ONI_MP.Networking
 {
 	public static class GameServer
 	{
+		public static readonly ModHashes OnStateChanged = new("Server_OnStateChanged");
+		public static readonly ModHashes OnConnected = new("MP_OnConnected");
 		public static HSteamListenSocket ListenSocket { get; private set; }
 		public static HSteamNetPollGroup PollGroup { get; private set; }
 		private static Callback<SteamNetConnectionStatusChangedCallback_t> _connectionStatusChangedCallback;
@@ -24,6 +27,7 @@ namespace ONI_MP.Networking
 			{
 				_state = newState;
 				DebugConsole.Log($"[GameServer] State changed to: {_state}");
+				Game.Instance?.Trigger(OnStateChanged);
 			}
 		}
 
@@ -69,6 +73,7 @@ namespace ONI_MP.Networking
 
 			DebugConsole.Log("[GameServer] Listen socket and poll group created (CLIENT API).");
 			MultiplayerSession.InSession = true;
+			Game.Instance?.Trigger(OnConnected);
 			//MultiplayerOverlay.Close();
 
 			// Initialize mod compatibility manager for host

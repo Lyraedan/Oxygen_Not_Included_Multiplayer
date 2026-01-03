@@ -130,7 +130,7 @@ public static class SaveHelper
 			if (mod.label.distribution_platform != KMod.Label.DistributionPlatform.Steam
 			|| !ulong.TryParse(mod.label.id, out var localId))
 				continue;
-			if(MissingModIds.Contains(localId) && mod.status == KMod.Mod.Status.Installed)
+			if (MissingModIds.Contains(localId) && mod.status == KMod.Mod.Status.Installed)
 			{
 				MissingModIds.Remove(localId);
 				DebugConsole.Log("enabling freshly installed mod " + mod.title + ", remaining missing mods: " + MissingModIds.Count);
@@ -160,20 +160,32 @@ public static class SaveHelper
 		}
 		MissingModIds = missingMods;
 		mng.Save();
-		if(!MissingModIds.Any())
+		if (!MissingModIds.Any())
 			App.instance.Restart();
 		SubToAllMissing();
 	}
 	public static void SubToAllMissing()
 	{
-		foreach (ulong id in MissingModIds)
-			SubToMissing(id);
+		Global.Instance.StartCoroutine(DelayedSubscription());
 	}
 
 	static void SubToMissing(ulong steamID)
 	{
 		SteamUGC.SubscribeItem(new PublishedFileId_t(steamID));
 	}
+	static IEnumerator DelayedSubscription()
+	{
+		float modsToSub = MissingModIds.Count;
+		float waitingDelay = Mathf.Clamp(15f / modsToSub, 0.05f, 0.5f);
+
+		foreach (ulong id in MissingModIds)
+		{
+			SubToMissing(id);
+			yield return new WaitForSeconds(waitingDelay);
+		}
+	}
+
+
 	static StringBuilder sb = new();
 	public static bool SteamModListSynced(List<ulong> steamMods, out HashSet<ulong> toEnable, out HashSet<ulong> toDisable, out HashSet<ulong> missingMods)
 	{
