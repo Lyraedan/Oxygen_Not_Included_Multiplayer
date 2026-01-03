@@ -420,3 +420,5 @@ build_install.sh
 /PublicisedAssembly
 CLAUDE.md
 .claude/
+/dev_build
+task.md

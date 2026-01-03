@@ -243,10 +243,19 @@ namespace ONI_MP.Networking
 
 			DebugConsole.Log("[GameClient] Connection to host established!");
 
-			// Skip mod verification if we are the host
+			// Skip mod verification if we are the host OR if verification is disabled
 			if (MultiplayerSession.IsHost)
 			{
 				DebugConsole.Log("[GameClient] Skipping mod verification - we are the host");
+				ContinueConnectionFlow();
+				return;
+			}
+
+			// Check if mod verification is enabled on host
+			if (!ModCompatibilityManager.IsModVerificationEnabled())
+			{
+				DebugConsole.Log("[GameClient] Skipping mod verification - disabled by host configuration");
+				PacketHandler.readyToProcess = true;
 				ContinueConnectionFlow();
 				return;
 			}

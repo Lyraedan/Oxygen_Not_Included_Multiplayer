@@ -21,6 +21,12 @@ namespace ONI_MP.Menus
         private TMP_InputField _passwordInput;
         private TextMeshProUGUI _privateLabel;
         private TMP_InputField _lobbySizeInput;
+
+        // Mod Compatibility Settings
+        private Toggle _enableModVerificationToggle;
+        private Toggle _allowVersionMismatchesToggle;
+        private Toggle _allowExtraModsToggle;
+
         private static System.Action _onContinue;
 
         public static void Show(Transform parent, System.Action onContinue = null)
@@ -158,7 +164,7 @@ namespace ONI_MP.Menus
             contentRT.anchorMin = new Vector2(0.5f, 0.5f);
             contentRT.anchorMax = new Vector2(0.5f, 0.5f);
             contentRT.pivot = new Vector2(0.5f, 0.5f);
-            contentRT.sizeDelta = new Vector2(450, 400);
+            contentRT.sizeDelta = new Vector2(450, 650);
 
             var layout = contentGO.GetComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(30, 30, 30, 30);
@@ -187,8 +193,110 @@ namespace ONI_MP.Menus
             // Divider
             CreateDivider(contentGO.transform);
 
+            // Mod Compatibility Settings
+            CreateModCompatibilitySection(contentGO.transform);
+
+            // Divider
+            CreateDivider(contentGO.transform);
+
             // Buttons
             CreateButtons(contentGO.transform);
+        }
+
+        private void CreateModCompatibilitySection(Transform parent)
+        {
+            var container = new GameObject("ModCompatibilitySection", typeof(RectTransform), typeof(VerticalLayoutGroup));
+            container.transform.SetParent(parent, false);
+
+            var layout = container.GetComponent<VerticalLayoutGroup>();
+            layout.spacing = 12;
+            layout.childAlignment = TextAnchor.UpperCenter;
+            layout.childControlHeight = false;
+            layout.childControlWidth = true;
+
+            var rt = container.GetComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(0, 200);
+
+            // Section title
+            CreateLabel(container.transform, MP_STRINGS.UI.MODCOMPATIBILITY.TITLE, 20, 30);
+
+            // Enable Mod Verification toggle
+            _enableModVerificationToggle = CreateToggleOption(
+                container.transform,
+                MP_STRINGS.UI.MODCOMPATIBILITY.ENABLE_VERIFICATION,
+                MP_STRINGS.UI.MODCOMPATIBILITY.ENABLE_VERIFICATION_TOOLTIP,
+                Configuration.Instance.Host.EnableModCompatibilityCheck
+            );
+
+            // Allow Version Mismatches toggle
+            _allowVersionMismatchesToggle = CreateToggleOption(
+                container.transform,
+                MP_STRINGS.UI.MODCOMPATIBILITY.ALLOW_VERSION_MISMATCHES,
+                MP_STRINGS.UI.MODCOMPATIBILITY.ALLOW_VERSION_MISMATCHES_TOOLTIP,
+                Configuration.Instance.Host.AllowVersionMismatches
+            );
+
+            // Allow Extra Mods toggle
+            _allowExtraModsToggle = CreateToggleOption(
+                container.transform,
+                MP_STRINGS.UI.MODCOMPATIBILITY.ALLOW_EXTRA_MODS,
+                MP_STRINGS.UI.MODCOMPATIBILITY.ALLOW_EXTRA_MODS_TOOLTIP,
+                Configuration.Instance.Host.AllowExtraMods
+            );
+        }
+
+        private Toggle CreateToggleOption(Transform parent, string labelText, string tooltipText, bool defaultValue)
+        {
+            var container = new GameObject("ToggleOption", typeof(RectTransform), typeof(HorizontalLayoutGroup));
+            container.transform.SetParent(parent, false);
+
+            var layout = container.GetComponent<HorizontalLayoutGroup>();
+            layout.spacing = 15;
+            layout.childAlignment = TextAnchor.MiddleLeft;
+            layout.childControlWidth = false;
+            layout.childForceExpandWidth = false;
+
+            var rt = container.GetComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(0, 35);
+
+            // Label
+            var labelGO = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+            labelGO.transform.SetParent(container.transform, false);
+            var labelRT = labelGO.GetComponent<RectTransform>();
+            labelRT.sizeDelta = new Vector2(280, 35);
+
+            var labelTmp = labelGO.GetComponent<TextMeshProUGUI>();
+            labelTmp.text = labelText;
+            labelTmp.fontSize = 16;
+            labelTmp.alignment = TextAlignmentOptions.MidlineLeft;
+            labelTmp.color = Color.white;
+
+            // Toggle
+            var toggleBG = new GameObject("ToggleBG", typeof(RectTransform), typeof(Image), typeof(Toggle));
+            toggleBG.transform.SetParent(container.transform, false);
+            var toggleBGRT = toggleBG.GetComponent<RectTransform>();
+            toggleBGRT.sizeDelta = new Vector2(50, 25);
+
+            var bgImage = toggleBG.GetComponent<Image>();
+            bgImage.color = new Color(0.2f, 0.2f, 0.25f);
+
+            // Create checkmark
+            var checkmark = new GameObject("Checkmark", typeof(RectTransform), typeof(Image));
+            checkmark.transform.SetParent(toggleBG.transform, false);
+            var checkRT = checkmark.GetComponent<RectTransform>();
+            checkRT.anchorMin = Vector2.zero;
+            checkRT.anchorMax = Vector2.one;
+            checkRT.offsetMin = new Vector2(3, 3);
+            checkRT.offsetMax = new Vector2(-3, -3);
+
+            var checkImage = checkmark.GetComponent<Image>();
+            checkImage.color = new Color(0.4f, 0.7f, 1f);
+
+            var toggle = toggleBG.GetComponent<Toggle>();
+            toggle.graphic = checkImage;
+            toggle.isOn = defaultValue;
+
+            return toggle;
         }
 
         private void CreateLobbySizeOption(Transform parent)
@@ -433,6 +541,11 @@ namespace ONI_MP.Menus
                 Configuration.Instance.Host.Lobby.RequirePassword = false;
                 Configuration.Instance.Host.Lobby.PasswordHash = "";
             }
+
+            // Save mod compatibility settings
+            Configuration.Instance.Host.EnableModCompatibilityCheck = _enableModVerificationToggle.isOn;
+            Configuration.Instance.Host.AllowVersionMismatches = _allowVersionMismatchesToggle.isOn;
+            Configuration.Instance.Host.AllowExtraMods = _allowExtraModsToggle.isOn;
 
             Configuration.Instance.Save();
 

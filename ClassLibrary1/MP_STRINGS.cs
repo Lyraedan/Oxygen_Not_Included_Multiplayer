@@ -54,6 +54,90 @@ namespace ONI_MP
 				public static LocString LOBBY_SIZE = "Lobby Size:";
             }
 
+            public class MODCOMPATIBILITY
+			{
+				public static LocString TITLE = "Mod Compatibility Settings";
+				public static LocString ENABLE_VERIFICATION = "Enable Mod Verification";
+				public static LocString ENABLE_VERIFICATION_TOOLTIP = "Check if all players have the same mods before allowing connection";
+				public static LocString ALLOW_VERSION_MISMATCHES = "Allow Version Mismatches";
+				public static LocString ALLOW_VERSION_MISMATCHES_TOOLTIP = "Allow players to join with different mod versions";
+				public static LocString ALLOW_EXTRA_MODS = "Allow Extra Mods";
+				public static LocString ALLOW_EXTRA_MODS_TOOLTIP = "Allow players to have additional mods that the host doesn't have";
+
+				public class POPUP
+				{
+					public static LocString TITLE = "Mod Compatibility Error";
+					public static LocString MISSING_MODS_HEADER = "Missing Required Mods:";
+					public static LocString MISSING_MODS_SECTION = "MISSING MODS (install these):";
+					public static LocString DISABLED_MODS_SECTION = "DISABLED MODS (enable these):";
+					public static LocString EXTRA_MODS_HEADER = "Extra Mods (not allowed):";
+					public static LocString EXTRA_MODS_SECTION = "EXTRA MODS (you have these):";
+					public static LocString VERSION_MISMATCH_HEADER = "Version Mismatches:";
+					public static LocString VERSION_MISMATCH_SECTION = "VERSION MISMATCHES (update these):";
+					public static LocString INSTALL_ALL = "Install All Missing Mods";
+					public static LocString INSTALL = "Install";
+					public static LocString ENABLE_ALL = "Enable All Disabled Mods";
+					public static LocString ENABLE = "Enable";
+					public static LocString VIEW = "View";
+					public static LocString UPDATE = "Update";
+					public static LocString VIEW_WORKSHOP = "View on Workshop";
+					public static LocString CLOSE = "Close";
+					public static LocString INSTALLING = "Installing mods...";
+					public static LocString INSTALL_PROGRESS = "Installing mod {0} of {1}...";
+					public static LocString INSTALL_COMPLETE = "Installation complete! Please restart the game.";
+					public static LocString INSTALL_FAILED = "Installation failed for some mods. Please try manually.";
+					public static LocString ENABLING_MODS = "Enabling mods...";
+					public static LocString RESTART_REQUIRED = "Restart required to apply mod changes.";
+					public static LocString PLEASE_WAIT = "Please wait while mods are being downloaded and installed...";
+					public static LocString ALL_MODS_ENABLED = "All mods have been enabled!";
+					public static LocString CLOSE_TO_RESTART = "Close this window to restart the game and apply changes.";
+					public static LocString MODS_ENABLED_CLOSE_TO_RESTART = "Mods have been enabled. Close this window to restart the game.";
+					public static LocString PREPARING_INSTALL = "Preparing to install mods...";
+					public static LocString ACTIVATING_MODS = "Activating installed mods...";
+					public static LocString INSTALL_SUCCESS = "Successfully installed and activated {0} mods!";
+					public static LocString INSTALL_SUCCESS_SINGLE = "Successfully installed and activated {0}!";
+					public static LocString INSTALL_PARTIAL_SUCCESS = "Installed {0} mods. Some may need manual activation or game restart.";
+					public static LocString INSTALL_PARTIAL_SUCCESS_SINGLE = "Installed {0}. May need manual activation or game restart.";
+					public static LocString INSTALL_FAILED_SINGLE = "Installation failed for {0}: {1}";
+					public static LocString INSTALL_FAILED_GENERIC = "Installation failed: {0}";
+					public static LocString INSTALL_NO_MODS_PROCESSED = "Installation completed but no mods were processed.";
+					public static LocString INSTALLING_SINGLE = "Installing {0}...";
+					public static LocString INSTALLING_PROGRESS_DETAILED = "Installing mod {0} of {1}...";
+					public static LocString ACTIVATING_MOD = "Activating mod...";
+					public static LocString MODS_ENABLED_RESTART_NOTIFICATION = "Mods enabled successfully!\nPlease restart the game for changes to take effect.";
+					public static LocString EXTRA_MODS_INFO = "You have extra mods (this is allowed):";
+					public static LocString INSTALL_DISABLE_INSTRUCTION = "Install/disable the required mods, then try connecting again.";
+					public static LocString CONNECTION_ALLOWED_INFO = "Connection allowed. Your extra mods shouldn't cause issues.";
+					public static LocString FAILED_INSTALL_ERROR = "Failed to install {0}: {1}";
+
+					// Apply confirmation dialog strings
+					public static LocString APPLY = "Apply";
+					public static LocString CANCEL = "Cancel";
+					public static LocString CHANGES_APPLIED_TITLE = "Changes Applied";
+					public static LocString ACTIVATED_MODS_SECTION = "Activated Mods:";
+					public static LocString DEACTIVATED_MODS_SECTION = "Deactivated Mods:";
+					public static LocString ONE_MOD_ACTIVATED = "1 mod was activated";
+					public static LocString ONE_MOD_DEACTIVATED = "1 mod was deactivated";
+					public static LocString MULTIPLE_MODS_ACTIVATED = "{0} mods were activated";
+					public static LocString MULTIPLE_MODS_DEACTIVATED = "{0} mods were deactivated";
+					public static LocString MULTIPLE_MODS_MODIFIED = "{0} mods were modified";
+					public static LocString GAME_RESTART_REQUIRED_MESSAGE = "A game restart is required to apply these changes.";
+
+					// Restart prompt strings (ItsLuke feedback: native restart prompt)
+					public static LocString DISABLE = "Disable";
+					public static LocString RESTART_REQUIRED_TITLE = "Game Restart Required";
+					public static LocString RESTART_REQUIRED_MESSAGE = "Mods have been enabled or disabled. The game needs to restart to apply these changes.\n\nWould you like to restart now?";
+					public static LocString RESTART_NOW = "Restart Now";
+					public static LocString RESTART_LATER = "Restart Later";
+				}
+
+				// Restart prompt strings (outside POPUP for general use)
+				public static LocString RESTART_REQUIRED_TITLE = "Game Restart Required";
+				public static LocString RESTART_REQUIRED_MESSAGE = "Mod changes require a game restart to take effect.";
+				public static LocString RESTART_NOW = "Restart Now";
+				public static LocString RESTART_LATER = "Restart Later";
+			}
+
             public class JOINBYDIALOGMENU
 			{
 				public static LocString JOIN_BY_CODE = "Join By Code";
