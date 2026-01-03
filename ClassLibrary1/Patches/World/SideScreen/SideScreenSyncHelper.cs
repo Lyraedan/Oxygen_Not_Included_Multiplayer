@@ -152,7 +152,7 @@ namespace ONI_MP.Patches.World.SideScreen
 			else PacketSender.SendToHost(packet);
 		}
 
-        public static void SyncQueueBuildingEnabledToggle(GameObject target, bool queuedToggle)
+        public static void SyncQueueToggleable(GameObject target, bool expectedQueue)
         {
             if (BuildingConfigPacket.IsApplyingPacket) return;
             if (target == null) return;
@@ -164,18 +164,18 @@ namespace ONI_MP.Patches.World.SideScreen
             {
                 NetId = identity.NetId,
                 Cell = Grid.PosToCell(target),
-                ConfigHash = "QueueBuildingEnableStateChange".GetHashCode(),
-                Value = queuedToggle ? 1f : 0f,
+                ConfigHash = "QueueToggleable".GetHashCode(),
+                Value = expectedQueue ? 1f : 0f,
                 ConfigType = BuildingConfigType.Boolean
             };
 
-            DebugConsole.Log($"[SideScreenSyncHelper.SyncQueueBuildingEnabledToggle] Sending packet: ConfigHash={packet.ConfigHash}, Value={packet.Value}");
+            DebugConsole.Log($"[SideScreenSyncHelper.SyncQueueToggleable] Sending packet: ConfigHash={packet.ConfigHash}, Value={packet.Value}");
 
             if (MultiplayerSession.IsHost) PacketSender.SendToAllClients(packet);
             else PacketSender.SendToHost(packet);
         }
 
-        public static void SyncBuildingEnabledChange(GameObject target, bool buildingEnabled)
+        public static void SyncToggleableState(GameObject target, bool buildingEnabled)
         {
             if (BuildingConfigPacket.IsApplyingPacket) return;
             if (target == null) return;
@@ -187,12 +187,12 @@ namespace ONI_MP.Patches.World.SideScreen
 			{
 				NetId = identity.NetId,
 				Cell = Grid.PosToCell(target),
-				ConfigHash = "BuildingEnableStateChange".GetHashCode(),
+				ConfigHash = "ToggleableChange".GetHashCode(),
 				Value = buildingEnabled ? 1f : 0f,
 				ConfigType = BuildingConfigType.Boolean
 			};
 
-            DebugConsole.Log($"[SideScreenSyncHelper.SyncBuildingEnabledChange] Sending packet: ConfigHash={packet.ConfigHash}, Value={packet.Value}");
+            DebugConsole.Log($"[SideScreenSyncHelper.SyncToggleableState] Sending packet: ConfigHash={packet.ConfigHash}, Value={packet.Value}");
 
             // Only hosts sync building enabled state to clients
             if (MultiplayerSession.IsHost) PacketSender.SendToAllClients(packet);
