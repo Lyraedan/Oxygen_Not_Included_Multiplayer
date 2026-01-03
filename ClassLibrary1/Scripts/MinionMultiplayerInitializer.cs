@@ -17,7 +17,7 @@ namespace ONI_MP.Scripts
 		public override void OnSpawn()
 		{
 			base.OnSpawn();
-			Game.Instance.Subscribe(GameServer.OnConnected, InitializeMP);
+			Game.Instance.Subscribe(GameClient.OnConnectedInGame, InitializeMP);
 		}
 		void InitializeMP(object _)
 		{
