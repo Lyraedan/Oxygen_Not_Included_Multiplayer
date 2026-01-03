@@ -8,15 +8,16 @@ namespace ONI_MP.Networking.Components
 	/// Host-side component that monitors duplicant state and sends updates to clients.
 	/// Tracks chores, animations, and work status.
 	/// </summary>
-	public class DuplicantStateSender : KMonoBehaviour
+	public class DuplicantStateSender : KMonoBehaviour, IRender200ms, IRender1000ms
 	{
+		[MyCmpGet]
 		private NetworkIdentity networkIdentity;
+		[MyCmpGet]
 		private KAnimControllerBase animController;
+		[MyCmpGet]
 		private ChoreDriver choreDriver;
+		[MyCmpGet]
 		private Navigator navigator;
-
-		private float sendInterval = 0.2f; // 200ms state updates (less frequent than position)
-		private float timer;
 
 		private DuplicantActionState lastSentState;
 		private int lastSentTargetCell;
@@ -26,11 +27,6 @@ namespace ONI_MP.Networking.Components
 		public override void OnSpawn()
 		{
 			base.OnSpawn();
-
-			networkIdentity = GetComponent<NetworkIdentity>();
-			animController = GetComponent<KAnimControllerBase>();
-			choreDriver = GetComponent<ChoreDriver>();
-			navigator = GetComponent<Navigator>();
 
 			if (networkIdentity == null)
 			{
@@ -47,7 +43,15 @@ namespace ONI_MP.Networking.Components
 			}
 		}
 
-		private void Update()
+		public void Render1000ms(float dt)
+		{
+			UpdateState(true);
+		}
+		public void Render200ms(float dt)
+		{
+			UpdateState();
+		}
+		void UpdateState(bool heartbeat = false)
 		{
 			if (!MultiplayerSession.InSession || MultiplayerSession.IsClient)
 				return;
@@ -56,20 +60,9 @@ namespace ONI_MP.Networking.Components
 			if (MultiplayerSession.ConnectedPlayers.Count == 0)
 				return;
 
-			timer += Time.unscaledDeltaTime;
-			heartbeatTimer += Time.unscaledDeltaTime;
-
-			if (timer < sendInterval)
-				return;
-
-			timer = 0f;
-			SendStatePacket();
+			SendStatePacket(heartbeat);
 		}
-
-		private float heartbeatTimer;
-		private float heartbeatInterval = 1.0f; // Force send every 1s
-
-		private void SendStatePacket()
+		private void SendStatePacket(bool isHeartbeat)
 		{
 			try
 			{
@@ -88,12 +81,9 @@ namespace ONI_MP.Networking.Components
 														heldSymbol != lastSentHeldSymbol;
 
 				// Heartbeat: Force send if enough time passed, even if no change
-				bool isHeartbeat = heartbeatTimer >= heartbeatInterval;
 
 				if (!stateChanged && !isHeartbeat)
 					return;
-
-				if (isHeartbeat) heartbeatTimer = 0f;
 
 				lastSentState = state;
 				lastSentTargetCell = targetCell;

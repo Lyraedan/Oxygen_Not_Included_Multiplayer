@@ -174,6 +174,8 @@ namespace ONI_MP.Networking.Components
 		/// </summary>
 		public void OnAnimationsReceived(HashedString[] animHashes, KAnim.PlayMode mode)
 		{
+			return;
+
 			if (animController == null || animHashes == null || animHashes.Length == 0)
 				return;
 
@@ -235,6 +237,7 @@ namespace ONI_MP.Networking.Components
 
 		private void UpdateAnimation()
 		{
+			return;
 			if (animController == null)
 				return;
 
@@ -248,6 +251,7 @@ namespace ONI_MP.Networking.Components
 
 		private void ProcessAnimationQueue()
 		{
+			return;
 			if (animController == null)
 				return;
 
@@ -261,6 +265,7 @@ namespace ONI_MP.Networking.Components
 
 		private void ApplyMovementAnimation()
 		{
+			return;
 			if (animController == null)
 				return;
 
@@ -297,56 +302,22 @@ namespace ONI_MP.Networking.Components
 
 		private void ForceAnimControllerUpdate()
 		{
-			if (animController is KBatchedAnimController batched)
+			if (animController is KBatchedAnimController kbac)
 			{
 				try
 				{
-					batched.SetVisiblity(true);
+					kbac.SetVisiblity(true);
 
 					// Force rebuild and enable updates
-					var forceRebuildField = typeof(KBatchedAnimController).GetField("_forceRebuild",
-							System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-					forceRebuildField?.SetValue(batched, true);
-
-					var suspendMethod = typeof(KBatchedAnimController).GetMethod("SuspendUpdates",
-							System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-					suspendMethod?.Invoke(batched, new object[] { false });
-
-					var configureMethod = typeof(KBatchedAnimController).GetMethod("ConfigureUpdateListener",
-							System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-					configureMethod?.Invoke(batched, null);
+					kbac.forceRebuild = true;
+					kbac.SuspendUpdates(false);
+					kbac.ConfigureUpdateListener();
 				}
 				catch (System.Exception ex)
 				{
 					DebugConsole.LogError($"[DuplicantClientController] ForceAnimUpdate failed: {ex}");
 				}
 			}
-		}
-
-		/// <summary>
-		/// Force the duplicant to play a specific animation, clearing any queue
-		/// </summary>
-		public void ForceAnimation(HashedString animHash, KAnim.PlayMode mode = KAnim.PlayMode.Once)
-		{
-			if (animController == null)
-				return;
-
-			animQueue.Clear();
-			currentAnim = animHash;
-			currentMode = mode;
-			animDirty = true;
-		}
-
-		/// <summary>
-		/// Stop all animations and reset to idle
-		/// </summary>
-		public void ResetToIdle()
-		{
-			animQueue.Clear();
-			currentAnim = idleAnim;
-			currentMode = KAnim.PlayMode.Loop;
-			animDirty = true;
-			currentActionState = DuplicantActionState.Idle;
 		}
 
 		/// <summary>
