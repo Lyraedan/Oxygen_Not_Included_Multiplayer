@@ -241,11 +241,11 @@ namespace ONI_MP.Networking
 			{
 				string text = MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TEXT + "\n\n";
 				if (notEnabled.Any())
-					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TOENABLE, notEnabled.Count);
+					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TOENABLE, notEnabled.Count) +"\n";
 				if (notDisabled.Any())
-					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TODISABLE, notDisabled.Count);
+					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TODISABLE, notDisabled.Count) + "\n";
 				if (missingMods.Any())
-					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.MISSING, missingMods.Count);
+					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.MISSING, missingMods.Count) + "\n";
 
 
 				DialogUtil.CreateConfirmDialogFrontend(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TITLE, text,

@@ -160,6 +160,8 @@ public static class SaveHelper
 		}
 		MissingModIds = missingMods;
 		mng.Save();
+		if(!MissingModIds.Any())
+			App.instance.Restart();
 		SubToAllMissing();
 	}
 	public static void SubToAllMissing()

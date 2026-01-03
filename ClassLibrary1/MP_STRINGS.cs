@@ -268,9 +268,9 @@ namespace ONI_MP
 					{
 						public static LocString TITLE = "Mod Differences Detected!";
 						public static LocString TEXT = "The game you want to join has different mods active than you.\nDo you want to synchronize your mods?";
-						public static LocString TODISABLE ="- {0} mods will be disabled";
-						public static LocString TOENABLE = "- {0} mods will be enabled";
-						public static LocString MISSING = "- {0} mods are missing and will be subscribed to.";
+						public static LocString TODISABLE = "• {0} mods will be disabled";
+						public static LocString TOENABLE = "• {0} mods will be enabled";
+						public static LocString MISSING = "• {0} mods are missing and will be subscribed to.";
 
 						public static LocString CONFIRM_SYNC = "Yes, synchronize my mods and restart";
 						public static LocString DENY_SYNC = "No, connect anyway";
