@@ -38,6 +38,7 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 				DebugConsole.LogWarning("Could not find ComplexFabricator for netId " + NetId);
 				return;
 			}
+
 			ComplexRecipe complexRecipe = fab.recipe_list[CompletedRecipeIdx];
 			DebugConsole.Log($"spawning product {complexRecipe.id} for {fab.name} with netId {NetId}");
 			fab.SpawnOrderProduct(complexRecipe);

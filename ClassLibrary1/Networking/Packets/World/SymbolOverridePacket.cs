@@ -100,6 +100,7 @@ namespace ONI_MP.Networking.Packets.World
 			{
 				case Mode.AddSymbolOverride:
 					soc.AddSymbolOverride(Target_Symbol, override_symbol, Priority);
+					DebugConsole.Log($"[SymbolOverridePacket] applied symbol override change: replacing {Target_Symbol} with {Override_Symbol_Name} from animation {Override_Symbol_Kanim} with priority {Priority}");
 					break;
 				case Mode.RemoveSymbolOverride:
 					soc.RemoveSymbolOverride(Target_Symbol, Priority);
@@ -108,7 +109,6 @@ namespace ONI_MP.Networking.Packets.World
 					soc.RemoveAllSymbolOverrides(Priority);
 					break;
 			}
-			DebugConsole.Log($"[SymbolOverridePacket] applied symbol override change");
 		}
 	}
 }
