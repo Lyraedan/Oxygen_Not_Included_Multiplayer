@@ -57,10 +57,10 @@ namespace ONI_MP.Networking.Packets.Animation
 
 			if (!NetworkIdentityRegistry.TryGetComponent<StandardWorker>(WorkerNetId, out var worker))
 				return;
-
+			GameObject workableGO = null;
 			if (StartingToWork)
 			{
-				if (!NetworkIdentityRegistry.TryGetComponent<GameObject>(WorkerNetId, out var workableGO))
+				if (!NetworkIdentityRegistry.TryGetComponent<GameObject>(WorkerNetId, out workableGO))
 					return;
 
 				var targetWorkableCmp = workableGO.GetComponent(WorkableType);
@@ -73,6 +73,8 @@ namespace ONI_MP.Networking.Packets.Animation
 			}
 			else
 				worker.StopWork();
+
+			DebugConsole.Log("[StandardWorker_WorkingState_Packet] workable change triggered for " + worker.name + ": " + (StartingToWork ? "Started working on " + workableGO.name : "stopped working"));
 		}
 	}
 }
