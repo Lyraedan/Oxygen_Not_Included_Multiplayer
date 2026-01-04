@@ -4,7 +4,7 @@ using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
 using System.Linq;
 
-public class ToggleMinionEffectPacket : IPacket
+public class ToggleMinionKanimEffectPacket : IPacket
 {
 	public int NetId;
 	public bool Enable;

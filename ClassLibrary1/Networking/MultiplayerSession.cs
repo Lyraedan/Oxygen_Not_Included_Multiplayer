@@ -27,6 +27,8 @@ namespace ONI_MP.Networking
 
 		public static bool IsClient => InSession && !IsHost;
 
+		public static bool IsHostInSession => IsHost && InSession;
+
 		public static readonly Dictionary<CSteamID, PlayerCursor> PlayerCursors = new Dictionary<CSteamID, PlayerCursor>();
 		
 		public static void Clear()

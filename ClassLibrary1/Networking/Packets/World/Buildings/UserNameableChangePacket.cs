@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ONI_MP.Networking.Packets.Events
+namespace ONI_MP.Networking.Packets.World.Buildings
 {
 	internal class UserNameableChangePacket : IPacket
 	{

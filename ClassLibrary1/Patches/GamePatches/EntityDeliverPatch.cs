@@ -35,7 +35,7 @@ namespace ONI_MP.Patches.GamePatches
 					DebugConsole.Log($"[MinionDeliverPatch] Registered with NetId {identity.NetId} for {__instance.Name}");
 				}
 				// Send EntitySpawnPacket to clients
-				var packet = new EntitySpawnPacket
+				var packet = new TelepadEntitySpawnPacket
 				{
 					NetId = identity.NetId,
 					Pos = location,
@@ -77,7 +77,7 @@ namespace ONI_MP.Patches.GamePatches
 				}
 
 				// Send EntitySpawnPacket to clients
-				var packet = new EntitySpawnPacket
+				var packet = new TelepadEntitySpawnPacket
 				{
 					NetId = identity.NetId,
 					Pos = location,

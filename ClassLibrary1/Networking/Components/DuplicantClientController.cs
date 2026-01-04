@@ -330,14 +330,14 @@ namespace ONI_MP.Networking.Components
 			isCurrentlyWorking = isWorking;
 
 			// Apply held item override (simple gun check for now)
-			if (heldSymbol == "gun")
-			{
-				EquipGun();
-			}
-			else
-			{
-				UnequipGun();
-			}
+			//if (heldSymbol == "gun")
+			//{
+			//	EquipGun();
+			//}
+			//else
+			//{
+			//	UnequipGun();
+			//}
 
 			bool specificAnimSet = false;
 
@@ -376,6 +376,8 @@ namespace ONI_MP.Networking.Components
 		private bool hasEquippedGun = false;
 		private void EquipGun()
 		{
+
+
 			if (hasEquippedGun) return;
 			hasEquippedGun = true;
 

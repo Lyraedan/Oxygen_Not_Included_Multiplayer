@@ -14,7 +14,7 @@ namespace ONI_MP.Networking.Packets.World
 	/// Packet to spawn entities (duplicants or items) on clients with matching NetIds.
 	/// Sent from host when an entity is spawned (e.g., from Telepad).
 	/// </summary>
-	public class EntitySpawnPacket : IPacket
+	public class TelepadEntitySpawnPacket : IPacket
 	{
 		public ImmigrantOptionEntry EntityData;
 		public int NetId;
@@ -48,8 +48,17 @@ namespace ONI_MP.Networking.Packets.World
 			try
 			{
 				var deliverable = EntityData.ToGameDeliverable();
-				Pos.x -= 0.5f;
+				if (deliverable is not MinionStartingStats)
+				{
+					///move care packages a bit to the left to be centered
+					Pos.x -= 0.5f;
+				}
 				GameObject entity = deliverable.Deliver(Pos);
+
+				///duplicants from the printer are assigned an extra skill point, this is skipped over with a direct delivery
+				if (entity.TryGetComponent<MinionResume>(out var res))
+					res.ForceAddSkillPoint();
+
 				NetworkIdentity identity = entity.AddOrGet<NetworkIdentity>();
 				identity.OverrideNetId(NetId);
 			}

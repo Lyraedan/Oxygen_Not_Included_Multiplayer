@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ONI_MP.Networking.Packets.World
+namespace ONI_MP.Networking.Packets.Animation
 {
 	internal class SymbolOverridePacket : IPacket
 	{
@@ -26,7 +26,7 @@ namespace ONI_MP.Networking.Packets.World
 		public int Priority;
 
 		public SymbolOverridePacket() { }
-		public SymbolOverridePacket(SymbolOverrideController soc, Mode mode, HashedString? target_symbol = null, KAnim.Build.Symbol? source_symbol = null, int priority = 0)
+		public SymbolOverridePacket(SymbolOverrideController soc, Mode mode, HashedString? target_symbol = null, KAnim.Build.Symbol source_symbol = null, int priority = 0)
 		{
 			NetId = soc.GetNetId();
 			PacketMode = mode;
@@ -38,7 +38,7 @@ namespace ONI_MP.Networking.Packets.World
 				Override_Symbol_Name = source_symbol.hash;
 			}
 			Priority = priority;
-			Debug.Log($"Logging SOC for {soc.name}: targetSymbol: {target_symbol}, overrideSymbolanim: {Override_Symbol_Kanim}, overrideSymbol: {Override_Symbol_Name}");
+			//Debug.Log($"Logging SOC for {soc.name}: targetSymbol: {target_symbol}, overrideSymbolanim: {Override_Symbol_Kanim}, overrideSymbol: {Override_Symbol_Name}");
 		}
 
 
@@ -100,7 +100,7 @@ namespace ONI_MP.Networking.Packets.World
 			{
 				case Mode.AddSymbolOverride:
 					soc.AddSymbolOverride(Target_Symbol, override_symbol, Priority);
-					DebugConsole.Log($"[SymbolOverridePacket] applied symbol override change: replacing {Target_Symbol} with {Override_Symbol_Name} from animation {Override_Symbol_Kanim} with priority {Priority}");
+					//DebugConsole.Log($"[SymbolOverridePacket] applied symbol override change: replacing {Target_Symbol} with {Override_Symbol_Name} from animation {Override_Symbol_Kanim} with priority {Priority}");
 					break;
 				case Mode.RemoveSymbolOverride:
 					soc.RemoveSymbolOverride(Target_Symbol, Priority);

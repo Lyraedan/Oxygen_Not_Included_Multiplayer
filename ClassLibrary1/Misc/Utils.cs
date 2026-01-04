@@ -1,5 +1,6 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Misc.World;
+using ONI_MP.Networking;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -88,7 +89,21 @@ namespace ONI_MP.Misc
 				}
 			return chunks;
 		}
-
+		/// <summary>
+		/// Checks if the mono behavior sits on a duplicant in a host game
+		/// </summary>
+		/// <param name="behavior"></param>
+		/// <returns></returns>
+		public static bool IsHostMinion(MonoBehaviour behavior)
+		{
+			if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
+				return false;
+			if (behavior.IsNullOrDestroyed() || behavior.gameObject.IsNullOrDestroyed())
+				return false;
+			if (!behavior.HasTag(GameTags.BaseMinion))
+				return false;
+			return true;
+		}
 		private static ChunkData CreateChunk(int x0, int y0, int width, int height)
 		{
 			var chunk = new ChunkData

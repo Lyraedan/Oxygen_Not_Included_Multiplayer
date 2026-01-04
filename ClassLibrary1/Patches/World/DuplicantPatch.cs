@@ -38,7 +38,7 @@ public static class DuplicantPatch
 			return;
 		}
 
-		var packet = new ToggleMinionEffectPacket
+		var packet = new ToggleMinionKanimEffectPacket
 		{
 			NetId = net.NetId,
 			Enable = enable,
