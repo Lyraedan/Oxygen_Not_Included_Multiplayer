@@ -1,4 +1,5 @@
-﻿using ONI_MP.Networking.Packets.Architecture;
+﻿using ONI_MP.DebugTools;
+using ONI_MP.Networking.Packets.Architecture;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -34,9 +35,11 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 		{
 			if(NetworkIdentityRegistry.TryGetComponent<ComplexFabricator>(NetId, out var fab))
 			{
+				DebugConsole.LogWarning("Could not find ComplexFabricator for netId " + NetId);
 				return;
 			}
 			ComplexRecipe complexRecipe = fab.recipe_list[CompletedRecipeIdx];
+			DebugConsole.Log($"spawning product {complexRecipe.id} for {fab.name} with netId {NetId}");
 			fab.SpawnOrderProduct(complexRecipe);
 		}
 	}

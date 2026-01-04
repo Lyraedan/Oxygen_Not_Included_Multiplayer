@@ -74,7 +74,7 @@ namespace ONI_MP.Networking.Packets.World
 		{
 			if (!NetworkIdentityRegistry.TryGetComponent<SymbolOverrideController>(NetId, out var soc))
 			{
-				DebugConsole.LogWarning("Could not find symbolOverrideController for minion with netid " + NetId);
+				DebugConsole.LogWarning("[SymbolOverridePacket] Could not find symbolOverrideController for minion with netid " + NetId);
 				return;
 			}
 			KAnim.Build.Symbol override_symbol = null;
@@ -91,7 +91,7 @@ namespace ONI_MP.Networking.Packets.World
 				override_symbol = kanimData.build.GetSymbol(Override_Symbol_Name);
 				if (override_symbol == null)
 				{
-					DebugConsole.LogWarning($"Could not find symbol {Override_Symbol_Name} in kanim {Override_Symbol_Kanim}");
+					DebugConsole.LogWarning($"[SymbolOverridePacket] Could not find symbol {Override_Symbol_Name} in kanim {Override_Symbol_Kanim}");
 					return;
 				}
 			}
@@ -108,7 +108,7 @@ namespace ONI_MP.Networking.Packets.World
 					soc.RemoveAllSymbolOverrides(Priority);
 					break;
 			}
-
+			DebugConsole.Log($"[SymbolOverridePacket] applied symbol override change");
 		}
 	}
 }
