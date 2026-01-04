@@ -110,6 +110,17 @@ namespace ONI_MP.Misc
 				return false;
 			return true;
 		}
+		public static void RefreshIfSelected(MonoBehaviour behavior)
+		{
+			if (behavior.IsNullOrDestroyed() || !behavior.TryGetComponent<KSelectable>(out var selectable))
+				return;
+
+			if(SelectTool.Instance?.selected == selectable)
+				SelectTool.Instance.Select(selectable);
+		}
+
+
+
 		private static ChunkData CreateChunk(int x0, int y0, int width, int height)
 		{
 			var chunk = new ChunkData

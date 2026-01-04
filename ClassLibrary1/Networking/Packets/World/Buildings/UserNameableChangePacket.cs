@@ -1,4 +1,5 @@
 ﻿using ONI_MP.DebugTools;
+using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Patches.World.Buildings;
 using System;
@@ -41,6 +42,7 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 				return;
 			}
 			UserNameablePatch.ApplyPacketName(nameable, NewName);
+			Utils.RefreshIfSelected(nameable);
 		}
 	}
 }
