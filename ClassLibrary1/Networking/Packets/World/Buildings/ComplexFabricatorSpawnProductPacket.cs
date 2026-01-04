@@ -35,7 +35,7 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 		{
 			if(!NetworkIdentityRegistry.TryGetComponent<ComplexFabricator>(NetId, out var fab))
 			{
-				DebugConsole.LogWarning("Could not find ComplexFabricator for netId " + NetId);
+				DebugConsole.LogWarning("[ComplexFabricatorSpawnProductPacket] Could not find ComplexFabricator for netId " + NetId);
 				return;
 			}
 
