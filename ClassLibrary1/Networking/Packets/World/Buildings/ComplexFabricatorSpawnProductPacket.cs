@@ -33,7 +33,7 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 
 		public void OnDispatched()
 		{
-			if(NetworkIdentityRegistry.TryGetComponent<ComplexFabricator>(NetId, out var fab))
+			if(!NetworkIdentityRegistry.TryGetComponent<ComplexFabricator>(NetId, out var fab))
 			{
 				DebugConsole.LogWarning("Could not find ComplexFabricator for netId " + NetId);
 				return;
