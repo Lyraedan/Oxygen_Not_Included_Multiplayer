@@ -1,5 +1,7 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Patches.DuplicantActions;
+using ONI_MP.Patches.World;
 using ONI_MP.Patches.World.Buildings;
 using System;
 using System.Collections.Generic;
@@ -8,15 +10,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ONI_MP.Networking.Packets.World.Buildings
+namespace ONI_MP.Networking.Packets.World
 {
-	internal class UserNameableChangePacket : IPacket
+	internal class MinionIdentitySetNamePacket : IPacket
 	{
 		public int NetId;
 		public string NewName;
 
-		public UserNameableChangePacket() { }
-		public UserNameableChangePacket(int netId, string newName)
+		public MinionIdentitySetNamePacket() { }
+		public MinionIdentitySetNamePacket(int netId, string newName)
 		{
 			NetId = netId;
 			NewName = newName;
@@ -35,12 +37,12 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 
 		public void OnDispatched()
 		{
-			if (!NetworkIdentityRegistry.TryGetComponent<UserNameable>(NetId, out var nameable))
+			if (!NetworkIdentityRegistry.TryGetComponent<MinionIdentity>(NetId, out var identity))
 			{
-				DebugConsole.LogWarning("Could not find UserNameable with net id " + NetId);
+				DebugConsole.LogWarning("Could not find MinionIdentity with net id " + NetId);
 				return;
 			}
-			UserNameablePatch.ApplyPacketName(nameable, NewName);
+			MinionIdentity_Patches.ApplyPacketName(identity, NewName);
 		}
 	}
 }

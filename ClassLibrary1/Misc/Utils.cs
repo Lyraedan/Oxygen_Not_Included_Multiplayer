@@ -96,11 +96,17 @@ namespace ONI_MP.Misc
 		/// <returns></returns>
 		public static bool IsHostMinion(MonoBehaviour behavior)
 		{
+			if (IsHostEntity(behavior))
+				return false;
+			if (!behavior.HasTag(GameTags.BaseMinion))
+				return false;
+			return true;
+		}
+		public static bool IsHostEntity(MonoBehaviour behavior)
+		{
 			if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
 				return false;
 			if (behavior.IsNullOrDestroyed() || behavior.gameObject.IsNullOrDestroyed())
-				return false;
-			if (!behavior.HasTag(GameTags.BaseMinion))
 				return false;
 			return true;
 		}
