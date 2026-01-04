@@ -52,6 +52,14 @@ namespace ONI_MP.Networking.Components
 						// DebugConsole.Log($"[NetworkIdentity] Generated Deterministic NetId {detId} for building {gameObject.name}");
 					}
 				}
+				else if(TryGetComponent<Workable>(out var workable))
+				{
+					int detId = NetIdHelper.GetDeterministicWorkableId(gameObject);
+					if (detId != 0)
+					{
+						NetId = detId;
+					}
+				}
 				else
 				{
 					int detId = NetIdHelper.GetDeterministicEntityId(gameObject);

@@ -20,6 +20,20 @@ namespace ONI_MP.Networking
 
 			return cell.GetHashCode() ^ go.PrefabID().GetHashCode() ^ building.Def.ObjectLayer.GetHashCode();
 		}
+		public static int GetDeterministicWorkableId(GameObject go)
+		{
+			if (go == null) return 0;
+
+			int cell = Grid.PosToCell(go);
+			if (!Grid.IsValidCell(cell)) return 0;
+
+			if (!go.TryGetComponent(out Workable workable))
+				return 0;
+
+			return cell.GetHashCode() ^ go.PrefabID().GetHashCode() ^ workable.workTime.GetHashCode() 
+				^ workable.workTime.GetHashCode() ^ workable.multitoolHitEffectTag.GetHashCode() ^ workable.multitoolContext.GetHashCode();
+		}
+
 
 		public static int GetDeterministicEntityId(GameObject go)
 		{
