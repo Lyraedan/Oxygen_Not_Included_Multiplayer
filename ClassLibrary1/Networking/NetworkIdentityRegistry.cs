@@ -76,7 +76,7 @@ namespace ONI_MP.Networking
 				return false;
 			if(ni.gameObject.IsNullOrDestroyed())
 				return false;
-			return !ni.gameObject.TryGetComponent<T>(out component);
+			return ni.gameObject.TryGetComponent<T>(out component);
 		}
 
 		public static void Clear()
