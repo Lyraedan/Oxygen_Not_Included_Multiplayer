@@ -112,7 +112,7 @@ namespace ONI_MP.Networking
 		{
 			if (!MultiplayerSession.IsHost)
 			{
-				DebugConsole.LogWarning("[PacketSender] Only the host can send to all clients");
+				DebugConsole.LogWarning("[PacketSender] Only the host can send to all clients. Tried sending: "+packet.GetType());
 				return;
 			}
 			SendToAll(packet, MultiplayerSession.HostSteamID, sendType);

@@ -72,6 +72,8 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public void OnDispatched()
 		{
+			if (MultiplayerSession.IsHost)
+				return;
 			if (!NetworkIdentityRegistry.TryGetComponent<SymbolOverrideController>(NetId, out var soc))
 			{
 				DebugConsole.LogWarning("[SymbolOverridePacket] Could not find symbolOverrideController for minion with netid " + NetId);
@@ -100,7 +102,7 @@ namespace ONI_MP.Networking.Packets.Animation
 			{
 				case Mode.AddSymbolOverride:
 					soc.AddSymbolOverride(Target_Symbol, override_symbol, Priority);
-					//DebugConsole.Log($"[SymbolOverridePacket] applied symbol override change: replacing {Target_Symbol} with {Override_Symbol_Name} from animation {Override_Symbol_Kanim} with priority {Priority}");
+					DebugConsole.Log($"[SymbolOverridePacket] applied symbol override change: replacing {Target_Symbol} with {Override_Symbol_Name} from animation {Override_Symbol_Kanim} with priority {Priority}");
 					break;
 				case Mode.RemoveSymbolOverride:
 					soc.RemoveSymbolOverride(Target_Symbol, Priority);
