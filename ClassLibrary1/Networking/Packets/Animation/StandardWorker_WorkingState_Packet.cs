@@ -60,7 +60,7 @@ namespace ONI_MP.Networking.Packets.Animation
 			GameObject workableGO = null;
 			if (StartingToWork)
 			{
-				if (!NetworkIdentityRegistry.TryGetComponent<Workable>(WorkerNetId, out var protoWorkable))
+				if (!NetworkIdentityRegistry.TryGetComponent<Workable>(WorkableNetId, out var protoWorkable))
 					return;
 				workableGO = protoWorkable.gameObject;
 
