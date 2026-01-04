@@ -57,7 +57,7 @@ namespace ONI_MP.Networking.Packets.Animation
 			}
 			worker.smi = new MultitoolController.Instance(workable, worker, Context, hiteffect);
 			worker.smi.StartSM();
-			DebugConsole.Log("Started multitool smi for " + workable.name + " on worker " + worker.name + " with context " + Context);
+			//DebugConsole.Log("[MultiToolSyncPacket] Started multitool smi for " + workable.name + " on worker " + worker.name + " with context " + Context);
 		}
 	}
 }

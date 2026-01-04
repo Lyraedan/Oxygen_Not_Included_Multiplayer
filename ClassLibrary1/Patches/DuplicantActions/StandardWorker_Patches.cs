@@ -16,20 +16,27 @@ namespace ONI_MP.Patches.DuplicantActions
 	internal class StandardWorker_Patches
 	{
 
-        [HarmonyPatch(typeof(StandardWorker), nameof(StandardWorker.StartWork))]
-        public class StandardWorker_StartWork_Patch
-        {
-            public static void Postfix(StandardWorker __instance, StartWorkInfo start_work_info)
-            {
-                if (!Utils.IsHostMinion(__instance))
-                    return;
+		[HarmonyPatch(typeof(StandardWorker), nameof(StandardWorker.StartWork))]
+		public class StandardWorker_StartWork_Patch
+		{
+			public static void Postfix(StandardWorker __instance, StartWorkInfo start_work_info)
+			{
+				if (!Utils.IsHostMinion(__instance))
+					return;
 
-                if(__instance.animInfo.smi != null && __instance.animInfo.smi is MultitoolController.Instance smi)
-                {
-                    DebugConsole.Log("Sending multitool packet to clients for " + start_work_info.workable.name);
-                    PacketSender.SendToAllClients(new MultiToolSyncPacket(__instance,smi));
-                }
-            }
-        }
+				PacketSender.SendToAllClients(new StandardWorker_WorkingState_Packet(__instance, start_work_info.workable,true));
+			}
+		}
+
+		[HarmonyPatch(typeof(StandardWorker), nameof(StandardWorker.StopWork))]
+		public class StandardWorker_StopWork_Patch
+		{
+			public static void Postfix(StandardWorker __instance)
+			{
+				if (!Utils.IsHostMinion(__instance))
+					return;
+				PacketSender.SendToAllClients(new StandardWorker_WorkingState_Packet(__instance,null, false));
+			}
+		}
 	}
 }

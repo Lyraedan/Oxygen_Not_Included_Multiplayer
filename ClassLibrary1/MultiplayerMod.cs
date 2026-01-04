@@ -81,6 +81,9 @@ namespace ONI_MP
 				DebugConsole.LogError($"[ONI_MP] CRITICAL ERROR IN ONLOAD: {ex.Message}");
 				DebugConsole.LogException(ex);
 			}
+
+
+			RegisterDevTools();
 		}
 
 		void LoadAssetBundles()
@@ -151,6 +154,13 @@ namespace ONI_MP
 				default:
 					return windows_bundle;
 			}
+		}
+
+		private static void RegisterDevTools()
+		{
+			var baseMethod = AccessTools.Method(typeof(DevToolManager), "RegisterDevTool");
+			var twitchDevToolRegister = baseMethod.MakeGenericMethod(typeof(DevToolMultiplayer));
+			twitchDevToolRegister.Invoke(DevToolManager.Instance, new object[] { "Mods/MultiplayerMod" });
 		}
 	}
 }
