@@ -38,7 +38,7 @@ namespace ONI_MP.Networking.Packets.World
 				Override_Symbol_Name = source_symbol.hash;
 			}
 			Priority = priority;
-			//Debug.Log($"Logging SOC for {soc.name}: targetSymbol: {target_symbol}, overrideSymbolanim: {Override_Symbol_Kanim}, overrideSymbol: {Override_Symbol_Name}");
+			Debug.Log($"Logging SOC for {soc.name}: targetSymbol: {target_symbol}, overrideSymbolanim: {Override_Symbol_Kanim}, overrideSymbol: {Override_Symbol_Name}");
 		}
 
 
