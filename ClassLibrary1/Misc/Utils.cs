@@ -116,7 +116,10 @@ namespace ONI_MP.Misc
 				return;
 
 			if(SelectTool.Instance?.selected == selectable)
+			{
+				SelectTool.Instance.Select(null);
 				SelectTool.Instance.Select(selectable);
+			}
 		}
 
 
