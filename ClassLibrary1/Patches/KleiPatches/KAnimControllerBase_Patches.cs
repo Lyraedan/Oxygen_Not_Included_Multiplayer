@@ -1,8 +1,10 @@
 ﻿using HarmonyLib;
 using Klei.AI;
 using ONI_MP.DebugTools;
+using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
+using ONI_MP.Networking.Packets.Animation;
 using ONI_MP.Networking.Packets.Core;
 using ONI_MP.Networking.Packets.DuplicantActions;
 using System;
@@ -11,8 +13,10 @@ using static STRINGS.UI.CLUSTERMAP.ROCKETS;
 
 namespace ONI_MP.Patches.KleiPatches
 {
-	class KAnimControllerBasePatch
+	class KAnimControllerBase_Patches
 	{
+		/// Playing Overrides
+
 		static bool _allowedToPlayAnims = false;
 		public static void AllowAnims() => _allowedToPlayAnims = true;
 		public static void ForbidAnims() => _allowedToPlayAnims = false;
@@ -97,6 +101,8 @@ namespace ONI_MP.Patches.KleiPatches
 			public static void Postfix(KAnimControllerBase __instance) => Unlock();
 		}
 
+		/// Kanim Overrides
+
 		private static bool TogglingOverrideFromPacket = false;
 		internal static void AddKanimOverride(KAnimControllerBase kbac, string kanim, float priority)
 		{
@@ -163,6 +169,21 @@ namespace ONI_MP.Patches.KleiPatches
 				Console.WriteLine("sending removeAnimOveridePacket");
 				PacketSender.SendToAllClients(new ToggleAnimOverridePacket(__instance.gameObject, kanim_file));
 				return kanim_file != null;
+			}
+		}
+
+		/// Symbol Visibility
+
+		[HarmonyPatch(typeof(KBatchedAnimController), nameof(KBatchedAnimController.SetSymbolVisiblity))]
+		public class KBatchedAnimController_SetSymbolVisiblity_Patch
+		{
+			public static void Prefix(KBatchedAnimController __instance, KAnimHashedString symbol, bool is_visible)
+			{
+				if (!Utils.IsHostMinion(__instance))
+					return;
+
+
+				PacketSender.SendToAllClients(new SymbolVisibilityTogglePacket(__instance, symbol, is_visible));
 			}
 		}
 	}

@@ -65,11 +65,11 @@ namespace ONI_MP.Networking.Packets.Core
 			}
 			if (AddingOverride)
 			{
-				KAnimControllerBasePatch.AddKanimOverride(kbac, Kanim, Priority);
+				KAnimControllerBase_Patches.AddKanimOverride(kbac, Kanim, Priority);
 			}
 			else
 			{
-				KAnimControllerBasePatch.RemoveKanimOverride(kbac, Kanim);
+				KAnimControllerBase_Patches.RemoveKanimOverride(kbac, Kanim);
 			}
 		}
 	}
