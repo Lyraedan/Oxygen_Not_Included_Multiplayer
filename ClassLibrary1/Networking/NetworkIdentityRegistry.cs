@@ -34,7 +34,7 @@ namespace ONI_MP.Networking
 			if (!identities.ContainsKey(netId))
 			{
 				identities[netId] = entity;
-				DebugConsole.Log($"[NetEntityRegistry] Registered existing entity with net id: {netId}");
+				//DebugConsole.Log($"[NetEntityRegistry] Registered existing entity with net id: {netId}");
 			}
 			//else
 			//{

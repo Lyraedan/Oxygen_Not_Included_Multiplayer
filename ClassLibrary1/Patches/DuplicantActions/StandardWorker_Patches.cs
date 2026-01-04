@@ -24,6 +24,10 @@ namespace ONI_MP.Patches.DuplicantActions
 				if (!Utils.IsHostMinion(__instance))
 					return;
 
+				///skip deliverables for now
+				if (start_work_info.GetType() != typeof(WorkerBase.StartWorkInfo))
+					return;
+
 				PacketSender.SendToAllClients(new StandardWorker_WorkingState_Packet(__instance, start_work_info.workable,true));
 			}
 		}
