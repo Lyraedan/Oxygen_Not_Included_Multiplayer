@@ -174,10 +174,10 @@ namespace ONI_MP.Patches.KleiPatches
 
 		/// Symbol Visibility
 
-		[HarmonyPatch(typeof(KBatchedAnimController), nameof(KBatchedAnimController.SetSymbolVisiblity))]
-		public class KBatchedAnimController_SetSymbolVisiblity_Patch
+		[HarmonyPatch(typeof(KAnimControllerBase), nameof(KAnimControllerBase.SetSymbolVisiblity))]
+		public class KAnimControllerBase_SetSymbolVisiblity_Patch
 		{
-			public static void Prefix(KBatchedAnimController __instance, KAnimHashedString symbol, bool is_visible)
+			public static void Prefix(KAnimControllerBase __instance, KAnimHashedString symbol, bool is_visible)
 			{
 				if (!Utils.IsHostMinion(__instance))
 					return;

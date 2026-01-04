@@ -16,7 +16,7 @@ namespace ONI_MP.Networking.Packets.Animation
 		bool Is_Visible;
 
 		public SymbolVisibilityTogglePacket() { }
-		public SymbolVisibilityTogglePacket(KBatchedAnimController kbac, KAnimHashedString symbol, bool is_visible)
+		public SymbolVisibilityTogglePacket(KAnimControllerBase kbac, KAnimHashedString symbol, bool is_visible)
 		{
 			NetId = kbac.GetNetId();
 			Symbol = symbol;
