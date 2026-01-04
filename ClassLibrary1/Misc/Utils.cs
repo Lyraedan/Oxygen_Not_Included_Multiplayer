@@ -98,7 +98,7 @@ namespace ONI_MP.Misc
 		{
 			if (!IsHostEntity(behavior))
 				return false;
-			if (!behavior.HasTag(GameTags.BaseMinion))
+			if(!behavior.TryGetComponent<KPrefabID>(out var kprefab) ||  !kprefab.HasTag(GameTags.BaseMinion))
 				return false;
 			return true;
 		}

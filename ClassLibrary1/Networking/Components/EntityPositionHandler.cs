@@ -12,6 +12,8 @@ namespace ONI_MP.Networking.Components
 		public static float SendIntervalMoving = 0.05f; // 50ms
         public static float SendIntervalStationary = 2.0f; // 2 seconds 
 
+		[MyCmpGet] KBatchedAnimController kbac;
+
         private NetworkIdentity networkedEntity;
 		private Navigator navigator;
 		private bool facingLeft;
@@ -109,7 +111,7 @@ namespace ONI_MP.Networking.Components
                 NetId = networkedEntity.NetId,
                 Position = currentPosition,
                 Velocity = velocity,
-                FacingLeft = facingLeft,
+                FacingLeft = kbac.FlipX,
                 NavType = navType,
 				SendInterval = sendInterval,
 				Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
