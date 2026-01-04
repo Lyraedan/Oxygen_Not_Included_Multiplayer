@@ -46,7 +46,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 			if (MultiplayerSession.IsHost)
 				return;
 
-			if (!NetworkIdentityRegistry.TryGetComponent< DuplicantClientController>(NetId, out var controller))
+			if (!NetworkIdentityRegistry.TryGetComponent<DuplicantClientController>(NetId, out var controller))
 			{
 				DebugConsole.LogWarning($"[DuplicantStatePacket] NetId {NetId} not found");
 				return;

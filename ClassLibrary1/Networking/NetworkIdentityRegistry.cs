@@ -78,6 +78,13 @@ namespace ONI_MP.Networking
 				return false;
 			return ni.gameObject.TryGetComponent<T>(out component);
 		}
+		public static bool TryGetComponent<T>(NetworkIdentity ni, out T component)
+		{
+			component = default(T);
+			if (ni.IsNullOrDestroyed() || ni.gameObject.IsNullOrDestroyed())
+				return false;
+			return ni.gameObject.TryGetComponent<T>(out component);
+		}
 
 		public static void Clear()
 		{

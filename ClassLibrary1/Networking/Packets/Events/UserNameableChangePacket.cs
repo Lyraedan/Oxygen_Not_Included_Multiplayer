@@ -35,9 +35,6 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void OnDispatched()
 		{
-			if (MultiplayerSession.IsHost)
-				return;
-
 			if (!NetworkIdentityRegistry.TryGetComponent<UserNameable>(NetId, out var nameable))
 			{
 				DebugConsole.LogWarning("Could not find UserNameable with net id " + NetId);
