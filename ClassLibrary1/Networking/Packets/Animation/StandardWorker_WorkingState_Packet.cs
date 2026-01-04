@@ -1,4 +1,5 @@
-﻿using ONI_MP.DebugTools;
+﻿using HarmonyLib;
+using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System;
 using System.Collections.Generic;
@@ -64,7 +65,13 @@ namespace ONI_MP.Networking.Packets.Animation
 					return;
 				workableGO = protoWorkable.gameObject;
 
-				var targetWorkableCmp = workableGO.GetComponent(WorkableType);
+				var workableType = AccessTools.TypeByName(WorkableType);
+				if(workableType == null)
+				{
+					DebugConsole.LogWarning("Could not find workable type " + WorkableType);
+				}
+
+				var targetWorkableCmp = workableGO.GetComponent(workableType);
 				if (targetWorkableCmp == null || targetWorkableCmp is not Workable workable)
 				{
 					DebugConsole.LogWarning("Could not find workable of type " + WorkableType + " on " + workableGO.GetProperName());
