@@ -28,10 +28,16 @@ namespace ONI_MP.Networking
 			int cell = Grid.PosToCell(go);
 			if (!Grid.IsValidCell(cell)) return 0;
 
-			if (!go.TryGetComponent(out Workable workable))
+			if (!go.TryGetComponent<Workable>(out _))
 				return 0;
 
-			int hash = cell.GetHashCode() ^ go.PrefabID().GetHashCode() ^ ((int)workable.workTime).GetHashCode() ^ workable.multitoolHitEffectTag.GetHashCode() ^ workable.multitoolContext.GetHashCode();
+			var workables = go.GetComponents<Workable>();
+			int workableCount = workables.Length;
+			int index = cell % workableCount;
+			Workable workable = workables[index];
+
+
+			int hash = cell.GetHashCode() ^ go.PrefabID().GetHashCode() ^ workable.GetType().Name.GetHashCode() ^ ((int)workable.workTime).GetHashCode() ^ workable.multitoolHitEffectTag.GetHashCode() ^ workable.multitoolContext.GetHashCode();
 			int breakoff = 0;
 			while (NetworkIdentityRegistry.Exists(hash + breakoff))
 			{
