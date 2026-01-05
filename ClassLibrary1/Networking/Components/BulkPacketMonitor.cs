@@ -8,11 +8,23 @@ using UnityEngine;
 
 namespace ONI_MP.Networking.Components
 {
-	internal class BulkPacketMonitor : MonoBehaviour, IRender200ms
+	internal class BulkPacketMonitor : MonoBehaviour
 	{
-		public void Render200ms(float dt)
+		private float updateIntervalSeconds = 0.2f;
+		private float updateTimer;
+
+		public void LateUpdate()
 		{
-			DebugConsole.Log("BulkPacketMonitor onDispatchingBulkPackets");
+			if (!MultiplayerSession.InSession)
+				return;
+
+			updateTimer += Time.unscaledDeltaTime;
+
+			if (updateTimer < updateIntervalSeconds)
+			{
+				return;
+			}
+			updateTimer -= updateIntervalSeconds;
 			PacketSender.DispatchPendingBulkPackets();
 		}
 	}
