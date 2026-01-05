@@ -29,6 +29,8 @@ namespace ONI_MP.Networking.Packets.Core
 			writer.Write(InnerPacketsData.Count());
 			for (int i = 0; i < InnerPacketsData.Count(); i++)
 			{
+				var data = InnerPacketsData[i];
+				writer.Write(data.Length);
 				writer.Write(InnerPacketsData[i]);
 			}
 		}
@@ -39,7 +41,8 @@ namespace ONI_MP.Networking.Packets.Core
 			InnerPacketsData = new List<byte[]>(dataLength);
 			for (int i = 0; i < dataLength; i++)
 			{
-				InnerPacketsData.Add(reader.ReadBytes());
+				int dataLength = reader.ReadInt32();
+				InnerPacketsData.Add(reader.ReadBytes(dataLength));
 			}
 		}
 		public void OnDispatched()
