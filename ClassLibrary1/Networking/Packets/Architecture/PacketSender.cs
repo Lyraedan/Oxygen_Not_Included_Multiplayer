@@ -61,11 +61,15 @@ namespace ONI_MP.Networking
 
 			if(!WaitingBulkPacketsPerReceiver.TryGetValue(conn, out var bulkPacketWaitingData))
 			{
-				bulkPacketWaitingData = WaitingBulkPacketsPerReceiver[conn] = [];
+				WaitingBulkPacketsPerReceiver[conn] = [];
+				bulkPacketWaitingData = WaitingBulkPacketsPerReceiver[conn];
+				DebugConsole.Log("Creating new Dict. for connection " + conn.m_HSteamNetConnection);
 			}
 			if (!bulkPacketWaitingData.TryGetValue(packetId, out var pendingPackets))
 			{
-				pendingPackets = new List<byte[]>(maxPacketNumberPerPacket);
+				bulkPacketWaitingData[packetId] = new List<byte[]>(maxPacketNumberPerPacket);
+				pendingPackets = bulkPacketWaitingData[packetId];
+				DebugConsole.Log("Creating new list for packet id"+packetId+" for connection " + conn.m_HSteamNetConnection);
 			}
 			pendingPackets.Add(SerializePacket(packet));
 			if (pendingPackets.Count >= maxPacketNumberPerPacket)
