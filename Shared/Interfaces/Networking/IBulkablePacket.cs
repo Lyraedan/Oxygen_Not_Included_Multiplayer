@@ -9,5 +9,6 @@ namespace Shared.Interfaces.Networking
 	public interface IBulkablePacket
 	{
 		int MaxPackSize { get; }
+		uint IntervalMs { get; }
 	}
 }

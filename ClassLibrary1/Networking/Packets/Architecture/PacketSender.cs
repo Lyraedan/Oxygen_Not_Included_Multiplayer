@@ -9,11 +9,47 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using UnityEngine;
 
 namespace ONI_MP.Networking
 {
 	public static class PacketSender
 	{
+		/// <summary>
+		/// Sth in this is broken
+		/// </summary>
+		private class PacketUpdateRunner
+		{
+			int PacketId; 
+			float UpdateIntervalS;
+
+			Dictionary<HSteamNetConnection, float> LastDispatchTime = [];
+			
+			public PacketUpdateRunner(int packetId, uint updateInterval)
+			{
+				PacketId = packetId;
+				UpdateIntervalS = updateInterval/1000f;
+			}
+			public bool CanDispatchNext(HSteamNetConnection connection)
+			{
+				var currentTime = Time.unscaledTime;
+
+				if (!LastDispatchTime.ContainsKey(connection))
+				{
+					LastDispatchTime[connection] = currentTime;
+					return true;
+				}
+
+				if (LastDispatchTime[connection] + UpdateIntervalS > currentTime)
+				{
+					LastDispatchTime[connection] = currentTime;
+					return true;
+				}
+				return false;
+			}
+		}
+
+
 		public static int MAX_PACKET_SIZE_RELIABLE = 512;
 		public static int MAX_PACKET_SIZE_UNRELIABLE = 1024;
 
@@ -29,8 +65,7 @@ namespace ONI_MP.Networking
 			}
 		}
 
-
-
+		static Dictionary<int, PacketUpdateRunner> UpdateRunners = [];
 		static Dictionary<HSteamNetConnection, Dictionary<int, List<byte[]>>> WaitingBulkPacketsPerReceiver = [];
 		public static void DispatchPendingBulkPackets()
 		{
@@ -39,12 +74,12 @@ namespace ONI_MP.Networking
 				var conn = kvp.Key;
 				foreach (var packetId in kvp.Value.Keys)
 				{
-					DispatchPendingBulkPacketOfType(conn, packetId);
+					DispatchPendingBulkPacketOfType(conn, packetId, true);
 				}
 			}
 		}
 
-		static void DispatchPendingBulkPacketOfType(HSteamNetConnection conn, int packetId)
+		static void DispatchPendingBulkPacketOfType(HSteamNetConnection conn, int packetId, bool intervalRun = false)
 		{
 			if (!WaitingBulkPacketsPerReceiver.TryGetValue(conn, out var allPendingPackets)
 				|| !allPendingPackets.TryGetValue(packetId, out var pendingPackets)
@@ -52,6 +87,11 @@ namespace ONI_MP.Networking
 			{
 				return;
 			}
+			//if (intervalRun)
+			//{
+			//	if (!UpdateRunners[packetId].CanDispatchNext(conn))
+			//		return;
+			//}
 			SendToConnection(conn, new BulkSenderPacket(packetId, pendingPackets), SteamNetworkingSend.ReliableNoNagle);
 			pendingPackets.Clear();
 		}
@@ -59,6 +99,11 @@ namespace ONI_MP.Networking
 		{
 			int packetId = PacketRegistry.GetPacketId(packet);
 			int maxPacketNumberPerPacket = bp.MaxPackSize;
+
+			if (!UpdateRunners.ContainsKey(packetId))
+			{
+				UpdateRunners[packetId] = new PacketUpdateRunner(packetId, bp.IntervalMs);
+			}
 
 			if (!WaitingBulkPacketsPerReceiver.TryGetValue(conn, out var bulkPacketWaitingData))
 			{
@@ -70,7 +115,7 @@ namespace ONI_MP.Networking
 			{
 				bulkPacketWaitingData[packetId] = new List<byte[]>(maxPacketNumberPerPacket);
 				pendingPackets = bulkPacketWaitingData[packetId];
-				DebugConsole.Log("Creating new list for packet id" + packetId + " for connection " + conn.m_HSteamNetConnection);
+				DebugConsole.Log("Creating new list for packet id " + packetId + " for connection " + conn.m_HSteamNetConnection);
 			}
 			pendingPackets.Add(packet.SerializeToByteArray());
 			if (pendingPackets.Count >= maxPacketNumberPerPacket)

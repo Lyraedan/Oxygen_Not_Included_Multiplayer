@@ -7,7 +7,7 @@ using System;
 using System.IO;
 using UnityEngine;
 
-public class EntityPositionPacket : IPacket, IBulkablePacket
+public class EntityPositionPacket : IPacket
 {
 	public int NetId;
 	public Vector3 Position;
@@ -18,6 +18,7 @@ public class EntityPositionPacket : IPacket, IBulkablePacket
 	public long Timestamp;
 
 	public int MaxPackSize => 500;
+	public uint IntervalMs => 200;
 
 	public void Serialize(BinaryWriter writer)
 	{

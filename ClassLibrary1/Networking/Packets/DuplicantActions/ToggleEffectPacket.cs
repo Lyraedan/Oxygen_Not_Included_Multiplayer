@@ -22,6 +22,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public int MaxPackSize => 500;
 
+		public uint IntervalMs => 50;
+
 		public ToggleEffectPacket() { }
 		public ToggleEffectPacket(Effects instance, HashedString toRemove) 
 		{
