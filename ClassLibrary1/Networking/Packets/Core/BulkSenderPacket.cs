@@ -68,7 +68,6 @@ namespace ONI_MP.Networking.Packets.Core
 				innerPacket.OnDispatched();
 				reader.Dispose();
 				ms.Dispose();
-				ToggleEffectPacket
 			}
 		}
 	}
