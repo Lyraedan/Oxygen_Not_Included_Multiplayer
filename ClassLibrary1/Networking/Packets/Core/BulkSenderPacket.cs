@@ -16,8 +16,8 @@ namespace ONI_MP.Networking.Packets.Core
 		public BulkSenderPacket(int packetId, List<byte[]> innerData)
 		{
 			InnerPacketId = packetId;
-			InnerPacketsData = innerData;
-			DebugConsole.LogSuccess("Dispatching bulk packet of type " + packetId + " with " + innerData.Count() + " packets innit");
+			InnerPacketsData = new(innerData);
+			DebugConsole.LogSuccess("Dispatching bulk packet of type " + PacketRegistry.Create(packetId).GetType().Name  + " with " + innerData.Count() + " packets innit");
 		}
 
 		public int InnerPacketId;
