@@ -1,10 +1,13 @@
-﻿using ONI_MP.DebugTools;
+﻿using Epic.OnlineServices.P2P;
+using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Core;
+using Shared.Interfaces.Networking;
 using Steamworks;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace ONI_MP.Networking
@@ -26,11 +29,65 @@ namespace ONI_MP.Networking
 			}
 		}
 
+
+
+		static Dictionary<HSteamNetConnection, Dictionary<int, List<byte[]>>> WaitingBulkPacketsPerReceiver = [];
+		public static void DispatchPendingBulkPackets()
+		{
+			foreach (var kvp in WaitingBulkPacketsPerReceiver)
+			{
+				var conn = kvp.Key;
+				foreach (var packetId in kvp.Value.Keys)
+				{
+					DispatchPendingBulkPacketOfType(conn, packetId);
+				}
+			}
+		}
+
+		static void DispatchPendingBulkPacketOfType(HSteamNetConnection conn, int packetId)
+		{
+			if (!WaitingBulkPacketsPerReceiver.TryGetValue(conn, out var allPendingPackets) 
+				|| !allPendingPackets.TryGetValue(packetId, out var pendingPackets))
+			{
+				return;
+			}
+			SendToConnection(conn, new BulkSenderPacket(packetId, pendingPackets), SteamNetworkingSend.ReliableNoNagle);
+			pendingPackets.Clear();
+		}
+		public static void AppendPendingBulkPacket(HSteamNetConnection conn, IPacket packet, IBulkablePacket bp)
+		{
+			int packetId = PacketRegistry.GetPacketId(packet);
+			int maxPacketNumberPerPacket = bp.MaxPackSize;
+
+			if(!WaitingBulkPacketsPerReceiver.TryGetValue(conn, out var bulkPacketWaitingData))
+			{
+				bulkPacketWaitingData = WaitingBulkPacketsPerReceiver[conn] = [];
+			}
+			if (!bulkPacketWaitingData.TryGetValue(packetId, out var pendingPackets))
+			{
+				pendingPackets = new List<byte[]>(maxPacketNumberPerPacket);
+			}
+			pendingPackets.Add(SerializePacket(packet));
+			if (pendingPackets.Count >= maxPacketNumberPerPacket)
+			{
+				DispatchPendingBulkPacketOfType(conn, packetId);
+			}
+		}
+
 		/// <summary>
 		/// Send to one connection by HSteamNetConnection handle.
 		/// </summary>
+		/// 
+
 		public static bool SendToConnection(HSteamNetConnection conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
 		{
+			if (packet is IBulkablePacket bp)
+			{
+				AppendPendingBulkPacket(conn, packet, bp);
+				return true;
+			}
+
+
 			var bytes = SerializePacket(packet);
 			var _sendType = (int)sendType;
 
@@ -50,7 +107,8 @@ namespace ONI_MP.Networking
 				}
 				else
 				{
-					PacketTracker.TrackSent(new PacketTracker.PacketTrackData {
+					PacketTracker.TrackSent(new PacketTracker.PacketTrackData
+					{
 						packet = packet,
 						size = bytes.Length
 					});
@@ -112,7 +170,7 @@ namespace ONI_MP.Networking
 		{
 			if (!MultiplayerSession.IsHost)
 			{
-				DebugConsole.LogWarning("[PacketSender] Only the host can send to all clients. Tried sending: "+packet.GetType());
+				DebugConsole.LogWarning("[PacketSender] Only the host can send to all clients. Tried sending: " + packet.GetType());
 				return;
 			}
 			SendToAll(packet, MultiplayerSession.HostSteamID, sendType);

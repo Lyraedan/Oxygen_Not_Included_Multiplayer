@@ -60,6 +60,7 @@ namespace ONI_MP
 				go.AddComponent<CursorManager>();
 				go.AddComponent<BuildingSyncer>();
 				go.AddComponent<WorldStateSyncer>();
+				go.AddComponent<BulkPacketMonitor>();
 
 				// CHECKPOINT 5
 				System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 5: Pre-Listeners\n");

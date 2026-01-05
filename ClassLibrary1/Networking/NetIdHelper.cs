@@ -44,7 +44,7 @@ namespace ONI_MP.Networking
 		}
 
 
-		public static int GetDeterministicEntityId(GameObject go, bool breakOff = true, bool useCell = true)
+		public static int GetDeterministicEntityId(GameObject go, bool useBreakOff = true, bool useCell = true)
 		{
 			if (go == null || !go.TryGetComponent<PrimaryElement>(out var primaryElement))
 				return 0;
@@ -59,7 +59,7 @@ namespace ONI_MP.Networking
 			hash = hash ^ go.GetProperName().GetHashCode() ^ primaryElement.ElementID.GetHashCode() ^ primaryElement.Mass.GetHashCode() ^ primaryElement.Temperature.GetHashCode();
 
 			int breakoff = 0;
-			if (breakOff)
+			if (useBreakOff)
 			{
 				while (NetworkIdentityRegistry.Exists(hash + breakoff))
 				{
@@ -67,7 +67,7 @@ namespace ONI_MP.Networking
 				}
 			}
 			hash += breakoff;
-			if(breakOff)
+			if(useBreakOff)
 				DebugConsole.Log($"Registered entity {go.PrefabID().ToString()} with id: {hash}");
 			return hash;
 		}
