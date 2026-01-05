@@ -41,8 +41,8 @@ namespace ONI_MP.Networking.Packets.Core
 			InnerPacketsData = new List<byte[]>(dataLength);
 			for (int i = 0; i < dataLength; i++)
 			{
-				int dataLength = reader.ReadInt32();
-				InnerPacketsData.Add(reader.ReadBytes(dataLength));
+				int dataLength2 = reader.ReadInt32();
+				InnerPacketsData.Add(reader.ReadBytes(dataLength2));
 			}
 		}
 		public void OnDispatched()
