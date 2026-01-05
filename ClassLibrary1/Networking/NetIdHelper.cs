@@ -1,3 +1,4 @@
+using ONI_MP.DebugTools;
 using UnityEngine;
 
 namespace ONI_MP.Networking
@@ -30,8 +31,15 @@ namespace ONI_MP.Networking
 			if (!go.TryGetComponent(out Workable workable))
 				return 0;
 
-			return cell.GetHashCode() ^ go.PrefabID().GetHashCode() ^ workable.workTime.GetHashCode() 
-				^ workable.workTime.GetHashCode() ^ workable.multitoolHitEffectTag.GetHashCode() ^ workable.multitoolContext.GetHashCode();
+			int hash = cell.GetHashCode() ^ go.PrefabID().GetHashCode() ^ ((int)workable.workTime).GetHashCode() ^ workable.multitoolHitEffectTag.GetHashCode() ^ workable.multitoolContext.GetHashCode();
+			int breakoff = 0;
+			while (NetworkIdentityRegistry.Exists(hash + breakoff))
+			{
+				breakoff++;
+			}
+			hash += breakoff;
+			DebugConsole.Log($"Registered workable {go.PrefabID().ToString()} with id: {hash}");
+			return hash;
 		}
 
 
@@ -45,12 +53,14 @@ namespace ONI_MP.Networking
 				return 0;
 
 
-			int hash = go.transform.position.GetHashCode() ^ go.PrefabID().GetHashCode() ^ go.GetProperName().GetHashCode() ^ primaryElement.ElementID.GetHashCode() ^ primaryElement.Mass.GetHashCode();
+			int hash = cell.GetHashCode() ^ go.PrefabID().GetHashCode() ^ go.GetProperName().GetHashCode() ^ primaryElement.ElementID.GetHashCode() ^ primaryElement.Mass.GetHashCode();
 			int breakoff = 0;
 			while (NetworkIdentityRegistry.Exists(hash + breakoff))
 			{
 				breakoff++;
 			}
+			hash += breakoff;
+			DebugConsole.Log($"Registered entity {go.PrefabID().ToString()} with id: {hash}");
 			return hash;
 		}
 	}

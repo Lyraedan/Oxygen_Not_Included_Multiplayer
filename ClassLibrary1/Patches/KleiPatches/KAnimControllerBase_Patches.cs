@@ -34,8 +34,7 @@ namespace ONI_MP.Patches.KleiPatches
 			if (__instance.gameObject.IsNullOrDestroyed() || !__instance.gameObject.TryGetComponent<KPrefabID>(out var id))
 				return;
 
-
-			if (!id.HasTag(GameTags.BaseMinion) || !id.HasTag(GameTags.Creature)) // Allow BaseMinion and Creature
+			if (!id.HasTag(GameTags.BaseMinion) && !id.HasTag(GameTags.Creature)) // Allow BaseMinion and Creature
 				return;
 
 			int netId = __instance.GetNetId();
