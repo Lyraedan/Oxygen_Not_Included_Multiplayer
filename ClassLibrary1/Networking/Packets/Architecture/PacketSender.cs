@@ -17,7 +17,7 @@ namespace ONI_MP.Networking
 		public static int MAX_PACKET_SIZE_RELIABLE = 512;
 		public static int MAX_PACKET_SIZE_UNRELIABLE = 1024;
 
-		public static byte[] SerializePacket(IPacket packet)
+		public static byte[] SerializePacketForSending(IPacket packet)
 		{
 			using (var ms = new System.IO.MemoryStream())
 			using (var writer = new System.IO.BinaryWriter(ms))
@@ -46,7 +46,7 @@ namespace ONI_MP.Networking
 
 		static void DispatchPendingBulkPacketOfType(HSteamNetConnection conn, int packetId)
 		{
-			if (!WaitingBulkPacketsPerReceiver.TryGetValue(conn, out var allPendingPackets) 
+			if (!WaitingBulkPacketsPerReceiver.TryGetValue(conn, out var allPendingPackets)
 				|| !allPendingPackets.TryGetValue(packetId, out var pendingPackets)
 				|| !pendingPackets.Any())
 			{
@@ -60,7 +60,7 @@ namespace ONI_MP.Networking
 			int packetId = PacketRegistry.GetPacketId(packet);
 			int maxPacketNumberPerPacket = bp.MaxPackSize;
 
-			if(!WaitingBulkPacketsPerReceiver.TryGetValue(conn, out var bulkPacketWaitingData))
+			if (!WaitingBulkPacketsPerReceiver.TryGetValue(conn, out var bulkPacketWaitingData))
 			{
 				WaitingBulkPacketsPerReceiver[conn] = [];
 				bulkPacketWaitingData = WaitingBulkPacketsPerReceiver[conn];
@@ -70,13 +70,20 @@ namespace ONI_MP.Networking
 			{
 				bulkPacketWaitingData[packetId] = new List<byte[]>(maxPacketNumberPerPacket);
 				pendingPackets = bulkPacketWaitingData[packetId];
-				DebugConsole.Log("Creating new list for packet id"+packetId+" for connection " + conn.m_HSteamNetConnection);
+				DebugConsole.Log("Creating new list for packet id" + packetId + " for connection " + conn.m_HSteamNetConnection);
 			}
-			pendingPackets.Add(SerializePacket(packet));
+			pendingPackets.Add(packet.SerializeToByteArray());
 			if (pendingPackets.Count >= maxPacketNumberPerPacket)
 			{
 				DispatchPendingBulkPacketOfType(conn, packetId);
 			}
+		}
+		public static byte[] SerializeToByteArray(this IPacket packet)
+		{
+			using var ms = new System.IO.MemoryStream();
+			using var writer = new System.IO.BinaryWriter(ms);
+			packet.Serialize(writer);
+			return ms.ToArray();
 		}
 
 		/// <summary>
@@ -93,7 +100,7 @@ namespace ONI_MP.Networking
 			}
 
 
-			var bytes = SerializePacket(packet);
+			var bytes = SerializePacketForSending(packet);
 			var _sendType = (int)sendType;
 
 			IntPtr unmanagedPointer = Marshal.AllocHGlobal(bytes.Length);
