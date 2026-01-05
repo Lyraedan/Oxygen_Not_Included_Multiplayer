@@ -11,8 +11,8 @@ namespace ONI_MP.Patches.World
 	internal class WorkablePatch
 	{
 
-		[HarmonyPatch(typeof(Workable), nameof(Workable.OnSpawn))]
-		public class Workable_OnSpawn_Patch
+		[HarmonyPatch(typeof(Workable), nameof(Workable.OnPrefabInit))]
+		public class Workable_OnPrefabInit_Patch
 		{
 			public static void Postfix(Workable __instance)
 			{
