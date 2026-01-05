@@ -2,11 +2,12 @@
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
+using Shared.Interfaces.Networking;
 using System;
 using System.IO;
 using UnityEngine;
 
-public class EntityPositionPacket : IPacket
+public class EntityPositionPacket : IPacket, IBulkablePacket
 {
 	public int NetId;
 	public Vector3 Position;
@@ -15,6 +16,8 @@ public class EntityPositionPacket : IPacket
 	public NavType NavType;
 	public float SendInterval;
 	public long Timestamp;
+
+	public int MaxPackSize => 500;
 
 	public void Serialize(BinaryWriter writer)
 	{

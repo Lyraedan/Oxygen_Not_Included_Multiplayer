@@ -1,6 +1,7 @@
 ﻿using Epic.OnlineServices.P2P;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Networking.Packets.DuplicantActions;
 using Steamworks;
 using System;
 using System.Collections.Generic;
@@ -42,7 +43,6 @@ namespace ONI_MP.Networking.Packets.Core
 			InnerPacketId = reader.ReadInt32();
 			int packetCount = reader.ReadInt32();
 			SerializedInnerPackets = new List<byte[]>(packetCount);
-			DebugConsole.Log("InnerPacketCount: " + packetCount);
 			for (int i = 0; i < packetCount; i++)
 			{
 				int packetDataLengt = reader.ReadInt32();
@@ -58,13 +58,17 @@ namespace ONI_MP.Networking.Packets.Core
 				return;
 			}
 			DebugConsole.Log("[BulkSenderPacket] received with "+SerializedInnerPackets.Count()+" packets of type " + PacketRegistry.Create(InnerPacketId).GetType().Name + ", dispatching");
+
 			foreach (var packetData in SerializedInnerPackets)
 			{
 				var innerPacket = PacketRegistry.Create(InnerPacketId);
-				using var ms = new MemoryStream(packetData);
-				using var reader = new BinaryReader(ms);
+				var ms = new MemoryStream(packetData);
+				var reader = new BinaryReader(ms);
 				innerPacket.Deserialize(reader);
 				innerPacket.OnDispatched();
+				reader.Dispose();
+				ms.Dispose();
+				ToggleEffectPacket
 			}
 		}
 	}

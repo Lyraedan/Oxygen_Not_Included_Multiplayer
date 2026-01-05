@@ -47,7 +47,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 		public void Serialize(BinaryWriter writer)
 		{
 			writer.Write(MinionNetId);
-			writer.Write(EffectId);
+			writer.Write(EffectId ?? string.Empty);
 			writer.Write(IsAdding);
 			writer.Write(ShouldSave);
 		}
