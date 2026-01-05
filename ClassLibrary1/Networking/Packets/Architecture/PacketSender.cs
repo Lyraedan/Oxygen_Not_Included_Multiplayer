@@ -47,7 +47,8 @@ namespace ONI_MP.Networking
 		static void DispatchPendingBulkPacketOfType(HSteamNetConnection conn, int packetId)
 		{
 			if (!WaitingBulkPacketsPerReceiver.TryGetValue(conn, out var allPendingPackets) 
-				|| !allPendingPackets.TryGetValue(packetId, out var pendingPackets))
+				|| !allPendingPackets.TryGetValue(packetId, out var pendingPackets)
+				|| !pendingPackets.Any())
 			{
 				return;
 			}
