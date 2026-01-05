@@ -28,6 +28,10 @@ namespace ONI_MP.Patches.DuplicantActions
 				if (start_work_info.GetType() != typeof(WorkerBase.StartWorkInfo))
 					return;
 
+				///Skip bionic's sleeping
+				if (start_work_info.workable.GetType() == typeof(DefragmentationZone))
+					return;
+
 				PacketSender.SendToAllClients(new StandardWorker_WorkingState_Packet(__instance, start_work_info.workable,true));
 			}
 		}

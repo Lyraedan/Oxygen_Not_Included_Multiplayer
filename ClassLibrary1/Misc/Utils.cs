@@ -122,8 +122,6 @@ namespace ONI_MP.Misc
 			}
 		}
 
-
-
 		private static ChunkData CreateChunk(int x0, int y0, int width, int height)
 		{
 			var chunk = new ChunkData

@@ -158,9 +158,11 @@ namespace ONI_MP
 
 		private static void RegisterDevTools()
 		{
+#if DEBUG // DevTool is not accessible on mac.
 			var baseMethod = AccessTools.Method(typeof(DevToolManager), "RegisterDevTool");
 			var twitchDevToolRegister = baseMethod.MakeGenericMethod(typeof(DevToolMultiplayer));
 			twitchDevToolRegister.Invoke(DevToolManager.Instance, new object[] { "Mods/MultiplayerMod" });
+#endif
 		}
 	}
 }

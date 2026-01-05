@@ -2,6 +2,7 @@
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
+using System;
 using System.IO;
 using UnityEngine;
 
@@ -18,12 +19,8 @@ public class EntityPositionPacket : IPacket
 	public void Serialize(BinaryWriter writer)
 	{
 		writer.Write(NetId);
-		writer.Write(Position.x);
-		writer.Write(Position.y);
-		writer.Write(Position.z);
-		writer.Write(Velocity.x);
-		writer.Write(Velocity.y);
-		writer.Write(Velocity.z);
+		writer.Write(Position);
+		writer.Write(Velocity);
 		writer.Write(FacingLeft);
 		writer.Write((byte)NavType);
 		writer.Write(SendInterval);
@@ -33,14 +30,8 @@ public class EntityPositionPacket : IPacket
 	public void Deserialize(BinaryReader reader)
 	{
 		NetId = reader.ReadInt32();
-		float x = reader.ReadSingle();
-		float y = reader.ReadSingle();
-		float z = reader.ReadSingle();
-		Position = new Vector3(x, y, z);
-		float vx = reader.ReadSingle();
-		float vy = reader.ReadSingle();
-		float vz = reader.ReadSingle();
-		Velocity = new Vector3(vx, vy, vz);
+		Position = reader.ReadVector3();
+		Velocity = reader.ReadVector3();
 		FacingLeft = reader.ReadBoolean();
 		NavType = (NavType)reader.ReadByte();
 		SendInterval = reader.ReadSingle();
@@ -62,8 +53,13 @@ public class EntityPositionPacket : IPacket
 				return; // Recieved out of date position packet, ignore.
 			}
 
-			handler.lastPositionTimestamp = Timestamp;
+            handler.serverPosition = Position;
+            handler.serverVelocity = Velocity;
+            handler.serverTimestamp = Timestamp;
+            handler.lastPositionTimestamp = Timestamp;
+            handler.serverFacingLeft = FacingLeft;
 
+            /*
             // Check if this is a duplicant with our client controller
             var clientController = entity.GetComponent<DuplicantClientController>();
 			if (clientController != null)
@@ -81,14 +77,15 @@ public class EntityPositionPacket : IPacket
 			}
 
 			entity.StopCoroutine("InterpolateKAnimPosition");
-			entity.StartCoroutine(InterpolateKAnimPosition(anim, Position, FacingLeft));
-		}
+			entity.StartCoroutine(InterpolateKAnimPosition(anim, Position, FacingLeft));*/
+        }
 		else
 		{
 			DebugConsole.LogWarning($"[Packets] Could not find entity with NetId {NetId}");
 		}
 	}
 
+	[Obsolete("Use EntityPositionHandler.UpdatePosition instead")]
 	private System.Collections.IEnumerator InterpolateKAnimPosition(KBatchedAnimController anim, Vector3 targetPos, bool facingLeft)
 	{
 		Vector3 startPos = anim.transform.GetPosition();

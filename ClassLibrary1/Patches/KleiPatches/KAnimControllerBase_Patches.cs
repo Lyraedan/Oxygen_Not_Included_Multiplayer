@@ -35,7 +35,7 @@ namespace ONI_MP.Patches.KleiPatches
 				return;
 
 
-			if (!id.HasTag(GameTags.BaseMinion))
+			if (!id.HasTag(GameTags.BaseMinion) || !id.HasTag(GameTags.Creature)) // Allow BaseMinion and Creature
 				return;
 
 			int netId = __instance.GetNetId();

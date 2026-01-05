@@ -18,14 +18,7 @@ namespace ONI_MP.Patches
 
 			var packet = new SpeedChangePacket((SpeedChangePacket.SpeedState)Speed);
 
-			if (MultiplayerSession.IsHost)
-			{
-				PacketSender.SendToAllClients(packet);
-			}
-			else
-			{
-				PacketSender.SendToHost(packet);
-			}
+			PacketSender.SendToAllOtherPeers(packet);
 			DebugConsole.Log($"[SpeedControl] Sent SpeedChangePacket: {packet.Speed}");
 		}
 
@@ -40,15 +33,8 @@ namespace ONI_MP.Patches
 					: (SpeedChangePacket.SpeedState)__instance.GetSpeed();
 
 			var packet = new SpeedChangePacket(speedState);
-			if (MultiplayerSession.IsHost)
-			{
-				PacketSender.SendToAllClients(packet);
-			}
-			else
-			{
-				PacketSender.SendToHost(packet);
-			}
-			DebugConsole.Log($"[SpeedControl] Sent SpeedChangePacket (pause toggle): {packet.Speed}");
+            PacketSender.SendToAllOtherPeers(packet);
+            DebugConsole.Log($"[SpeedControl] Sent SpeedChangePacket (pause toggle): {packet.Speed}");
 		}
 	}
 }

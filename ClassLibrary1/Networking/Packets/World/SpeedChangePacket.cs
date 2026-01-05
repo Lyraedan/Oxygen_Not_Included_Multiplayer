@@ -63,10 +63,10 @@ namespace ONI_MP.Networking.Packets.World
 			}
 
 			// Rebroadcast if Host
-			if (MultiplayerSession.IsHost)
-			{
-				PacketSender.SendToAllClients(this);
-			}
+			//if (MultiplayerSession.IsHost)
+			//{
+			//	PacketSender.SendToAllClients(this);
+			//}
 
 			DebugConsole.Log($"[SpeedChnagePacket] SpeedChangePacket received: Speed set to {Speed}");
 		}
