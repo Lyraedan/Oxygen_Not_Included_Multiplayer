@@ -1,4 +1,5 @@
-﻿using ONI_MP.DebugTools;
+﻿using Epic.OnlineServices.P2P;
+using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using Steamworks;
 using System;
@@ -16,33 +17,37 @@ namespace ONI_MP.Networking.Packets.Core
 		public BulkSenderPacket(int packetId, List<byte[]> innerData)
 		{
 			InnerPacketId = packetId;
-			InnerPacketsData = innerData;
-			DebugConsole.LogSuccess("Dispatching bulk packet of type " + PacketRegistry.Create(packetId).GetType().Name  + " with " + innerData.Count() + " packets innit");
+			SerializedInnerPackets = innerData;
 		}
 
 		public int InnerPacketId;
-		public List<byte[]> InnerPacketsData = [];
+		public List<byte[]> SerializedInnerPackets = [];
 
 		public void Serialize(BinaryWriter writer)
 		{
 			writer.Write(InnerPacketId);
-			writer.Write(InnerPacketsData.Count());
-			for (int i = 0; i < InnerPacketsData.Count(); i++)
+			int packetCount = SerializedInnerPackets.Count();
+			writer.Write(packetCount);
+			for (int i = 0; i < packetCount; i++)
 			{
-				var data = InnerPacketsData[i];
-				writer.Write(data.Length);
-				writer.Write(InnerPacketsData[i]);
+				var serializedPacket = SerializedInnerPackets[i];
+				writer.Write(serializedPacket.Length);
+				writer.Write(serializedPacket);
 			}
+			DebugConsole.LogSuccess("Dispatching bulk packet of type " + PacketRegistry.Create(InnerPacketId).GetType().Name + " with " + SerializedInnerPackets.Count() + " packets innit");
+
 		}
 		public void Deserialize(BinaryReader reader)
 		{
 			InnerPacketId = reader.ReadInt32();
-			int dataLength = reader.ReadInt32();
-			InnerPacketsData = new List<byte[]>(dataLength);
-			for (int i = 0; i < dataLength; i++)
+			int packetCount = reader.ReadInt32();
+			SerializedInnerPackets = new List<byte[]>(packetCount);
+			DebugConsole.Log("InnerPacketCount: " + packetCount);
+			for (int i = 0; i < packetCount; i++)
 			{
-				int dataLength2 = reader.ReadInt32();
-				InnerPacketsData.Add(reader.ReadBytes(dataLength2));
+				int packetDataLengt = reader.ReadInt32();
+				var packetData = reader.ReadBytes(packetDataLengt);
+				SerializedInnerPackets.Add(packetData);
 			}
 		}
 		public void OnDispatched()
@@ -52,8 +57,8 @@ namespace ONI_MP.Networking.Packets.Core
 				DebugConsole.LogWarning("[BulkSenderPacket] unknown inner packet id found, cannot unpack: " + InnerPacketId);
 				return;
 			}
-			DebugConsole.Log("[BulkSenderPacket] received with "+InnerPacketsData.Count()+" packets of type " + PacketRegistry.Create(InnerPacketId).GetType().Name + ", dispatching");
-			foreach (var packetData in InnerPacketsData)
+			DebugConsole.Log("[BulkSenderPacket] received with "+SerializedInnerPackets.Count()+" packets of type " + PacketRegistry.Create(InnerPacketId).GetType().Name + ", dispatching");
+			foreach (var packetData in SerializedInnerPackets)
 			{
 				var innerPacket = PacketRegistry.Create(InnerPacketId);
 				using var ms = new MemoryStream(packetData);
