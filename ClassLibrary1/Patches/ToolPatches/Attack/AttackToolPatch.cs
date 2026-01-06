@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Tools.Attack;
 using UnityEngine;
@@ -14,14 +13,9 @@ public class AttackToolPatch
         if (!MultiplayerSession.InSession)
             return;
 
-        Traverse get_regularized_pos = Traverse.Create(__instance).Method("GetRegularizedPos", [typeof(Vector2), typeof(bool)]);
+        Vector2 min_object = __instance.GetRegularizedPos(Vector2.Min(downPos, upPos), true);
+        Vector2 max_object = __instance.GetRegularizedPos(Vector2.Max(downPos, upPos), false);
 
-        object min_object = get_regularized_pos?.GetValue(Vector2.Min(downPos, upPos), true);
-        object max_object = get_regularized_pos?.GetValue(Vector2.Max(downPos, upPos), false);
-
-        if (min_object == null || max_object == null)
-            return;
-
-        PacketSender.SendToAllOtherPeers(new AttackToolPacket((Vector2)min_object, (Vector2)max_object));
+        PacketSender.SendToAllOtherPeers(new AttackToolPacket(min_object, max_object));
     }
 }

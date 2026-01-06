@@ -13,14 +13,9 @@ public class CaptureToolPatch
         if (!MultiplayerSession.InSession)
             return;
 
-        Traverse get_regularized_pos = Traverse.Create(__instance).Method("GetRegularizedPos", [typeof(Vector2), typeof(bool)]);
+        Vector2 min_object = __instance.GetRegularizedPos(Vector2.Min(downPos, upPos), true);
+        Vector2 max_object = __instance.GetRegularizedPos(Vector2.Max(downPos, upPos), false);
 
-        object min_object = get_regularized_pos?.GetValue(Vector2.Min(downPos, upPos), true);
-        object max_object = get_regularized_pos?.GetValue(Vector2.Max(downPos, upPos), false);
-
-        if (min_object == null || max_object == null)
-            return;
-
-        PacketSender.SendToAllOtherPeers(new CaptureToolPacket((Vector2)min_object, (Vector2)max_object));
+        PacketSender.SendToAllOtherPeers(new CaptureToolPacket(min_object, max_object));
     }
 }

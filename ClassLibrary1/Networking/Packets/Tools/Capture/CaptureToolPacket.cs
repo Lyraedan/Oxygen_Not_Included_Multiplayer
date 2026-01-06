@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using HarmonyLib;
-using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using Steamworks;
 using UnityEngine;
