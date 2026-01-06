@@ -21,11 +21,6 @@ public class CaptureToolPatch
         if (min_object == null || max_object == null)
             return;
 
-        CaptureToolPacket packet = new CaptureToolPacket((Vector2)min_object, (Vector2)max_object);
-
-        if (MultiplayerSession.IsHost)
-            PacketSender.SendToAllClients(packet);
-        else
-            PacketSender.SendToHost(packet);
+        PacketSender.SendToAllOtherPeers(new CaptureToolPacket((Vector2)min_object, (Vector2)max_object));
     }
 }

@@ -52,16 +52,5 @@ public class CaptureToolPacket : IPacket
         CaptureTool.MarkForCapture(Min, Max, true);
 
         lastSelectedPriority.SetValue(prioritySetting);
-
-        if (!MultiplayerSession.IsHost)
-            return;
-
-        var exclude = new HashSet<CSteamID>
-        {
-            SenderId,
-            MultiplayerSession.LocalSteamID
-        };
-        PacketSender.SendToAllExcluding(this, exclude);
-        DebugConsole.Log($"[CaptureToolPacket] Host rebroadcasted MarkForCapture({Min}, {Max}, true)");
     }
 }

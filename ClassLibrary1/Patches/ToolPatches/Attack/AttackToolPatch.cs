@@ -22,11 +22,6 @@ public class AttackToolPatch
         if (min_object == null || max_object == null)
             return;
 
-        AttackToolPacket packet = new AttackToolPacket((Vector2)min_object, (Vector2)max_object);
-
-        if (MultiplayerSession.IsHost)
-            PacketSender.SendToAllClients(packet);
-        else
-            PacketSender.SendToHost(packet);
+        PacketSender.SendToAllOtherPeers(new AttackToolPacket((Vector2)min_object, (Vector2)max_object));
     }
 }

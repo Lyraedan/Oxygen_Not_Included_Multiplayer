@@ -52,16 +52,5 @@ public class AttackToolPacket : IPacket
         AttackTool.MarkForAttack(Min, Max, true);
 
         lastSelectedPriority.SetValue(prioritySetting);
-
-        if (!MultiplayerSession.IsHost)
-            return;
-
-        var exclude = new HashSet<CSteamID>
-        {
-            SenderId,
-            MultiplayerSession.LocalSteamID
-        };
-        PacketSender.SendToAllExcluding(this, exclude);
-        DebugConsole.Log($"[AttackToolPacket] Host rebroadcasted MarkForAttack({Min}, {Max}, true)");
     }
 }
