@@ -15,6 +15,6 @@ public class HarvestToolPatch
         if (HarvestToolPacket.ProcessingIncoming)
             return;
 
-        PacketSender.SendToAllOtherPeers(new HarvestToolPacket(cell));
+        PacketSender.SendToAllOtherPeers(new HarvestToolPacket { cell = cell, distFromOrigin = distFromOrigin });
     }
 }
