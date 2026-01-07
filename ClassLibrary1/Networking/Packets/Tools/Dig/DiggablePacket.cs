@@ -1,66 +1,54 @@
-﻿using ONI_MP.DebugTools;
-using ONI_MP.Networking.Packets.Architecture;
-using Steamworks;
-using System.Collections.Generic;
+﻿using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Tools.Dig
 {
-	public class DiggablePacket : IPacket
-	{
-		public int Cell;
-		public CSteamID SenderId;
+    public class DiggablePacket : IPacket
+    {
+        /// <summary>
+        /// Gets a value indicating whether incoming messages are currently being processed.
+        /// Use in patches to prevent recursion when applying tool changes.
+        /// </summary>
+        public static bool ProcessingIncoming { get; private set; }
 
-		public DiggablePacket() { }
+        private int             Cell;
+        private int             AnimationDelay;
+        private PrioritySetting Priority = ToolMenu.Instance.PriorityScreen.GetLastSelectedPriority();
 
-		public DiggablePacket(int cell, CSteamID senderId)
-		{
-			Cell = cell;
-			SenderId = senderId;
-		}
+        public DiggablePacket()
+        {
+        }
 
-		public void Serialize(BinaryWriter writer)
-		{
-			writer.Write(Cell);
-			writer.Write(SenderId.m_SteamID);
-		}
+        public DiggablePacket(int cell, int animationDelay)
+        {
+            Cell           = cell;
+            AnimationDelay = animationDelay;
+        }
 
-		public void Deserialize(BinaryReader reader)
-		{
-			Cell = reader.ReadInt32();
-			SenderId = new CSteamID(reader.ReadUInt64());
-		}
+        public void Serialize(BinaryWriter writer)
+        {
+            writer.Write(Cell);
+            writer.Write(AnimationDelay);
+            writer.Write((int)Priority.priority_class);
+            writer.Write(Priority.priority_value);
+        }
 
-		public void OnDispatched()
-		{
-			if (!Grid.IsValidCell(Cell))
-			{
-				DebugConsole.LogWarning($"[DiggablePacket] Invalid cell: {Cell}");
-				return;
-			}
+        public void Deserialize(BinaryReader reader)
+        {
+            Cell           = reader.ReadInt32();
+            AnimationDelay = reader.ReadInt32();
+            Priority       = new PrioritySetting((PriorityScreen.PriorityClass)reader.ReadInt32(), reader.ReadInt32());
+        }
 
-			if (Diggable.GetDiggable(Cell) != null)
-			{
-				return;
-			}
+        public void OnDispatched()
+        {
+            ProcessingIncoming = true;
+            GameObject game_object = DigTool.PlaceDig(Cell, AnimationDelay);
+            ProcessingIncoming = false;
 
-			// Create diggable object at the given cell
-			Vector3 position = Grid.CellToPos(Cell, 0.5f, 0f, 0f);
-			GameObject diggableGO = Util.KInstantiate(Assets.GetPrefab(new Tag("DigPlacer")), position);
-			diggableGO.SetActive(true);
-
-			// If host, forward to everyone except sender and host
-			if (MultiplayerSession.IsHost)
-			{
-				var excludeSet = new HashSet<CSteamID>
-								{
-										SenderId,
-										MultiplayerSession.LocalSteamID
-								};
-				PacketSender.SendToAllExcluding(this, excludeSet);
-				DebugConsole.Log($"[DiggablePacket] Host forwarded diggable packet for cell {Cell} to all except sender {SenderId} and self.");
-			}
-		}
-	}
+            Prioritizable prioritizable = game_object?.GetComponent<Prioritizable>();
+            prioritizable?.SetMasterPriority(Priority);
+        }
+    }
 }
