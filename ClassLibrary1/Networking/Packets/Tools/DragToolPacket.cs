@@ -6,12 +6,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HarmonyLib;
 using UnityEngine;
 using static STRINGS.INPUT_BINDINGS;
 
 namespace ONI_MP.Networking.Packets.Tools
 {
-	public abstract class FilteredDragToolPacket : IPacket
+	public abstract class DragToolPacket : IPacket
 	{
 		/// <summary>
 		/// Gets a value indicating whether incoming messages are currently being processed.
@@ -28,42 +29,27 @@ namespace ONI_MP.Networking.Packets.Tools
 
 		///set these two in the derived tool packet
 		protected DragToolMode ToolMode = DragToolMode.Invalid;
-		protected FilteredDragTool ToolInstance;
+		protected DragTool ToolInstance;
 
 		HashSet<string> currentFilterTargets = [];
 		public Vector3 downPos, upPos;
 		public int cell, distFromOrigin;
-
-		public virtual void Deserialize(BinaryReader reader)
-		{
-			var count = reader.ReadInt32();
-			currentFilterTargets = new HashSet<string>(count);
-			for (int i = 0; i < count; i++)
-			{
-				currentFilterTargets.Add(reader.ReadString());
-			}
-			switch (ToolMode)
-			{
-				case DragToolMode.OnDragTool:
-					cell = reader.ReadInt32();
-					distFromOrigin = reader.ReadInt32();
-					break;
-				case DragToolMode.OnDragComplete:
-					downPos = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-					upPos = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-					break;
-			}
-		}
+		private PrioritySetting Priority = ToolMenu.Instance.PriorityScreen.GetLastSelectedPriority();
 
 		public virtual void Serialize(BinaryWriter writer)
 		{
-			StoreFilterData(ToolInstance);
+			if(ToolInstance is FilteredDragTool filteredToolInstance)
+				StoreFilterData(filteredToolInstance);
 
-			writer.Write(currentFilterTargets.Count);
-			foreach (var target in currentFilterTargets)
+			if (ToolInstance is FilteredDragTool)
 			{
-				writer.Write(target);
+				writer.Write(currentFilterTargets.Count);
+				foreach (var target in currentFilterTargets)
+				{
+					writer.Write(target);
+				}
 			}
+
 			switch (ToolMode)
 			{
 				case DragToolMode.OnDragTool:
@@ -75,15 +61,59 @@ namespace ONI_MP.Networking.Packets.Tools
 					writer.Write(upPos.x); writer.Write(upPos.y); writer.Write(upPos.z);
 					break;
 			}
+
+			writer.Write((int)Priority.priority_class);
+			writer.Write(Priority.priority_value);
 		}
+
+		public virtual void Deserialize(BinaryReader reader)
+		{
+			if (ToolInstance is FilteredDragTool)
+			{
+				var count = reader.ReadInt32();
+				currentFilterTargets = new HashSet<string>(count);
+				for (int i = 0; i < count; i++)
+				{
+					currentFilterTargets.Add(reader.ReadString());
+				}
+			}
+
+			switch (ToolMode)
+			{
+				case DragToolMode.OnDragTool:
+					cell = reader.ReadInt32();
+					distFromOrigin = reader.ReadInt32();
+					break;
+				case DragToolMode.OnDragComplete:
+					downPos = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+					upPos = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+					break;
+			}
+
+			Priority = new PrioritySetting((PriorityScreen.PriorityClass)reader.ReadInt32(), reader.ReadInt32());
+		}
+
 		public virtual void OnDispatched()
 		{
 			if (ToolInstance == null)
 			{
 				DebugConsole.LogWarning("[FilteredDragToolPacket] ToolInstance is null in OnDispatched");
 			}
-			var cachedFilters = ToolInstance.currentFilterTargets?.Keys.ToHashSet();
-			ApplyFilterData(ToolInstance, currentFilterTargets);
+
+			FilteredDragTool filteredToolInstance = ToolInstance as FilteredDragTool;
+			bool             isFilteredTool       = filteredToolInstance != null;
+			HashSet<string>  cachedFilters        = [];
+			if (isFilteredTool)
+			{
+				cachedFilters = filteredToolInstance.currentFilterTargets?.Keys.ToHashSet();
+				ApplyFilterData(filteredToolInstance, currentFilterTargets);
+			}
+
+			Traverse        lastSelectedPriority = Traverse.Create(ToolMenu.Instance.PriorityScreen).Field("lastSelectedPriority");
+			PrioritySetting prioritySetting      = lastSelectedPriority.GetValue<PrioritySetting>();
+
+			lastSelectedPriority.SetValue(Priority);
+
 			ProcessingIncoming = true;
 			switch (ToolMode)
 			{
@@ -103,7 +133,11 @@ namespace ONI_MP.Networking.Packets.Tools
 					break;
 			}
 			ProcessingIncoming = false;
-			ApplyFilterData(ToolInstance, cachedFilters);
+
+			lastSelectedPriority.SetValue(prioritySetting);
+
+			if (isFilteredTool)
+				ApplyFilterData(filteredToolInstance, cachedFilters);
 		}
 		public void ApplyFilterData(FilteredDragTool tool, HashSet<string> targets)
 		{

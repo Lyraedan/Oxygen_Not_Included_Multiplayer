@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ONI_MP.Networking.Packets.Tools
 {
-	internal class EmptyPipePacket : FilteredDragToolPacket
+	internal class EmptyPipePacket : DragToolPacket
 	{
 		public EmptyPipePacket() : base()
 		{

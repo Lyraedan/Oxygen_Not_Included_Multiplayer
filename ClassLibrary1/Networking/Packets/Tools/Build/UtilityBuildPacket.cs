@@ -165,9 +165,9 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
 			foreach (BaseUtilityBuildTool.PathNode node in path)
 			{
-				GameObject    gameObject    = Grid.Objects[node.cell, (int) def.TileLayer];
-				Prioritizable prioritizable = gameObject?.GetComponent< Prioritizable >();
-				prioritizable?.SetMasterPriority( Priority );
+				GameObject    gameObject    = Grid.Objects[node.cell, (int)def.TileLayer];
+				Prioritizable prioritizable = gameObject?.GetComponent<Prioritizable>();
+				prioritizable?.SetMasterPriority(Priority);
 			}
 			ProcessingIncoming = false;
 

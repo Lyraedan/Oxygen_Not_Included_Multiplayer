@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Tools.Prioritize
 {
-	public class PrioritizePacket : FilteredDragToolPacket
+	public class PrioritizePacket : DragToolPacket
 	{
 		public PrioritizePacket() : base()
 		{

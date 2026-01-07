@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Tools
 {
-	internal class DisconnectPacket : FilteredDragToolPacket
+	internal class DisconnectPacket : DragToolPacket
 	{
 		public DisconnectPacket() : base() 
 		{
