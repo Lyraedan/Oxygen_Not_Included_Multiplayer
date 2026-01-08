@@ -3,7 +3,7 @@ using Steamworks;
 
 namespace ONI_MP
 {
-	internal class MP_STRINGS
+	internal class STRINGS
 	{
 		public class UI
 		{
@@ -278,6 +278,132 @@ namespace ONI_MP
 					}
 				}
 			}
+
+			///Unity Ui big composite screen, these get automatically applied
+			public class MP_SCREEN
+			{
+				public class MAINMENU
+				{
+					public static LocString HOSTINGTITLE = "Hosting";
+					public class HOSTGAMEBUTTON
+					{
+						public static LocString TEXT = "Host Game";
+					}
+					public static LocString JOININGTITLE = "Joining";
+					public class JOINVIASTEAM
+					{
+						public static LocString TEXT = "Join via Steam";
+					}
+					public class OPENLOBBYLISTBUTTON
+					{
+						public static LocString TEXT = "Open Lobby Browser";
+					}
+					public class LOBBYCODEJOIN
+					{
+						public class INPUT
+						{
+							public class TEXTAREA
+							{
+								public static LocString PLACEHOLDER = "Enter Lobby Code...";
+								public static LocString TEXT = "​";
+							}
+						}
+						public class JOINWITHCODEBUTTON
+						{
+							public static LocString TEXT = "Join with Code";
+						}
+					}
+					public class CANCEL
+					{
+						public static LocString TEXT = "Cancel";
+					}
+				}
+				public class HOSTMENU
+				{
+					public static LocString TITLE = "Host Lobby Settings";
+					public class FRIENDSONLY
+					{
+						public static LocString LABEL = "Private Lobby:";
+						public static LocString LOBBY_VISIBILITY_PUBLIC = "Public";
+						public static LocString LOBBY_VISIBILITY_FRIENDSONLY = "Friends Only";
+					}
+					public class LOBBYSIZE
+					{
+						public static LocString LABEL = "Lobby Size:";
+						public class LOBBYSIZEINPUT
+						{
+							public class TEXTAREA
+							{
+								public static LocString PLACEHOLDER = "Enter Lobby Size...";
+								public static LocString TEXT = "4​";
+							}
+						}
+					}
+					public static LocString PASSWORDTITLE = "Password (optional):";
+					public class PASSWORDINPUT
+					{
+						public class TEXTAREA
+						{
+							public static LocString PLACEHOLDER = "Leave empty for no password";
+							public static LocString TEXT = "​";
+						}
+					}
+					public class STARTHOSTING
+					{
+						public static LocString TEXT = "Start Hosting";
+					}
+					public class CANCEL
+					{
+						public static LocString TEXT = "Cancel";
+					}
+				}
+				public class LOBBYLIST
+				{
+					public static LocString TITLE = "Public Lobby Browser";
+					public class SEARCHBAR
+					{
+						public class INPUT
+						{
+							public class TEXTAREA
+							{
+								public static LocString PLACEHOLDER = "Search Lobbies...";
+								public static LocString TEXT = "​";
+							}
+						}
+					}
+					public class INFO
+					{
+						public static LocString WORLD = "World Name";
+						public static LocString HOST = "Host";
+						public static LocString PLAYERS = "Players";
+						public static LocString CYCLE = "Cycle";
+						public static LocString DUPES = "Dupes";
+						public static LocString PING = "Ping";
+					}
+					public class SCROLLAREA
+					{
+						public class CONTENT
+						{
+							public class NOLOBBIES
+							{
+								public static LocString LABEL = "No public lobbies found. Try hosting your own!";
+							}
+							public class ENTRYPREFAB
+							{
+								public class JOINLOBBYBUTTON
+								{
+									public static LocString TEXT = "Join";
+								}
+							}
+						}
+					}
+				}
+				public class TOPBAR
+				{
+					public static LocString LABEL = "Multiplayer";
+				}
+			}
+
 		}
 	}
 }

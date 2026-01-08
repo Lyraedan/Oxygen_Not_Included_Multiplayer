@@ -225,7 +225,7 @@ namespace ONI_MP.Networking
                 }
 
 				DebugConsole.Log($"[SteamLobby] {name} joined the lobby.");
-				ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(MP_STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_JOINED, name));
+				ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_JOINED, name));
 				ChatScreen.QueueMessage(pending);
 			}
 
@@ -240,7 +240,7 @@ namespace ONI_MP.Networking
 
 				RefreshLobbyMembers();
 				DebugConsole.Log($"[SteamLobby] {name} left the lobby.");
-                ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(MP_STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, name));
+                ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, name));
                 ChatScreen.QueueMessage(pending);
 			}
 		}
@@ -508,8 +508,8 @@ namespace ONI_MP.Networking
 
 				// Failsafe ignore "private" lobbies
 				string visibility = SteamMatchmaking.GetLobbyData(lobbyId, "visibility");
-				//if (visibility.Equals("private"))
-				//	continue;
+				if (visibility.Equals("private"))
+					continue;
 
 				// Get host Steam ID
 				CSteamID hostSteamId = CSteamID.Nil;

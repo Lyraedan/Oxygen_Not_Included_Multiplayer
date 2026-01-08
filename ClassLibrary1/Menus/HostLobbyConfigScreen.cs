@@ -170,7 +170,7 @@ namespace ONI_MP.Menus
             layout.childForceExpandWidth = true;
 
             // Title
-            CreateLabel(contentGO.transform, MP_STRINGS.UI.HOSTLOBBYCONFIGSCREEN.HOST_LOBBY_SETTINGS, 28, 45);
+            CreateLabel(contentGO.transform, STRINGS.UI.HOSTLOBBYCONFIGSCREEN.HOST_LOBBY_SETTINGS, 28, 45);
 
             // Divider
             CreateDivider(contentGO.transform);
@@ -206,7 +206,7 @@ namespace ONI_MP.Menus
             rt.sizeDelta = new Vector2(0, 75);
 
             // Label
-            CreateLabel(container.transform, MP_STRINGS.UI.HOSTLOBBYCONFIGSCREEN.LOBBY_SIZE, 16, 25);
+            CreateLabel(container.transform, STRINGS.UI.HOSTLOBBYCONFIGSCREEN.LOBBY_SIZE, 16, 25);
 
             // Input field
             _lobbySizeInput = CreateInputField(container.transform, "4", 45, TMP_InputField.ContentType.IntegerNumber);
@@ -233,7 +233,7 @@ namespace ONI_MP.Menus
             labelRT.sizeDelta = new Vector2(200, 40);
 
             var labelTmp = labelGO.GetComponent<TextMeshProUGUI>();
-            labelTmp.text = MP_STRINGS.UI.HOSTLOBBYCONFIGSCREEN.LOBBY_VISIBILITY;
+            labelTmp.text = STRINGS.UI.HOSTLOBBYCONFIGSCREEN.LOBBY_VISIBILITY;
             labelTmp.fontSize = 18;
             labelTmp.alignment = TextAlignmentOptions.MidlineLeft;
             labelTmp.color = Color.white;
@@ -296,12 +296,12 @@ namespace ONI_MP.Menus
         {
             if (_privateToggle.isOn)
             {
-                _privateLabel.text = MP_STRINGS.UI.HOSTLOBBYCONFIGSCREEN.LOBBY_VISIBILITY_FRIENDSONLY;
+                _privateLabel.text = STRINGS.UI.HOSTLOBBYCONFIGSCREEN.LOBBY_VISIBILITY_FRIENDSONLY;
                 _privateLabel.color = new Color(1f, 0.8f, 0.4f);
             }
             else
             {
-                _privateLabel.text = MP_STRINGS.UI.HOSTLOBBYCONFIGSCREEN.LOBBY_VISIBILITY_PUBLIC;
+                _privateLabel.text = STRINGS.UI.HOSTLOBBYCONFIGSCREEN.LOBBY_VISIBILITY_PUBLIC;
                 _privateLabel.color = new Color(0.4f, 1f, 0.6f);
             }
         }
@@ -321,10 +321,10 @@ namespace ONI_MP.Menus
             rt.sizeDelta = new Vector2(0, 75);
 
             // Label
-            CreateLabel(container.transform, MP_STRINGS.UI.HOSTLOBBYCONFIGSCREEN.PASSWORD_TITLE, 16, 25);
+            CreateLabel(container.transform, STRINGS.UI.HOSTLOBBYCONFIGSCREEN.PASSWORD_TITLE, 16, 25);
 
             // Input field
-            _passwordInput = CreateInputField(container.transform, MP_STRINGS.UI.HOSTLOBBYCONFIGSCREEN.PASSWORD_NOTE, 45, TMP_InputField.ContentType.Password);
+            _passwordInput = CreateInputField(container.transform, STRINGS.UI.HOSTLOBBYCONFIGSCREEN.PASSWORD_NOTE, 45, TMP_InputField.ContentType.Password);
         }
 
         private TMP_InputField CreateInputField(Transform parent, string placeholder, float height, TMP_InputField.ContentType contentType = TMP_InputField.ContentType.Standard)
@@ -398,10 +398,10 @@ namespace ONI_MP.Menus
             rt.sizeDelta = new Vector2(0, 55);
 
             // Continue button
-            CreateButton(container.transform, MP_STRINGS.UI.HOSTLOBBYCONFIGSCREEN.CONTINUE, OnContinueClicked, 150, 50);
+            CreateButton(container.transform, STRINGS.UI.HOSTLOBBYCONFIGSCREEN.CONTINUE, OnContinueClicked, 150, 50);
 
             // Cancel button
-            CreateButton(container.transform, MP_STRINGS.UI.HOSTLOBBYCONFIGSCREEN.CANCEL, () => Close(), 120, 50);
+            CreateButton(container.transform, STRINGS.UI.HOSTLOBBYCONFIGSCREEN.CANCEL, () => Close(), 120, 50);
         }
 
         private void OnContinueClicked()

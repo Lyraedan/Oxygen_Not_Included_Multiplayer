@@ -110,7 +110,7 @@ namespace ONI_MP.UI
 			var headerTextGO = new GameObject("HeaderText", typeof(TextMeshProUGUI));
 			headerTextGO.transform.SetParent(header.transform, false);
 			var headerText = headerTextGO.GetComponent<TextMeshProUGUI>();
-			headerText.text = MP_STRINGS.UI.MP_CHATWINDOW.RESIZE.RETRACT;
+			headerText.text = STRINGS.UI.MP_CHATWINDOW.RESIZE.RETRACT;
 			headerText.alignment = TextAlignmentOptions.MidlineLeft;
 			headerText.fontSize = 20;
 			headerText.color = Color.white;
@@ -128,12 +128,12 @@ namespace ONI_MP.UI
 			{
 				expanded = !expanded;
 				chatbox.SetActive(expanded);
-				headerText.text = expanded ? MP_STRINGS.UI.MP_CHATWINDOW.RESIZE.RETRACT : MP_STRINGS.UI.MP_CHATWINDOW.RESIZE.EXPAND;
+				headerText.text = expanded ? STRINGS.UI.MP_CHATWINDOW.RESIZE.RETRACT : STRINGS.UI.MP_CHATWINDOW.RESIZE.EXPAND;
 			});
 
 			header.transform.SetAsLastSibling();
 
-			PendingMessage init_message = GeneratePendingMessage(MP_STRINGS.UI.MP_CHATWINDOW.CHAT_INITIALIZED);
+			PendingMessage init_message = GeneratePendingMessage(STRINGS.UI.MP_CHATWINDOW.CHAT_INITIALIZED);
 			QueueMessage(init_message);
 			ProcessMessageQueue();
 

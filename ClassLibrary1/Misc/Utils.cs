@@ -77,6 +77,15 @@ namespace ONI_MP.Misc
 			return Localization.FontAsset;
 		}
 
+		public static string ColorText(string text, Color color)
+		{
+			return ColorText(text, Util.ToHexString(color));
+		}
+		public static string ColorText(string text, string hex)
+		{
+			hex = hex.Replace("#", string.Empty);
+			return "<color=#" + hex + ">" + text + "</color>";
+		}
 		public static List<ChunkData> CollectChunks(int startX, int startY, int chunkSize, int numChunksX, int numChunksY)
 		{
 			var chunks = new List<ChunkData>();

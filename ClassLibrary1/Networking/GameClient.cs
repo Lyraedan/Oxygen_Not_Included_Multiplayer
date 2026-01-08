@@ -87,7 +87,7 @@ namespace ONI_MP.Networking
 
 			if (showLoadingScreen)
 			{
-				MultiplayerOverlay.Show(string.Format(MP_STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTING_TO_HOST, SteamFriends.GetFriendPersonaName(hostSteamId)));
+				MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTING_TO_HOST, SteamFriends.GetFriendPersonaName(hostSteamId)));
 			}
 
 			DebugConsole.Log($"[GameClient] Attempting ConnectP2P to host {hostSteamId}...");
@@ -238,21 +238,21 @@ namespace ONI_MP.Networking
 
 			if (!SaveHelper.SteamModListSynced(packet.ActiveModIds, out var notEnabled, out var notDisabled, out var missingMods))
 			{
-				string text = MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TEXT + "\n\n";
+				string text = STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TEXT + "\n\n";
 				if (notEnabled.Any())
-					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TOENABLE, notEnabled.Count) +"\n";
+					text += string.Format(STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TOENABLE, notEnabled.Count) +"\n";
 				if (notDisabled.Any())
-					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TODISABLE, notDisabled.Count) + "\n";
+					text += string.Format(STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TODISABLE, notDisabled.Count) + "\n";
 				if (missingMods.Any())
-					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.MISSING, missingMods.Count) + "\n";
+					text += string.Format(STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.MISSING, missingMods.Count) + "\n";
 
 
-				DialogUtil.CreateConfirmDialogFrontend(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TITLE, text,
-	   MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.CONFIRM_SYNC,
+				DialogUtil.CreateConfirmDialogFrontend(STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TITLE, text,
+	   STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.CONFIRM_SYNC,
 				() => { SaveHelper.SyncModsAndRestart(notEnabled, notDisabled, missingMods); },
-				MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.CANCEL,
+				STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.CANCEL,
 				BackToMainMenu,
-				MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.DENY_SYNC,
+				STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.DENY_SYNC,
 				ContinueConnectionFlow);
 				DebugConsole.Log("mods not synced!");
 				return;
@@ -331,7 +331,7 @@ namespace ONI_MP.Networking
 				DebugConsole.Log("[GameClient] PacketHandler.readyToProcess = true (menu)");
 
 				// Show overlay with localized message
-				MultiplayerOverlay.Show(string.Format(MP_STRINGS.UI.MP_OVERLAY.CLIENT.WAITING_FOR_PLAYER, SteamFriends.GetFriendPersonaName(MultiplayerSession.HostSteamID)));
+				MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.WAITING_FOR_PLAYER, SteamFriends.GetFriendPersonaName(MultiplayerSession.HostSteamID)));
 				if (!IsHardSyncInProgress)
 				{
 					DebugConsole.Log("[GameClient] Requesting save file from host");
@@ -413,7 +413,7 @@ namespace ONI_MP.Networking
 
 		private static IEnumerator ShowMessageAndReturnToTitle()
 		{
-			MultiplayerOverlay.Show(MP_STRINGS.UI.MP_OVERLAY.CLIENT.LOST_CONNECTION);
+			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.CLIENT.LOST_CONNECTION);
 			//SaveHelper.CaptureWorldSnapshot();
 			yield return new WaitForSeconds(3f);
 			//PauseScreen.TriggerQuitGame(); // Force exit to frontend, getting a crash here

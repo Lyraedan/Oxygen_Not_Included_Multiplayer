@@ -51,7 +51,7 @@ namespace ONI_MP.Patches
                 // Only in multiplayer
                 if (!MultiplayerSession.InSession)
 				{
-					AddButton(__instance, MP_STRINGS.UI.PAUSESCREEN.HOSTGAME.LABEL, () =>
+					AddButton(__instance, STRINGS.UI.PAUSESCREEN.HOSTGAME.LABEL, () =>
 					{
 						PauseScreen.Instance.Show(false); // Hide pause screen
 						// Show lobby config screen - it will handle lobby creation
@@ -73,7 +73,7 @@ namespace ONI_MP.Patches
 				}
 
 				// In multiplayer session - show single Multiplayer button
-				AddButton(__instance, MP_STRINGS.UI.PAUSESCREEN.MULTIPLAYER.LABEL, () =>
+				AddButton(__instance, STRINGS.UI.PAUSESCREEN.MULTIPLAYER.LABEL, () =>
 				{
 					PauseScreen.Instance.Show(false); // Hide pause screen
 					// Show multiplayer info screen

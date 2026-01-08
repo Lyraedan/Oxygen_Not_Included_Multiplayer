@@ -70,6 +70,8 @@ namespace ONI_MP.Networking
 		/// </summary>
 		public string HostDisplayWithBadge => IsFriend ? $"★ {HostName}" : HostName;
 
+		public bool LobbyFull => MaxPlayers <= PlayerCount;
+
 
 		/// <summary>
 		/// override the equality comparer to make use of hashset/dict. "Contains" function

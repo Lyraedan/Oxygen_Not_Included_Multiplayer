@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UI.lib.UIcmp;
+using UnityEngine;
 
 namespace ONI_MP.UI.Components
 {
@@ -14,6 +15,7 @@ namespace ONI_MP.UI.Components
 		FButton JoinButton;
 		LobbyListEntry Lobby;
 		System.Action<LobbyListEntry> OnJoinClicked = null;
+		GameObject LockIcon;
 
 
 		public override void OnPrefabInit()
@@ -25,7 +27,8 @@ namespace ONI_MP.UI.Components
 			Cycle = transform.Find("Cycle").gameObject.GetComponent<LocText>();
 			Dupes = transform.Find("Dupes").gameObject.GetComponent<LocText>();
 			Ping = transform.Find("Ping").gameObject.GetComponent<LocText>();
-			JoinButton = transform.Find("JoinButton").gameObject.AddOrGet<FButton>();
+			JoinButton = transform.Find("JoinLobbyButton").gameObject.AddOrGet<FButton>();
+			LockIcon = transform.Find("JoinLobbyButton/Lock").gameObject;
 			JoinButton.OnClick += JoinLobbyClicked;
 		}
 		void JoinLobbyClicked()
@@ -51,6 +54,17 @@ namespace ONI_MP.UI.Components
 			Cycle.SetText(Lobby.CycleDisplay);
 			Dupes.SetText(Lobby.DuplicantDisplay);
 			Ping.SetText(Lobby.PingDisplay);
+			JoinButton.SetInteractable(!Lobby.LobbyFull);
+			LockIcon.SetActive(Lobby.HasPassword);
+		}
+
+		public void Hide()
+		{
+			gameObject.SetActive(false);
+		}
+		public void Show()
+		{
+			gameObject.SetActive(false);
 		}
 	}
 }

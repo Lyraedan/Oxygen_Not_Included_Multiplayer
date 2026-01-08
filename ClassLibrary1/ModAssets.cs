@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using ONI_MP.DebugTools;
 
 namespace ONI_MP
 {
@@ -21,7 +22,9 @@ namespace ONI_MP
 			MP_PW_Dialogue = bundle.LoadAsset<GameObject>("Assets/UIs/mp_password_dialogue.prefab");
 
 			var TMPConverter = new TMPConverter();
+			DebugConsole.Log("Loading main screen prefab...");
 			TMPConverter.ReplaceAllText(MP_ScreenPrefab);
+			DebugConsole.Log("Loading password dialogue prefab...");
 			TMPConverter.ReplaceAllText(MP_PW_Dialogue);
 		}
 	}

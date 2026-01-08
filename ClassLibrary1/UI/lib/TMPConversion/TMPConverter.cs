@@ -31,10 +31,16 @@ namespace UI.lib
 
 			foreach (Text text in textComponents)
 			{
-				if (text.gameObject.name == "SettingsDialogData") continue;
-
 				string TMPData = text.text;
 				GameObject obj = text.gameObject;
+
+				if(obj == null)
+				{
+					Debug.LogWarning("GO was null!");
+					continue;
+				}
+
+				Debug.Log("extracting data for "+text.name);
 				TMPSettings data = ExtractTMPData(TMPData, text);
 
 				if (data != null)

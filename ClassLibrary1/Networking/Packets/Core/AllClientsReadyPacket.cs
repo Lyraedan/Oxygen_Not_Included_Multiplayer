@@ -29,14 +29,14 @@ namespace ONI_MP.Networking.Packets.Core
 		public static void ProcessAllReady()
 		{
 			//CoroutineRunner.RunOne(CloseOverlayAfterDelay());
-			MultiplayerOverlay.Show(MP_STRINGS.UI.MP_OVERLAY.SYNC.FINALIZING_SYNC);
+			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.SYNC.FINALIZING_SYNC);
             MultiplayerOverlay.Close();
             SpeedControlScreen.Instance?.Unpause(false);
 		}
 
 		private static IEnumerator CloseOverlayAfterDelay()
 		{
-			MultiplayerOverlay.Show(MP_STRINGS.UI.MP_OVERLAY.SYNC.FINALIZING_SYNC);
+			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.SYNC.FINALIZING_SYNC);
 			yield return new WaitForSeconds(1f);
             MultiplayerOverlay.Close();
             SpeedControlScreen.Instance?.Unpause(false);

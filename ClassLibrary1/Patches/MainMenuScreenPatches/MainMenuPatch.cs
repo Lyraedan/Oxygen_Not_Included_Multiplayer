@@ -27,11 +27,11 @@ internal static class MainMenuPatch
 
 		// Multiplayer - Opens the multiplayer screen with all options
 		var multiplayerInfo = CreateButtonInfo(
-				MP_STRINGS.UI.MAINMENU.MULTIPLAYER.LABEL,
+				ONI_MP.STRINGS.UI.MAINMENU.MULTIPLAYER.LABEL,
 				new System.Action(() =>
 				{
-					//UnityMultiplayerScreen.OpenFromMainMenu();
-
+					UnityMultiplayerScreen.OpenFromMainMenu();
+					return;
 					// Open the multiplayer screen
 					var canvas = UnityEngine.Object.FindObjectOfType<Canvas>();
 					if (canvas != null)
@@ -73,7 +73,7 @@ internal static class MainMenuPatch
 			var children = buttonParent.GetComponentsInChildren<KButton>(true);
 
 			// Find Multiplayer button
-			var multiplayerBtn = children.FirstOrDefault(b => b.GetComponentInChildren<LocText>()?.text.ToUpper().Contains(MP_STRINGS.UI.MAINMENU.MULTIPLAYER.LABEL) == true);
+			var multiplayerBtn = children.FirstOrDefault(b => b.GetComponentInChildren<LocText>()?.text.ToUpper().Contains(ONI_MP.STRINGS.UI.MAINMENU.MULTIPLAYER.LABEL) == true);
 
 			int siblingIndex = children.Length >= 10 ? 4 : 3;
 			multiplayerBtn.transform.SetSiblingIndex(siblingIndex);
@@ -237,7 +237,7 @@ internal static class MainMenuPatch
 
 		// Example Discord button
 		var discordSprite = ResourceLoader.LoadEmbeddedTexture("ONI_MP.Assets.discord.png");
-		AddSocialButton(socialsContainer.transform, MP_STRINGS.UI.MAINMENU.DISCORD_INFO, "https://discord.gg/jpxveK6mmY", discordSprite);
+		AddSocialButton(socialsContainer.transform, ONI_MP.STRINGS.UI.MAINMENU.DISCORD_INFO, "https://discord.gg/jpxveK6mmY", discordSprite);
 
 		// Automatically resize the container to properly fit the buttons
 		int buttonCount = socialsContainer.transform.childCount;
