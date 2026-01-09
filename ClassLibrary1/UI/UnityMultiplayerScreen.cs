@@ -393,6 +393,7 @@ namespace ONI_MP.UI
                                 MultiplayerSession.ShouldHostAfterLoad = false; // Reset the flag if the load screen is closed
                                 OpenFromMainMenu();
                             };
+                            // ISSUE: Hitting escape to close the load game screen still keeps the ShouldHostAfterLoad flag at true
                         }
                         else
                         {
