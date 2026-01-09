@@ -17,9 +17,6 @@ public class EntityPositionPacket : IPacket
 	public float SendInterval;
 	public long Timestamp;
 
-	public int MaxPackSize => 500;
-	public uint IntervalMs => 200;
-
 	public void Serialize(BinaryWriter writer)
 	{
 		writer.Write(NetId);
@@ -62,52 +59,11 @@ public class EntityPositionPacket : IPacket
             handler.serverTimestamp = Timestamp;
             handler.lastPositionTimestamp = Timestamp;
             handler.serverFacingLeft = FacingLeft;
-
-            /*
-            // Check if this is a duplicant with our client controller
-            var clientController = entity.GetComponent<DuplicantClientController>();
-			if (clientController != null)
-			{
-				clientController.OnPositionReceived(Position, Velocity, FacingLeft, NavType);
-				return;
-			}
-
-			// Fallback for non-duplicant entities: use simple interpolation
-			var anim = entity.GetComponent<KBatchedAnimController>();
-			if (anim == null)
-			{
-				DebugConsole.LogWarning($"[Packets] No KBatchedAnimController found on entity {NetId}");
-				return;
-			}
-
-			entity.StopCoroutine("InterpolateKAnimPosition");
-			entity.StartCoroutine(InterpolateKAnimPosition(anim, Position, FacingLeft));*/
         }
 		else
 		{
 			DebugConsole.LogWarning($"[Packets] Could not find entity with NetId {NetId}");
 		}
-	}
-
-	[Obsolete("Use EntityPositionHandler.UpdatePosition instead")]
-	private System.Collections.IEnumerator InterpolateKAnimPosition(KBatchedAnimController anim, Vector3 targetPos, bool facingLeft)
-	{
-		Vector3 startPos = anim.transform.GetPosition();
-		float duration = SendInterval * 1.2f;
-		float elapsed = 0f;
-
-		anim.FlipX = facingLeft;
-
-		while (elapsed < duration)
-		{
-			elapsed += Time.unscaledDeltaTime;
-			float t = elapsed / duration;
-			anim.transform.SetPosition(Vector3.Lerp(startPos, targetPos, t));
-			yield return null;
-		}
-
-		// Snap at the end to prevent drift
-		anim.transform.SetPosition(targetPos);
 	}
 }
 

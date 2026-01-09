@@ -1,4 +1,6 @@
-﻿using ONI_MP.Networking;
+﻿using ONI_MP.Menus;
+using ONI_MP.Misc;
+using ONI_MP.Networking;
 using ONI_MP.Networking.States;
 using Steamworks;
 using System;
@@ -53,14 +55,11 @@ namespace ONI_MP.DebugTools
 
 			GUILayout.Label($"Ping: {GameClient.GetPingToHost()}");
             GUILayout.Label($"Quality(L/R): {GameClient.GetLocalPacketQuality():0.00} / {GameClient.GetRemotePacketQuality():0.00}");
-            GUILayout.Label($"Unacked Reliable: {GameClient.GetUnackedReliable()}");
-            GUILayout.Label($"Pending Unreliable: {GameClient.GetPendingUnreliable()}");
-            GUILayout.Label($"Queue Time: {GameClient.GetUsecQueueTime() / 1000}ms");
 			GUILayout.Space(10);
-            GUILayout.Label($"Has Packet Lost: {GameClient.HasPacketLoss()}");
-            GUILayout.Label($"Has Jitter: {GameClient.HasNetworkJitter()}");
-            GUILayout.Label($"Has Reliable Packet Loss: {GameClient.HasReliablePacketLoss()}");
-            GUILayout.Label($"Has Unreliable Packet Loss: {GameClient.HasUnreliablePacketLoss()}");
+            GUILayout.Label($"Latency: {Utils.NetworkStateToString(NetworkIndicatorsScreen.latencyState)}");
+            GUILayout.Label($"Jitter: {Utils.NetworkStateToString(NetworkIndicatorsScreen.jitterState)}");
+            GUILayout.Label($"Packet Loss: {Utils.NetworkStateToString(NetworkIndicatorsScreen.packetlossState)}");
+            GUILayout.Label($"Server Performance: {Utils.NetworkStateToString(NetworkIndicatorsScreen.serverPerformanceState)}");
 
             GUILayout.EndScrollView();
 

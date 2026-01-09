@@ -118,6 +118,7 @@ namespace ONI_MP.Networking
 				SteamMatchmaking.SetLobbyData(CurrentLobby, "hostname", SteamFriends.GetPersonaName());
 				bool isPrivate = Configuration.Instance.Host.Lobby.IsPrivate;
 				SteamMatchmaking.SetLobbyData(CurrentLobby, "visibility", isPrivate ? "private" : "public");
+				SteamMatchmaking.SetLobbyData(CurrentLobby, "is_spacedout", DlcManager.IsExpansion1Active() ? "1" : "0");
 
 				// Generate and store lobby code
 				CurrentLobbyCode = LobbyCodeHelper.GenerateCode(CurrentLobby);
@@ -478,7 +479,7 @@ namespace ONI_MP.Networking
 			SteamMatchmaking.AddRequestLobbyListStringFilter("game_id", "oni_multiplayer", ELobbyComparison.k_ELobbyComparisonEqual);
 			
 			// Limit results
-			SteamMatchmaking.AddRequestLobbyListResultCountFilter(50);
+			//SteamMatchmaking.AddRequestLobbyListResultCountFilter(100);
 
 			var handle = SteamMatchmaking.RequestLobbyList();
 			_lobbyListCallResult = CallResult<LobbyMatchList_t>.Create(OnLobbyListReceived);

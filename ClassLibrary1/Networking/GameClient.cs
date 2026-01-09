@@ -487,48 +487,6 @@ namespace ONI_MP.Networking
 			return connectionHealth.Value.m_nPing;
 		}
 
-		public static bool HasPacketLoss()
-		{
-			if (!connectionHealth.HasValue)
-				return false;
-
-			float localQuality = GetLocalPacketQuality();
-			return localQuality < 0.7f;
-		}
-
-		public static bool HasReliablePacketLoss()
-		{
-			if (!connectionHealth.HasValue)
-				return false;
-
-			return connectionHealth.Value.m_cbSentUnackedReliable > 0;
-		}
-
-		public static bool HasSevereReliableLoss()
-		{
-			if (!connectionHealth.HasValue)
-				return false;
-
-			return connectionHealth.Value.m_cbSentUnackedReliable > 32 * 1024; // 32 KB backlog
-		}
-
-		public static bool HasUnreliablePacketLoss()
-		{
-			if (!connectionHealth.HasValue)
-				return false;
-
-			return connectionHealth.Value.m_cbPendingUnreliable > 0;
-		}
-
-		public static bool HasNetworkJitter()
-		{
-			if (!connectionHealth.HasValue)
-				return false;
-
-			// > 50ms queued
-			return (long)connectionHealth.Value.m_usecQueueTime > 50_000;
-		}
-
 		public static int GetUnackedReliable()
 		{
 			if (!connectionHealth.HasValue)

@@ -94,7 +94,12 @@ namespace ONI_MP
 															"ONI_MP.Assets.bundles.playercursor_mac.bundle",
 															"ONI_MP.Assets.bundles.playercursor_lin.bundle");
 			LoadAssetBundle("playercursorbundle", cursor_bundle);
-		}
+
+            string network_indicators = GetBundleBasedOnPlatform("ONI_MP.Assets.bundles.networkindicators_win.bundle",
+																 "ONI_MP.Assets.bundles.networkindicators_mac.bundle",
+																 "ONI_MP.Assets.bundles.networkindicators_lin.bundle");
+            LoadAssetBundle("networkindicators", network_indicators);
+        }
 
 		private void SetupListeners()
 		{

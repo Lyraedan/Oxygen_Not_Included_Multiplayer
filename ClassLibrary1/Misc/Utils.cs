@@ -1,4 +1,5 @@
 ﻿using ONI_MP.DebugTools;
+using ONI_MP.Menus;
 using ONI_MP.Misc.World;
 using ONI_MP.Networking;
 using System;
@@ -34,7 +35,28 @@ namespace ONI_MP.Misc
 			}
 		}
 
-		public static void Inject<T>(GameObject prefab) where T : KMonoBehaviour
+        public static GameObject FindChild(this GameObject root, string path)
+        {
+            var t = root.transform.Find(path);
+            return t != null ? t.gameObject : null;
+        }
+
+        public static string NetworkStateToString(NetworkIndicatorsScreen.NetworkState state)
+        {
+            switch (state)
+            {
+                case NetworkIndicatorsScreen.NetworkState.GOOD:
+                    return "Fine";
+                case NetworkIndicatorsScreen.NetworkState.DEGRADED:
+                    return "Degraded";
+                case NetworkIndicatorsScreen.NetworkState.BAD:
+                    return "Poor";
+                default:
+                    return "Unknown";
+            }
+        }
+
+        public static void Inject<T>(GameObject prefab) where T : KMonoBehaviour
 		{
 			if (prefab.GetComponent<T>() == null)
 			{

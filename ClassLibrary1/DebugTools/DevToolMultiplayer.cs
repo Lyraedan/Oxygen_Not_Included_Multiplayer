@@ -12,6 +12,8 @@ using ONI_MP.Networking.Components;
 using UnityEngine;
 using static STRINGS.UI;
 using Steamworks;
+using ONI_MP.Menus;
+using ONI_MP.Misc;
 
 namespace ONI_MP.DebugTools
 {
@@ -259,10 +261,10 @@ namespace ONI_MP.DebugTools
             ImGui.Text($"Pending Unreliable: {GameClient.GetPendingUnreliable()}");
             ImGui.Text($"Queue Time: {GameClient.GetUsecQueueTime() / 1000}ms");
             ImGui.Spacing();
-            ImGui.Text($"Has Packet Lost: {GameClient.HasPacketLoss()}");
-            ImGui.Text($"Has Jitter: {GameClient.HasNetworkJitter()}");
-            ImGui.Text($"Has Reliable Packet Loss: {GameClient.HasReliablePacketLoss()}");
-            ImGui.Text($"Has Unreliable Packet Loss: {GameClient.HasUnreliablePacketLoss()}");
+            ImGui.Text($"Latency: {Utils.NetworkStateToString(NetworkIndicatorsScreen.latencyState)}");
+            ImGui.Text($"Jitter: {Utils.NetworkStateToString(NetworkIndicatorsScreen.jitterState)}");
+            ImGui.Text($"Packet Loss: {Utils.NetworkStateToString(NetworkIndicatorsScreen.packetlossState)}");
+            ImGui.Text($"Server Performance: {Utils.NetworkStateToString(NetworkIndicatorsScreen.serverPerformanceState)}");
 
             // Sync Statistics (Host only)
             if (MultiplayerSession.IsHost)

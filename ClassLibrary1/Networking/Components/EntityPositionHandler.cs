@@ -16,7 +16,6 @@ namespace ONI_MP.Networking.Components
 		public static float SendIntervalMoving = 0.05f; // 50ms
         public static float SendIntervalStationary = 2.0f; // 2 seconds 
 
-		private bool facingLeft;
 		private Vector3 velocity;
 
 		public long lastPositionTimestamp = 0;
@@ -58,11 +57,6 @@ namespace ONI_MP.Networking.Components
         /// </summary>
         private const float MIN_DT = 0.016f;
 
-        /// <summary>
-        /// Ignore microscopic corrections (floating-point noise)
-        /// </summary>
-        private const float MIN_VELOCITY_SQR = 0.001f;
-
         #endregion
 
         public override void OnSpawn()
@@ -71,7 +65,6 @@ namespace ONI_MP.Networking.Components
 
 			lastSentPosition = transform.position;
 			previousPosition = transform.position;
-			facingLeft = false;
 
 			DebugConsole.Log($"[EntityPositionHandler] Spawned on {name}");
 		}
@@ -154,38 +147,33 @@ namespace ONI_MP.Networking.Components
 				previousPosition = currentPosition;
 
 				float deltaX = currentPosition.x - lastSentPosition.x;
-				PrepAndSendMovementPacket(deltaX, currentPosition, SendInterval);
+                lastSentPosition = currentPosition;
 
-			}
+                // Get current NavType from navigator if available
+                NavType navType = NavType.Floor;
+                if (navigator != null && navigator.CurrentNavType != NavType.NumNavTypes)
+                {
+                    navType = navigator.CurrentNavType;
+                }
+
+                var packet = new EntityPositionPacket
+                {
+                    NetId = this.GetNetId(),
+                    Position = currentPosition,
+                    Velocity = velocity,
+                    FacingLeft = kbac.FlipX,
+                    NavType = navType,
+                    SendInterval = SendInterval,
+                    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+                };
+
+                PacketSender.SendToAllClients(packet, sendType: SteamNetworkingSend.Unreliable);
+
+            }
 			catch (System.Exception)
 			{
 				// Silently ignore - entity may not be ready yet
 			}
 		}
-
-		private void PrepAndSendMovementPacket(float deltaX, Vector3 currentPosition, float sendInterval)
-		{
-            lastSentPosition = currentPosition;
-
-            // Get current NavType from navigator if available
-            NavType navType = NavType.Floor;
-            if (navigator != null && navigator.CurrentNavType != NavType.NumNavTypes)
-            {
-                navType = navigator.CurrentNavType;
-            }
-
-            var packet = new EntityPositionPacket
-            {
-                NetId = this.GetNetId(),
-                Position = currentPosition,
-                Velocity = velocity,
-                FacingLeft = kbac.FlipX,
-                NavType = navType,
-				SendInterval = sendInterval,
-				Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-            };
-
-            PacketSender.SendToAllClients(packet, sendType: SteamNetworkingSend.Unreliable);
-        }
 	}
 }
