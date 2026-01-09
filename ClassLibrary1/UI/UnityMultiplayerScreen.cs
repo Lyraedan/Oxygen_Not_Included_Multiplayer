@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using UI.lib.UIcmp;
 using UnityEngine;
 using static ONI_MP.STRINGS.UI;
+using static ONI_MP.STRINGS.UI.MP_SCREEN.HOSTMENU;
+using static ONI_MP.STRINGS.UI.MP_SCREEN.HOSTMENU.LOBBYSIZE;
 using static ONI_MP.STRINGS.UI.PAUSESCREEN;
 
 namespace ONI_MP.UI
@@ -111,6 +113,7 @@ namespace ONI_MP.UI
 			PasswortInput.Text = string.Empty;
 
 			StartHosting = transform.Find("HostMenu/StartHosting").gameObject.AddOrGet<FButton>();
+			StartHosting.OnClick += () => StartHostingGameMainMenu();
 			HostCancel = transform.Find("HostMenu/Cancel").gameObject.AddOrGet<FButton>();
 			HostCancel.OnClick += () => ShowHostSegment(false);
 
@@ -126,7 +129,8 @@ namespace ONI_MP.UI
 
 			init = true;
 		}
-		public static void ShowWindow()
+
+        public static void ShowWindow()
 		{
 			string currentScene = App.GetCurrentSceneName();
 			if (currentScene != lastScene)
@@ -327,5 +331,62 @@ namespace ONI_MP.UI
 				JoinSteamLobby(lobby.LobbyId);
 			}
 		}
-	}
+
+        private void StartHostingGameMainMenu()
+        {
+			Configuration.Instance.Host.Lobby.IsPrivate = PrivateLobbyCheckbox.Interactable;
+
+            string input = LobbySize.Text ?? "";
+            if (!string.IsNullOrEmpty(input))
+            {
+                int max_size = int.Parse(input);
+                if (max_size <= 0)
+                    max_size = 1;
+
+                Configuration.Instance.Host.MaxLobbySize = max_size;
+            }
+            else
+            {
+                Configuration.Instance.Host.MaxLobbySize = 4;
+            }
+
+            string password = PasswortInput.Text ?? "";
+            if (!string.IsNullOrEmpty(password))
+            {
+                Configuration.Instance.Host.Lobby.RequirePassword = true;
+                Configuration.Instance.Host.Lobby.PasswordHash = PasswordHelper.HashPassword(password);
+            }
+            else
+            {
+                Configuration.Instance.Host.Lobby.RequirePassword = false;
+                Configuration.Instance.Host.Lobby.PasswordHash = "";
+            }
+
+            Configuration.Instance.Save();
+
+			// Flag the game to start hosting after loading
+            MultiplayerSession.ShouldHostAfterLoad = true;
+            var mainMenu = FindObjectOfType<MainMenu>();
+            if (mainMenu != null)
+            {
+				// Main menu uses this for the resume button
+                if (mainMenu.saveFileEntries.Count > 0)
+                {
+                    DebugConsole.Log($"[UnityMultiplayerScreen/StartHostingGame] Found {mainMenu.saveFileEntries.Count} saves. Opening load sequence");
+                    Show(false);
+                    mainMenu.LoadGame();
+					LoadScreen.Instance.closeButton.onClick += () => {
+                        MultiplayerSession.ShouldHostAfterLoad = false; // Reset the flag if the load screen is closed
+						OpenFromMainMenu();
+                    };
+                }
+                else
+                {
+                    DebugConsole.Log("$[UnityMultiplayerScreen/StartHostingGame] No saves found! Running new game sequence.");
+                    Show(false);
+                    mainMenu.NewGame();
+                }
+            }
+        }
+    }
 }
