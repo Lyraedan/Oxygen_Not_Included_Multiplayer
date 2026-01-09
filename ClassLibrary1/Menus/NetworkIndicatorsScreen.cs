@@ -83,17 +83,17 @@ namespace ONI_MP.Menus
             tooltipStyle.enableWordWrapping = true;
             tooltipStyle.textColor = Color.white;
 
-            AddTooltipTo(networkJitter_DEGRADED, "Network jitter is elevated");
-            AddTooltipTo(networkJitter_BAD, "Network jitter is very high");
+            AddTooltipTo(networkJitter_DEGRADED, STRINGS.UI.MP_OVERLAY.CLIENT.NETWORKINDICATORS.DEGRADED_JITTER);
+            AddTooltipTo(networkJitter_BAD, STRINGS.UI.MP_OVERLAY.CLIENT.NETWORKINDICATORS.BAD_JITTER);
 
-            AddTooltipTo(latency_DEGRADED, "Latency is elevated");
-            AddTooltipTo(latency_BAD, "Latency is very high");
+            AddTooltipTo(latency_DEGRADED, STRINGS.UI.MP_OVERLAY.CLIENT.NETWORKINDICATORS.DEGRADED_LATENCY);
+            AddTooltipTo(latency_BAD, STRINGS.UI.MP_OVERLAY.CLIENT.NETWORKINDICATORS.BAD_LATENCY);
 
-            AddTooltipTo(packetloss_DEGRADED, "Packet loss detected");
-            AddTooltipTo(packetloss_BAD, "Severe packet loss detected");
+            AddTooltipTo(packetloss_DEGRADED, STRINGS.UI.MP_OVERLAY.CLIENT.NETWORKINDICATORS.DEGRADED_PACKETLOSS);
+            AddTooltipTo(packetloss_BAD, STRINGS.UI.MP_OVERLAY.CLIENT.NETWORKINDICATORS.BAD_PACKETLOSS);
 
-            AddTooltipTo(serverPerformance_DEGRADED, "Server performance is reduced");
-            AddTooltipTo(serverPerformance_BAD, "Server performance is critically low");
+            AddTooltipTo(serverPerformance_DEGRADED, STRINGS.UI.MP_OVERLAY.CLIENT.NETWORKINDICATORS.DEGRADED_SERVERPERFORMANCE);
+            AddTooltipTo(serverPerformance_BAD, STRINGS.UI.MP_OVERLAY.CLIENT.NETWORKINDICATORS.BAD_SERVERPERFORMANCE);
 
             // Default to good, hiding the icons
             UpdateIndicatorIconState(NetworkState.GOOD, networkJitter_DEGRADED, networkJitter_BAD);
