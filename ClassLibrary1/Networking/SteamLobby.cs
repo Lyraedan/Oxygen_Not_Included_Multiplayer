@@ -171,9 +171,7 @@ namespace ONI_MP.Networking
 
             if (hasPassword == "1")
             {
-                // Display password entry
-                var canvas = UnityEngine.Object.FindObjectOfType<Canvas>();
-                LobbyBrowserScreen.ShowPasswordDialog(canvas.transform, lobbyId);
+                UnityPasswordInputDialogueUI.ShowPasswordDialogueFor(lobbyId);
             }
             else
             {
