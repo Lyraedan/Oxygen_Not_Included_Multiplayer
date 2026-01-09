@@ -212,12 +212,10 @@ namespace ONI_MP.UI
 		{
 			bool hasPassword = SteamMatchmaking.GetLobbyData(lobbyId, "has_password") == "1";
 
-			if(!hasPassword)
+			if (!hasPassword)
 				JoinSteamLobby(lobbyId);
 			else
-			{
-
-			}
+				OpenPasswordDialogue(lobbyId);
 
 		}
 		void JoinSteamLobby(CSteamID lobbyId)
@@ -228,7 +226,10 @@ namespace ONI_MP.UI
 				this.Show(false);
 			});
 		}
-
+		void OpenPasswordDialogue(CSteamID lobbyId)
+		{
+			UnityPasswordInputDialogueUI.ShowPasswordDialogueFor(lobbyId);
+		}
 
 
 		void ShowMainSegment(bool show)
@@ -318,7 +319,7 @@ namespace ONI_MP.UI
 		{
 			if (lobby.HasPassword)
 			{
-				//not yet handled
+				OpenPasswordDialogue(lobby.LobbyId);
 			}
 			else
 			{

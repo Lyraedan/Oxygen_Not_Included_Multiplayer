@@ -404,6 +404,41 @@ namespace ONI_MP
 				}
 			}
 
+			///Unity UI password input screen, these get automatically applied
+			public class MP_PASSWORD_DIALOGUE
+			{
+				public class HOSTMENU
+				{
+					public static LocString TITLE = "Password Required!";
+					public static LocString PASSWORDTITLE = "Enter password of Lobby:";
+					public static LocString PASSWORD_INCORRECT = "Incorrect password!";
+					public class PASSWORDINPUT
+					{
+						public class TEXTAREA
+						{
+							public static LocString PLACEHOLDER = "Enter lobby password...";
+							public static LocString TEXT = "";
+						}
+					}
+					public class BUTTONS
+					{
+						public class CANCEL
+						{
+							public static LocString TEXT = "Cancel";
+						}
+						public class CONFIRM
+						{
+							public static LocString TEXT = "Confirm";
+						}
+					}
+				}
+				public class TOPBAR
+				{
+					public static LocString LABEL = "Joining password protected lobby";
+				}
+			}
+
+
 		}
 	}
 }
