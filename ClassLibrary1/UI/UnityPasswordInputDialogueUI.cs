@@ -2,6 +2,7 @@
 using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.UI.Components;
+using ONI_MP.UI.lib.FUI;
 using Shared.Helpers;
 using Steamworks;
 using System;
@@ -40,6 +41,7 @@ namespace ONI_MP.UI
 		LocText PasswordStatus;
 		FInputField2 PasswortInput;
 		FButton Confirm, Cancel;
+		PasswordInputToggle PasswordToggle;
 
 		bool init = false;
 		static string lastScene = string.Empty;
@@ -52,6 +54,8 @@ namespace ONI_MP.UI
 			Debug.Log("Initializing UnityPasswordInputDialogueUI");
 			PasswortInput = transform.Find("HostMenu/PasswordInput").FindOrAddComponent<FInputField2>();
 			PasswortInput.Text = string.Empty;
+			PasswordToggle = transform.Find("HostMenu/PasswordInput/TogglePasswordVis").gameObject.AddOrGet<PasswordInputToggle>();
+			PasswordToggle.InitEyeToggle(PasswortInput);
 
 			Confirm = transform.Find("HostMenu/Buttons/Confirm").gameObject.AddOrGet<FButton>();
 			Cancel = transform.Find("HostMenu/Buttons/Cancel").gameObject.AddOrGet<FButton>();
@@ -84,9 +88,11 @@ namespace ONI_MP.UI
 		{
 			ShowWindow();
 			Instance.PasswortInput.Text = string.Empty;
+			Instance.HidePw();
 			Instance.SetRegularStatus();
 			Instance.LobbyId = lobby;
 		}
+		void HidePw() => PasswordToggle.SetPasswordVisibility(false);
 
 		static void ShowWindow()
 		{
