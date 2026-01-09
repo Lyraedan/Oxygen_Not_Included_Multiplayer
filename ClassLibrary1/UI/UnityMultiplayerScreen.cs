@@ -17,6 +17,7 @@ using static ONI_MP.STRINGS.UI;
 using static ONI_MP.STRINGS.UI.MP_SCREEN.HOSTMENU;
 using static ONI_MP.STRINGS.UI.MP_SCREEN.HOSTMENU.LOBBYSIZE;
 using static ONI_MP.STRINGS.UI.PAUSESCREEN;
+using static ONI_MP.UI.UnityMultiplayerScreen;
 
 namespace ONI_MP.UI
 {
@@ -72,7 +73,14 @@ namespace ONI_MP.UI
 		Coroutine LobbyRefresh;
 		CSteamID _pendingLobbyId = CSteamID.Nil;
 
-		public void Init()
+		public enum HostGameLocation
+		{
+			MAINMENU, INGAME
+		}
+
+		private static HostGameLocation hostgameLocation = HostGameLocation.MAINMENU;
+
+        public void Init()
 		{
 			if (init) { return; }
 
@@ -113,7 +121,7 @@ namespace ONI_MP.UI
 			PasswortInput.Text = string.Empty;
 
 			StartHosting = transform.Find("HostMenu/StartHosting").gameObject.AddOrGet<FButton>();
-			StartHosting.OnClick += () => StartHostingGameMainMenu();
+			StartHosting.OnClick += () => StartHostingGame(hostgameLocation);
 			HostCancel = transform.Find("HostMenu/Cancel").gameObject.AddOrGet<FButton>();
 			HostCancel.OnClick += () => ShowHostSegment(false);
 
@@ -158,14 +166,16 @@ namespace ONI_MP.UI
 
 		public static void OpenFromMainMenu()
 		{
-			ShowWindow();
+			hostgameLocation = HostGameLocation.MAINMENU;
+            ShowWindow();
 			Instance.ShowMainSegment(true);
 			Instance.ShowHostSegment(false);
 			Instance.ShowLobbySegment(false);
 		}
 		public static void OpenFromPauseScreen()
 		{
-			ShowWindow();
+			hostgameLocation = HostGameLocation.INGAME;
+            ShowWindow();
 			Instance.ShowMainSegment(false);
 			Instance.ShowHostSegment(true);
 			Instance.ShowLobbySegment(false);
@@ -332,8 +342,9 @@ namespace ONI_MP.UI
 			}
 		}
 
-        private void StartHostingGameMainMenu()
+        private void StartHostingGame(HostGameLocation hostingFromWhere)
         {
+			// Save the host config
 			Configuration.Instance.Host.Lobby.IsPrivate = PrivateLobbyCheckbox.Interactable;
 
             string input = LobbySize.Text ?? "";
@@ -364,29 +375,43 @@ namespace ONI_MP.UI
 
             Configuration.Instance.Save();
 
-			// Flag the game to start hosting after loading
-            MultiplayerSession.ShouldHostAfterLoad = true;
-            var mainMenu = FindObjectOfType<MainMenu>();
-            if (mainMenu != null)
-            {
-				// Main menu uses this for the resume button
-                if (mainMenu.saveFileEntries.Count > 0)
-                {
-                    DebugConsole.Log($"[UnityMultiplayerScreen/StartHostingGame] Found {mainMenu.saveFileEntries.Count} saves. Opening load sequence");
-                    Show(false);
-                    mainMenu.LoadGame();
-					LoadScreen.Instance.closeButton.onClick += () => {
-                        MultiplayerSession.ShouldHostAfterLoad = false; // Reset the flag if the load screen is closed
-						OpenFromMainMenu();
-                    };
-                }
-                else
-                {
-                    DebugConsole.Log("$[UnityMultiplayerScreen/StartHostingGame] No saves found! Running new game sequence.");
-                    Show(false);
-                    mainMenu.NewGame();
-                }
-            }
+			switch (hostingFromWhere)
+			{
+				case HostGameLocation.MAINMENU:
+                    // Flag the game to start hosting after loading
+                    MultiplayerSession.ShouldHostAfterLoad = true;
+                    var mainMenu = FindObjectOfType<MainMenu>();
+                    if (mainMenu != null)
+                    {
+                        // Main menu uses this for the resume button
+                        if (mainMenu.saveFileEntries.Count > 0)
+                        {
+                            DebugConsole.Log($"[UnityMultiplayerScreen/StartHostingGame] Found {mainMenu.saveFileEntries.Count} saves. Opening load sequence");
+                            Show(false);
+                            mainMenu.LoadGame();
+                            LoadScreen.Instance.closeButton.onClick += () => {
+                                MultiplayerSession.ShouldHostAfterLoad = false; // Reset the flag if the load screen is closed
+                                OpenFromMainMenu();
+                            };
+                        }
+                        else
+                        {
+                            DebugConsole.Log("$[UnityMultiplayerScreen/StartHostingGame] No saves found! Running new game sequence.");
+                            Show(false);
+                            mainMenu.NewGame();
+							// TODO FIGURE OUT WHERE TO HOOK HERE TO RESET THE ShouldHostAfterLoad flag
+                        }
+                    }
+                    break;
+				case HostGameLocation.INGAME:
+					// We are already in game, just fire up the lobby
+                    SteamLobby.CreateLobby(onSuccess: () =>
+                    {
+                        SpeedControlScreen.Instance?.Unpause(false);
+                        Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
+                    });
+                    break;
+			}
         }
     }
 }
