@@ -1,7 +1,9 @@
-﻿using ONI_MP.DebugTools;
+﻿using NodeEditorFramework;
+using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.UI.Components;
+using Shared.Helpers;
 using Steamworks;
 using System;
 using System.Collections;
@@ -11,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UI.lib.UIcmp;
 using UnityEngine;
+using static ONI_MP.STRINGS.UI;
 using static ONI_MP.STRINGS.UI.PAUSESCREEN;
 
 namespace ONI_MP.UI
@@ -60,10 +63,19 @@ namespace ONI_MP.UI
 		LobbyEntryUI LobbyEntryPrefab;
 		Dictionary<LobbyListEntry, LobbyEntryUI> Lobbies = [];
 
+		Callback<LobbyDataUpdate_t> lobbyDataCallback;
+
 		bool init = false;
+		static string lastScene = string.Empty;
+		Coroutine LobbyRefresh;
+		CSteamID _pendingLobbyId = CSteamID.Nil;
+
 		public void Init()
 		{
 			if (init) { return; }
+
+			lobbyDataCallback = Callback<LobbyDataUpdate_t>.Create(OnLobbyDataUpdateReceived);
+
 			Debug.Log("Initializing MultiplayerScreen");
 			MainMenuSegment = transform.Find("MainMenu").gameObject;
 			StartHostingSegment = transform.Find("HostMenu").gameObject;
@@ -80,10 +92,12 @@ namespace ONI_MP.UI
 			OpenLobbyBrowser.OnClick += () => ShowLobbySegment(true);
 
 			JoinWithCode = transform.Find("MainMenu/LobbyCodeJoin/JoinWithCodeButton").gameObject.AddOrGet<FButton>();
+			JoinWithCode.OnClick += JoinLobbyWithCode;
 			MainCancel = transform.Find("MainMenu/Cancel").gameObject.AddOrGet<FButton>();
 			MainCancel.OnClick += () => Show(false);
 			LobbyCodeInput = transform.Find("MainMenu/LobbyCodeJoin/Input").FindOrAddComponent<FInputField2>();
 			LobbyCodeInput.Text = string.Empty;
+			LobbyCodeInput.inputField.characterLimit = 16;
 
 			LobbyStateInfo = transform.Find("HostMenu/FriendsOnly/State").gameObject.GetComponent<LocText>();
 			PrivateLobbyCheckbox = transform.Find("HostMenu/FriendsOnly/Checkbox").gameObject.AddOrGet<FToggle>();
@@ -112,7 +126,6 @@ namespace ONI_MP.UI
 
 			init = true;
 		}
-		static string lastScene = string.Empty;
 		public static void ShowWindow()
 		{
 			string currentScene = App.GetCurrentSceneName();
@@ -138,7 +151,6 @@ namespace ONI_MP.UI
 			else
 				StopCoroutine(LobbyRefresh);
 		}
-		Coroutine LobbyRefresh;
 
 		public static void OpenFromMainMenu()
 		{
@@ -154,6 +166,70 @@ namespace ONI_MP.UI
 			Instance.ShowHostSegment(true);
 			Instance.ShowLobbySegment(false);
 		}
+		void JoinLobbyWithCode()
+		{
+			// First step: Validate and parse code
+			string code = LobbyCodeHelper.CleanCode(LobbyCodeInput.Text);
+
+			if (string.IsNullOrEmpty(code))
+			{
+				DialogUtil.CreateConfirmDialogFrontend(JOINBYDIALOGMENU.JOIN_BY_CODE, STRINGS.UI.JOINBYDIALOGMENU.ERR_ENTER_CODE);
+				return;
+			}
+
+			if (!LobbyCodeHelper.IsValidCodeFormat(code))
+			{
+				DialogUtil.CreateConfirmDialogFrontend(JOINBYDIALOGMENU.JOIN_BY_CODE, STRINGS.UI.JOINBYDIALOGMENU.ERR_INVALID_CODE);
+				return;
+			}
+
+			if (!LobbyCodeHelper.TryParseCode(code, out CSteamID lobbyId))
+			{
+				DialogUtil.CreateConfirmDialogFrontend(JOINBYDIALOGMENU.JOIN_BY_CODE, STRINGS.UI.JOINBYDIALOGMENU.ERR_PARSE_CODE_FAILED);
+				return;
+			}
+
+			_pendingLobbyId = lobbyId;
+
+			// We need to join the lobby to get its metadata (including password status)
+			// But first, let's check if we can get the data by requesting lobby data
+			SteamMatchmaking.RequestLobbyData(lobbyId);
+
+		}
+
+		void OnLobbyDataUpdateReceived(LobbyDataUpdate_t data)
+		{
+			if (data.m_ulSteamIDLobby != _pendingLobbyId.m_SteamID)
+				return;
+
+			if (data.m_bSuccess == 0)
+				return;
+
+			JoinOrOpenPasswordDialogue(_pendingLobbyId);
+		}
+
+		void JoinOrOpenPasswordDialogue(CSteamID lobbyId)
+		{
+			bool hasPassword = SteamMatchmaking.GetLobbyData(lobbyId, "has_password") == "1";
+
+			if(!hasPassword)
+				JoinSteamLobby(lobbyId);
+			else
+			{
+
+			}
+
+		}
+		void JoinSteamLobby(CSteamID lobbyId)
+		{
+			SteamLobby.JoinLobby(lobbyId, (lobbyId) =>
+			{
+				DebugConsole.Log($"[LobbyBrowser] Successfully joined lobby: {lobbyId}");
+				this.Show(false);
+			});
+		}
+
+
 
 		void ShowMainSegment(bool show)
 		{
@@ -247,11 +323,7 @@ namespace ONI_MP.UI
 			else
 			{
 				// Direct join
-				SteamLobby.JoinLobby(lobby.LobbyId, (lobbyId) =>
-				{
-					DebugConsole.Log($"[LobbyBrowser] Successfully joined lobby: {lobbyId}");
-					this.Show(false);
-				});
+				JoinSteamLobby(lobby.LobbyId);
 			}
 		}
 	}
