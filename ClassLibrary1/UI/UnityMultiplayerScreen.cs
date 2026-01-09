@@ -345,7 +345,7 @@ namespace ONI_MP.UI
         private void StartHostingGame(HostGameLocation hostingFromWhere)
         {
 			// Save the host config
-			Configuration.Instance.Host.Lobby.IsPrivate = PrivateLobbyCheckbox.Interactable;
+			Configuration.Instance.Host.Lobby.IsPrivate = PrivateLobbyCheckbox.On;
 
             string input = LobbySize.Text ?? "";
             if (!string.IsNullOrEmpty(input))
