@@ -378,7 +378,9 @@ namespace ONI_MP.UI
 			}
 			else
 			{
-				string saveForCurrentDlc = SaveLoader.GetLatestSaveForCurrentDLC();
+				MultiplayerSession.ShouldHostAfterLoad = true; // Set flag to start hosting after loading
+
+                string saveForCurrentDlc = SaveLoader.GetLatestSaveForCurrentDLC();
 				bool hasVersionCompatibleSave = !string.IsNullOrEmpty(saveForCurrentDlc) && System.IO.File.Exists(saveForCurrentDlc);
 				if (hasVersionCompatibleSave)
 				{
