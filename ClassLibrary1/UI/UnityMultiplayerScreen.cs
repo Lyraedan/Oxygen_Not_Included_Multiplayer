@@ -384,7 +384,7 @@ namespace ONI_MP.UI
 				{
 					DebugConsole.Log($"[UnityMultiplayerScreen/StartHostingGame] Found existing compatible savefile. Opening load sequence");
 					MainMenu.Instance?.LoadGame();
-					SelfRegisterOnExitLoadScreen();
+					RegisterOnExitLoadScreenTriggers();
 				}
 				else
 				{
@@ -393,7 +393,7 @@ namespace ONI_MP.UI
 				}
 				Show(false);
 			}
-			void SelfRegisterOnExitLoadScreen()
+			void RegisterOnExitLoadScreenTriggers()
 			{
 				LoadScreen.Instance.closeButton.onClick += OnLoadScreenExited;
 				UI_Patches.OnLoadScreenExited = OnLoadScreenExited;
