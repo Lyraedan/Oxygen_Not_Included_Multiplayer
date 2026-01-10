@@ -73,13 +73,6 @@ namespace ONI_MP.UI
 		Coroutine LobbyRefresh;
 		CSteamID _pendingLobbyId = CSteamID.Nil;
 
-		public enum HostGameLocation
-		{
-			MAINMENU, INGAME
-		}
-
-		private static HostGameLocation hostgameLocation = HostGameLocation.MAINMENU;
-
         public void Init()
 		{
 			if (init) { return; }
@@ -121,7 +114,7 @@ namespace ONI_MP.UI
 			PasswortInput.Text = string.Empty;
 
 			StartHosting = transform.Find("HostMenu/StartHosting").gameObject.AddOrGet<FButton>();
-			StartHosting.OnClick += () => StartHostingGame(hostgameLocation);
+			StartHosting.OnClick += () => StartHostingGame();
 			HostCancel = transform.Find("HostMenu/Cancel").gameObject.AddOrGet<FButton>();
 			HostCancel.OnClick += () => ShowHostSegment(false);
 
@@ -166,7 +159,6 @@ namespace ONI_MP.UI
 
 		public static void OpenFromMainMenu()
 		{
-			hostgameLocation = HostGameLocation.MAINMENU;
             ShowWindow();
 			Instance.ShowMainSegment(true);
 			Instance.ShowHostSegment(false);
@@ -174,7 +166,6 @@ namespace ONI_MP.UI
 		}
 		public static void OpenFromPauseScreen()
 		{
-			hostgameLocation = HostGameLocation.INGAME;
             ShowWindow();
 			Instance.ShowMainSegment(false);
 			Instance.ShowHostSegment(true);
@@ -208,7 +199,6 @@ namespace ONI_MP.UI
 			// We need to join the lobby to get its metadata (including password status)
 			// But first, let's check if we can get the data by requesting lobby data
 			SteamMatchmaking.RequestLobbyData(lobbyId);
-
 		}
 
 		void OnLobbyDataUpdateReceived(LobbyDataUpdate_t data)
@@ -342,77 +332,79 @@ namespace ONI_MP.UI
 			}
 		}
 
-        private void StartHostingGame(HostGameLocation hostingFromWhere)
+		void StoreHostConfigurationSettings()
+		{
+			Configuration.Instance.Host.Lobby.IsPrivate = PrivateLobbyCheckbox.On;
+			string lobbySize = LobbySize.Text;
+
+			if (lobbySize.Any())
+			{
+				if (!int.TryParse(lobbySize, out int maxLobbySize))
+					maxLobbySize = 1;
+
+				Configuration.Instance.Host.MaxLobbySize = maxLobbySize;
+			}
+			else
+			{
+				Configuration.Instance.Host.MaxLobbySize = 4;
+			}
+
+			string password = PasswortInput.Text;
+			if (password.Any())
+			{
+				Configuration.Instance.Host.Lobby.RequirePassword = true;
+				Configuration.Instance.Host.Lobby.PasswordHash = PasswordHelper.HashPassword(password);
+			}
+			else
+			{
+				Configuration.Instance.Host.Lobby.RequirePassword = false;
+				Configuration.Instance.Host.Lobby.PasswordHash = string.Empty;
+			}
+			Configuration.Instance.Save();
+		}
+
+        private void StartHostingGame()
         {
 			// Save the host config
-			Configuration.Instance.Host.Lobby.IsPrivate = PrivateLobbyCheckbox.On;
+			StoreHostConfigurationSettings();
 
-            string input = LobbySize.Text ?? "";
-            if (!string.IsNullOrEmpty(input))
-            {
-                int max_size = int.Parse(input);
-                if (max_size <= 0)
-                    max_size = 1;
-
-                Configuration.Instance.Host.MaxLobbySize = max_size;
-            }
-            else
-            {
-                Configuration.Instance.Host.MaxLobbySize = 4;
-            }
-
-            string password = PasswortInput.Text ?? "";
-            if (!string.IsNullOrEmpty(password))
-            {
-                Configuration.Instance.Host.Lobby.RequirePassword = true;
-                Configuration.Instance.Host.Lobby.PasswordHash = PasswordHelper.HashPassword(password);
-            }
-            else
-            {
-                Configuration.Instance.Host.Lobby.RequirePassword = false;
-                Configuration.Instance.Host.Lobby.PasswordHash = "";
-            }
-
-            Configuration.Instance.Save();
-
-			switch (hostingFromWhere)
+			if (Utils.IsInGame())
 			{
-				case HostGameLocation.MAINMENU:
-                    // Flag the game to start hosting after loading
-                    MultiplayerSession.ShouldHostAfterLoad = true;
-                    var mainMenu = FindObjectOfType<MainMenu>();
-                    if (mainMenu != null)
-                    {
-                        // Main menu uses this for the resume button
-                        if (mainMenu.saveFileEntries.Count > 0)
-                        {
-                            DebugConsole.Log($"[UnityMultiplayerScreen/StartHostingGame] Found {mainMenu.saveFileEntries.Count} saves. Opening load sequence");
-                            Show(false);
-                            mainMenu.LoadGame();
-                            LoadScreen.Instance.closeButton.onClick += () => {
-                                MultiplayerSession.ShouldHostAfterLoad = false; // Reset the flag if the load screen is closed
-                                OpenFromMainMenu();
-                            };
-                            // ISSUE: Hitting escape to close the load game screen still keeps the ShouldHostAfterLoad flag at true
-                        }
-                        else
-                        {
-                            DebugConsole.Log("$[UnityMultiplayerScreen/StartHostingGame] No saves found! Running new game sequence.");
-                            Show(false);
-                            mainMenu.NewGame();
-							// TODO FIGURE OUT WHERE TO HOOK HERE TO RESET THE ShouldHostAfterLoad flag
-                        }
-                    }
-                    break;
-				case HostGameLocation.INGAME:
-					// We are already in game, just fire up the lobby
-                    SteamLobby.CreateLobby(onSuccess: () =>
-                    {
-                        SpeedControlScreen.Instance?.Unpause(false);
-                        Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
-                    });
-                    break;
+				SteamLobby.CreateLobby(onSuccess: () =>
+				{
+					//SpeedControlScreen.Instance?.Unpause(false);
+					Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
+				});
 			}
-        }
+			else
+			{
+				string saveForCurrentDlc = SaveLoader.GetLatestSaveForCurrentDLC();
+				bool hasVersionCompatibleSave = !string.IsNullOrEmpty(saveForCurrentDlc) && System.IO.File.Exists(saveForCurrentDlc);
+				if (hasVersionCompatibleSave)
+				{
+					DebugConsole.Log($"[UnityMultiplayerScreen/StartHostingGame] Found existing compatible savefile. Opening load sequence");
+					MainMenu.Instance?.LoadGame();
+					SelfRegisterOnExitLoadScreen();
+				}
+				else
+				{
+					DebugConsole.Log("$[UnityMultiplayerScreen/StartHostingGame] No saves found! Running new game sequence.");
+					MainMenu.Instance?.NewGame(); this.GetComponent<NewGameFlow>().BeginFlow();
+				}
+				Show(false);
+			}
+			void SelfRegisterOnExitLoadScreen()
+			{
+				LoadScreen.Instance.closeButton.onClick += OnLoadScreenExited;
+				UI_Patches.OnLoadScreenExited = OnLoadScreenExited;
+			}
+			void OnLoadScreenExited()
+			{
+				UI_Patches.OnLoadScreenExited = null;
+				LoadScreen.Instance.closeButton.onClick -= OnLoadScreenExited;
+				MultiplayerSession.ShouldHostAfterLoad = false; // Reset the flag if the load screen is closed
+				OpenFromMainMenu();
+			}
+		}
     }
 }
