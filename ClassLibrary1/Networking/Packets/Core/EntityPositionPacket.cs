@@ -12,17 +12,19 @@ public class EntityPositionPacket : IPacket
 	public int NetId;
 	public Vector3 Position;
 	public Vector3 Velocity;
-	public bool FacingLeft;
+	public bool FlipX;
+	public bool FlipY;
 	public NavType NavType;
 	public float SendInterval;
 	public long Timestamp;
 
-	public void Serialize(BinaryWriter writer)
+    public void Serialize(BinaryWriter writer)
 	{
 		writer.Write(NetId);
 		writer.Write(Position);
 		writer.Write(Velocity);
-		writer.Write(FacingLeft);
+		writer.Write(FlipX);
+		writer.Write(FlipY);
 		writer.Write((byte)NavType);
 		writer.Write(SendInterval);
 		writer.Write(Timestamp);
@@ -33,7 +35,8 @@ public class EntityPositionPacket : IPacket
 		NetId = reader.ReadInt32();
 		Position = reader.ReadVector3();
 		Velocity = reader.ReadVector3();
-		FacingLeft = reader.ReadBoolean();
+		FlipX = reader.ReadBoolean();
+		FlipY = reader.ReadBoolean();
 		NavType = (NavType)reader.ReadByte();
 		SendInterval = reader.ReadSingle();
 		Timestamp = reader.ReadInt64();
@@ -58,7 +61,8 @@ public class EntityPositionPacket : IPacket
             handler.serverVelocity = Velocity;
             handler.serverTimestamp = Timestamp;
             handler.lastPositionTimestamp = Timestamp;
-            handler.serverFacingLeft = FacingLeft;
+            handler.serverFlipX = FlipX;
+			handler.serverFlipY = FlipY;
         }
 		else
 		{

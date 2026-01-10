@@ -505,11 +505,6 @@ namespace ONI_MP.Networking
 				if (!lobbyId.IsValid())
 					continue;
 
-				// Failsafe ignore "private" lobbies
-				string visibility = SteamMatchmaking.GetLobbyData(lobbyId, "visibility");
-				if (visibility.Equals("private"))
-					continue;
-
 				// Get host Steam ID
 				CSteamID hostSteamId = CSteamID.Nil;
 				string hostStr = SteamMatchmaking.GetLobbyData(lobbyId, "host");
@@ -519,11 +514,15 @@ namespace ONI_MP.Networking
 				}
 
 				// Check if host is a friend
-				bool isFriend = hostSteamId.IsValid() && 
-					SteamFriends.HasFriend(hostSteamId, EFriendFlags.k_EFriendFlagImmediate);
+				bool isFriend = hostSteamId.IsValid() && SteamFriends.HasFriend(hostSteamId, EFriendFlags.k_EFriendFlagImmediate);
 
-				// Estimate ping to host using their stored ping location
-				int pingMs = -1;
+                // Failsafe ignore "private" lobbies unless we're friends with the host
+                string visibility = SteamMatchmaking.GetLobbyData(lobbyId, "visibility");
+                if (visibility.Equals("private") && !isFriend)
+                    continue;
+
+                // Estimate ping to host using their stored ping location
+                int pingMs = -1;
 				string hostPingLocation = SteamMatchmaking.GetLobbyData(lobbyId, "host_ping_location");
 				if (!string.IsNullOrEmpty(hostPingLocation))
 				{

@@ -25,7 +25,8 @@ namespace ONI_MP.Networking.Components
         public Vector3 serverPosition;
         public Vector3 serverVelocity;
         public long serverTimestamp;
-        public bool serverFacingLeft;
+        public bool serverFlipX;
+        public bool serverFlipY;
 
         #region Position Sync Tuning
 
@@ -96,7 +97,8 @@ namespace ONI_MP.Networking.Components
             if (serverTimestamp == 0)
                 return;
 
-            kbac.FlipX = serverFacingLeft;
+            kbac.FlipX = serverFlipX;
+            kbac.FlipY = serverFlipY;
 
             float localTime = Time.unscaledTime;
             float packetTime = serverTimestamp / 1000f;
@@ -161,7 +163,8 @@ namespace ONI_MP.Networking.Components
                     NetId = this.GetNetId(),
                     Position = currentPosition,
                     Velocity = velocity,
-                    FacingLeft = kbac.FlipX,
+                    FlipX = kbac.FlipX,
+                    FlipY = kbac.FlipY,
                     NavType = navType,
                     SendInterval = SendInterval,
                     Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
