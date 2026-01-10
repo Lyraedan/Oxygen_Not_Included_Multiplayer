@@ -340,7 +340,7 @@ namespace ONI_MP.UI
 			if (lobbySize.Any())
 			{
 				if (!int.TryParse(lobbySize, out int maxLobbySize))
-					maxLobbySize = 1;
+					maxLobbySize = 2;
 
 				Configuration.Instance.Host.MaxLobbySize = maxLobbySize;
 			}
