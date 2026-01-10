@@ -82,7 +82,7 @@ namespace ONI_MP.UI
 				Instance.PasswordStatus.SetText(Utils.ColorText(MP_PASSWORD_DIALOGUE.HOSTMENU.PASSWORD_INCORRECT, Color.red));
 			}
 		}
-		void SetRegularStatus()=> PasswordStatus.SetText(MP_PASSWORD_DIALOGUE.HOSTMENU.PASSWORDTITLE);
+		void SetRegularStatus() => PasswordStatus.SetText(MP_PASSWORD_DIALOGUE.HOSTMENU.PASSWORDTITLE);
 
 		public static void ShowPasswordDialogueFor(CSteamID lobby)
 		{
