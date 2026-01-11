@@ -28,7 +28,7 @@ namespace ONI_MP.UI.lib.FUI
 		public void SetPasswordVisibility(bool passwordVisible)
 		{
 			PasswordVisible = passwordVisible;
-			SlashImage.gameObject.SetActive(!passwordVisible);
+			SlashImage.gameObject.SetActive(passwordVisible);
 			PasswordInput.inputField.contentType = passwordVisible ? TMPro.TMP_InputField.ContentType.Standard : TMPro.TMP_InputField.ContentType.Password;
 			PasswordInput.inputField.ForceLabelUpdate();
 		}
