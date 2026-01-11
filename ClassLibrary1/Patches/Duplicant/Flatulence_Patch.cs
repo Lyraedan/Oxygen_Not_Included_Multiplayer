@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using ONI_MP.Networking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,10 +20,16 @@ namespace ONI_MP.Patches.Duplicant
 			/// </summary>
 			/// <param name="data"></param>
 			/// <returns></returns>
-			public static bool Prefix(object data)
+			public static bool Prefix(Flatulence __instance)
 			{
-				GameObject gameObject = (GameObject)data;
-				return (gameObject.PrefabID() != GameTags.MinionSelectPreview);
+				if(__instance.IsNullOrDestroyed() || __instance.gameObject.IsNullOrDestroyed())
+					return false;
+				bool preview = (__instance.PrefabID() != GameTags.MinionSelectPreview);
+				bool client = MultiplayerSession.IsClient;
+
+				if (client || preview)
+					return false;
+				return true;
 			}
 		}
 	}
