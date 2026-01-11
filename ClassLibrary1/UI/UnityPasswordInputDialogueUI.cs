@@ -51,7 +51,7 @@ namespace ONI_MP.UI
 		{
 			if (init) { return; }
 
-			TopbarClose = transform.Find("HostMenu/Buttons/Cancel").gameObject.AddOrGet<FButton>();
+			TopbarClose = transform.Find("TopBar/CloseButton").gameObject.AddOrGet<FButton>();
 			TopbarClose.OnClick += () => Show(false);
 
 
