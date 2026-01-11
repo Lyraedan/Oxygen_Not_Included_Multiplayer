@@ -24,7 +24,6 @@ public static class DuplicantPatch
 		}
 
 		__result.AddOrGet<EntityPositionHandler>();
-		__result.AddOrGet<ConditionTracker>();
 	}
 
 	public static void ToggleEffect(GameObject minion, string eventName, string context, bool enable)

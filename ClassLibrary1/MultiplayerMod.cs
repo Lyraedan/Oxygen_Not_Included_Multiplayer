@@ -21,9 +21,11 @@ namespace ONI_MP
 		public static readonly Dictionary<string, AssetBundle> LoadedBundles = new Dictionary<string, AssetBundle>();
 
 		public static System.Action OnPostSceneLoaded;
+		public static Harmony Harmony;
 
 		public override void OnLoad(Harmony harmony)
 		{
+			Harmony = harmony;
 			base.OnLoad(harmony);
 
 			ModAssets.LoadAssetBundles();

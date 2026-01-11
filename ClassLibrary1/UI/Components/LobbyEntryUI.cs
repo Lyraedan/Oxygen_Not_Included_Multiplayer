@@ -21,6 +21,14 @@ namespace ONI_MP.UI.Components
 		public override void OnPrefabInit()
 		{
 			base.OnPrefabInit();
+			Init();
+		}
+		bool init;
+		void Init()
+		{
+			if (init)
+				return;
+			init = true;
 			WorldName = transform.Find("World").gameObject.GetComponent<LocText>();
 			Host = transform.Find("Host").gameObject.GetComponent<LocText>();
 			Players = transform.Find("Players").gameObject.GetComponent<LocText>();
@@ -31,6 +39,7 @@ namespace ONI_MP.UI.Components
 			LockIcon = transform.Find("JoinLobbyButton/Lock").gameObject;
 			JoinButton.OnClick += JoinLobbyClicked;
 		}
+
 		void JoinLobbyClicked()
 		{
 			if (OnJoinClicked != null && Lobby != null)
@@ -46,6 +55,7 @@ namespace ONI_MP.UI.Components
 
 		public void RefreshDisplayedInfo()
 		{
+			Init();
 			if (Lobby == null)
 				return;
 			WorldName.SetText(Lobby.ColonyDisplay);
