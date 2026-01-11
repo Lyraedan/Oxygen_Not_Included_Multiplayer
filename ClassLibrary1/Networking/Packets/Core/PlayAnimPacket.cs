@@ -3,6 +3,7 @@ using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Patches.KleiPatches;
+using Shared.Interfaces.Networking;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +11,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-public class PlayAnimPacket : IPacket
+public class PlayAnimPacket : IPacket, IBulkablePacket
 {
 
 	public PlayAnimPacket() { }
@@ -34,8 +35,11 @@ public class PlayAnimPacket : IPacket
 	public bool IsQueue; // Supports Queue()
 	bool MultipleAnims => AnimHashes.Count() > 1;
 
+    public int MaxPackSize => 500;
 
-	public void Serialize(BinaryWriter writer)
+    public uint IntervalMs => 50;
+
+    public void Serialize(BinaryWriter writer)
 	{
 		writer.Write(NetId);
 		writer.Write(TimeStamp);

@@ -52,7 +52,7 @@ public class EntityPositionPacket : IPacket
 			if (!handler)
 				return;
 
-			if (handler.lastPositionTimestamp > Timestamp)
+			if (handler.serverTimestamp > Timestamp)
 			{
 				return; // Recieved out of date position packet, ignore.
 			}
@@ -60,7 +60,6 @@ public class EntityPositionPacket : IPacket
             handler.serverPosition = Position;
             handler.serverVelocity = Velocity;
             handler.serverTimestamp = Timestamp;
-            handler.lastPositionTimestamp = Timestamp;
             handler.serverFlipX = FlipX;
 			handler.serverFlipY = FlipY;
         }

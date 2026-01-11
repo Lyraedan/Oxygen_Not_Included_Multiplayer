@@ -19,6 +19,15 @@ namespace ONI_MP.Misc
 		/// </summary>
 		public static int MaxSteamNetworkingSocketsMessageSizeSend = 512 * 1024;
 
+		/// <summary>
+		/// Force quites the game without the Klei metrics that can cause crashes
+		/// </summary>
+		public static void ForceQuitGame()
+		{
+            Game.Instance.SetIsLoading();
+            Grid.CellCount = 0;
+            Sim.Shutdown();
+        }
 		public static void LogHierarchy(Transform root, string prefix = "")
 		{
 			if (root == null)

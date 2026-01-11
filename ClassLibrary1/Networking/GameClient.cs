@@ -419,9 +419,7 @@ namespace ONI_MP.Networking
 			//PauseScreen.TriggerQuitGame(); // Force exit to frontend, getting a crash here
 			if (Utils.IsInGame())
 			{
-				Game.Instance.SetIsLoading();
-				Grid.CellCount = 0;
-				Sim.Shutdown();
+				Utils.ForceQuitGame();
 			}
 			App.LoadScene("frontend");
 

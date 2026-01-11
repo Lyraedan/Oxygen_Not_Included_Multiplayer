@@ -18,8 +18,6 @@ namespace ONI_MP.Networking.Components
 
 		private Vector3 velocity;
 
-		public long lastPositionTimestamp = 0;
-
         // Client position syncing, these are all updated from the EntityPositionPacket
         public Vector3 clientVelocity;
         public Vector3 serverPosition;
@@ -100,8 +98,8 @@ namespace ONI_MP.Networking.Components
             kbac.FlipX = serverFlipX;
             kbac.FlipY = serverFlipY;
 
-            float localTime = Time.unscaledTime;
-            float packetTime = serverTimestamp / 1000f;
+            float localTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            float packetTime = serverTimestamp;
 
             // Clamp prediction time
             float dt = Mathf.Clamp(localTime - packetTime, 0f, MAX_PREDICTION_TIME);
