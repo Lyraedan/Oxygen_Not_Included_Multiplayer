@@ -21,13 +21,10 @@ namespace ONI_MP.Scripts.Buildings
 				PacketSender.SendToHost(new RequestOperationalStatePacket(this));
 		}
 
-
 		public bool IsFunctional { get; set; }
 
 		public bool IsOperational { get; set; }
 
 		public bool IsActive { get; set; }
-
-
 	}
 }
