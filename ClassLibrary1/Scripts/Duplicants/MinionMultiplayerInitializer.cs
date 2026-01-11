@@ -21,7 +21,7 @@ namespace ONI_MP.Scripts.Duplicants
 			base.OnSpawn();
 
 			if (MultiplayerSession.InSession)
-				InitializeMP(null); 
+				InitializeMP(null);
 
 			Game.Instance?.Subscribe(MP_HASHES.OnMultiplayerGameSessionInitialized, InitializeMP);
 			Game.Instance?.Subscribe(MP_HASHES.GameClient_OnConnectedInGame, InitializeMP);
@@ -56,6 +56,20 @@ namespace ONI_MP.Scripts.Duplicants
 
 				// Disable sensors that might trigger behaviors
 				if (go.TryGetComponent<Sensors>(out var sensors)) sensors.enabled = false;
+
+				//disable all RationalAi smis
+				var ai_smi = this.GetSMI<RationalAi.Instance>();
+				if (ai_smi != null)
+				{
+					var stateMachinesToStopGetter = RationalAi.GetStateMachinesToRunWhenAlive(ai_smi);
+					foreach(var getter in stateMachinesToStopGetter)
+					{
+						var smi = getter.Invoke(ai_smi);
+						smi.StopSM("Stopped by multiplayer mod");
+					}
+
+					ai_smi.StopSM("Client dupe do not get to have ai");
+				}
 
 				// Disable state machine controllers that could override animations
 				var stateMachineControllers = go.GetComponents<StateMachineController>();
