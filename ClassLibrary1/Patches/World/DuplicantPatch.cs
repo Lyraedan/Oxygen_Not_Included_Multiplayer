@@ -1,10 +1,11 @@
-﻿using System.Collections;
-using HarmonyLib;
+﻿using HarmonyLib;
 using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
+using ONI_MP.Networking.Synchronization;
 using ONI_MP.Scripts.Duplicants;
+using System.Collections;
 using UnityEngine;
 
 [HarmonyPatch(typeof(BaseMinionConfig), nameof(BaseMinionConfig.BaseMinion))]
@@ -24,6 +25,7 @@ public static class DuplicantPatch
 		}
 
 		__result.AddOrGet<EntityPositionHandler>();
+		__result.AddOrGet<VitalStatsSyncer>();
 	}
 
 	public static void ToggleEffect(GameObject minion, string eventName, string context, bool enable)

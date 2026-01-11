@@ -10,9 +10,9 @@ namespace ONI_MP.Networking.Synchronization
 	// Periodically checks if vitals have changed significantly and sends updates.
 	public class VitalStatsSyncer : KMonoBehaviour, ISim1000ms
 	{
-		[MyCmpGet]
+		[MyCmpReq]
 		private NetworkIdentity _identity;
-		[MyCmpGet]
+		[MyCmpReq]
 		private PrimaryElement _element;
 		private Amounts _amounts;
 
@@ -24,11 +24,10 @@ namespace ONI_MP.Networking.Synchronization
 
 		public void Sim1000ms(float dt)
 		{
-			if (!MultiplayerSession.IsHost) return;
-			if (_identity == null || _amounts == null) return;
+			if (!MultiplayerSession.IsHostInSession) return;
 
 			// Skip if no clients connected
-			if (MultiplayerSession.ConnectedPlayers.Count == 0) return;
+			if (!MultiplayerSession.SessionHasPlayers) return;
 
 			foreach(var amountInstance in _amounts)
 			{

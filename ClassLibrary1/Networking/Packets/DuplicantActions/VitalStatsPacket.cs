@@ -1,4 +1,5 @@
 using Klei.AI;
+using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
@@ -21,6 +22,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 			NetId = netId;
 			TargetDiseaseIdx = element.DiseaseIdx;
 			TargetDiseaseCount = element.DiseaseCount;
+			DebugConsole.Log("[VitalStatsPacket] Vital stat packet for " + element.GetProperName());
 			foreach(var amountInstance in amounts)
 			{
 				VitalAmounts[amountInstance.amount.Id] = amountInstance.value;
@@ -33,10 +35,10 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 			writer.Write(NetId);
 			writer.Write(TargetDiseaseIdx);
 			writer.Write(TargetDiseaseCount);
-
 			writer.Write(VitalAmounts.Count);
 			foreach (var kvp in VitalAmounts)
 			{
+				DebugConsole.Log("[VitalStatsPacket] Vital amount: " + kvp.Key+": "+kvp.Value);
 				writer.Write(kvp.Key);
 				writer.Write(kvp.Value);
 			}
@@ -66,13 +68,22 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		private void Apply()
 		{
-			if (!NetworkIdentityRegistry.TryGet(NetId, out var identity)) return;
+			if (!NetworkIdentityRegistry.TryGet(NetId, out var identity))
+			{
+				DebugConsole.LogWarning("[VitalStatsPacket] Could not find minion with netid " + NetId);
+				return;
+			}
 
 			var amounts = identity.GetAmounts();
-			if (amounts == null) return;
+			if (amounts == null)
+			{
+				DebugConsole.LogWarning("[VitalStatsPacket] Could not find amounts for minion " + identity.GetProperName());
+				return;
+			}
 
 			foreach (var kvp in VitalAmounts)
 			{
+				DebugConsole.Log("[VitalStatsPacket] Setting Vital amount: " + kvp.Key + ": " + kvp.Value);
 				amounts.SetValue(kvp.Key, kvp.Value);
 			}
 			if (identity.TryGetComponent<PrimaryElement>(out var element))
