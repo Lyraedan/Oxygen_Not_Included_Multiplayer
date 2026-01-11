@@ -1,72 +1,76 @@
-using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
-using HarmonyLib;
+using ONI_MP.Networking.Components;
 
 namespace ONI_MP.Networking.Packets.DuplicantActions
 {
-	public class ConsumablePermissionPacket : IPacket
-	{
-		public int NetId;
-		public string ConsumableId;
-		public bool IsAllowed;
+    public class ConsumablePermissionPacket : IPacket
+    {
+        private TableRow.RowType         RowType;
+        private string                   ConsumableID;
+        private TableScreen.ResultValues NewValue;
+        private int                      NetId;
 
-		public void Serialize(BinaryWriter writer)
-		{
-			writer.Write(NetId);
-			writer.Write(ConsumableId ?? string.Empty);
-			writer.Write(IsAllowed);
-		}
+        public ConsumablePermissionPacket()
+        {
+        }
 
-		public void Deserialize(BinaryReader reader)
-		{
-			NetId = reader.ReadInt32();
-			ConsumableId = reader.ReadString();
-			IsAllowed = reader.ReadBoolean();
-		}
+        public ConsumablePermissionPacket(TableRow.RowType rowType, string consumableID, TableScreen.ResultValues newValue, int netId)
+        {
+            RowType      = rowType;
+            ConsumableID = consumableID;
+            NewValue     = newValue;
+            NetId        = netId;
+        }
 
-		public void OnDispatched()
-		{
-			if (MultiplayerSession.IsHost)
-			{
-				Apply();
-				PacketSender.SendToAllClients(this);
-			}
-			else
-			{
-				Apply();
-			}
-		}
+        public void Serialize(BinaryWriter writer)
+        {
+            writer.Write((int)RowType);
+            writer.Write(ConsumableID);
+            writer.Write((int)NewValue);
 
-		private void Apply()
-		{
-			if (!NetworkIdentityRegistry.TryGet(NetId, out var identity) || identity == null)
-			{
-				DebugConsole.LogWarning($"[ConsumablePermissionPacket] NetId {NetId} not found.");
-				return;
-			}
+            if (RowType == TableRow.RowType.Minion)
+                writer.Write(NetId);
+        }
 
-			var consumer = identity.GetComponent<ConsumableConsumer>();
-			if (consumer == null)
-			{
-				DebugConsole.LogWarning($"[ConsumablePermissionPacket] NetId {NetId} missing ConsumableConsumer.");
-				return;
-			}
+        public void Deserialize(BinaryReader reader)
+        {
+            RowType      = (TableRow.RowType)reader.ReadInt32();
+            ConsumableID = reader.ReadString();
+            NewValue     = (TableScreen.ResultValues)reader.ReadInt32();
 
-			IsApplying = true;
-			try
-			{
-				// ConsumableConsumer.SetPermitted(string consumable_id, bool is_allowed)
-				consumer.SetPermitted(ConsumableId, IsAllowed);
-				ManagementMenu.Instance.consumablesScreen.MarkRowsDirty();
-				// DebugConsole.Log($"[ConsumablePermissionPacket] Set {ConsumableId} to {IsAllowed} for {identity.name}");
-			}
-			finally
-			{
-				IsApplying = false;
-			}
-		}
+            if (RowType == TableRow.RowType.Minion)
+                NetId = reader.ReadInt32();
+        }
 
-		public static bool IsApplying = false;
-	}
+        public void OnDispatched()
+        {
+            switch (RowType)
+            {
+                case TableRow.RowType.Default:
+                {
+                    if (NewValue == TableScreen.ResultValues.True)
+                        ConsumerManager.instance.DefaultForbiddenTagsList.Remove(ConsumableID.ToTag());
+                    else
+                        ConsumerManager.instance.DefaultForbiddenTagsList.Add(ConsumableID.ToTag());
+
+                    break;
+                }
+                case TableRow.RowType.Minion:
+                {
+                    NetworkIdentity identity;
+                    if (!NetworkIdentityRegistry.TryGet(NetId, out identity))
+                        return;
+
+                    ConsumableConsumer component   = identity.GetComponent<ConsumableConsumer>();
+                    bool               can_consume = NewValue is TableScreen.ResultValues.True or TableScreen.ResultValues.ConditionalGroup;
+
+                    component?.SetPermitted(ConsumableID, can_consume);
+                    break;
+                }
+            }
+
+            ManagementMenu.Instance.consumablesScreen.MarkRowsDirty();
+        }
+    }
 }
