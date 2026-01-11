@@ -23,7 +23,7 @@ public class PlayAnimPacket : IPacket, IBulkablePacket
 		Mode = mode;
 		Speed = speed;
 		TimeOffset = offset;
-		TimeStamp = Time.time;
+		TimeStamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 	}
 
 	public int NetId;
