@@ -142,5 +142,51 @@ namespace ONI_MP.Patches.World.SideScreen
 			if (MultiplayerSession.IsHost) PacketSender.SendToAllClients(packet);
 			else PacketSender.SendToHost(packet);
 		}
-	}
+
+        public static void SyncQueueToggleable(GameObject target, bool expectedQueue)
+        {
+            if (BuildingConfigPacket.IsApplyingPacket) return;
+            if (target == null) return;
+
+            var identity = target.AddOrGet<NetworkIdentity>();
+            identity.RegisterIdentity();
+
+            var packet = new BuildingConfigPacket
+            {
+                NetId = identity.NetId,
+                Cell = Grid.PosToCell(target),
+                ConfigHash = "QueueToggleable".GetHashCode(),
+                Value = expectedQueue ? 1f : 0f,
+                ConfigType = BuildingConfigType.Boolean
+            };
+
+            DebugConsole.Log($"[SideScreenSyncHelper.SyncQueueToggleable] Sending packet: ConfigHash={packet.ConfigHash}, Value={packet.Value}");
+
+            if (MultiplayerSession.IsHost) PacketSender.SendToAllClients(packet);
+            else PacketSender.SendToHost(packet);
+        }
+
+        public static void SyncToggleableState(GameObject target, bool buildingEnabled)
+        {
+            if (BuildingConfigPacket.IsApplyingPacket) return;
+            if (target == null) return;
+
+            var identity = target.AddOrGet<NetworkIdentity>();
+            identity.RegisterIdentity();
+
+            var packet = new BuildingConfigPacket
+			{
+				NetId = identity.NetId,
+				Cell = Grid.PosToCell(target),
+				ConfigHash = "ToggleableChange".GetHashCode(),
+				Value = buildingEnabled ? 1f : 0f,
+				ConfigType = BuildingConfigType.Boolean
+			};
+
+            DebugConsole.Log($"[SideScreenSyncHelper.SyncToggleableState] Sending packet: ConfigHash={packet.ConfigHash}, Value={packet.Value}");
+
+            // Only hosts sync building enabled state to clients
+            if (MultiplayerSession.IsHost) PacketSender.SendToAllClients(packet);
+		}
+    }
 }
