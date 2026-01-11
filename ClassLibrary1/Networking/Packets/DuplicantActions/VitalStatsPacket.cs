@@ -22,7 +22,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 			NetId = netId;
 			TargetDiseaseIdx = element.DiseaseIdx;
 			TargetDiseaseCount = element.DiseaseCount;
-			DebugConsole.Log("[VitalStatsPacket] Vital stat packet for " + element.GetProperName());
+		//	DebugConsole.Log("[VitalStatsPacket] Vital stat packet for " + element.GetProperName());
 			foreach(var amountInstance in amounts)
 			{
 				VitalAmounts[amountInstance.amount.Id] = amountInstance.value;
@@ -38,7 +38,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 			writer.Write(VitalAmounts.Count);
 			foreach (var kvp in VitalAmounts)
 			{
-				DebugConsole.Log("[VitalStatsPacket] Vital amount: " + kvp.Key+": "+kvp.Value);
+				//DebugConsole.Log("[VitalStatsPacket] Vital amount: " + kvp.Key+": "+kvp.Value);
 				writer.Write(kvp.Key);
 				writer.Write(kvp.Value);
 			}
@@ -83,7 +83,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 			foreach (var kvp in VitalAmounts)
 			{
-				DebugConsole.Log("[VitalStatsPacket] Setting Vital amount: " + kvp.Key + ": " + kvp.Value);
+				//DebugConsole.Log("[VitalStatsPacket] Setting Vital amount: " + kvp.Key + ": " + kvp.Value);
 				amounts.SetValue(kvp.Key, kvp.Value);
 			}
 			if (identity.TryGetComponent<PrimaryElement>(out var element))

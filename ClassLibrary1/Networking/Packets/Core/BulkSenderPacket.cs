@@ -35,7 +35,7 @@ namespace ONI_MP.Networking.Packets.Core
 				writer.Write(serializedPacket.Length);
 				writer.Write(serializedPacket);
 			}
-			DebugConsole.LogSuccess("Dispatching bulk packet of type " + PacketRegistry.Create(InnerPacketId).GetType().Name + " with " + SerializedInnerPackets.Count() + " packets innit");
+			//DebugConsole.LogSuccess("Dispatching bulk packet of type " + PacketRegistry.Create(InnerPacketId).GetType().Name + " with " + SerializedInnerPackets.Count() + " packets innit");
 
 		}
 		public void Deserialize(BinaryReader reader)
