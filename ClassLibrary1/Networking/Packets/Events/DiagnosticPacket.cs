@@ -12,7 +12,7 @@ using static ColonyDiagnostic.DiagnosticResult;
 
 namespace ONI_MP.Networking.Packets.Events
 {
-	internal class DiagnosticPacket : IPacket, IBulkablePacket
+	internal class DiagnosticPacket : IPacket//, IBulkablePacket
 	{
 		public int MaxPackSize => 500;
 
