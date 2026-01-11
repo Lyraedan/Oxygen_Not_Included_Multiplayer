@@ -7,63 +7,53 @@ using UnityEngine;
 
 namespace ONI_MP.Patches.ToolPatches.Build
 {
-	[HarmonyPatch(typeof(BuildTool), "TryBuild")]
-	public static class BuildToolPatch
-	{
-		static void Prefix(BuildTool __instance, int cell)
-		{
-			var def = AccessTools.Field(typeof(BuildTool), "def").GetValue(__instance) as BuildingDef;
-			if (def != null)
-			{
-				DebugConsole.Log($"[BuildTool] Attempting to build: {def.PrefabID} at cell {cell}");
-			}
-		}
+    [HarmonyPatch(typeof(BuildTool), "TryBuild")]
+    public static class BuildToolPatch
+    {
+        static void Prefix(BuildTool __instance, int cell)
+        {
+            var def = AccessTools.Field(typeof(BuildTool), "def").GetValue(__instance) as BuildingDef;
+            if (def != null)
+            {
+                DebugConsole.Log($"[BuildTool] Attempting to build: {def.PrefabID} at cell {cell}");
+            }
+        }
 
-		static void Postfix(BuildTool __instance, int cell)
-		{
-			if (!MultiplayerSession.InSession || __instance == null)
-				return;
+        static void Postfix(BuildTool __instance, int cell)
+        {
+            if (!MultiplayerSession.InSession || __instance == null)
+                return;
 
-			var def = AccessTools.Field(typeof(BuildTool), "def").GetValue(__instance) as BuildingDef;
-			var selectedElements = AccessTools.Field(typeof(BuildTool), "selectedElements")
-																				.GetValue(__instance) as IList<Tag>;
-			var orientation = __instance.GetBuildingOrientation;
+            var def = AccessTools.Field(typeof(BuildTool), "def").GetValue(__instance) as BuildingDef;
+            var selectedElements = AccessTools.Field(typeof(BuildTool), "selectedElements")
+                .GetValue(__instance) as IList<Tag>;
+            var orientation = __instance.GetBuildingOrientation;
 
-			if (def == null || selectedElements == null)
-				return;
+            if (def == null || selectedElements == null)
+                return;
 
-			// Log result
-			// Log result
-			GameObject obj = Grid.Objects[cell, (int)def.ObjectLayer];
-			if (obj != null)
-			{
-				DebugConsole.Log($"[BuildTool] Successfully placed {def.PrefabID} at cell {cell}");
-			}
-			else
-			{
-				// It might be a ghost/preview, so we still send the packet!
-				DebugConsole.Log($"[BuildTool] Placed intention/ghost for {def.PrefabID} at cell {cell}");
-			}
+            // Log result
+            // Log result
+            GameObject obj = Grid.Objects[cell, (int)def.ObjectLayer];
+            if (obj != null)
+            {
+                DebugConsole.Log($"[BuildTool] Successfully placed {def.PrefabID} at cell {cell}");
+            }
+            else
+            {
+                // It might be a ghost/preview, so we still send the packet!
+                DebugConsole.Log($"[BuildTool] Placed intention/ghost for {def.PrefabID} at cell {cell}");
+            }
 
-			// Create and send packet
-			var packet = new BuildPacket(
-					def.PrefabID,
-					cell,
-					orientation,
-					selectedElements,
-					MultiplayerSession.LocalSteamID
-			);
+            // Create and send packet
+            var packet = new BuildPacket(
+                def.PrefabID,
+                cell,
+                orientation,
+                selectedElements
+            );
 
-			if (MultiplayerSession.IsHost)
-			{
-				PacketSender.SendToAllClients(packet);
-				DebugConsole.Log($"[Build] Host sent BuildPacket to all clients for {def.PrefabID} at {cell}");
-			}
-			else
-			{
-				PacketSender.SendToHost(packet);
-				DebugConsole.Log($"[Build] Client sent BuildPacket to host for {def.PrefabID} at {cell}");
-			}
-		}
-	}
+            PacketSender.SendToAllOtherPeers(packet);
+        }
+    }
 }

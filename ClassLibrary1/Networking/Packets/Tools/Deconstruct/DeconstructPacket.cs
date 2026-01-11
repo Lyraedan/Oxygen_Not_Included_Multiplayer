@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Tools.Deconstruct
 {
-	public class DeconstructPacket : FilteredDragToolPacket
+	public class DeconstructPacket : DragToolPacket
 	{
 		public DeconstructPacket() : base()
 		{

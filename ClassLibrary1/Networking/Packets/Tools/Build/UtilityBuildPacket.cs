@@ -46,6 +46,9 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 			path = nodes ?? [];
 			MaterialTags = mats ?? [];
 			FacadeID = skin ?? string.Empty;
+
+			if (PlanScreen.Instance)
+				Priority = PlanScreen.Instance.GetBuildingPriority();
 		}
 		public void Serialize(BinaryWriter writer)
 		{
@@ -148,7 +151,6 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 			List<BaseUtilityBuildTool.PathNode> cachedPath = tool.path != null ? [.. tool.path] : [];
 			IList<Tag> cachedMaterials = tool.selectedElements != null ? [.. tool.selectedElements] : [];
 			var cachedMgr = tool.conduitMgr;
-			PrioritySetting? cachedPriority = PlanScreen.Instance?.GetBuildingPriority() ?? null;
 
 			IHaveUtilityNetworkMgr conduitManagerHaver = def.BuildingComplete.GetComponent<IHaveUtilityNetworkMgr>();
 
@@ -158,17 +160,21 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 			tool.conduitMgr = conduitManagerHaver.GetNetworkManager();
 
 			ProcessingIncoming = true;
-			ToolMenu.Instance.PriorityScreen.SetScreenPriority(Priority);
 			DebugConsole.Log($"[UtilityBuildPacket] Building path with {path.Count} nodes of prefab {def.PrefabID}");
 			tool.BuildPath();
+
+			foreach (BaseUtilityBuildTool.PathNode node in path)
+			{
+				GameObject    gameObject    = Grid.Objects[node.cell, (int)def.TileLayer];
+				Prioritizable prioritizable = gameObject?.GetComponent<Prioritizable>();
+				prioritizable?.SetMasterPriority(Priority);
+			}
 			ProcessingIncoming = false;
 
 			tool.def = cachedDef;
 			tool.path = cachedPath;
 			tool.selectedElements = cachedMaterials;
 			tool.conduitMgr = cachedMgr;
-			if(cachedPriority.HasValue)
-				ToolMenu.Instance.PriorityScreen.SetScreenPriority(cachedPriority.Value);
 		}
 	}
 }

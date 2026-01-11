@@ -8,83 +8,81 @@ using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Tools.Build
 {
-	public class BuildPacket : IPacket
-	{
-		public string PrefabID;
-		public int Cell;
-		public Orientation Orientation;
-		public List<string> MaterialTags = new List<string>();
-		public CSteamID SenderId;
+    public class BuildPacket : IPacket
+    {
+        private string          PrefabID;
+        private int             Cell;
+        private Orientation     Orientation;
+        private List<string>    MaterialTags = new List<string>();
+        private PrioritySetting Priority;
 
-		public BuildPacket() { }
+        public BuildPacket()
+        {
+        }
 
-		public BuildPacket(string prefabID, int cell, Orientation orientation, IEnumerable<Tag> materials, CSteamID senderId)
-		{
-			PrefabID = prefabID;
-			Cell = cell;
-			Orientation = orientation;
-			MaterialTags = materials.Select(t => t.ToString()).ToList();
-			SenderId = senderId;
-		}
+        public BuildPacket(string prefabID, int cell, Orientation orientation, IEnumerable<Tag> materials)
+        {
+            PrefabID     = prefabID;
+            Cell         = cell;
+            Orientation  = orientation;
+            MaterialTags = materials.Select(t => t.ToString()).ToList();
 
-		public void Serialize(BinaryWriter writer)
-		{
-			writer.Write(PrefabID);
-			writer.Write(Cell);
-			writer.Write((int)Orientation);
-			writer.Write(MaterialTags.Count);
-			foreach (var tag in MaterialTags)
-				writer.Write(tag);
-			writer.Write(SenderId.m_SteamID);
-		}
+            if (PlanScreen.Instance)
+                Priority = PlanScreen.Instance.GetBuildingPriority();
+        }
 
-		public void Deserialize(BinaryReader reader)
-		{
-			PrefabID = reader.ReadString();
-			Cell = reader.ReadInt32();
-			Orientation = (Orientation)reader.ReadInt32();
-			int count = reader.ReadInt32();
-			MaterialTags = new List<string>();
-			for (int i = 0; i < count; i++)
-				MaterialTags.Add(reader.ReadString());
-			SenderId = new CSteamID(reader.ReadUInt64());
-		}
+        public void Serialize(BinaryWriter writer)
+        {
+            writer.Write(PrefabID);
+            writer.Write(Cell);
+            writer.Write((int)Orientation);
+            writer.Write(MaterialTags.Count);
+            foreach (var tag in MaterialTags)
+                writer.Write(tag);
 
-		public void OnDispatched()
-		{
-			if (!Grid.IsValidCell(Cell))
-			{
-				DebugConsole.LogWarning($"[BuildPacket] Invalid cell: {Cell}");
-				return;
-			}
+            writer.Write((int)Priority.priority_class);
+            writer.Write(Priority.priority_value);
+        }
 
-			var def = Assets.GetBuildingDef(PrefabID);
-			if (def == null)
-			{
-				DebugConsole.LogWarning($"[BuildPacket] Unknown building def: {PrefabID}");
-				return;
-			}
+        public void Deserialize(BinaryReader reader)
+        {
+            PrefabID    = reader.ReadString();
+            Cell        = reader.ReadInt32();
+            Orientation = (Orientation)reader.ReadInt32();
+            int count = reader.ReadInt32();
+            MaterialTags = new List<string>();
+            for (int i = 0; i < count; i++)
+                MaterialTags.Add(reader.ReadString());
 
-			var tags = MaterialTags.Select(t => new Tag(t)).ToList();
-			Vector3 pos = Grid.CellToPosCBC(Cell, Grid.SceneLayer.Building);
+            Priority = new PrioritySetting((PriorityScreen.PriorityClass)reader.ReadInt32(), reader.ReadInt32());
+        }
 
-			GameObject visualizer = Util.KInstantiate(def.BuildingPreview, pos);
-			def.TryPlace(visualizer, pos, Orientation, tags, "DEFAULT_FACADE");
+        public void OnDispatched()
+        {
+            if (!Grid.IsValidCell(Cell))
+            {
+                DebugConsole.LogWarning($"[BuildPacket] Invalid cell: {Cell}");
+                return;
+            }
 
-			// Instant build
-			//def.Build(Cell, Orientation, null, tags, temp, "DEFAULT_FACADE", playsound: false, GameClock.Instance.GetTime());
+            var def = Assets.GetBuildingDef(PrefabID);
+            if (def == null)
+            {
+                DebugConsole.LogWarning($"[BuildPacket] Unknown building def: {PrefabID}");
+                return;
+            }
 
-			// Host rebroadcast to other clients
-			if (MultiplayerSession.IsHost)
-			{
-				var exclude = new HashSet<CSteamID> {
-										SenderId,
-										MultiplayerSession.LocalSteamID
-								};
-				PacketSender.SendToAllExcluding(this, exclude);
-				DebugConsole.Log($"[BuildPacket] Host rebroadcasted build for {PrefabID} at {Cell}");
-			}
-		}
+            var     tags = MaterialTags.Select(t => new Tag(t)).ToList();
+            Vector3 pos  = Grid.CellToPosCBC(Cell, Grid.SceneLayer.Building);
 
-	}
+            GameObject visualizer = Util.KInstantiate(def.BuildingPreview, pos);
+            GameObject gameObject = def.TryPlace(visualizer, pos, Orientation, tags, "DEFAULT_FACADE");
+
+            Prioritizable prioritizable = gameObject?.GetComponent<Prioritizable>();
+            prioritizable?.SetMasterPriority(Priority);
+
+            // Instant build
+            //def.Build(Cell, Orientation, null, tags, temp, "DEFAULT_FACADE", playsound: false, GameClock.Instance.GetTime());
+        }
+    }
 }
