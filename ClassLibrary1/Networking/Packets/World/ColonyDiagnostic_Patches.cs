@@ -20,7 +20,7 @@ namespace ONI_MP.Networking.Packets.World
 		[HarmonyPatch(typeof(ColonyDiagnostic), nameof(ColonyDiagnostic.Evaluate))]
 		public class ColonyDiagnostic_Evaluate_Patch
 		{
-			public static bool Prefix(ColonyDiagnostic __instance, DiagnosticResult __result)
+			public static bool Prefix(ColonyDiagnostic __instance, ref DiagnosticResult __result)
 			{
 				if (!MultiplayerSession.IsClient)
 					return true;
