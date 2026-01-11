@@ -177,6 +177,7 @@ namespace ONI_MP.Networking
 
             if (hasPassword == "1")
             {
+				DebugConsole.Log("CheckLobbyPasswordAfterDelay - lobby requires password");
                 UnityPasswordInputDialogueUI.ShowPasswordDialogueFor(lobbyId);
             }
             else

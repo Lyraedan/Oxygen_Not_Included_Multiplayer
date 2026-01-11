@@ -277,6 +277,7 @@ namespace ONI_MP.UI
 				return;
 
 			JoinOrOpenPasswordDialogue(_pendingLobbyId);
+			_pendingLobbyId = CSteamID.Nil;
 		}
 
 		void JoinOrOpenPasswordDialogue(CSteamID lobbyId)

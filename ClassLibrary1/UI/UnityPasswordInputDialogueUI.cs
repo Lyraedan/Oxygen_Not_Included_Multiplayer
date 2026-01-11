@@ -78,8 +78,9 @@ namespace ONI_MP.UI
 				SteamLobby.JoinLobby(LobbyId, (lobbyId) =>
 				{
 					DebugConsole.Log($"[LobbyBrowser] Successfully joined lobby: {lobbyId}");
-					Show(false);
-				});
+					
+				}); 
+				Show(false);
 			}
 			else
 			{

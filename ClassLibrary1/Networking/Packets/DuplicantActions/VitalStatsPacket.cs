@@ -21,6 +21,10 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 			NetId = netId;
 			TargetDiseaseIdx = element.DiseaseIdx;
 			TargetDiseaseCount = element.DiseaseCount;
+			foreach(var amountInstance in amounts)
+			{
+				VitalAmounts[amountInstance.amount.Id] = amountInstance.value;
+			}
 
 		}
 
