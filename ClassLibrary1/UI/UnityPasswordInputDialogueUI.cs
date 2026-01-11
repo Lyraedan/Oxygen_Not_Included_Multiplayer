@@ -40,7 +40,7 @@ namespace ONI_MP.UI
 		//HostStartLobbySegment:
 		LocText PasswordStatus;
 		FInputField2 PasswortInput;
-		FButton Confirm, Cancel;
+		FButton Confirm, Cancel, TopbarClose;
 		PasswordInputToggle PasswordToggle;
 
 		bool init = false;
@@ -50,6 +50,10 @@ namespace ONI_MP.UI
 		public void Init()
 		{
 			if (init) { return; }
+
+			TopbarClose = transform.Find("HostMenu/Buttons/Cancel").gameObject.AddOrGet<FButton>();
+			TopbarClose.OnClick += () => Show(false);
+
 
 			Debug.Log("Initializing UnityPasswordInputDialogueUI");
 			PasswortInput = transform.Find("HostMenu/PasswordInput").FindOrAddComponent<FInputField2>();
