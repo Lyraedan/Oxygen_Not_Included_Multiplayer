@@ -11,9 +11,9 @@ namespace ONI_MP.Patches.World
 	internal class Operational_Patches
 	{
 
-        [HarmonyPatch(typeof(Operational), nameof(Operational.OnSpawn))]
-        public class Operational_OnSpawn_Patch
-        {
+        [HarmonyPatch(typeof(Operational), nameof(Operational.OnPrefabInit))]
+        public class Operational_OnPrefabInit_Patch
+		{
             public static void Postfix(Operational __instance)
             {
                 __instance.gameObject.AddOrGet<ClientReceiver_Operational>();
