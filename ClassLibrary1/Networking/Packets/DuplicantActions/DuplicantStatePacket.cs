@@ -46,17 +46,12 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 			if (MultiplayerSession.IsHost)
 				return;
 
-			if (!NetworkIdentityRegistry.TryGet(NetId, out var entity))
+			if (!NetworkIdentityRegistry.TryGetComponent<DuplicantClientController>(NetId, out var controller))
 			{
 				DebugConsole.LogWarning($"[DuplicantStatePacket] NetId {NetId} not found");
 				return;
 			}
-
-			var clientController = entity.GetComponent<DuplicantClientController>();
-			if (clientController != null)
-			{
-				clientController.OnStateReceived(ActionState, TargetCell, CurrentAnimName, AnimElapsedTime, IsWorking, HeldItemSymbol);
-			}
+			controller.OnStateReceived(ActionState, TargetCell, CurrentAnimName, AnimElapsedTime, IsWorking, HeldItemSymbol);
 		}
 	}
 

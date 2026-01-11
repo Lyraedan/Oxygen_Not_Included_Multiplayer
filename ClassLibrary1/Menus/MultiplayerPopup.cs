@@ -76,7 +76,7 @@ public static class MultiplayerPopup
 
 	private static void HostLastSave()
 	{
-		MultiplayerOverlay.Show(MP_STRINGS.UI.MP_OVERLAY.HOST.STARTINGHOSTING);
+		MultiplayerOverlay.Show(ONI_MP.STRINGS.UI.MP_OVERLAY.HOST.STARTINGHOSTING);
 		string text;
 		if (!KPlayerPrefs.HasKey("AutoResumeSaveFile"))
 		{

@@ -2,6 +2,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -42,10 +43,7 @@ namespace ONI_MP.Networking.Packets.World
 			// Set the progress on each research type via reflection
 			try
 			{
-                // Get the PointsByTypeID dictionary
-                var pointsDict = HarmonyLib.Traverse.Create(techInstance.progressInventory)
-					.Field("PointsByTypeID")
-					.GetValue<Dictionary<string, float>>();
+				var pointsDict = techInstance.progressInventory.PointsByTypeID;
 				
 				if (pointsDict != null)
 				{
@@ -54,7 +52,7 @@ namespace ONI_MP.Networking.Packets.World
 						float cost = tech.costsByResearchTypeID[researchType];
 						float newPoints = cost * Progress;
 						
-						pointsDict[researchType] = newPoints;
+						pointsDict[researchType] = Mathf.RoundToInt(newPoints);
 					}
 				}
 				
@@ -64,9 +62,7 @@ namespace ONI_MP.Networking.Packets.World
 					object researchScreen = null;
 					if (ManagementMenu.Instance != null)
 					{
-						researchScreen = HarmonyLib.Traverse.Create(ManagementMenu.Instance)
-							.Field("researchScreen")
-							.GetValue();
+						researchScreen = ManagementMenu.Instance.researchScreen;
 					}
 					
 					if (researchScreen != null)

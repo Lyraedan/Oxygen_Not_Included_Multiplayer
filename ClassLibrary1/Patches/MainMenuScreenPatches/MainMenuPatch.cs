@@ -3,6 +3,7 @@ using ONI_MP;
 using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
+using ONI_MP.UI;
 using Steamworks;
 using System;
 using System.Linq;
@@ -15,10 +16,10 @@ internal static class MainMenuPatch
 {
 	private static GameObject staticBgGO;
 
-	private static void Postfix(MainMenu __instance)
+	public static void Postfix(MainMenu __instance)
 	{
 		int normalFontSize = 20;
-		var normalStyle = __instance.normalButtonStyle; 
+		var normalStyle = __instance.normalButtonStyle;
 
 		var buttonInfoType = __instance.GetType().GetNestedType("ButtonInfo", BindingFlags.NonPublic);
 
@@ -26,9 +27,11 @@ internal static class MainMenuPatch
 
 		// Multiplayer - Opens the multiplayer screen with all options
 		var multiplayerInfo = CreateButtonInfo(
-				MP_STRINGS.UI.MAINMENU.MULTIPLAYER.LABEL,
+				ONI_MP.STRINGS.UI.MAINMENU.MULTIPLAYER.LABEL,
 				new System.Action(() =>
 				{
+					UnityMultiplayerScreen.OpenFromMainMenu();
+					return;
 					// Open the multiplayer screen
 					var canvas = UnityEngine.Object.FindObjectOfType<Canvas>();
 					if (canvas != null)
@@ -70,12 +73,12 @@ internal static class MainMenuPatch
 			var children = buttonParent.GetComponentsInChildren<KButton>(true);
 
 			// Find Multiplayer button
-			var multiplayerBtn = children.FirstOrDefault(b => b.GetComponentInChildren<LocText>()?.text.ToUpper().Contains(MP_STRINGS.UI.MAINMENU.MULTIPLAYER.LABEL) == true);
+			var multiplayerBtn = children.FirstOrDefault(b => b.GetComponentInChildren<LocText>()?.text.ToUpper().Contains(ONI_MP.STRINGS.UI.MAINMENU.MULTIPLAYER.LABEL) == true);
 
 			int siblingIndex = children.Length >= 10 ? 4 : 3;
-            multiplayerBtn.transform.SetSiblingIndex(siblingIndex);
-        }
-    }
+			multiplayerBtn.transform.SetSiblingIndex(siblingIndex);
+		}
+	}
 
 	private static void UpdateLogo()
 	{
@@ -213,14 +216,15 @@ internal static class MainMenuPatch
 					promoContainer.GetComponent<RectTransform>().anchoredPosition.x + 925f,
 					30f
 			);
-		} else
+		}
+		else
 		{
 			// place left next to promos
-            socialsRect.anchoredPosition = new Vector2(
-                    promoContainer.GetComponent<RectTransform>().anchoredPosition.x - 525f,
-                    30f
-            );
-        }
+			socialsRect.anchoredPosition = new Vector2(
+					promoContainer.GetComponent<RectTransform>().anchoredPosition.x - 525f,
+					30f
+			);
+		}
 
 
 		var layout = socialsContainer.AddComponent<HorizontalLayoutGroup>();
@@ -233,7 +237,7 @@ internal static class MainMenuPatch
 
 		// Example Discord button
 		var discordSprite = ResourceLoader.LoadEmbeddedTexture("ONI_MP.Assets.discord.png");
-		AddSocialButton(socialsContainer.transform, MP_STRINGS.UI.MAINMENU.DISCORD_INFO, "https://discord.gg/jpxveK6mmY", discordSprite);
+		AddSocialButton(socialsContainer.transform, ONI_MP.STRINGS.UI.MAINMENU.DISCORD_INFO, "https://discord.gg/jpxveK6mmY", discordSprite);
 
 		// Automatically resize the container to properly fit the buttons
 		int buttonCount = socialsContainer.transform.childCount;

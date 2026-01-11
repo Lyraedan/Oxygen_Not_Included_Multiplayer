@@ -72,7 +72,7 @@ namespace ONI_MP.Misc
 			return asset;
         }
 
-        public static GameObject InstantiateGameObjectFromBundle(string bundleKey, string prefabName, Transform parent = null, Vector3? position = null, Quaternion? rotation = null)
+        public static GameObject InstantiateGameObjectFromBundle(string bundleKey, string prefabName, Transform parent = null, Vector3? position = null, Quaternion? rotation = null, Vector3? scale = null)
         {
             GameObject prefab = LoadFromBundle<GameObject>(bundleKey, prefabName);
             if (prefab == null)
@@ -84,6 +84,7 @@ namespace ONI_MP.Misc
                 rotation ?? Quaternion.identity,
                 parent
             );
+			instance.transform.localScale = scale ?? Vector3.one;
 
             return instance;
         }

@@ -1,4 +1,5 @@
-﻿using ONI_MP.Networking;
+﻿using ONI_MP.Menus;
+using ONI_MP.Networking;
 using System.Reflection;
 using UnityEngine;
 
@@ -20,6 +21,7 @@ namespace ONI_MP.Components
 		private void Update()
 		{
 			//UpdatePauseButton();
+			NetworkIndicatorsScreen.Update();
 		}
 
 		void UpdatePauseButton()

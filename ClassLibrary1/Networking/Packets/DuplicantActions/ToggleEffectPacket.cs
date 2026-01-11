@@ -3,6 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Patches.Duplicant;
+using Shared.Interfaces.Networking;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,12 +13,16 @@ using System.Threading.Tasks;
 
 namespace ONI_MP.Networking.Packets.DuplicantActions
 {
-	internal class ToggleEffectPacket : IPacket
+	internal class ToggleEffectPacket : IPacket, IBulkablePacket
 	{
 		public int MinionNetId;
 		public string EffectId;
 		public bool IsAdding;
 		public bool ShouldSave;
+
+		public int MaxPackSize => 500;
+
+		public uint IntervalMs => 50;
 
 		public ToggleEffectPacket() { }
 		public ToggleEffectPacket(Effects instance, HashedString toRemove) 
@@ -44,7 +49,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 		public void Serialize(BinaryWriter writer)
 		{
 			writer.Write(MinionNetId);
-			writer.Write(EffectId);
+			writer.Write(EffectId ?? string.Empty);
 			writer.Write(IsAdding);
 			writer.Write(ShouldSave);
 		}

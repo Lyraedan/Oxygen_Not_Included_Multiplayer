@@ -12,6 +12,8 @@ using ONI_MP.Networking.Components;
 using UnityEngine;
 using static STRINGS.UI;
 using Steamworks;
+using ONI_MP.Menus;
+using ONI_MP.Misc;
 
 namespace ONI_MP.DebugTools
 {
@@ -121,7 +123,8 @@ namespace ONI_MP.DebugTools
                 SteamLobby.CreateLobby(onSuccess: () =>
                 {
                     SpeedControlScreen.Instance?.Unpause(false);
-                });
+					Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
+				});
             }
 
             ImGui.SameLine();
@@ -258,10 +261,10 @@ namespace ONI_MP.DebugTools
             ImGui.Text($"Pending Unreliable: {GameClient.GetPendingUnreliable()}");
             ImGui.Text($"Queue Time: {GameClient.GetUsecQueueTime() / 1000}ms");
             ImGui.Spacing();
-            ImGui.Text($"Has Packet Lost: {GameClient.HasPacketLoss()}");
-            ImGui.Text($"Has Jitter: {GameClient.HasNetworkJitter()}");
-            ImGui.Text($"Has Reliable Packet Loss: {GameClient.HasReliablePacketLoss()}");
-            ImGui.Text($"Has Unreliable Packet Loss: {GameClient.HasUnreliablePacketLoss()}");
+            ImGui.Text($"Latency: {Utils.NetworkStateToString(NetworkIndicatorsScreen.latencyState)}");
+            ImGui.Text($"Jitter: {Utils.NetworkStateToString(NetworkIndicatorsScreen.jitterState)}");
+            ImGui.Text($"Packet Loss: {Utils.NetworkStateToString(NetworkIndicatorsScreen.packetlossState)}");
+            ImGui.Text($"Server Performance: {Utils.NetworkStateToString(NetworkIndicatorsScreen.serverPerformanceState)}");
 
             // Sync Statistics (Host only)
             if (MultiplayerSession.IsHost)
@@ -287,11 +290,16 @@ namespace ONI_MP.DebugTools
                 }
             }
         }
+		private string netIdFilter = string.Empty;
 		public void DisplayNetIdHolders()
 		{
 			if (ImGui.CollapsingHeader("Net Id Holders"))
 			{
 				var all_identities = NetworkIdentityRegistry.AllIdentities;
+
+				ImGui.InputText("Filter", ref netIdFilter, 64);
+				ImGui.Separator();
+
 				if (ImGui.BeginTable("net_identity_table", 2,
 						ImGuiTableFlags.Borders |
 						ImGuiTableFlags.RowBg |
@@ -304,13 +312,28 @@ namespace ONI_MP.DebugTools
 
 					foreach (var identity in all_identities)
 					{
+						string identityName = identity.gameObject.name;
+						string identityNetId = identity.NetId.ToString();
+
+						if (!string.IsNullOrEmpty(netIdFilter))
+						{
+							bool matchesType =
+								identityName.IndexOf(netIdFilter, StringComparison.OrdinalIgnoreCase) >= 0;
+
+							bool matchesId =
+								identityNetId.IndexOf(netIdFilter, StringComparison.OrdinalIgnoreCase) >= 0;
+
+							if (!matchesType && !matchesId)
+								continue;
+						}
+
 						ImGui.TableNextRow();
 
 						ImGui.TableSetColumnIndex(0);
-						ImGui.Text(identity.gameObject.name);
+						ImGui.Text(identityName);
 
 						ImGui.TableSetColumnIndex(1);
-						ImGui.Text(identity.NetId.ToString());
+						ImGui.Text(identityNetId);
 					}
 
 					ImGui.EndTable();

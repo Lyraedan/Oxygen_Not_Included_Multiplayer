@@ -21,11 +21,14 @@ namespace ONI_MP.Networking
 		public static CSteamID HostSteamID { get; set; } = CSteamID.Nil;
 
 		public static bool InSession = false;
+		public static bool SessionHasPlayers => InSession && ConnectedPlayers.Count > 1;
 		public static bool NotInSession => !InSession;
 
 		public static bool IsHost => HostSteamID == LocalSteamID;
 
 		public static bool IsClient => InSession && !IsHost;
+
+		public static bool IsHostInSession => IsHost && InSession;
 
 		public static readonly Dictionary<CSteamID, PlayerCursor> PlayerCursors = new Dictionary<CSteamID, PlayerCursor>();
 		

@@ -89,7 +89,9 @@ namespace ONI_MP.Networking
         /// </summary>
         public static string FormatCodeForDisplay(string code)
         {
-            if (string.IsNullOrEmpty(code) || code.Length <= 4)
+            return code;
+
+			if (string.IsNullOrEmpty(code) || code.Length <= 4)
                 return code;
 
             // Split into groups of 4 for readability: ABCD-EFGH-IJKL

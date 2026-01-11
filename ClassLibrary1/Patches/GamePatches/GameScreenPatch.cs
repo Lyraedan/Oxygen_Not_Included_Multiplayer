@@ -1,5 +1,8 @@
 ﻿using HarmonyLib;
+using ONI_MP.Menus;
+using ONI_MP.Misc;
 using ONI_MP.UI;
+using UnityEngine;
 
 namespace ONI_MP.Patches.GamePatches
 {
@@ -8,7 +11,11 @@ namespace ONI_MP.Patches.GamePatches
 	{
 		static void Postfix(GameScreenManager __instance)
 		{
-			ChatScreen.Show();
+			// Setup indicators
+			NetworkIndicatorsScreen.Show();
+
+			// Setup chat window
+            ChatScreen.Show();
 		}
 	}
 

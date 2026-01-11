@@ -34,7 +34,7 @@ namespace ONI_MP.Networking
 			if (!identities.ContainsKey(netId))
 			{
 				identities[netId] = entity;
-				DebugConsole.Log($"[NetEntityRegistry] Registered existing entity with net id: {netId}");
+				//DebugConsole.Log($"[NetEntityRegistry] Registered existing entity with net id: {netId}");
 			}
 			//else
 			//{
@@ -76,7 +76,14 @@ namespace ONI_MP.Networking
 				return false;
 			if(ni.gameObject.IsNullOrDestroyed())
 				return false;
-			return !ni.gameObject.TryGetComponent<T>(out component);
+			return ni.gameObject.TryGetComponent<T>(out component);
+		}
+		public static bool TryGetComponent<T>(NetworkIdentity ni, out T component)
+		{
+			component = default(T);
+			if (ni.IsNullOrDestroyed() || ni.gameObject.IsNullOrDestroyed())
+				return false;
+			return ni.gameObject.TryGetComponent<T>(out component);
 		}
 
 		public static void Clear()

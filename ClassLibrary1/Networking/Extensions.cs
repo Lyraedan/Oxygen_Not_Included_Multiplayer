@@ -6,11 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
+
 namespace ONI_MP.Networking
 {
 	public static class Extensions
 	{
-		public static NetworkIdentity GetNetIdentity(this KMonoBehaviour behaviour)
+		public static NetworkIdentity GetNetIdentity(this MonoBehaviour behaviour)
 		{
 			if (behaviour.IsNullOrDestroyed() || behaviour.gameObject.IsNullOrDestroyed())
 			{
@@ -30,7 +31,7 @@ namespace ONI_MP.Networking
 
 			return go.AddComponent<NetworkIdentity>();
 		}
-		public static int GetNetId(this KMonoBehaviour behaviour)
+		public static int GetNetId(this MonoBehaviour behaviour)
 		{
 			var identity = GetNetIdentity(behaviour);
 			if (identity == null)

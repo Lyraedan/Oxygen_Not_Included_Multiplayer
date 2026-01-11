@@ -5,23 +5,13 @@ using System.IO;
 namespace ONI_MP.Networking.Components
 {
 	[SerializationConfig(MemberSerialization.OptIn)]
-	public class NetworkIdentity : KMonoBehaviour, ISaveLoadableDetails
+	public class NetworkIdentity : KMonoBehaviour
 	{
 		[Serialize]
-		public int NetId;
+		public int NetId = 0;
 
 		[SkipSaveFileSerialization]
 		private bool IsRegistered = false;
-
-		public void Serialize(BinaryWriter writer)
-		{
-			//DebugConsole.Log($"[NetworkIdentity] SERIALIZING: NetId = {NetId} on {gameObject.name}");
-		}
-
-		public void Deserialize(IReader reader)
-		{
-			//DebugConsole.Log($"[NetworkIdentity] DESERIALIZED: NetId = {NetId} on {gameObject.name}");
-		}
 
 		public override void OnSpawn()
 		{
@@ -52,6 +42,14 @@ namespace ONI_MP.Networking.Components
 						// DebugConsole.Log($"[NetworkIdentity] Generated Deterministic NetId {detId} for building {gameObject.name}");
 					}
 				}
+				else if(TryGetComponent<Workable>(out var workable))
+				{
+					int detId = NetIdHelper.GetDeterministicWorkableId(gameObject);
+					if (detId != 0)
+					{
+						NetId = detId;
+					}
+				}
 				else
 				{
 					int detId = NetIdHelper.GetDeterministicEntityId(gameObject);
@@ -61,6 +59,7 @@ namespace ONI_MP.Networking.Components
 						// DebugConsole.Log($"[NetworkIdentity] Generated Deterministic NetId {detId} for building {gameObject.name}");
 					}
 				}
+				DebugConsole.Log($"[NetworkIdentity] Generated Deterministic NetId {NetId} for {gameObject.name}");
 			}
 
 			if (NetId == 0)

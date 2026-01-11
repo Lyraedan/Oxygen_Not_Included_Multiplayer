@@ -34,7 +34,7 @@ namespace ONI_MP.Networking.Packets.Core
 		public static void Sync()
 		{
 			GameClient.IsHardSyncInProgress = true;
-			MultiplayerOverlay.Show(MP_STRINGS.UI.MP_OVERLAY.SYNC.HARDSYNC_INPROGRESS);
+			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.SYNC.HARDSYNC_INPROGRESS);
 
 			// This is incredibly stupid...
 			GameClient.CacheCurrentServer();
@@ -42,7 +42,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 			PauseScreen.TriggerQuitGame(); // Force exit to frontend
 
-			MultiplayerOverlay.Show(MP_STRINGS.UI.MP_OVERLAY.SYNC.HARDSYNC_INPROGRESS);
+			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.SYNC.HARDSYNC_INPROGRESS);
 			NetworkIdentityRegistry.Clear();
 			GameClient.ReconnectFromCache();
 		}

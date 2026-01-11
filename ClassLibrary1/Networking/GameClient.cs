@@ -1,7 +1,6 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
-using ONI_MP.Networking.Compatibility;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Handshake;
@@ -88,7 +87,7 @@ namespace ONI_MP.Networking
 
 			if (showLoadingScreen)
 			{
-				MultiplayerOverlay.Show(string.Format(MP_STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTING_TO_HOST, SteamFriends.GetFriendPersonaName(hostSteamId)));
+				MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTING_TO_HOST, SteamFriends.GetFriendPersonaName(hostSteamId)));
 			}
 
 			DebugConsole.Log($"[GameClient] Attempting ConnectP2P to host {hostSteamId}...");
@@ -239,21 +238,21 @@ namespace ONI_MP.Networking
 
 			if (!SaveHelper.SteamModListSynced(packet.ActiveModIds, out var notEnabled, out var notDisabled, out var missingMods))
 			{
-				string text = MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TEXT + "\n\n";
+				string text = STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TEXT + "\n\n";
 				if (notEnabled.Any())
-					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TOENABLE, notEnabled.Count) +"\n";
+					text += string.Format(STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TOENABLE, notEnabled.Count) +"\n";
 				if (notDisabled.Any())
-					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TODISABLE, notDisabled.Count) + "\n";
+					text += string.Format(STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TODISABLE, notDisabled.Count) + "\n";
 				if (missingMods.Any())
-					text += string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.MISSING, missingMods.Count) + "\n";
+					text += string.Format(STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.MISSING, missingMods.Count) + "\n";
 
 
-				DialogUtil.CreateConfirmDialogFrontend(MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TITLE, text,
-	   MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.CONFIRM_SYNC,
+				DialogUtil.CreateConfirmDialogFrontend(STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.TITLE, text,
+	   STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.CONFIRM_SYNC,
 				() => { SaveHelper.SyncModsAndRestart(notEnabled, notDisabled, missingMods); },
-				MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.CANCEL,
+				STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.CANCEL,
 				BackToMainMenu,
-				MP_STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.DENY_SYNC,
+				STRINGS.UI.MP_OVERLAY.SYNC.MODSYNC.DENY_SYNC,
 				ContinueConnectionFlow);
 				DebugConsole.Log("mods not synced!");
 				return;
@@ -332,7 +331,7 @@ namespace ONI_MP.Networking
 				DebugConsole.Log("[GameClient] PacketHandler.readyToProcess = true (menu)");
 
 				// Show overlay with localized message
-				MultiplayerOverlay.Show(string.Format(MP_STRINGS.UI.MP_OVERLAY.CLIENT.WAITING_FOR_PLAYER, SteamFriends.GetFriendPersonaName(MultiplayerSession.HostSteamID)));
+				MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.WAITING_FOR_PLAYER, SteamFriends.GetFriendPersonaName(MultiplayerSession.HostSteamID)));
 				if (!IsHardSyncInProgress)
 				{
 					DebugConsole.Log("[GameClient] Requesting save file from host");
@@ -414,15 +413,13 @@ namespace ONI_MP.Networking
 
 		private static IEnumerator ShowMessageAndReturnToTitle()
 		{
-			MultiplayerOverlay.Show(MP_STRINGS.UI.MP_OVERLAY.CLIENT.LOST_CONNECTION);
+			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.CLIENT.LOST_CONNECTION);
 			//SaveHelper.CaptureWorldSnapshot();
 			yield return new WaitForSeconds(3f);
 			//PauseScreen.TriggerQuitGame(); // Force exit to frontend, getting a crash here
 			if (Utils.IsInGame())
 			{
-				Game.Instance.SetIsLoading();
-				Grid.CellCount = 0;
-				Sim.Shutdown();
+				Utils.ForceQuitGame();
 			}
 			App.LoadScene("frontend");
 
@@ -486,48 +483,6 @@ namespace ONI_MP.Networking
 				return -1;
 
 			return connectionHealth.Value.m_nPing;
-		}
-
-		public static bool HasPacketLoss()
-		{
-			if (!connectionHealth.HasValue)
-				return false;
-
-			float localQuality = GetLocalPacketQuality();
-			return localQuality < 0.7f;
-		}
-
-		public static bool HasReliablePacketLoss()
-		{
-			if (!connectionHealth.HasValue)
-				return false;
-
-			return connectionHealth.Value.m_cbSentUnackedReliable > 0;
-		}
-
-		public static bool HasSevereReliableLoss()
-		{
-			if (!connectionHealth.HasValue)
-				return false;
-
-			return connectionHealth.Value.m_cbSentUnackedReliable > 32 * 1024; // 32 KB backlog
-		}
-
-		public static bool HasUnreliablePacketLoss()
-		{
-			if (!connectionHealth.HasValue)
-				return false;
-
-			return connectionHealth.Value.m_cbPendingUnreliable > 0;
-		}
-
-		public static bool HasNetworkJitter()
-		{
-			if (!connectionHealth.HasValue)
-				return false;
-
-			// > 50ms queued
-			return (long)connectionHealth.Value.m_usecQueueTime > 50_000;
 		}
 
 		public static int GetUnackedReliable()
@@ -607,75 +562,6 @@ namespace ONI_MP.Networking
 
 			// Continue with normal connection flow
 			ContinueConnectionFlow();
-		}
-
-		public static void OnModVerificationRejected(string reason, string[] missingMods, string[] extraMods, string[] versionMismatches, ulong[] steamModIds)
-		{
-			DebugConsole.Log($"[GameClient] Mod verification REJECTED by host: {reason}");
-			DebugConsole.Log($"[GameClient] Steam mods available for auto-install: {steamModIds?.Length ?? 0}");
-			DebugConsole.Log("[GameClient] Disconnecting client due to mod incompatibility...");
-
-			// Show detailed error to user with option to install mods
-			ShowModIncompatibilityError(reason, missingMods, extraMods, versionMismatches, steamModIds);
-
-			// Disconnect from host immediately
-			Disconnect();
-
-			DebugConsole.Log("[GameClient] Client disconnected successfully due to mod incompatibility");
-		}
-
-		private static void ShowModIncompatibilityError(string reason, string[] missingMods, string[] extraMods, string[] versionMismatches, ulong[] steamModIds)
-		{
-			try
-			{
-				// DO NOT close MultiplayerOverlay here - we need it to show the error message
-				// MultiplayerOverlay.Close(); // REMOVED - was causing popup to disappear
-
-				// Build detailed error message for console log
-				var errorMessage = $"Mod compatibility check failed:\n{reason}\n\n";
-
-				if (missingMods != null && missingMods.Length > 0)
-				{
-					errorMessage += $"Missing mods (install these):\n";
-					foreach (var mod in missingMods)
-					{
-						errorMessage += $"• {mod}\n";
-					}
-					errorMessage += "\n";
-				}
-
-				if (extraMods != null && extraMods.Length > 0)
-				{
-					errorMessage += $"Extra mods (disable these):\n";
-					foreach (var mod in extraMods)
-					{
-						errorMessage += $"• {mod}\n";
-					}
-					errorMessage += "\n";
-				}
-
-				if (versionMismatches != null && versionMismatches.Length > 0)
-				{
-					errorMessage += $"Version mismatches (update these):\n";
-					foreach (var mod in versionMismatches)
-					{
-						errorMessage += $"• {mod}\n";
-					}
-					errorMessage += "\n";
-				}
-
-				errorMessage += "Please ensure your mods match the host's configuration.";
-
-				// Log error to console
-				DebugConsole.Log($"[GameClient] {errorMessage}");
-
-				// Show UI popup with mod compatibility details with auto-install option - this will keep overlay visible
-				ModCompatibilityPopup.ShowIncompatibilityError(reason, missingMods, extraMods, versionMismatches, steamModIds);
-			}
-			catch (Exception ex)
-			{
-				DebugConsole.LogWarning($"[GameClient] Error showing mod incompatibility dialog: {ex.Message}");
-			}
 		}
 
 		public static void DisableMessageHandlers()

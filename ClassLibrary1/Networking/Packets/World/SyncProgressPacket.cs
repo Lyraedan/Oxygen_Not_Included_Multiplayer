@@ -81,7 +81,7 @@ namespace ONI_MP.Networking.Packets.World
             try
             {
                 var progressLines = new List<string>();
-                progressLines.Add(MP_STRINGS.UI.MP_OVERLAY.SYNC.CLIENT_SYNC_PROGRESS);
+                progressLines.Add(STRINGS.UI.MP_OVERLAY.SYNC.CLIENT_SYNC_PROGRESS);
                 progressLines.Add("");
 
                 foreach (var kvp in ClientProgress)
@@ -99,15 +99,15 @@ namespace ONI_MP.Networking.Packets.World
                         clientName = SteamFriends.GetFriendPersonaName(client);
                     }
 
-                    string clientLine = string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.CLIENT_PROGRESS, clientName, progressBar, info.ProgressPercent);
+                    string clientLine = string.Format(STRINGS.UI.MP_OVERLAY.SYNC.CLIENT_PROGRESS, clientName, progressBar, info.ProgressPercent);
 
                     if (info.ProgressPercent < 100)
                     {
-                        clientLine += $" {string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.CLIENT_CHUNK_SYNC_DATA, info.ReceivedChunks, info.TotalChunks)}";
+                        clientLine += $" {string.Format(STRINGS.UI.MP_OVERLAY.SYNC.CLIENT_CHUNK_SYNC_DATA, info.ReceivedChunks, info.TotalChunks)}";
                     }
                     else
                     {
-                        clientLine += $" {MP_STRINGS.UI.MP_OVERLAY.SYNC.CLIENT_SYNC_COMPLETE}";
+                        clientLine += $" {STRINGS.UI.MP_OVERLAY.SYNC.CLIENT_SYNC_COMPLETE}";
                     }
 
                     progressLines.Add(clientLine);
@@ -127,7 +127,7 @@ namespace ONI_MP.Networking.Packets.World
                 if (allComplete && ClientProgress.Count > 0)
                 {
                     progressLines.Add("");
-                    progressLines.Add(MP_STRINGS.UI.MP_OVERLAY.SYNC.ALL_CLIENTS_SYNCED);
+                    progressLines.Add(STRINGS.UI.MP_OVERLAY.SYNC.ALL_CLIENTS_SYNCED);
 
                     // Clear progress display after completion
                     // Note: Could schedule removal after delay, but keeping simple for now
@@ -151,12 +151,12 @@ namespace ONI_MP.Networking.Packets.World
             for (int i = 0; i < barLength; i++)
             {
                 if (i < filled)
-                    bar += MP_STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR_FILLED;  // ASCII - funciona sempre
+                    bar += STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR_FILLED;  // ASCII - funciona sempre
                 else
-                    bar += MP_STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR_EMPTY;  // ASCII - funciona sempre
+                    bar += STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR_EMPTY;  // ASCII - funciona sempre
             }
 
-            return string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR, bar);
+            return string.Format(STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR, bar);
         }
 
         /// <summary>

@@ -43,12 +43,13 @@
 
 	<ItemGroup>
 		<EmbeddedResource Include="Assets\oni_together_logo.png" />
-		<!--<EmbeddedResource Include="Assets\background-static.png" />-->
 		<EmbeddedResource Include="Assets\discord.png" />
 		<EmbeddedResource Include="Assets\bundles\playercursor_win.bundle" />
 		<EmbeddedResource Include="Assets\bundles\playercursor_mac.bundle" />
 		<EmbeddedResource Include="Assets\bundles\playercursor_lin.bundle" />
-		<!--<EmbeddedResource Include="Assets\cloud_status.png" />-->
+		<EmbeddedResource Include="Assets\bundles\networkindicators_lin.bundle" />
+		<EmbeddedResource Include="Assets\bundles\networkindicators_mac.bundle" />
+		<EmbeddedResource Include="Assets\bundles\networkindicators_win.bundle" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -57,5 +58,6 @@
 
 	<ItemGroup>
 	  <Folder Include="ModAssets\translations\" />
+	  <Folder Include="Networking\Packets\BulkDataPackets\" />
 	</ItemGroup>
 </Project>

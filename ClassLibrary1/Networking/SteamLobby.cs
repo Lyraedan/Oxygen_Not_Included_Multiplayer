@@ -14,6 +14,12 @@ namespace ONI_MP.Networking
 {
 	public static class SteamLobby
 	{
+
+		public static readonly int LOBBY_SIZE_MIN = 2;
+		public static readonly int LOBBY_SIZE_DEFAULT = 4;
+		public static readonly int LOBBY_SIZE_MAX = 16;
+
+
 		private static Callback<LobbyCreated_t> _lobbyCreated;
 		private static Callback<GameLobbyJoinRequested_t> _lobbyJoinRequested;
 		private static Callback<LobbyEnter_t> _lobbyEntered;
@@ -118,6 +124,7 @@ namespace ONI_MP.Networking
 				SteamMatchmaking.SetLobbyData(CurrentLobby, "hostname", SteamFriends.GetPersonaName());
 				bool isPrivate = Configuration.Instance.Host.Lobby.IsPrivate;
 				SteamMatchmaking.SetLobbyData(CurrentLobby, "visibility", isPrivate ? "private" : "public");
+				SteamMatchmaking.SetLobbyData(CurrentLobby, "is_spacedout", DlcManager.IsExpansion1Active() ? "1" : "0");
 
 				// Generate and store lobby code
 				CurrentLobbyCode = LobbyCodeHelper.GenerateCode(CurrentLobby);
@@ -170,9 +177,8 @@ namespace ONI_MP.Networking
 
             if (hasPassword == "1")
             {
-                // Display password entry
-                var canvas = UnityEngine.Object.FindObjectOfType<Canvas>();
-                LobbyBrowserScreen.ShowPasswordDialog(canvas.transform, lobbyId);
+				DebugConsole.Log("CheckLobbyPasswordAfterDelay - lobby requires password");
+                UnityPasswordInputDialogueUI.ShowPasswordDialogueFor(lobbyId);
             }
             else
             {
@@ -225,7 +231,7 @@ namespace ONI_MP.Networking
                 }
 
 				DebugConsole.Log($"[SteamLobby] {name} joined the lobby.");
-				ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(MP_STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_JOINED, name));
+				ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_JOINED, name));
 				ChatScreen.QueueMessage(pending);
 			}
 
@@ -240,7 +246,7 @@ namespace ONI_MP.Networking
 
 				RefreshLobbyMembers();
 				DebugConsole.Log($"[SteamLobby] {name} left the lobby.");
-                ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(MP_STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, name));
+                ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, name));
                 ChatScreen.QueueMessage(pending);
 			}
 		}
@@ -478,7 +484,7 @@ namespace ONI_MP.Networking
 			SteamMatchmaking.AddRequestLobbyListStringFilter("game_id", "oni_multiplayer", ELobbyComparison.k_ELobbyComparisonEqual);
 			
 			// Limit results
-			SteamMatchmaking.AddRequestLobbyListResultCountFilter(50);
+			//SteamMatchmaking.AddRequestLobbyListResultCountFilter(100);
 
 			var handle = SteamMatchmaking.RequestLobbyList();
 			_lobbyListCallResult = CallResult<LobbyMatchList_t>.Create(OnLobbyListReceived);
@@ -506,11 +512,6 @@ namespace ONI_MP.Networking
 				if (!lobbyId.IsValid())
 					continue;
 
-				// Failsafe ignore "private" lobbies
-				string visibility = SteamMatchmaking.GetLobbyData(lobbyId, "visibility");
-				//if (visibility.Equals("private"))
-				//	continue;
-
 				// Get host Steam ID
 				CSteamID hostSteamId = CSteamID.Nil;
 				string hostStr = SteamMatchmaking.GetLobbyData(lobbyId, "host");
@@ -520,11 +521,15 @@ namespace ONI_MP.Networking
 				}
 
 				// Check if host is a friend
-				bool isFriend = hostSteamId.IsValid() && 
-					SteamFriends.HasFriend(hostSteamId, EFriendFlags.k_EFriendFlagImmediate);
+				bool isFriend = hostSteamId.IsValid() && SteamFriends.HasFriend(hostSteamId, EFriendFlags.k_EFriendFlagImmediate);
 
-				// Estimate ping to host using their stored ping location
-				int pingMs = -1;
+                // Failsafe ignore "private" lobbies unless we're friends with the host
+                string visibility = SteamMatchmaking.GetLobbyData(lobbyId, "visibility");
+                if (visibility.Equals("private") && !isFriend)
+                    continue;
+
+                // Estimate ping to host using their stored ping location
+                int pingMs = -1;
 				string hostPingLocation = SteamMatchmaking.GetLobbyData(lobbyId, "host_ping_location");
 				if (!string.IsNullOrEmpty(hostPingLocation))
 				{

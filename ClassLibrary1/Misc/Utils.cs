@@ -1,5 +1,7 @@
 ﻿using ONI_MP.DebugTools;
+using ONI_MP.Menus;
 using ONI_MP.Misc.World;
+using ONI_MP.Networking;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -17,6 +19,15 @@ namespace ONI_MP.Misc
 		/// </summary>
 		public static int MaxSteamNetworkingSocketsMessageSizeSend = 512 * 1024;
 
+		/// <summary>
+		/// Force quites the game without the Klei metrics that can cause crashes
+		/// </summary>
+		public static void ForceQuitGame()
+		{
+            Game.Instance.SetIsLoading();
+            Grid.CellCount = 0;
+            Sim.Shutdown();
+        }
 		public static void LogHierarchy(Transform root, string prefix = "")
 		{
 			if (root == null)
@@ -33,7 +44,28 @@ namespace ONI_MP.Misc
 			}
 		}
 
-		public static void Inject<T>(GameObject prefab) where T : KMonoBehaviour
+        public static GameObject FindChild(this GameObject root, string path)
+        {
+            var t = root.transform.Find(path);
+            return t != null ? t.gameObject : null;
+        }
+
+        public static string NetworkStateToString(NetworkIndicatorsScreen.NetworkState state)
+        {
+            switch (state)
+            {
+                case NetworkIndicatorsScreen.NetworkState.GOOD:
+                    return "Fine";
+                case NetworkIndicatorsScreen.NetworkState.DEGRADED:
+                    return "Degraded";
+                case NetworkIndicatorsScreen.NetworkState.BAD:
+                    return "Poor";
+                default:
+                    return "Unknown";
+            }
+        }
+
+        public static void Inject<T>(GameObject prefab) where T : KMonoBehaviour
 		{
 			if (prefab.GetComponent<T>() == null)
 			{
@@ -76,6 +108,15 @@ namespace ONI_MP.Misc
 			return Localization.FontAsset;
 		}
 
+		public static string ColorText(string text, Color color)
+		{
+			return ColorText(text, Util.ToHexString(color));
+		}
+		public static string ColorText(string text, string hex)
+		{
+			hex = hex.Replace("#", string.Empty);
+			return "<color=#" + hex + ">" + text + "</color>";
+		}
 		public static List<ChunkData> CollectChunks(int startX, int startY, int chunkSize, int numChunksX, int numChunksY)
 		{
 			var chunks = new List<ChunkData>();
@@ -87,6 +128,38 @@ namespace ONI_MP.Misc
 					chunks.Add(CreateChunk(x0, y0, chunkSize, chunkSize));
 				}
 			return chunks;
+		}
+		/// <summary>
+		/// Checks if the mono behavior sits on a duplicant in a host game
+		/// </summary>
+		/// <param name="behavior"></param>
+		/// <returns></returns>
+		public static bool IsHostMinion(MonoBehaviour behavior)
+		{
+			if (!IsHostEntity(behavior))
+				return false;
+			if(!behavior.TryGetComponent<KPrefabID>(out var kprefab) ||  !kprefab.HasTag(GameTags.BaseMinion))
+				return false;
+			return true;
+		}
+		public static bool IsHostEntity(MonoBehaviour behavior)
+		{
+			if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
+				return false;
+			if (behavior.IsNullOrDestroyed() || behavior.gameObject.IsNullOrDestroyed())
+				return false;
+			return true;
+		}
+		public static void RefreshIfSelected(MonoBehaviour behavior)
+		{
+			if (behavior.IsNullOrDestroyed() || !behavior.TryGetComponent<KSelectable>(out var selectable))
+				return;
+
+			if(SelectTool.Instance?.selected == selectable)
+			{
+				SelectTool.Instance.Select(null);
+				SelectTool.Instance.Select(selectable);
+			}
 		}
 
 		private static ChunkData CreateChunk(int x0, int y0, int width, int height)

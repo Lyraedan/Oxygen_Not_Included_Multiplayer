@@ -79,7 +79,7 @@ public static class SaveHelper
 		try
 		{
 			if (msg == null)
-				msg = MP_STRINGS.UI.MP_OVERLAY.CLIENT.LOST_CONNECTION;
+				msg = ONI_MP.STRINGS.UI.MP_OVERLAY.CLIENT.LOST_CONNECTION;
 
 			MultiplayerOverlay.Show(msg);
 		}
@@ -244,15 +244,15 @@ public static class SaveHelper
 		if (spacedOutSave != DlcManager.IsExpansion1Active())
 		{
 			errorMsg = spacedOutSave
-				? MP_STRINGS.UI.MP_OVERLAY.SYNC.DLCSYNC.WRONGDLC_BASEGAME
-				: MP_STRINGS.UI.MP_OVERLAY.SYNC.DLCSYNC.WRONGDLC_SPACEDOUT;
+				? ONI_MP.STRINGS.UI.MP_OVERLAY.SYNC.DLCSYNC.WRONGDLC_BASEGAME
+				: ONI_MP.STRINGS.UI.MP_OVERLAY.SYNC.DLCSYNC.WRONGDLC_SPACEDOUT;
 			return false;
 		}
 
 
 		if (missingDLCs.Any())
 		{
-			errorMsg = MP_STRINGS.UI.MP_OVERLAY.SYNC.DLCSYNC.WRONGDLC_LISTHEADER + "\n" + string.Join(", ", missingDLCs.Select(id => DlcManager.GetDlcTitleNoFormatting(id)));
+			errorMsg = ONI_MP.STRINGS.UI.MP_OVERLAY.SYNC.DLCSYNC.WRONGDLC_LISTHEADER + "\n" + string.Join(", ", missingDLCs.Select(id => DlcManager.GetDlcTitleNoFormatting(id)));
 			return false;
 		}
 		return true;
@@ -373,7 +373,7 @@ public static class SaveHelper
 
 		if (!File.Exists(targetFile))
 		{
-			MultiplayerOverlay.Show(MP_STRINGS.UI.MP_OVERLAY.CLIENT.MISSING_SAVE_FILE);
+			MultiplayerOverlay.Show(ONI_MP.STRINGS.UI.MP_OVERLAY.CLIENT.MISSING_SAVE_FILE);
 			DebugConsole.LogError($"[SaveHelper] Could not find file to load: {targetFile}");
 			return;
 		}

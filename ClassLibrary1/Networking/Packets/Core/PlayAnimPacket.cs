@@ -2,74 +2,73 @@
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Patches.KleiPatches;
+using Shared.Interfaces.Networking;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using UnityEngine;
 
-public class PlayAnimPacket : IPacket
+public class PlayAnimPacket : IPacket, IBulkablePacket
 {
+
+	public PlayAnimPacket() { }
+	public PlayAnimPacket(int targetNetId, HashedString[] anims, bool queue, KAnim.PlayMode mode, float speed, float offset)
+	{
+		NetId = targetNetId;
+		AnimHashes = anims;
+		IsQueue = queue;
+		Mode = mode;
+		Speed = speed;
+		TimeOffset = offset;
+		TimeStamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+	}
+
 	public int NetId;
-	public bool IsMulti;
-	public List<int> AnimHashes = new List<int>();  // For multi
-	public int SingleAnimHash;                      // For single
+	public float TimeStamp;
+	public HashedString[] AnimHashes = [];
 	public KAnim.PlayMode Mode;
 	public float Speed;
-	public float Offset;
+	public float TimeOffset;
 	public bool IsQueue; // Supports Queue()
+	bool MultipleAnims => AnimHashes.Count() > 1;
 
-	// Static reflection cache
-	private static readonly FieldInfo forceRebuildField =
-			typeof(KBatchedAnimController).GetField("_forceRebuild", BindingFlags.Instance | BindingFlags.NonPublic);
+    public int MaxPackSize => 500;
 
-	private static readonly MethodInfo suspendUpdatesMethod =
-			typeof(KBatchedAnimController).GetMethod("SuspendUpdates", BindingFlags.Instance | BindingFlags.NonPublic);
+    public uint IntervalMs => 50;
 
-	private static readonly MethodInfo configureUpdateListenerMethod =
-			typeof(KBatchedAnimController).GetMethod("ConfigureUpdateListener", BindingFlags.Instance | BindingFlags.NonPublic);
-
-	public void Serialize(BinaryWriter writer)
+    public void Serialize(BinaryWriter writer)
 	{
 		writer.Write(NetId);
-		writer.Write(IsMulti);
+		writer.Write(TimeStamp);
 		writer.Write((int)Mode);
 		writer.Write(Speed);
-		writer.Write(Offset);
+		writer.Write(TimeOffset);
 		writer.Write(IsQueue);
 
-		if (IsMulti)
-		{
-			writer.Write(AnimHashes.Count);
-			foreach (var hash in AnimHashes)
-				writer.Write(hash);
-		}
-		else
-		{
-			writer.Write(SingleAnimHash);
-		}
+		writer.Write(AnimHashes.Count());
+		foreach (var hashedString in AnimHashes)
+			writer.Write(hashedString.hash);
 	}
 
 	public void Deserialize(BinaryReader reader)
 	{
 		NetId = reader.ReadInt32();
-		IsMulti = reader.ReadBoolean();
+		TimeStamp = reader.ReadSingle();
 		Mode = (KAnim.PlayMode)reader.ReadInt32();
 		Speed = reader.ReadSingle();
-		Offset = reader.ReadSingle();
+		TimeOffset = reader.ReadSingle();
 		IsQueue = reader.ReadBoolean();
 
-		if (IsMulti)
-		{
-			int count = reader.ReadInt32();
-			AnimHashes = new List<int>(count);
-			for (int i = 0; i < count; i++)
-				AnimHashes.Add(reader.ReadInt32());
-		}
-		else
-		{
-			SingleAnimHash = reader.ReadInt32();
-		}
+		int count = reader.ReadInt32();
+		AnimHashes = new HashedString[count];
+		for (int i = 0; i < count; i++)
+			AnimHashes[i] = new HashedString(reader.ReadInt32());
 	}
+
+	Dictionary<int, float> LastIdUpdates = [];
 
 	public void OnDispatched()
 	{
@@ -79,59 +78,77 @@ public class PlayAnimPacket : IPacket
 		if (!NetworkIdentityRegistry.TryGet(NetId, out var go))
 			return;
 
-		// Check for DuplicantClientController first (for duplicants)
-		var clientController = go.GetComponent<DuplicantClientController>();
-		if (clientController != null)
+		if (LastIdUpdates.TryGetValue(NetId, out var lastTimeStamp) && lastTimeStamp > TimeStamp)
+			return;
+		LastIdUpdates[NetId] = TimeStamp;
+
+
+		if (!AnimHashes.Any())
 		{
-			if (IsMulti)
-			{
-				var hashedStrings = AnimHashes.ConvertAll(hash => new HashedString(hash)).ToArray();
-				clientController.OnAnimationsReceived(hashedStrings, Mode);
-			}
-			else
-			{
-				clientController.OnAnimationReceived(new HashedString(SingleAnimHash), Mode, Speed, IsQueue);
-			}
+			DebugConsole.LogWarning("emtpy anim list dispatched for " + go.name);
 			return;
 		}
 
-		// Fallback: direct animation control for non-duplicant entities
-		if (!go.TryGetComponent(out KAnimControllerBase controller))
+		//// Check for DuplicantClientController first (for duplicants)
+		//var clientController = go.GetComponent<DuplicantClientController>();
+		//if (clientController != null)
+		//{
+		//	if (IsMulti)
+		//	{
+		//		var hashedStrings = AnimHashes.ConvertAll(hash => new HashedString(hash)).ToArray();
+		//		clientController.OnAnimationsReceived(hashedStrings, Mode);
+		//	}
+		//	else
+		//	{
+		//		clientController.OnAnimationReceived(new HashedString(SingleAnimHash), Mode, Speed, IsQueue);
+		//	}
+		//	return;
+		//}
+
+		//// Fallback: direct animation control for non-duplicant entities
+		if (!go.TryGetComponent(out KBatchedAnimController kbac))
 			return;
 
-		if (IsMulti)
+		if (MultipleAnims)
 		{
-			var hashedStrings = AnimHashes.ConvertAll(hash => new HashedString(hash)).ToArray();
-			controller.Play(hashedStrings, Mode);
+			KAnimControllerBase_Patches.AllowAnims();
+			kbac.Play(AnimHashes, Mode);
+			KAnimControllerBase_Patches.ForbidAnims();
 		}
 		else
 		{
 			if (IsQueue)
-				controller.Queue(new HashedString(SingleAnimHash), Mode, Speed, Offset);
+			{
+				KAnimControllerBase_Patches.AllowAnims();
+				kbac.Queue(AnimHashes.FirstOrDefault(), Mode, Speed, TimeOffset);
+				KAnimControllerBase_Patches.ForbidAnims();
+			}
 			else
-				controller.Play(new HashedString(SingleAnimHash), Mode, Speed, Offset);
-		}
+			{
+				KAnimControllerBase_Patches.AllowAnims();
+				kbac.Play(AnimHashes.FirstOrDefault(), Mode, Speed, TimeOffset);
+				KAnimControllerBase_Patches.ForbidAnims();
+			}
 
+		}
+		ForceAnimUpdate(kbac);
 		// Force updates for animation to tick properly
-		ForceAnimUpdate(controller);
 	}
 
-	private void ForceAnimUpdate(KAnimControllerBase controller)
+	private void ForceAnimUpdate(KBatchedAnimController kbac)
 	{
-		if (controller is KBatchedAnimController batched)
+		try
 		{
-			try
-			{
-				batched.SetVisiblity(true);
-				forceRebuildField?.SetValue(batched, true);
-				suspendUpdatesMethod?.Invoke(batched, new object[] { false });
-				configureUpdateListenerMethod?.Invoke(batched, null);
-			}
-			catch (Exception ex)
-			{
-				DebugConsole.LogError($"[PlayAnimPacket] Failed to force anim update for NetId {NetId}: {ex}");
-			}
+			kbac.SetVisiblity(true);
+			kbac.forceRebuild = true;
+			kbac.SuspendUpdates(false);
+			kbac.ConfigureUpdateListener();
 		}
+		catch (Exception ex)
+		{
+			DebugConsole.LogError($"[PlayAnimPacket] Failed to force anim update for NetId {NetId}: {ex}");
+		}
+
 	}
 }
 

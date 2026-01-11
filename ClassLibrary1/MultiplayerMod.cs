@@ -21,10 +21,15 @@ namespace ONI_MP
 		public static readonly Dictionary<string, AssetBundle> LoadedBundles = new Dictionary<string, AssetBundle>();
 
 		public static System.Action OnPostSceneLoaded;
+		public static Harmony Harmony;
 
 		public override void OnLoad(Harmony harmony)
 		{
+			Harmony = harmony;
 			base.OnLoad(harmony);
+
+			ModAssets.LoadAssetBundles();
+
             string logPath = System.IO.Path.Combine(Application.dataPath, "../ONI_MP_Log.txt");
 
 			try
@@ -57,6 +62,7 @@ namespace ONI_MP
 				go.AddComponent<CursorManager>();
 				go.AddComponent<BuildingSyncer>();
 				go.AddComponent<WorldStateSyncer>();
+				go.AddComponent<BulkPacketMonitor>();
 
 				// CHECKPOINT 5
 				System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 5: Pre-Listeners\n");
@@ -78,6 +84,9 @@ namespace ONI_MP
 				DebugConsole.LogError($"[ONI_MP] CRITICAL ERROR IN ONLOAD: {ex.Message}");
 				DebugConsole.LogException(ex);
 			}
+
+
+			RegisterDevTools();
 		}
 
 		void LoadAssetBundles()
@@ -87,7 +96,12 @@ namespace ONI_MP
 															"ONI_MP.Assets.bundles.playercursor_mac.bundle",
 															"ONI_MP.Assets.bundles.playercursor_lin.bundle");
 			LoadAssetBundle("playercursorbundle", cursor_bundle);
-		}
+
+            string network_indicators = GetBundleBasedOnPlatform("ONI_MP.Assets.bundles.networkindicators_win.bundle",
+																 "ONI_MP.Assets.bundles.networkindicators_mac.bundle",
+																 "ONI_MP.Assets.bundles.networkindicators_lin.bundle");
+            LoadAssetBundle("networkindicators", network_indicators);
+        }
 
 		private void SetupListeners()
 		{
@@ -148,6 +162,15 @@ namespace ONI_MP
 				default:
 					return windows_bundle;
 			}
+		}
+
+		private static void RegisterDevTools()
+		{
+#if DEBUG // DevTool is not accessible on mac.
+			var baseMethod = AccessTools.Method(typeof(DevToolManager), "RegisterDevTool");
+			var twitchDevToolRegister = baseMethod.MakeGenericMethod(typeof(DevToolMultiplayer));
+			twitchDevToolRegister.Invoke(DevToolManager.Instance, new object[] { "Mods/MultiplayerMod" });
+#endif
 		}
 	}
 }

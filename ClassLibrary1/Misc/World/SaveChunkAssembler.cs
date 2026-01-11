@@ -92,7 +92,7 @@ namespace ONI_MP.Misc.World
 
 				// Show initial progress bar (0%) to client
 				string initialProgressBar = CreateClientProgressBar(0);
-                string initialDisplay = string.Format(MP_STRINGS.UI.MP_OVERLAY.CLIENT.DOWNLOADING_SAVE_FILE, initialProgressBar, "0", "0", save.TotalChunks);
+                string initialDisplay = string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.DOWNLOADING_SAVE_FILE, initialProgressBar, "0", "0", save.TotalChunks);
 				MultiplayerOverlay.Show(initialDisplay);
 			}
 
@@ -129,7 +129,7 @@ namespace ONI_MP.Misc.World
 
 			// Create visual progress bar for client
 			string progressBar = CreateClientProgressBar(percent);
-			string progressDisplay = string.Format(MP_STRINGS.UI.MP_OVERLAY.CLIENT.DOWNLOADING_SAVE_FILE, progressBar, percent, receivedChunks, save.TotalChunks);
+			string progressDisplay = string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.DOWNLOADING_SAVE_FILE, progressBar, percent, receivedChunks, save.TotalChunks);
 
 			MultiplayerOverlay.Show(progressDisplay);
 
@@ -150,7 +150,7 @@ namespace ONI_MP.Misc.World
 
 				// Show completion visual to client
 				string completeProgressBar = CreateClientProgressBar(100);
-                string completeDisplay = string.Format(MP_STRINGS.UI.MP_OVERLAY.CLIENT.DOWNLOAD_COMPLETE, completeProgressBar, save.TotalChunks, save.TotalChunks);
+                string completeDisplay = string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.DOWNLOAD_COMPLETE, completeProgressBar, save.TotalChunks, save.TotalChunks);
 				MultiplayerOverlay.Show(completeDisplay);
 
 				InProgress.Remove(chunk.FileName);
@@ -262,12 +262,12 @@ namespace ONI_MP.Misc.World
 			for (int i = 0; i < barLength; i++)
 			{
 				if (i < filled)
-					bar += MP_STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR_FILLED;  // Filled
+					bar += STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR_FILLED;  // Filled
 				else
-					bar += MP_STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR_EMPTY;  // Empty
+					bar += STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR_EMPTY;  // Empty
 			}
 
-			return string.Format(MP_STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR, bar);
+			return string.Format(STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR, bar);
 		}
 
 		/// <summary>

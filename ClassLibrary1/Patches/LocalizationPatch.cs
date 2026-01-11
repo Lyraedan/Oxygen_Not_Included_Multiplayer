@@ -18,7 +18,7 @@ namespace ONI_MP.Patches
         {
 			public static void Postfix()
             {
-				Translate(typeof(MP_STRINGS), true);
+				Translate(typeof(STRINGS), true);
             }
 
 			static string ModPath => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);

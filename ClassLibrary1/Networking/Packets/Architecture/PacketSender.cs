@@ -1,20 +1,59 @@
-﻿using ONI_MP.DebugTools;
+﻿using Epic.OnlineServices.P2P;
+using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Core;
+using Shared.Interfaces.Networking;
 using Steamworks;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
+using UnityEngine;
 
 namespace ONI_MP.Networking
 {
 	public static class PacketSender
 	{
+		/// <summary>
+		/// Sth in this is broken
+		/// </summary>
+		private class PacketUpdateRunner
+		{
+			int PacketId; 
+			float UpdateIntervalS;
+
+			Dictionary<HSteamNetConnection, float> LastDispatchTime = [];
+			
+			public PacketUpdateRunner(int packetId, uint updateInterval)
+			{
+				PacketId = packetId;
+				UpdateIntervalS = updateInterval/1000f;
+			}
+			public bool CanDispatchNext(HSteamNetConnection connection)
+			{
+				var currentTime = Time.unscaledTime;
+
+				if (!LastDispatchTime.ContainsKey(connection))
+				{
+					LastDispatchTime[connection] = currentTime;
+					return true;
+				}
+
+				if (LastDispatchTime[connection] + UpdateIntervalS > currentTime)
+				{
+					LastDispatchTime[connection] = currentTime;
+					return true;
+				}
+				return false;
+			}
+		}
+
+
 		public static int MAX_PACKET_SIZE_RELIABLE = 512;
 		public static int MAX_PACKET_SIZE_UNRELIABLE = 1024;
 
-		public static byte[] SerializePacket(IPacket packet)
+		public static byte[] SerializePacketForSending(IPacket packet)
 		{
 			using (var ms = new System.IO.MemoryStream())
 			using (var writer = new System.IO.BinaryWriter(ms))
@@ -26,12 +65,87 @@ namespace ONI_MP.Networking
 			}
 		}
 
+		static Dictionary<int, PacketUpdateRunner> UpdateRunners = [];
+		static Dictionary<HSteamNetConnection, Dictionary<int, List<byte[]>>> WaitingBulkPacketsPerReceiver = [];
+		public static void DispatchPendingBulkPackets()
+		{
+			foreach (var kvp in WaitingBulkPacketsPerReceiver)
+			{
+				var conn = kvp.Key;
+				foreach (var packetId in kvp.Value.Keys)
+				{
+					DispatchPendingBulkPacketOfType(conn, packetId, true);
+				}
+			}
+		}
+
+		static void DispatchPendingBulkPacketOfType(HSteamNetConnection conn, int packetId, bool intervalRun = false)
+		{
+			if (!WaitingBulkPacketsPerReceiver.TryGetValue(conn, out var allPendingPackets)
+				|| !allPendingPackets.TryGetValue(packetId, out var pendingPackets)
+				|| !pendingPackets.Any())
+			{
+				return;
+			}
+			//if (intervalRun)
+			//{
+			//	if (!UpdateRunners[packetId].CanDispatchNext(conn))
+			//		return;
+			//}
+			SendToConnection(conn, new BulkSenderPacket(packetId, pendingPackets), SteamNetworkingSend.ReliableNoNagle);
+			pendingPackets.Clear();
+		}
+		public static void AppendPendingBulkPacket(HSteamNetConnection conn, IPacket packet, IBulkablePacket bp)
+		{
+			int packetId = PacketRegistry.GetPacketId(packet);
+			int maxPacketNumberPerPacket = bp.MaxPackSize;
+
+			if (!UpdateRunners.ContainsKey(packetId))
+			{
+				UpdateRunners[packetId] = new PacketUpdateRunner(packetId, bp.IntervalMs);
+			}
+
+			if (!WaitingBulkPacketsPerReceiver.TryGetValue(conn, out var bulkPacketWaitingData))
+			{
+				WaitingBulkPacketsPerReceiver[conn] = [];
+				bulkPacketWaitingData = WaitingBulkPacketsPerReceiver[conn];
+				DebugConsole.Log("Creating new Dict. for connection " + conn.m_HSteamNetConnection);
+			}
+			if (!bulkPacketWaitingData.TryGetValue(packetId, out var pendingPackets))
+			{
+				bulkPacketWaitingData[packetId] = new List<byte[]>(maxPacketNumberPerPacket);
+				pendingPackets = bulkPacketWaitingData[packetId];
+				DebugConsole.Log("Creating new list for packet id " + packetId + " for connection " + conn.m_HSteamNetConnection);
+			}
+			pendingPackets.Add(packet.SerializeToByteArray());
+			if (pendingPackets.Count >= maxPacketNumberPerPacket)
+			{
+				DispatchPendingBulkPacketOfType(conn, packetId);
+			}
+		}
+		public static byte[] SerializeToByteArray(this IPacket packet)
+		{
+			using var ms = new System.IO.MemoryStream();
+			using var writer = new System.IO.BinaryWriter(ms);
+			packet.Serialize(writer);
+			return ms.ToArray();
+		}
+
 		/// <summary>
 		/// Send to one connection by HSteamNetConnection handle.
 		/// </summary>
+		/// 
+
 		public static bool SendToConnection(HSteamNetConnection conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
 		{
-			var bytes = SerializePacket(packet);
+			if (packet is IBulkablePacket bp)
+			{
+				AppendPendingBulkPacket(conn, packet, bp);
+				return true;
+			}
+
+
+			var bytes = SerializePacketForSending(packet);
 			var _sendType = (int)sendType;
 
 			IntPtr unmanagedPointer = Marshal.AllocHGlobal(bytes.Length);
@@ -50,7 +164,8 @@ namespace ONI_MP.Networking
 				}
 				else
 				{
-					PacketTracker.TrackSent(new PacketTracker.PacketTrackData {
+					PacketTracker.TrackSent(new PacketTracker.PacketTrackData
+					{
 						packet = packet,
 						size = bytes.Length
 					});
@@ -112,7 +227,7 @@ namespace ONI_MP.Networking
 		{
 			if (!MultiplayerSession.IsHost)
 			{
-				DebugConsole.LogWarning("[PacketSender] Only the host can send to all clients");
+				DebugConsole.LogWarning("[PacketSender] Only the host can send to all clients. Tried sending: " + packet.GetType());
 				return;
 			}
 			SendToAll(packet, MultiplayerSession.HostSteamID, sendType);
