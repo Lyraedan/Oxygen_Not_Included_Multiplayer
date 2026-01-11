@@ -52,7 +52,8 @@ namespace UI.lib.UIcmp //Source: Aki
 					initialized = true;
 				}
 
-				inputField.text = value;
+				inputField.text = value; 
+				inputField.ForceLabelUpdate();
 			}
 		}
 

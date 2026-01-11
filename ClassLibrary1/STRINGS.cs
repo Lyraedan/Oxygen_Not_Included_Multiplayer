@@ -292,6 +292,7 @@ namespace ONI_MP
 				}
 			}
 
+			public static LocString WORK_IN_PROGRESS = "This feature is currently not finished and will be made usable in a future update.";
 			///Unity Ui big composite screen, these get automatically applied
 			public class MP_SCREEN
 			{
@@ -361,13 +362,21 @@ namespace ONI_MP
 							public static LocString TEXT = "​";
 						}
 					}
-					public class STARTHOSTING
+					public class ADDITIONALSETTINGS
 					{
-						public static LocString TEXT = "Start Hosting";
+						public static LocString TEXT = "Additional Lobby Settings";
 					}
-					public class CANCEL
+
+					public class BUTTONS
 					{
-						public static LocString TEXT = "Cancel";
+						public class STARTHOSTING
+						{
+							public static LocString TEXT = "Start Hosting";
+						}
+						public class CANCEL
+						{
+							public static LocString TEXT = "Cancel";
+						}
 					}
 				}
 				public class LOBBYLIST
@@ -451,7 +460,24 @@ namespace ONI_MP
 				}
 			}
 
+			///Unity UI for multiplayer lobby state screen
 
+			public class MP_LOBBY_STATE_DIALOGUE
+			{
+				public class TOPBAR
+				{
+					public static LocString LABEL = "Multiplayer Session";
+				}
+				public static LocString LOBBYCODETITLE = "Lobby Code:";
+				public class INVITEFRIENDS
+				{
+					public static LocString TEXT = "Invite Friends";
+				}
+				public class ENDSESSION
+				{
+					public static LocString TEXT = "End Session";
+				}
+			}
 		}
 	}
 }

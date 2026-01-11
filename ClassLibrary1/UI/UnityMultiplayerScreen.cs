@@ -3,6 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.UI.Components;
+using ONI_MP.UI.lib;
 using Shared.Helpers;
 using Steamworks;
 using System;
@@ -33,12 +34,13 @@ namespace ONI_MP.UI
 		}
 
 		public static UnityMultiplayerScreen Instance;
-		bool ShowMain, ShowLobbies, ShowHost;
+		bool ShowMain, ShowLobbies, ShowHost, ShowAdditionalHostSettings;
 
 		//Main Areas
 		GameObject MainMenuSegment;
 		GameObject StartHostingSegment;
 		GameObject LobbyBrowserSegment;
+		GameObject AdditionalHostSettingsSegment;
 		GameObject MiddleSpacer;
 		FButton CloseBtn;
 
@@ -56,7 +58,9 @@ namespace ONI_MP.UI
 		FToggle PrivateLobbyCheckbox;
 		LocText LobbyStateInfo;
 		FInputField2 LobbySize;
+		FButton IncreaseSize, DecreaseSize;
 		FInputField2 PasswortInput;
+		FButton AdditionalLobbySettings;
 		FButton StartHosting, HostCancel;
 
 		//LobbyBrowserSegment:
@@ -73,7 +77,7 @@ namespace ONI_MP.UI
 		Coroutine LobbyRefresh;
 		CSteamID _pendingLobbyId = CSteamID.Nil;
 
-        public void Init()
+		public void Init()
 		{
 			if (init) { return; }
 
@@ -83,6 +87,7 @@ namespace ONI_MP.UI
 			MainMenuSegment = transform.Find("MainMenu").gameObject;
 			StartHostingSegment = transform.Find("HostMenu").gameObject;
 			LobbyBrowserSegment = transform.Find("LobbyList").gameObject;
+			AdditionalHostSettingsSegment = transform.Find("AdditionalHostSettings").gameObject;
 			MiddleSpacer = transform.Find("MainSpacer").gameObject;
 			CloseBtn = transform.Find("TopBar/CloseButton").gameObject.AddOrGet<FButton>();
 			CloseBtn.OnClick += () => Show(false);
@@ -109,14 +114,26 @@ namespace ONI_MP.UI
 			TintLobbyState(true);
 			PrivateLobbyCheckbox.OnChange += (on) => TintLobbyState(on);
 			LobbySize = transform.Find("HostMenu/LobbySize/LobbySizeInput").gameObject.AddOrGet<FInputField2>();
-			LobbySize.Text = "4";
+			LobbySize.Text = SteamLobby.LOBBY_SIZE_DEFAULT.ToString();
+			LobbySize.OnValueChanged.AddListener(ClampLobbySize);
+
+			IncreaseSize = transform.Find("HostMenu/LobbySize/LobbySizeInput/Increase").gameObject.AddOrGet<FButton>();
+			IncreaseSize.OnClick += IncreaseLobbySize;
+			DecreaseSize = transform.Find("HostMenu/LobbySize/LobbySizeInput/Decrease").gameObject.AddOrGet<FButton>();
+			DecreaseSize.OnClick += DecreaseLobbySize;
+
+
 			PasswortInput = transform.Find("HostMenu/PasswordInput").gameObject.AddOrGet<FInputField2>();
 			PasswortInput.Text = string.Empty;
 
-			StartHosting = transform.Find("HostMenu/StartHosting").gameObject.AddOrGet<FButton>();
+			AdditionalLobbySettings = transform.Find("HostMenu/AdditionalSettings").gameObject.AddOrGet<FButton>();
+			AdditionalLobbySettings.SetInteractable(false);
+			UIUtils.AddSimpleTooltipToObject(AdditionalLobbySettings.gameObject, WORK_IN_PROGRESS);
+
+			StartHosting = transform.Find("HostMenu/Buttons/StartHosting").gameObject.AddOrGet<FButton>();
 			StartHosting.OnClick += () => StartHostingGame();
-			HostCancel = transform.Find("HostMenu/Cancel").gameObject.AddOrGet<FButton>();
-			HostCancel.OnClick += () => ShowHostSegment(false);
+			HostCancel = transform.Find("HostMenu/Buttons/Cancel").gameObject.AddOrGet<FButton>();
+			HostCancel.OnClick += () => CancelHosting();
 
 			RefreshLobbiesBtn = transform.Find("LobbyList/SearchBar/RefreshButton").gameObject.AddOrGet<FButton>();
 			RefreshLobbiesBtn.OnClick += () => RefreshLobbies();
@@ -127,11 +144,59 @@ namespace ONI_MP.UI
 			var entryPrefabGO = transform.Find("LobbyList/ScrollArea/Content/EntryPrefab").gameObject;
 			entryPrefabGO.SetActive(false);
 			LobbyEntryPrefab = entryPrefabGO.AddOrGet<LobbyEntryUI>();
-
+			RefreshLobbySizeButtons();
 			init = true;
 		}
 
-        public static void ShowWindow()
+		void IncreaseLobbySize()
+		{
+			if (int.TryParse(LobbySize.Text, out int lobbySize))
+			{
+				lobbySize++;
+				lobbySize = Mathf.Clamp(lobbySize, SteamLobby.LOBBY_SIZE_MIN, SteamLobby.LOBBY_SIZE_MAX);
+				LobbySize.SetTextFromData(lobbySize.ToString());
+				RefreshLobbySizeButtons();
+			}
+		}
+
+		void DecreaseLobbySize()
+		{
+			if (int.TryParse(LobbySize.Text, out int lobbySize))
+			{
+				lobbySize--;
+				lobbySize = Mathf.Clamp(lobbySize, SteamLobby.LOBBY_SIZE_MIN, SteamLobby.LOBBY_SIZE_MAX);
+				LobbySize.SetTextFromData(lobbySize.ToString());
+				RefreshLobbySizeButtons();
+			}
+		}
+		void RefreshLobbySizeButtons()
+		{
+			if (!int.TryParse(LobbySize.Text, out int lobbySize))
+				lobbySize = SteamLobby.LOBBY_SIZE_DEFAULT;
+
+			IncreaseSize.SetInteractable(lobbySize < SteamLobby.LOBBY_SIZE_MAX);
+			DecreaseSize.SetInteractable(lobbySize > SteamLobby.LOBBY_SIZE_MIN);
+		}
+		void CancelHosting()
+		{
+			if (ShowMain)
+				ShowHostSegment(false);
+			else
+				Show(false);
+		}
+		void ClampLobbySize(string text)
+		{
+			if (int.TryParse(text, out int lobbySize))
+			{
+				lobbySize = Mathf.Clamp(lobbySize, SteamLobby.LOBBY_SIZE_MIN, SteamLobby.LOBBY_SIZE_MAX);
+				LobbySize.SetTextFromData(lobbySize.ToString());
+			}
+			else
+				LobbySize.SetTextFromData(SteamLobby.LOBBY_SIZE_DEFAULT.ToString());
+			RefreshLobbySizeButtons();
+		}
+
+		public static void ShowWindow()
 		{
 			string currentScene = App.GetCurrentSceneName();
 			if (currentScene != lastScene)
@@ -159,17 +224,19 @@ namespace ONI_MP.UI
 
 		public static void OpenFromMainMenu()
 		{
-            ShowWindow();
+			ShowWindow();
 			Instance.ShowMainSegment(true);
 			Instance.ShowHostSegment(false);
 			Instance.ShowLobbySegment(false);
+			Instance.ShowAdditionalHostSettingsSegment(false);
 		}
 		public static void OpenFromPauseScreen()
 		{
-            ShowWindow();
+			ShowWindow();
 			Instance.ShowMainSegment(false);
-			Instance.ShowHostSegment(true);
 			Instance.ShowLobbySegment(false);
+			Instance.ShowHostSegment(true);
+			Instance.ShowAdditionalHostSettingsSegment(false);
 		}
 		void JoinLobbyWithCode()
 		{
@@ -244,16 +311,25 @@ namespace ONI_MP.UI
 		}
 		void ShowHostSegment(bool show)
 		{
-			if (ShowLobbies)
+			if (ShowLobbies && show)
 				ShowLobbySegment(false);
 			ShowHost = show;
 			StartHostingSegment.SetActive(show);
+			if (ShowAdditionalHostSettings && !show)
+				ShowAdditionalHostSettingsSegment(false);
 			RefreshSpacer();
+		}
+		void ShowAdditionalHostSettingsSegment(bool show)
+		{
+			ShowAdditionalHostSettings = show;
+			AdditionalHostSettingsSegment.SetActive(show);
 		}
 		void ShowLobbySegment(bool show)
 		{
-			if (ShowHost)
+			if (ShowHost && show)
+			{
 				ShowHostSegment(false);
+			}
 			ShowLobbies = show;
 			LobbyBrowserSegment.SetActive(show);
 			RefreshSpacer();
@@ -336,17 +412,16 @@ namespace ONI_MP.UI
 		{
 			Configuration.Instance.Host.Lobby.IsPrivate = PrivateLobbyCheckbox.On;
 			string lobbySize = LobbySize.Text;
-
 			if (lobbySize.Any())
 			{
 				if (!int.TryParse(lobbySize, out int maxLobbySize))
-					maxLobbySize = 2;
-
+					maxLobbySize = SteamLobby.LOBBY_SIZE_MIN;
+				maxLobbySize = Mathf.Clamp(maxLobbySize, SteamLobby.LOBBY_SIZE_MIN, SteamLobby.LOBBY_SIZE_MAX);
 				Configuration.Instance.Host.MaxLobbySize = maxLobbySize;
 			}
 			else
 			{
-				Configuration.Instance.Host.MaxLobbySize = 4;
+				Configuration.Instance.Host.MaxLobbySize = SteamLobby.LOBBY_SIZE_DEFAULT;
 			}
 
 			string password = PasswortInput.Text;
@@ -363,8 +438,8 @@ namespace ONI_MP.UI
 			Configuration.Instance.Save();
 		}
 
-        private void StartHostingGame()
-        {
+		private void StartHostingGame()
+		{
 			// Save the host config
 			StoreHostConfigurationSettings();
 
@@ -380,7 +455,7 @@ namespace ONI_MP.UI
 			{
 				MultiplayerSession.ShouldHostAfterLoad = true; // Set flag to start hosting after loading
 
-                string saveForCurrentDlc = SaveLoader.GetLatestSaveForCurrentDLC();
+				string saveForCurrentDlc = SaveLoader.GetLatestSaveForCurrentDLC();
 				bool hasVersionCompatibleSave = !string.IsNullOrEmpty(saveForCurrentDlc) && System.IO.File.Exists(saveForCurrentDlc);
 				if (hasVersionCompatibleSave)
 				{
@@ -391,22 +466,23 @@ namespace ONI_MP.UI
 				else
 				{
 					DebugConsole.Log("$[UnityMultiplayerScreen/StartHostingGame] No saves found! Running new game sequence.");
-					MainMenu.Instance?.NewGame(); 
+					MainMenu.Instance?.NewGame();
 				}
-				Show(false);
 			}
-			void RegisterOnExitLoadScreenTriggers()
-			{
-				LoadScreen.Instance.closeButton.onClick += OnLoadScreenExited;
-				UI_Patches.OnLoadScreenExited = OnLoadScreenExited;
-			}
-			void OnLoadScreenExited()
-			{
-				UI_Patches.OnLoadScreenExited = null;
-				LoadScreen.Instance.closeButton.onClick -= OnLoadScreenExited;
-				MultiplayerSession.ShouldHostAfterLoad = false; // Reset the flag if the load screen is closed
-				OpenFromMainMenu();
-			}
+			Show(false);
 		}
-    }
+		void RegisterOnExitLoadScreenTriggers()
+		{
+			LoadScreen.Instance.closeButton.onClick += OnLoadScreenExited;
+			UI_Patches.OnLoadScreenExited = OnLoadScreenExited;
+		}
+		void OnLoadScreenExited()
+		{
+			UI_Patches.OnLoadScreenExited = null;
+			LoadScreen.Instance.closeButton.onClick -= OnLoadScreenExited;
+			MultiplayerSession.ShouldHostAfterLoad = false; // Reset the flag if the load screen is closed
+			OpenFromMainMenu();
+		}
+	}
 }
+

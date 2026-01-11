@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using JetBrains.Annotations;
 using ONI_MP.Networking;
+using ONI_MP.UI;
 using Steamworks;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,10 +55,13 @@ namespace ONI_MP.Patches
 					AddButton(__instance, STRINGS.UI.PAUSESCREEN.HOSTGAME.LABEL, () =>
 					{
 						PauseScreen.Instance.Show(false); // Hide pause screen
+						UnityMultiplayerScreen.OpenFromPauseScreen();
+						return;
 						// Show lobby config screen - it will handle lobby creation
 						var canvas = Object.FindObjectOfType<Canvas>();
 						if (canvas != null)
 						{
+							UnityMultiplayerScreen.OpenFromPauseScreen();
 							ONI_MP.Menus.HostLobbyConfigScreen.Show(canvas.transform, () =>
 							{
 								// Config closed - create lobby with settings
@@ -76,6 +80,8 @@ namespace ONI_MP.Patches
 				AddButton(__instance, STRINGS.UI.PAUSESCREEN.MULTIPLAYER.LABEL, () =>
 				{
 					PauseScreen.Instance.Show(false); // Hide pause screen
+					UnityLobbyStateDialogueUI.ShowLobbyStateWindow();
+					return;
 					// Show multiplayer info screen
 					var canvas = UnityEngine.Object.FindObjectOfType<Canvas>();
 					if (canvas != null)
