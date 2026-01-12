@@ -24,11 +24,16 @@ namespace ONI_MP.Patches.Duplicant
 			{
 				if(__instance.IsNullOrDestroyed() || __instance.gameObject.IsNullOrDestroyed())
 					return false;
+
+				if (__instance.smi.IsNullOrDestroyed() || __instance.smi.IsNullOrStopped())
+					return false;
+
 				bool preview = (__instance.PrefabID() != GameTags.MinionSelectPreview);
 				bool client = MultiplayerSession.IsClient;
 
 				if (client || preview)
 					return false;
+
 				return true;
 			}
 		}
