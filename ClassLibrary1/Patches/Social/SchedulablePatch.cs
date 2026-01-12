@@ -18,24 +18,77 @@ namespace ONI_MP.Patches.Social
 			if (!MultiplayerSession.InSession) return;
 			if (ScheduleAssignmentPacket.IsApplying) return;
 
-            int netId = schedulable.GetNetId();
-            if (netId != 0)
+			int netId = schedulable.GetNetId();
+			if (netId != 0)
 			{
-                int index = __instance.GetScheduleIndex();
-                if (index != -1)
+				int index = __instance.GetScheduleIndex();
+				if (index != -1)
 				{
-                    var packet = new ScheduleAssignmentPacket
+					var packet = new ScheduleAssignmentPacket
 					{
 						NetId = netId,
 						ScheduleIndex = index
 					};
 
-                    if (MultiplayerSession.IsHost)
+					if (MultiplayerSession.IsHost)
 						PacketSender.SendToAllClients(packet);
 					else
 						PacketSender.SendToHost(packet);
-                }
-            }
+				}
+			}
 		}
 	}
+
+	[HarmonyPatch(typeof(Schedule), "ShiftTimetable")]
+	public static class Schedule_ShiftTimetable_Patch
+	{
+		static void Postfix(Schedule __instance, bool up, int timetableToShiftIdx, bool __result)
+		{
+			if (!__result)
+				return;
+
+			if (!MultiplayerSession.InSession)
+				return;
+
+			if (ScheduleRowPacket.IsApplying) 
+				return;
+
+			int scheduleIndex = __instance.GetScheduleIndex();
+			if (scheduleIndex == -1)
+				return;
+
+			ScheduleRowPacket packet = new ScheduleRowPacket()
+			{
+				ScheduleIndex = scheduleIndex,
+				Action = up ? ScheduleRowPacket.RowAction.SHIFT_UP : ScheduleRowPacket.RowAction.SHIFT_DOWN,
+				TimetableToIndex = timetableToShiftIdx
+			};
+			PacketSender.SendToAllOtherPeersFromHost(packet);
+		}
+	}
+
+    [HarmonyPatch(typeof(Schedule), "RotateBlocks")]
+    public static class Schedule_RotateBlocks_Patch
+    {
+        static void Postfix(Schedule __instance, bool directionLeft, int timetableToRotateIdx)
+        {
+            if (!MultiplayerSession.InSession)
+                return;
+
+            if (ScheduleRowPacket.IsApplying)
+                return;
+
+            int scheduleIndex = __instance.GetScheduleIndex();
+            if (scheduleIndex == -1)
+                return;
+
+            ScheduleRowPacket packet = new ScheduleRowPacket()
+            {
+                ScheduleIndex = scheduleIndex,
+                Action = directionLeft ? ScheduleRowPacket.RowAction.ROTATE_LEFT : ScheduleRowPacket.RowAction.ROTATE_RIGHT,
+                TimetableToIndex = timetableToRotateIdx
+            };
+            PacketSender.SendToAllOtherPeersFromHost(packet);
+        }
+    }
 }
