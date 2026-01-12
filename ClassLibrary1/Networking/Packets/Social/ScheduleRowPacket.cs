@@ -145,21 +145,25 @@ namespace ONI_MP.Networking.Packets.Social
                 return;
 
             ScheduleScreenEntry entry = ScheduleScreen.Instance.scheduleEntries[ScheduleIndex];
+            if (entry == null)
+                return;
+
             entry.DuplicateTimetableRow(TimetableToIndex);
         }
 
         public void DeleteRow(Schedule schedule)
         {
-            // plz do not explode
             if (ScheduleScreen.Instance.scheduleEntries.Count <= ScheduleIndex)
                 return;
 
+            // TimetableToIndex in this instance is the index of the timetableRows for the assosiated row
             ScheduleScreenEntry entry = ScheduleScreen.Instance.scheduleEntries[ScheduleIndex];
             if(entry != null)
             {
-                if (entry.timetableRows.Count <= TimetableToIndex)
+                if (entry.timetableRows.Count == 0 || entry.timetableRows.Count <= TimetableToIndex)
                     return;
 
+                // Array index out of bounds.... what?
                 GameObject row = entry.timetableRows[TimetableToIndex];
                 if (row != null)
                 {
