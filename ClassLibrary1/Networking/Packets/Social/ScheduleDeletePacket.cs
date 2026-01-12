@@ -27,6 +27,9 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void OnDispatched()
 		{
+			if (IsApplying)
+				return;
+
 			if (MultiplayerSession.IsHost)
 			{
 				Apply();
@@ -49,11 +52,7 @@ namespace ONI_MP.Networking.Packets.Social
 			{
 				var schedule = schedules[ScheduleIndex];
 
-				// Use the game's delete method to ensure cleanup
-				// But we need to be careful about loops if we patch DeleteSchedule.
-				// We should set a flag.
-
-				ScheduleDeletePacket.IsApplying = true;
+				IsApplying = true;
 				try
 				{
 					ScheduleManager.Instance.DeleteSchedule(schedule);
@@ -61,7 +60,7 @@ namespace ONI_MP.Networking.Packets.Social
 				}
 				finally
 				{
-					ScheduleDeletePacket.IsApplying = false;
+					IsApplying = false;
 				}
 			}
 		}
