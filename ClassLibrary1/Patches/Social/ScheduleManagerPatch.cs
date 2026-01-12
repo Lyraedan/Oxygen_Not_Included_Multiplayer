@@ -13,8 +13,7 @@ namespace ONI_MP.Patches.Social
 
 	public static class SchedulePatch
 	{
-		// Prevent infinite loops
-		[HarmonyPatch(typeof(Schedule), "SetBlockGroup")]
+		[HarmonyPatch(typeof(Schedule), "SetBlockGroup")] // The colored squares (worktime, bath time, sleep time etc)
 		public static class SetBlockGroupPatch
 		{
 			public static void Postfix(Schedule __instance, int idx, ScheduleGroup group)

@@ -141,7 +141,11 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void DuplicateRow(Schedule schedule)
         {
-            schedule.InsertTimetable(TimetableToIndex, NewBlocks);
+            if (ScheduleScreen.Instance.scheduleEntries.Count <= ScheduleIndex)
+                return;
+
+            ScheduleScreenEntry entry = ScheduleScreen.Instance.scheduleEntries[ScheduleIndex];
+            entry.DuplicateTimetableRow(TimetableToIndex);
         }
 
         public void DeleteRow(Schedule schedule)
@@ -154,16 +158,13 @@ namespace ONI_MP.Networking.Packets.Social
             if(entry != null)
             {
                 if (entry.timetableRows.Count <= TimetableToIndex)
-                    return; // plz do not also explode
+                    return;
 
                 GameObject row = entry.timetableRows[TimetableToIndex];
                 if (row != null)
                 {
                     entry.RemoveTimetableRow(row);
                 }
-            } else
-            {
-                schedule.RemoveTimetable(TimetableToIndex);
             }
         }
 

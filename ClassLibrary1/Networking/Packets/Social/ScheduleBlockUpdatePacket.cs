@@ -44,6 +44,7 @@ namespace ONI_MP.Networking.Packets.Social
             List<Schedule> schedules = ScheduleManager.Instance.schedules;
             if (schedules == null) return;
 
+            // Somehow the schedules are out of sync
             while (schedules.Count <= ScheduleIndex)
             {
                 var defaultGroups = Db.Get().ScheduleGroups.allGroups;
