@@ -33,7 +33,7 @@ namespace ONI_MP.Patches.Social
 					GroupId = group.Id
 				};
 
-                PacketSender.SendToAllOtherPeersFromHost(packet);
+                PacketSender.SendToAllOtherPeers(packet);
             }
 		}
 
@@ -54,7 +54,7 @@ namespace ONI_MP.Patches.Social
 					Duplicated = false
 				};
 
-                PacketSender.SendToAllOtherPeersFromHost(packet);
+                PacketSender.SendToAllOtherPeers(packet);
             }
 		}
 
@@ -75,7 +75,7 @@ namespace ONI_MP.Patches.Social
                     Duplicated = true
                 };
 
-				PacketSender.SendToAllOtherPeersFromHost(packet);
+				PacketSender.SendToAllOtherPeers(packet);
             }
         }
 
@@ -95,7 +95,7 @@ namespace ONI_MP.Patches.Social
 						ScheduleIndex = index
 					};
 
-                    PacketSender.SendToAllOtherPeersFromHost(packet);
+                    PacketSender.SendToAllOtherPeers(packet);
                 }
 			}
 		}

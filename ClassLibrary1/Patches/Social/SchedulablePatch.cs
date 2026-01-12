@@ -30,10 +30,7 @@ namespace ONI_MP.Patches.Social
 						ScheduleIndex = index
 					};
 
-					if (MultiplayerSession.IsHost)
-						PacketSender.SendToAllClients(packet);
-					else
-						PacketSender.SendToHost(packet);
+					PacketSender.SendToAllOtherPeers(packet);
 				}
 			}
 		}
@@ -63,7 +60,7 @@ namespace ONI_MP.Patches.Social
 				Action = up ? ScheduleRowPacket.RowAction.SHIFT_UP : ScheduleRowPacket.RowAction.SHIFT_DOWN,
 				TimetableToIndex = timetableToShiftIdx
 			};
-			PacketSender.SendToAllOtherPeersFromHost(packet);
+			PacketSender.SendToAllOtherPeers(packet);
 		}
 	}
 
@@ -88,7 +85,7 @@ namespace ONI_MP.Patches.Social
                 Action = directionLeft ? ScheduleRowPacket.RowAction.ROTATE_LEFT : ScheduleRowPacket.RowAction.ROTATE_RIGHT,
                 TimetableToIndex = timetableToRotateIdx
             };
-            PacketSender.SendToAllOtherPeersFromHost(packet);
+            PacketSender.SendToAllOtherPeers(packet);
         }
     }
 }

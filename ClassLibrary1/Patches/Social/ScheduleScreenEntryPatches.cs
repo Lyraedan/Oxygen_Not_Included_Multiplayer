@@ -48,7 +48,7 @@ namespace ONI_MP.Patches.Social
                     TimetableToIndex = sourceTimetableIdx,
                     NewBlocks = list
                 };
-                PacketSender.SendToAllOtherPeersFromHost(packet);
+                PacketSender.SendToAllOtherPeers(packet);
             }
         }
 
@@ -82,7 +82,7 @@ namespace ONI_MP.Patches.Social
                     Action = ScheduleRowPacket.RowAction.DELETE,
                     TimetableToIndex = rowIndex
                 };
-                PacketSender.SendToAllOtherPeersFromHost(packet);
+                PacketSender.SendToAllOtherPeers(packet);
             }
         }
 
@@ -112,7 +112,7 @@ namespace ONI_MP.Patches.Social
                     Name = newName,
                     UpdateType = ScheduleDetailsUpdatePacket.DetailsUpdateType.NAME
                 };
-                PacketSender.SendToAllOtherPeersFromHost(packet);
+                PacketSender.SendToAllOtherPeers(packet);
             }
         }
 
@@ -143,7 +143,7 @@ namespace ONI_MP.Patches.Social
                     AlarmActivated = alarmEnabled,
                     UpdateType = ScheduleDetailsUpdatePacket.DetailsUpdateType.ALARM_STATE
                 };
-                PacketSender.SendToAllOtherPeersFromHost(packet);
+                PacketSender.SendToAllOtherPeers(packet);
 
             }
         }
