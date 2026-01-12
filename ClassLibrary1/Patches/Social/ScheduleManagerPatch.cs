@@ -32,14 +32,9 @@ namespace ONI_MP.Patches.Social
 					BlockIndex = idx,
 					GroupId = group.Id
 				};
-				if (MultiplayerSession.IsHost)
-				{
-					PacketSender.SendToAllClients(packet);
-				} else
-				{
-					PacketSender.SendToHost(packet);
-				}
-			}
+
+                PacketSender.SendToAllOtherPeersFromHost(packet);
+            }
 		}
 
 		[HarmonyPatch(typeof(ScheduleManager), "AddSchedule")]
@@ -59,15 +54,8 @@ namespace ONI_MP.Patches.Social
 					Duplicated = false
 				};
 
-				if (MultiplayerSession.IsHost)
-				{
-					PacketSender.SendToAllClients(packet);
-				}
-				else
-				{
-					PacketSender.SendToHost(packet);
-				}
-			}
+                PacketSender.SendToAllOtherPeersFromHost(packet);
+            }
 		}
 
 		[HarmonyPatch(typeof(ScheduleManager), "DuplicateSchedule")]
@@ -87,14 +75,7 @@ namespace ONI_MP.Patches.Social
                     Duplicated = true
                 };
 
-                if (MultiplayerSession.IsHost)
-                {
-                    PacketSender.SendToAllClients(packet);
-                }
-                else
-                {
-                    PacketSender.SendToHost(packet);
-                }
+				PacketSender.SendToAllOtherPeersFromHost(packet);
             }
         }
 
@@ -114,11 +95,8 @@ namespace ONI_MP.Patches.Social
 						ScheduleIndex = index
 					};
 
-					if (MultiplayerSession.IsHost)
-						PacketSender.SendToAllClients(packet);
-					else
-						PacketSender.SendToHost(packet);
-				}
+                    PacketSender.SendToAllOtherPeersFromHost(packet);
+                }
 			}
 		}
 	}

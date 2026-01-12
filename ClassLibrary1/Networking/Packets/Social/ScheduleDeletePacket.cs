@@ -25,15 +25,7 @@ namespace ONI_MP.Networking.Packets.Social
 			if (IsApplying)
 				return;
 
-			if (MultiplayerSession.IsHost)
-			{
-				Apply();
-				PacketSender.SendToAllClients(this);
-			}
-			else
-			{
-				Apply();
-			}
+			Apply();
 		}
 
 		private void Apply()
