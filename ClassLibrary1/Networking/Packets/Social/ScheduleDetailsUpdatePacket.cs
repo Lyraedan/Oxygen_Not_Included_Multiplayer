@@ -74,7 +74,7 @@ namespace ONI_MP.Networking.Packets.Social
             ScheduleScreenEntry entry = ScheduleScreen.Instance.scheduleEntries[ScheduleIndex];
             switch (UpdateType)
             {
-                case DetailsUpdateType.NAME:
+                case DetailsUpdateType.NAME: // This does not
                     schedule.name = Name;
                     if (entry)
                         entry.gameObject.name = $"Schedule_{Name}";
@@ -82,7 +82,7 @@ namespace ONI_MP.Networking.Packets.Social
                 case DetailsUpdateType.ALARM_STATE:
                     schedule.alarmActivated = AlarmActivated;
                     if (entry)
-                        entry.RefreshAlarmButton();
+                        entry.RefreshAlarmButton(); // This works
                     break;
             }
         }
