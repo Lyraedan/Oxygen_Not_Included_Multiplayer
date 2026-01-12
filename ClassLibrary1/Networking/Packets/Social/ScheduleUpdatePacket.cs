@@ -52,15 +52,12 @@ namespace ONI_MP.Networking.Packets.Social
 
 		private void Apply()
 		{
-			var manager = ScheduleManager.Instance;
-			if (manager == null) return;
-
 			// Ensure schedule exists or add new
 			// The game handles adding via ScheduleManager.AddSchedule
 			// We need to manage the list size to match Index.
 			// If Index >= Count, we need to add schedules.
 
-			var schedules = HarmonyLib.Traverse.Create(manager).Field("schedules").GetValue<List<Schedule>>();
+			var schedules = ScheduleManager.Instance.schedules;
 			if (schedules == null) return;
 
 			while (schedules.Count <= ScheduleIndex)
@@ -70,7 +67,7 @@ namespace ONI_MP.Networking.Packets.Social
 				{
 					defaultGroups = HarmonyLib.Traverse.Create(schedules[0]).Field("blockGroups").GetValue<List<ScheduleGroup>>() ?? defaultGroups;
 				}
-				manager.AddSchedule(defaultGroups, "Synced Schedule", false);
+                ScheduleManager.Instance.AddSchedule(defaultGroups, "Synced Schedule", false);
 			}
 
 			var schedule = schedules[ScheduleIndex];
@@ -98,13 +95,14 @@ namespace ONI_MP.Networking.Packets.Social
 
 				var groups = Db.Get().ScheduleGroups;
 
-				var blockGroups = HarmonyLib.Traverse.Create(schedule).Field("blockGroups").GetValue<List<ScheduleGroup>>();
-				if (blockGroups == null) return;
+				var blocks = schedule.blocks;
+				//var blockGroups = HarmonyLib.Traverse.Create(schedule).Field("blockGroups").GetValue<List<ScheduleGroup>>();
+				//if (blockGroups == null) return;
 
-				for (int i = 0; i < Blocks.Count && i < blockGroups.Count; i++)
+				for (int i = 0; i < Blocks.Count && i < blocks.Count; i++)
 				{
 					string groupId = Blocks[i];
-					if (blockGroups[i].Id != groupId)
+					if (blocks[i].GroupId != groupId)
 					{
 						// Find the group resource
 						var group = groups.resources.Find(g => g.Id == groupId);

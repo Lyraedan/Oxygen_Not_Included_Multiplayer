@@ -352,5 +352,16 @@ namespace ONI_MP.Misc
 					&& Grid.DupePassable[cell];
 		}
 		#endregion
+
+		#region Schedule Extensions
+		public static int GetScheduleIndex(this Schedule schedule)
+		{
+            var schedules = ScheduleManager.Instance.schedules;
+            if (schedules == null) return -1;
+
+            int scheduleIndex = schedules.IndexOf(schedule);
+			return scheduleIndex;
+        }
+		#endregion
 	}
 }

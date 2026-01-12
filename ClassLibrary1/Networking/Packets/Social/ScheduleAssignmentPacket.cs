@@ -24,6 +24,9 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void OnDispatched()
 		{
+			if (IsApplying)
+				return;
+
 			if (MultiplayerSession.IsHost)
 			{
 				Apply();

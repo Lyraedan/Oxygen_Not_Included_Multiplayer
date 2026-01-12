@@ -1,5 +1,7 @@
 using HarmonyLib;
+using KSerialization;
 using ONI_MP.DebugTools;
+using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Social;
 using System.Collections.Generic;
@@ -19,9 +21,29 @@ namespace ONI_MP.Patches.Social
 		{
 			public static void Postfix(Schedule __instance, int idx, ScheduleGroup group)
 			{
+				DebugConsole.Log("SetBlockGroup: " + idx + ", " + group.Name + ", " + group.Id);
 				if (!MultiplayerSession.InSession) return;
-				if (Ignore) return;
-				ScheduleSyncHelper.SendUpdate(__instance);
+				//if (Ignore) return;
+				//ScheduleSyncHelper.SendUpdate(__instance);
+
+				int scheduleIndex = __instance.GetScheduleIndex();
+				// Invalid schedule index
+				if (scheduleIndex == -1)
+					return;
+
+                ScheduleBlockUpdatePacket packet = new ScheduleBlockUpdatePacket() { 
+					ScheduleIndex = scheduleIndex,
+					BlockIndex = idx,
+					GroupId = group.Id
+				};
+				if(MultiplayerSession.IsHost)
+				{
+					PacketSender.SendToAllClients(packet);
+				} else
+				{
+					PacketSender.SendToHost(packet);
+				}
+				DebugConsole.Log("[SchedulePatch] Set block group update!");
 			}
 		}
 
@@ -30,6 +52,7 @@ namespace ONI_MP.Patches.Social
 		{
 			public static void Postfix(Schedule __result)
 			{
+				DebugConsole.Log("Add schedule!");
 				if (!MultiplayerSession.InSession) return;
 				// If applying, we ignore
 				if (ScheduleUpdatePacket.IsApplying) return;
@@ -43,16 +66,18 @@ namespace ONI_MP.Patches.Social
 		{
 			public static void Prefix(ScheduleManager __instance, Schedule schedule)
 			{
+				DebugConsole.Log("Delete schedule");
 				if (!MultiplayerSession.InSession) return;
 				if (ScheduleDeletePacket.IsApplying) return;
 
-				var schedules = Traverse.Create(__instance).Field("schedules").GetValue<List<Schedule>>();
+				List<Schedule> schedules = __instance.schedules;
 				if (schedules == null) return;
 
 				int index = schedules.IndexOf(schedule);
 				if (index != -1)
 				{
-					var packet = new ScheduleDeletePacket { ScheduleIndex = index };
+					var packet = new ScheduleDeletePacket(index);
+
 					if (MultiplayerSession.IsHost)
 						PacketSender.SendToAllClients(packet);
 					else
@@ -76,6 +101,7 @@ namespace ONI_MP.Patches.Social
 				if (_timer < 1.0f) return; // Check every second
 				_timer = 0;
 
+				DebugConsole.Log("What the fuck");
 				var schedules = ScheduleManager.Instance.schedules;
 				if (schedules == null) return;
 
