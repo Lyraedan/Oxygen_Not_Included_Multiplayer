@@ -62,13 +62,13 @@ namespace ONI_MP.Patches.Social
 				if (!MultiplayerSession.InSession) return;
 				if (ScheduleDeletePacket.IsApplying) return;
 
-				List<Schedule> schedules = __instance.schedules;
-				if (schedules == null) return;
-
-				int index = schedules.IndexOf(schedule);
+				int index = schedule.GetScheduleIndex();
 				if (index != -1)
 				{
-					var packet = new ScheduleDeletePacket(index);
+					var packet = new ScheduleDeletePacket()
+					{
+						ScheduleIndex = index
+					};
 
 					if (MultiplayerSession.IsHost)
 						PacketSender.SendToAllClients(packet);

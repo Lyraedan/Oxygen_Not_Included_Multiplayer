@@ -10,11 +10,6 @@ namespace ONI_MP.Networking.Packets.Social
 	{
 		public int ScheduleIndex;
 
-		public ScheduleDeletePacket(int index) 
-		{
-			ScheduleIndex = index;
-        }
-
 		public void Serialize(BinaryWriter writer)
 		{
 			writer.Write(ScheduleIndex);
