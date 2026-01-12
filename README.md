@@ -12,6 +12,8 @@ Join the [Discord](https://discord.gg/jpxveK6mmY)
 
 Steam workshop: [You can find its workshop page here](https://steamcommunity.com/sharedfiles/filedetails/?id=3630759126)
 
+Crummy documentation can be found here: [zread](https://zread.ai/Lyraedan/Oxygen_Not_Included_Multiplayer)
+
 ---
 
 ## Demo
