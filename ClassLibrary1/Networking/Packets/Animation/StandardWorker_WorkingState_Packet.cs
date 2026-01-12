@@ -58,11 +58,13 @@ namespace ONI_MP.Networking.Packets.Animation
 
 			if (!NetworkIdentityRegistry.TryGetComponent<StandardWorker>(WorkerNetId, out var worker))
 				return;
+
 			GameObject workableGO = null;
 			if (StartingToWork)
 			{
 				if (!NetworkIdentityRegistry.TryGetComponent<Workable>(WorkableNetId, out var protoWorkable))
 					return;
+				
 				workableGO = protoWorkable.gameObject;
 
 				var workableType = AccessTools.TypeByName(WorkableType);

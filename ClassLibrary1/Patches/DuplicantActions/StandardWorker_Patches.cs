@@ -21,6 +21,12 @@ namespace ONI_MP.Patches.DuplicantActions
 		{
 			public static void Postfix(StandardWorker __instance, StartWorkInfo start_work_info)
 			{
+				if (__instance.IsNullOrDestroyed()) 
+					return;
+
+				if (start_work_info.IsNullOrDestroyed())
+					return;
+
 				if (!Utils.IsHostMinion(__instance))
 					return;
 
@@ -41,6 +47,9 @@ namespace ONI_MP.Patches.DuplicantActions
 		{
 			public static void Postfix(StandardWorker __instance)
 			{
+				if (__instance.IsNullOrDestroyed()) 
+					return;
+
 				if (!Utils.IsHostMinion(__instance))
 					return;
 				PacketSender.SendToAllClients(new StandardWorker_WorkingState_Packet(__instance,null, false));

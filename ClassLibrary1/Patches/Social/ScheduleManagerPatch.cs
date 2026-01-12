@@ -61,6 +61,7 @@ namespace ONI_MP.Patches.Social
 			}
 		}
 
+		// What the fuck
 		[HarmonyPatch(typeof(Game), "LateUpdate")]
 		public static class ScheduleMonitor
 		{
@@ -75,9 +76,7 @@ namespace ONI_MP.Patches.Social
 				if (_timer < 1.0f) return; // Check every second
 				_timer = 0;
 
-				var manager = ScheduleManager.Instance;
-				if (manager == null) return;
-				var schedules = Traverse.Create(manager).Field("schedules").GetValue<List<Schedule>>();
+				var schedules = ScheduleManager.Instance.schedules;
 				if (schedules == null) return;
 
 				for (int i = 0; i < schedules.Count; i++)
@@ -133,14 +132,14 @@ namespace ONI_MP.Patches.Social
 		{
 			if (schedule == null) return;
 
-			var schedules = HarmonyLib.Traverse.Create(ScheduleManager.Instance).Field("schedules").GetValue<List<Schedule>>();
+			var schedules = ScheduleManager.Instance.schedules;
 			if (schedules == null) return;
 
 			int index = schedules.IndexOf(schedule);
 			if (index == -1) return;
 
 			var blocks = new List<string>();
-			var blockGroups = HarmonyLib.Traverse.Create(schedule).Field("blockGroups").GetValue<List<ScheduleGroup>>();
+			var blockGroups = HarmonyLib.Traverse.Create(schedule).Field("blockGroups").GetValue<List<ScheduleGroup>>(); // this is just wrong, blockGroups does not exist
 			if (blockGroups == null) return;
 
 			foreach (var block in blockGroups)

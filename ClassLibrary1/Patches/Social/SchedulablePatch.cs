@@ -1,4 +1,5 @@
 using HarmonyLib;
+using KSerialization;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
@@ -16,29 +17,53 @@ namespace ONI_MP.Patches.Social
 			if (!MultiplayerSession.InSession) return;
 			if (ScheduleAssignmentPacket.IsApplying) return;
 
-			var identity = schedulable.GetComponent<NetworkIdentity>();
-			if (identity != null)
+            int netId = schedulable.GetNetId();
+            if (netId != 0)
 			{
-				var schedules = HarmonyLib.Traverse.Create(ScheduleManager.Instance).Field("schedules").GetValue<List<Schedule>>();
-				if (schedules == null) return;
+                List<Schedule> schedules = ScheduleManager.Instance.schedules;
+                if (schedules == null)
+					return;
 
-				int index = schedules.IndexOf(__instance);
-				if (index != -1)
+                int index = schedules.IndexOf(__instance);
+                if (index != -1)
 				{
-					var packet = new ScheduleAssignmentPacket
+                    var packet = new ScheduleAssignmentPacket
 					{
-						NetId = identity.NetId,
+						NetId = netId,
 						ScheduleIndex = index
 					};
 
-					if (MultiplayerSession.IsHost)
+                    if (MultiplayerSession.IsHost)
 						PacketSender.SendToAllClients(packet);
 					else
 						PacketSender.SendToHost(packet);
+                }
+            }
 
-					DebugConsole.Log($"[ScheduleAssignPatch] Sent assignment: {identity.name} -> Schedule {index}");
-				}
-			}
+			//var identity = schedulable.GetComponent<NetworkIdentity>();
+			//if (identity != null)
+			//{
+			//	var schedules = ScheduleManager.Instance.schedules;
+			//	if (schedules == null) return;
+
+			//	int index = schedules.IndexOf(__instance);
+			//	if (index != -1)
+			//	{
+			//		var packet = new ScheduleAssignmentPacket
+			//		{
+			//			NetId = identity.NetId,
+			//			ScheduleIndex = index
+			//		};
+
+			//		//if (MultiplayerSession.IsHost)
+			//		//	PacketSender.SendToAllClients(packet);
+			//		//else
+			//		//	PacketSender.SendToHost(packet);
+			//		PacketSender.SendToAllOtherPeers(packet);
+
+			//		DebugConsole.Log($"[ScheduleAssignPatch] Sent assignment: {identity.name} -> Schedule {index}");
+			//	}
+			//}
 		}
 	}
 }

@@ -50,35 +50,24 @@ namespace ONI_MP.Networking.Packets.Social
 				return;
 			}
 
-			var manager = ScheduleManager.Instance;
-			var schedules = HarmonyLib.Traverse.Create(manager).Field("schedules").GetValue<List<Schedule>>();
-			if (manager == null || schedules == null || ScheduleIndex < 0 || ScheduleIndex >= schedules.Count)
+			List<Schedule> schedules = ScheduleManager.Instance.schedules;
+			if (schedules == null || ScheduleIndex < 0 || ScheduleIndex >= schedules.Count)
 			{
 				DebugConsole.LogWarning($"[ScheduleAssignmentPacket] Invalid ScheduleIndex {ScheduleIndex}");
 				return;
 			}
 
-			var schedule = schedules[ScheduleIndex];
-
-			// Check if already assigned
-			if (manager.GetSchedule(schedulable) == schedule)
+			Schedule previousSchedule = schedulable.GetSchedule();
+            Schedule newSchedule = schedules[ScheduleIndex];
+            // Check if already assigned
+            if (newSchedule.IsAssigned(schedulable))
 				return;
 
 			IsApplying = true;
 			try
 			{
-				// Manager.OnAssign(schedulable, schedule) or Schedulable?
-				// Standard way: Schedulable usually doesn't have SetSchedule.
-				// ScheduleManager.Instance.Assign(Schedulable, Schedule) ? 
-				// Wait, examining API... usually one calls ScheduleManager.Instance.SetSchedule?
-
-				// Let's assume standard way is:
-				// Removing from old schedule is handled by the manager when adding to new one?
-
-				// Looking at game code (inference): 
-				// schedule.Assign(schedulable);
-
-				schedule.Assign(schedulable);
+                previousSchedule.Unassign(schedulable); // Unassign from the old schedule
+				newSchedule.Assign(schedulable); // Assign to the new schedule
 
 				DebugConsole.Log($"[ScheduleAssignmentPacket] Assigned {identity.name} to Schedule {ScheduleIndex}");
 			}
