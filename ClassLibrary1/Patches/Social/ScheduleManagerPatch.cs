@@ -27,19 +27,18 @@ namespace ONI_MP.Patches.Social
 				if (scheduleIndex == -1)
 					return;
 
-                ScheduleBlockUpdatePacket packet = new ScheduleBlockUpdatePacket() { 
+				ScheduleBlockUpdatePacket packet = new ScheduleBlockUpdatePacket() {
 					ScheduleIndex = scheduleIndex,
 					BlockIndex = idx,
 					GroupId = group.Id
 				};
-				if(MultiplayerSession.IsHost)
+				if (MultiplayerSession.IsHost)
 				{
 					PacketSender.SendToAllClients(packet);
 				} else
 				{
 					PacketSender.SendToHost(packet);
 				}
-				DebugConsole.Log("[SchedulePatch] Set block group update!");
 			}
 		}
 
@@ -50,11 +49,56 @@ namespace ONI_MP.Patches.Social
 			{
 				DebugConsole.Log("Add schedule!");
 				if (!MultiplayerSession.InSession) return;
-				// TODO Write ScheduleAddPacket
+				if (ScheduleAddPacket.IsApplying) return;
+
+				ScheduleAddPacket packet = new ScheduleAddPacket()
+				{
+					Name = __result.name,
+					Blocks = __result.blocks,
+					AlarmActivated = __result.alarmActivated,
+					Duplicated = false
+				};
+
+				if (MultiplayerSession.IsHost)
+				{
+					PacketSender.SendToAllClients(packet);
+				}
+				else
+				{
+					PacketSender.SendToHost(packet);
+				}
 			}
 		}
 
-		[HarmonyPatch(typeof(ScheduleManager), "DeleteSchedule")]
+		[HarmonyPatch(typeof(ScheduleManager), "DuplicateSchedule")]
+        public static class DuplicateSchedulePatch
+        {
+            public static void Postfix(Schedule __result)
+            {
+                DebugConsole.Log("Duplicate schedule!");
+                if (!MultiplayerSession.InSession) return;
+				if (ScheduleAddPacket.IsApplying) return;
+
+                ScheduleAddPacket packet = new ScheduleAddPacket()
+                {
+                    Name = __result.name,
+                    Blocks = __result.blocks,
+                    AlarmActivated = __result.alarmActivated,
+                    Duplicated = true
+                };
+
+                if (MultiplayerSession.IsHost)
+                {
+                    PacketSender.SendToAllClients(packet);
+                }
+                else
+                {
+                    PacketSender.SendToHost(packet);
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(ScheduleManager), "DeleteSchedule")]
 		public static class DeleteSchedulePatch
 		{
 			public static void Prefix(ScheduleManager __instance, Schedule schedule)
