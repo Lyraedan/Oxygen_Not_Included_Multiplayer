@@ -71,13 +71,18 @@ namespace ONI_MP.Networking.Packets.Social
                 return;
 
             Schedule schedule = schedules[ScheduleIndex];
+            ScheduleScreenEntry entry = ScheduleScreen.Instance.scheduleEntries[ScheduleIndex];
             switch (UpdateType)
             {
                 case DetailsUpdateType.NAME:
                     schedule.name = Name;
+                    if (entry)
+                        entry.gameObject.name = $"Schedule_{Name}";
                     break;
                 case DetailsUpdateType.ALARM_STATE:
                     schedule.alarmActivated = AlarmActivated;
+                    if (entry)
+                        entry.RefreshAlarmButton();
                     break;
             }
         }

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
+using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Social
 {
@@ -145,7 +146,25 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void DeleteRow(Schedule schedule)
         {
-            schedule.RemoveTimetable(TimetableToIndex);
+            // plz do not explode
+            if (ScheduleScreen.Instance.scheduleEntries.Count <= ScheduleIndex)
+                return;
+
+            ScheduleScreenEntry entry = ScheduleScreen.Instance.scheduleEntries[ScheduleIndex];
+            if(entry != null)
+            {
+                if (entry.timetableRows.Count <= TimetableToIndex)
+                    return; // plz do not also explode
+
+                GameObject row = entry.timetableRows[TimetableToIndex];
+                if (row != null)
+                {
+                    entry.RemoveTimetableRow(row);
+                }
+            } else
+            {
+                schedule.RemoveTimetable(TimetableToIndex);
+            }
         }
 
         public static bool IsApplying = false;
