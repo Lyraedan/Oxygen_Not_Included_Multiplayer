@@ -163,6 +163,7 @@ namespace ONI_MP.Networking.Packets.Social
                 if (entry.timetableRows.Count == 0 || entry.timetableRows.Count <= TimetableToIndex)
                     return;
 
+                DebugConsole.Log($"Processing row index: {TimetableToIndex}:{entry.timetableRows.Count}");
                 // Array index out of bounds.... what?
                 GameObject row = entry.timetableRows[TimetableToIndex];
                 if (row != null)

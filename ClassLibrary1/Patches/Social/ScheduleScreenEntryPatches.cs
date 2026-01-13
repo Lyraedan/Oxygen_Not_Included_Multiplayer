@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
+using ONI_MP.DebugTools;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
@@ -53,8 +54,16 @@ namespace ONI_MP.Patches.Social
         }
 
         [HarmonyPatch(typeof(ScheduleScreenEntry), "RemoveTimetableRow")]
-        public static class ScheduleScreenEntry_DeleteSchedule_Postfix
+        public static class ScheduleScreenEntry_DeleteSchedule_Patch
         {
+            private static int rowIndex = -1;
+
+            static bool Prefix(ScheduleScreenEntry __instance, GameObject row)
+            {
+                rowIndex = __instance.timetableRows.IndexOf(row); // Cache the row index before deletion
+                return true;
+            }
+
             static void Postfix(ScheduleScreenEntry __instance, GameObject row)
             {
                 if (__instance.IsNullOrDestroyed())
@@ -75,7 +84,10 @@ namespace ONI_MP.Patches.Social
                 if (scheduleIndex == -1)
                     return;
 
-                int rowIndex = __instance.timetableRows.IndexOf(row);
+                // Invalid row index
+                if (rowIndex == -1)
+                    return;
+
                 ScheduleRowPacket packet = new ScheduleRowPacket()
                 {
                     ScheduleIndex = scheduleIndex,
@@ -83,6 +95,7 @@ namespace ONI_MP.Patches.Social
                     TimetableToIndex = rowIndex
                 };
                 PacketSender.SendToAllOtherPeers(packet);
+                DebugConsole.Log($"Sending row update DELETE to peers: {packet.ScheduleIndex}, {(int)packet.Action}, {packet.TimetableToIndex}");
             }
         }
 
