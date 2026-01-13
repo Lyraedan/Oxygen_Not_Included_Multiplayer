@@ -28,9 +28,14 @@ namespace ONI_MP.Patches.GamePatches
                     return;
 
                 DebugConsole.Log($"Adding status item: {item.Id}");
+
+                int netId = __instance.gameObject.GetNetIdentity().NetId;
+                if (netId == 0)
+                    return;
+
                 StatusItemGroupPacket packet = new StatusItemGroupPacket()
                 {
-                    NetId = __instance.gameObject.GetNetIdentity().NetId,
+                    NetId = netId,
                     StatusItemId = item.Id,
                     Action = StatusItemGroupPacket.ItemGroupPacketAction.Add
                 };
@@ -69,11 +74,17 @@ namespace ONI_MP.Patches.GamePatches
                     return;
 
                 DebugConsole.Log($"Removed StatusItem {_removedEntry.Value.item.Id} from {__instance.gameObject.name} (immediate={immediate})");
+                
+                int netId = __instance.gameObject.GetNetIdentity().NetId;
+                if (netId == 0)
+                    return;
+
                 StatusItemGroupPacket packet = new StatusItemGroupPacket()
                 {
-                    NetId = __instance.gameObject.GetNetIdentity().NetId,
+                    NetId = netId,
                     StatusItemId = _removedEntry.Value.item.Id,
-                    Action = StatusItemGroupPacket.ItemGroupPacketAction.Remove
+                    Action = StatusItemGroupPacket.ItemGroupPacketAction.Remove,
+                    Immediate = immediate
                 };
                 PacketSender.SendToAllClients(packet);
                 _removedEntry = null; // cleanup
