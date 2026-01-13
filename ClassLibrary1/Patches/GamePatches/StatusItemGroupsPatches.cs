@@ -1,0 +1,81 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using HarmonyLib;
+using ONI_MP.DebugTools;
+
+namespace ONI_MP.Patches.GamePatches
+{
+    public class StatusItemGroupsPatches
+    {
+        [HarmonyPatch(typeof(StatusItemGroup), nameof(StatusItemGroup.AddStatusItem))]
+        public static class StatusItemGroup_AddStatusItem_Patch
+        {
+            public static void Postfix(StatusItemGroup __instance, StatusItem item, object data, StatusItemCategory category, Guid __result)
+            {
+                if (__result == Guid.Empty)
+                    return;
+
+                DebugConsole.Log($"Adding status item: {item.Id}");
+            }
+        }
+
+        /*
+        [HarmonyPatch(typeof(StatusItemGroup), nameof(StatusItemGroup.RemoveStatusItem), new Type[] { typeof(StatusItem), typeof(bool) })]
+        public static class StatusItemGroup_RemoveStatusItem_ByItem_Patch
+        {
+            public static void Postfix(StatusItemGroup __instance, StatusItem status_item, bool immediate, Guid __result)
+            {
+                if (__result == Guid.Empty)
+                    return;
+
+                DebugConsole.Log($"Removed StatusItem: {status_item.Id}");
+            }
+        }
+
+        [HarmonyPatch(typeof(StatusItemGroup), nameof(StatusItemGroup.RemoveStatusItem), new Type[] { typeof(Guid), typeof(bool) })]
+        public static class StatusItemGroup_RemoveStatusItem_ByGuid_Patch
+        {
+            public static void Postfix(StatusItemGroup __instance, Guid guid, bool immediate, Guid __result)
+            {
+                if (__result == Guid.Empty)
+                    return;
+
+                DebugConsole.Log($"Removed StatusItem by Guid: {guid}");
+            }
+        }*/
+
+
+        [HarmonyPatch(typeof(StatusItemGroup), nameof(StatusItemGroup.RemoveStatusItemInternal))]
+        public static class StatusItemGroup_RemoveStatusItemInternal_Patch
+        {
+            private static StatusItemGroup.Entry? _removedEntry;
+
+            public static bool Prefix(StatusItemGroup __instance, int itemIdx)
+            {
+                // Capture the entry BEFORE it is removed
+                if (itemIdx >= 0 && itemIdx < __instance.items.Count)
+                {
+                    _removedEntry = __instance.items[itemIdx];
+                }
+                else
+                {
+                    _removedEntry = null;
+                }
+                return true;
+            }
+
+            public static void Postfix(StatusItemGroup __instance, Guid guid,bool immediate)
+            {
+                if (!_removedEntry.HasValue || _removedEntry == null)
+                    return;
+
+                DebugConsole.Log($"Removed StatusItem {_removedEntry.Value.item.Id} from {__instance.gameObject.name} (immediate={immediate})");
+
+                _removedEntry = null; // cleanup
+            }
+        }
+    }
+}
