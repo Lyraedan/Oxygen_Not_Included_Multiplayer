@@ -9,6 +9,8 @@ namespace ONI_MP.Networking.Profiling
 {
     public static class GameServerProfiler
     {
+        private static bool poppedOut = false;
+
         public static bool Enabled = true;
 
         public static int LastMessageCount;
@@ -74,18 +76,46 @@ namespace ONI_MP.Networking.Profiling
         }
 
 #if DEBUG
-        public static void DrawImGui()
+        private static void TogglePopout()
         {
-            if (!ImGui.Begin("GameServer Network Profiler"))
+            poppedOut = !poppedOut;
+        }
+
+        public static void DrawImGuiPopout()
+        {
+            if (!poppedOut)
                 return;
 
+            if (!ImGui.Begin("GameServer Network Profiler", ref poppedOut))
+                return;
+
+            DrawHeader();
+            DrawBody();
+
+            ImGui.End();
+        }
+
+        public static void DrawImGuiInTab()
+        {
+            DrawHeader();
+            ImGui.SameLine();
+            if (ImGui.Button("Pop out"))
+                TogglePopout();
+            DrawBody();
+        }
+
+        private static void DrawHeader()
+        {
             ImGui.Checkbox("Enabled", ref Enabled);
 
+            ImGui.SameLine();
             if (ImGui.Button("Reset"))
                 Reset();
+        }
 
+        private static void DrawBody()
+        {
             ImGui.Separator();
-
             ImGui.Text("Last Poll");
             ImGui.BulletText($"Messages: {LastMessageCount}");
             ImGui.BulletText($"Bytes: {LastBytes}");
@@ -103,8 +133,6 @@ namespace ONI_MP.Networking.Profiling
             ImGui.BulletText($"Max Messages: {MaxMessages}");
             ImGui.BulletText($"Max Bytes: {MaxBytes}");
             ImGui.BulletText($"Max Time: {(MaxTicks * 1000.0 / Stopwatch.Frequency):F3} ms");
-
-            ImGui.End();
         }
 #endif
     }

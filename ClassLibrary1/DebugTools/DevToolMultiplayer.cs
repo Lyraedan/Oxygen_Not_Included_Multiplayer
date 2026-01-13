@@ -113,6 +113,8 @@ namespace ONI_MP.DebugTools
 
             console?.ShowWindow();
             packetTracker?.ShowWindow();
+            GameClientProfiler.DrawImGuiPopout();
+            GameServerProfiler.DrawImGuiPopout();
         }
 
         private void DrawGeneralTab()
@@ -384,10 +386,19 @@ namespace ONI_MP.DebugTools
 	
         public void DisplayProfilers()
         {
-            if (ImGui.CollapsingHeader("Profilers"))
+            if (ImGui.BeginTable("profilers", 2))
             {
-                GameClientProfiler.DrawImGui();
-                GameServerProfiler.DrawImGui();
+                ImGui.TableNextColumn();
+                ImGui.Text("Server");
+                GameServerProfiler.DrawImGuiInTab();
+
+                // Why can I never interact with the toggles or buttons of the second one even if I saw them around
+
+                ImGui.TableNextColumn();
+                ImGui.Text("Client");
+                GameClientProfiler.DrawImGuiInTab();
+
+                ImGui.EndTable();
             }
         }
     }
