@@ -41,7 +41,6 @@ namespace ONI_MP.Patches.Social
 		{
 			public static void Postfix(Schedule __result)
 			{
-				DebugConsole.Log("Add schedule!");
 				if (!MultiplayerSession.InSession) return;
 				if (ScheduleAddPacket.IsApplying) return;
 
@@ -62,7 +61,6 @@ namespace ONI_MP.Patches.Social
         {
             public static void Postfix(Schedule __result)
             {
-                DebugConsole.Log("Duplicate schedule!");
                 if (!MultiplayerSession.InSession) return;
 				if (ScheduleAddPacket.IsApplying) return;
 

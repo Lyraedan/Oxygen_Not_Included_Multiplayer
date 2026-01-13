@@ -153,23 +153,44 @@ namespace ONI_MP.DebugTools
 
             if (ImGui.Begin("Multiplayer Console", ref showConsole, ImGuiWindowFlags.MenuBar))
             {
-                // Toolbar
+                ShowConsoleContent(true);
+            }
+
+            ImGui.End();
+        }
+
+        public void ShowInTab()
+        {
+            ShowConsoleContent(false);
+        }
+    
+        private void ShowConsoleContent(bool usesMenuBar)
+        {
+            // Toolbar
+            if (usesMenuBar)
+            {
                 if (ImGui.BeginMenuBar())
                 {
                     if (ImGui.Button("Clear"))
                     {
                         lock (_lock) { logEntries.Clear(); }
                     }
-
-                    ImGui.SameLine();
-                    ImGui.Checkbox("Auto-scroll", ref autoScroll);
-                    ImGui.SameLine();
-                    ImGui.Checkbox("Collapse", ref collapseDuplicates);
                     ImGui.SameLine();
                     ImGui.InputText("Filter", ref filter, 128);
 
                     ImGui.EndMenuBar();
                 }
+            } 
+            else
+            {
+                if (ImGui.Button("Clear"))
+                {
+                    lock (_lock) { logEntries.Clear(); }
+                }
+                ImGui.SameLine();
+                ImGui.SetNextItemWidth(200);
+                ImGui.InputText("Filter", ref filter, 128);
+            }
 
                 ImGui.Separator();
 
@@ -218,70 +239,6 @@ namespace ONI_MP.DebugTools
                     ImGui.SetScrollHereY(1.0f);
 
                 ImGui.EndChild();
-            }
-
-            ImGui.End();
-        }
-
-        public void ShowInTab()
-        {
-            // Toolbar row
-            if (ImGui.Button("Clear"))
-            {
-                lock (_lock) { logEntries.Clear(); }
-            }
-
-            ImGui.SameLine();
-            ImGui.Checkbox("Auto-scroll", ref autoScroll);
-
-            ImGui.SameLine();
-            ImGui.Checkbox("Collapse", ref collapseDuplicates);
-
-            ImGui.SameLine();
-            ImGui.SetNextItemWidth(200);
-            ImGui.InputText("Filter", ref filter, 128);
-
-            ImGui.Separator();
-
-            // Scrollable log region
-            ImGui.BeginChild(
-                "ConsoleScroll",
-                new Vector2(0, 0),
-                false,
-                ImGuiWindowFlags.HorizontalScrollbar
-            );
-
-            lock (_lock)
-            {
-                foreach (var entry in logEntries)
-                {
-                    if (!string.IsNullOrEmpty(filter) &&
-                        entry.message.IndexOf(filter, StringComparison.OrdinalIgnoreCase) < 0)
-                        continue;
-
-                    Vector4 color = entry.type switch
-                    {
-                        LogType.Warning => new Vector4(1f, 1f, 0.3f, 1f),
-                        LogType.Error => new Vector4(1f, 0.4f, 0.4f, 1f),
-                        LogType.Assert => new Vector4(0.8f, 0.5f, 1f, 1f),
-                        LogType.Exception => new Vector4(1f, 0.4f, 0.4f, 1f),
-                        LogType.Success => new Vector4(0f, 1f, 0f, 1f),
-                        LogType.NonImportant => new Vector4(0.5f, 0.5f, 0.5f, 1f),
-                        _ => new Vector4(1f, 1f, 1f, 1f),
-                    };
-
-                    string displayMsg = entry.count > 1
-                        ? $"{entry.message} (x{entry.count})"
-                        : entry.message;
-
-                    ImGui.TextColored(color, displayMsg);
-                }
-            }
-
-            if (autoScroll && ImGui.GetScrollY() >= ImGui.GetScrollMaxY())
-                ImGui.SetScrollHereY(1.0f);
-
-            ImGui.EndChild();
         }
     }
 }

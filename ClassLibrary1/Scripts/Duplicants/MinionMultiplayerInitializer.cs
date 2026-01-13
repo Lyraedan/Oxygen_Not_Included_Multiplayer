@@ -58,6 +58,7 @@ namespace ONI_MP.Scripts.Duplicants
 				if (go.TryGetComponent<Sensors>(out var sensors)) sensors.enabled = false;
 
 				//disable all RationalAi smis
+				/*
 				var ai_smi = this.GetSMI<RationalAi.Instance>();
 				if (ai_smi != null)
 				{
@@ -69,7 +70,7 @@ namespace ONI_MP.Scripts.Duplicants
 					}
 
 					ai_smi.StopSM("Client dupe do not get to have ai");
-				}
+				}*/
 
 				// Disable state machine controllers that could override animations
 				var stateMachineControllers = go.GetComponents<StateMachineController>();

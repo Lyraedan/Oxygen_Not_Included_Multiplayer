@@ -224,7 +224,7 @@ namespace ONI_MP.DebugTools
 
         private void DrawConsoleTab()
         {
-            if (ImGui.Button("Toggle Popout"))
+            if (ImGui.Button("Popout"))
                 console?.Toggle();
             ImGui.SameLine();
             console?.ShowInTab();
