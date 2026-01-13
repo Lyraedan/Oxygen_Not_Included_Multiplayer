@@ -62,6 +62,7 @@ namespace ONI_MP.Networking.Packets.World
                 DebugConsole.LogWarning($"[StatusItemGroupPacket] No network identity for {NetId}");
                 return;
             }
+
             switch(Action)
             {
                 case ItemGroupPacketAction.Add:
@@ -82,7 +83,5 @@ namespace ONI_MP.Networking.Packets.World
         {
 
         }
-
-
     }
 }
