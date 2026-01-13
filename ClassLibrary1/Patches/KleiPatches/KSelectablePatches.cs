@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
+using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 
@@ -25,11 +26,12 @@ namespace ONI_MP.Patches.KleiPatches
         [HarmonyPatch(typeof(KSelectable), nameof(KSelectable.OnCleanUp))]
         public static class KKSelectable_OnCleanUp_Patch
         {
-            public static void Postfix(KSelectable __instance)
+            public static bool Prefix(KSelectable __instance)
             {
                 if (SelectableStatusItemGroupToNetIdentity.TryGetValue(__instance.statusItemGroup, out NetworkIdentity netIdentity)) {
                     SelectableStatusItemGroupToNetIdentity.Remove(__instance.statusItemGroup);
                 }
+                return true;
             }
         }
     }
