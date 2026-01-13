@@ -95,7 +95,6 @@ namespace ONI_MP.Patches.Social
                     TimetableToIndex = rowIndex
                 };
                 PacketSender.SendToAllOtherPeers(packet);
-                DebugConsole.Log($"Sending row update DELETE to peers: {packet.ScheduleIndex}, {(int)packet.Action}, {packet.TimetableToIndex}");
             }
         }
 

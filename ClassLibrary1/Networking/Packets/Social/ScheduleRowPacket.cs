@@ -12,7 +12,7 @@ namespace ONI_MP.Networking.Packets.Social
 {
     public class ScheduleRowPacket : IPacket
     {
-        // Use for shifting groups
+        // Used for row controls
         public enum RowAction
         {
             SHIFT_UP,
@@ -141,6 +141,21 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void DuplicateRow(Schedule schedule)
         {
+            // Schedule screen hasn't been opened so we can't update UI
+            if(ScheduleScreen.Instance == null)
+            {
+                List<ScheduleBlock> range = schedule.GetBlocks().GetRange(TimetableToIndex * 24, 24);
+                List<ScheduleBlock> list = new List<ScheduleBlock>();
+                for (int i = 0; i < range.Count; i++)
+                {
+                    list.Add(new ScheduleBlock(range[i].name, range[i].GroupId));
+                }
+
+                int num = TimetableToIndex + 1;
+                schedule.InsertTimetable(num, list);
+                return;
+            }
+
             if (ScheduleScreen.Instance.scheduleEntries.Count <= ScheduleIndex)
                 return;
 
@@ -153,6 +168,12 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void DeleteRow(Schedule schedule)
         {
+            if(ScheduleScreen.Instance == null)
+            {
+                schedule.RemoveTimetable(TimetableToIndex);
+                return;
+            }
+
             if (ScheduleScreen.Instance.scheduleEntries.Count <= ScheduleIndex)
                 return;
 
