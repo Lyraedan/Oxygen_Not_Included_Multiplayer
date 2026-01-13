@@ -21,5 +21,16 @@ namespace ONI_MP.Patches.KleiPatches
                 SelectableStatusItemGroupToNetIdentity.Add(__instance.statusItemGroup, __instance.GetNetIdentity());
             }
         }
+
+        [HarmonyPatch(typeof(KSelectable), nameof(KSelectable.OnCleanUp))]
+        public static class KKSelectable_OnCleanUp_Patch
+        {
+            public static void Postfix(KSelectable __instance)
+            {
+                if (SelectableStatusItemGroupToNetIdentity.TryGetValue(__instance.statusItemGroup, out NetworkIdentity netIdentity)) {
+                    SelectableStatusItemGroupToNetIdentity.Remove(__instance.statusItemGroup);
+                }
+            }
+        }
     }
 }
