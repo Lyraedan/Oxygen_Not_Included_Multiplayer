@@ -110,6 +110,44 @@ namespace ONI_MP.DebugTools
             ImGui.End();
         }
 
+        public void ShowInTab()
+        {
+            if (!MultiplayerSession.InSession)
+            {
+                if (outgoing_tracked.Count > 0)
+                    Clear();
+
+                ImGui.TextDisabled("Not in a session!");
+                return;
+            }
+
+            if (ImGui.CollapsingHeader("Incoming Packets", ImGuiTreeNodeFlags.DefaultOpen))
+            {
+                ImGui.InputText("Filter##Incoming", ref incoming_filter, 64);
+                ImGui.Separator();
+
+                AddTable(
+                    "incoming_packets_table_tab",
+                    incoming_tracked,
+                    incoming_filter
+                );
+            }
+
+            ImGui.Separator();
+
+            if (ImGui.CollapsingHeader("Outgoing Packets", ImGuiTreeNodeFlags.DefaultOpen))
+            {
+                ImGui.InputText("Filter##Outgoing", ref outgoing_filter, 64);
+                ImGui.Separator();
+
+                AddTable(
+                    "outgoing_packets_table_tab",
+                    outgoing_tracked,
+                    outgoing_filter
+                );
+            }
+        }
+
         private void AddTable(string str_id, List<PacketTrackData> dataset, string filter)
         {
             if (ImGui.BeginTable(str_id, 3,

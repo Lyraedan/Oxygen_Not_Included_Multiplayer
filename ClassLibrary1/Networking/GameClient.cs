@@ -5,6 +5,7 @@ using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Handshake;
 using ONI_MP.Networking.Packets.World;
+using ONI_MP.Networking.Profiling;
 using ONI_MP.Networking.States;
 using ONI_MP.Patches.ToolPatches;
 using Shared;
@@ -172,7 +173,10 @@ namespace ONI_MP.Networking
 
 		private static void ProcessIncomingMessages(HSteamNetConnection conn)
 		{
-			int maxMessagesPerConnectionPoll = Configuration.GetClientProperty<int>("MaxMessagesPerPoll");
+            long t0 = GameClientProfiler.Begin();
+            int totalBytes = 0;
+
+            int maxMessagesPerConnectionPoll = Configuration.GetClientProperty<int>("MaxMessagesPerPoll");
 			IntPtr[] messages = new IntPtr[maxMessagesPerConnectionPoll];
 			int msgCount = SteamNetworkingSockets.ReceiveMessagesOnConnection(conn, messages, maxMessagesPerConnectionPoll);
 
@@ -184,7 +188,8 @@ namespace ONI_MP.Networking
 			for (int i = 0; i < msgCount; i++)
 			{
 				var msg = Marshal.PtrToStructure<SteamNetworkingMessage_t>(messages[i]);
-				byte[] data = new byte[msg.m_cbSize];
+                totalBytes += msg.m_cbSize;
+                byte[] data = new byte[msg.m_cbSize];
 				Marshal.Copy(msg.m_pData, data, 0, msg.m_cbSize);
 
 				try
@@ -199,7 +204,8 @@ namespace ONI_MP.Networking
 
 				SteamNetworkingMessage_t.Release(messages[i]);
 			}
-		}
+            GameClientProfiler.End(t0, msgCount, totalBytes);
+        }
 
 		private static void OnConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t data)
 		{

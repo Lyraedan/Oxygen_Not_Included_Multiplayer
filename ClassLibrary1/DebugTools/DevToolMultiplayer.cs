@@ -14,6 +14,7 @@ using static STRINGS.UI;
 using Steamworks;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
+using ONI_MP.Networking.Profiling;
 
 namespace ONI_MP.DebugTools
 {
@@ -69,71 +70,103 @@ namespace ONI_MP.DebugTools
 
         }
 
-		public override void RenderTo(DevPanel panel)
+        public override void RenderTo(DevPanel panel)
         {
-            // Begin scroll region
-            ImGui.BeginChild("ScrollRegion", new Vector2(0, 0), true, ImGuiWindowFlags.HorizontalScrollbar);
+            ImGui.BeginChild("ScrollRegion", new Vector2(0, 0), true);
 
+            if (ImGui.BeginTabBar("MultiplayerTabs"))
+            {
+                if (ImGui.BeginTabItem("General"))
+                {
+                    DrawGeneralTab();
+                    ImGui.EndTabItem();
+                }
+
+                if (ImGui.BeginTabItem("Session"))
+                {
+                    DrawSessionTab();
+                    ImGui.EndTabItem();
+                }
+
+                if (ImGui.BeginTabItem("Network"))
+                {
+                    DrawNetworkTab();
+                    ImGui.EndTabItem();
+                }
+
+                if (ImGui.BeginTabItem("Debug"))
+                {
+                    DrawDebugTab();
+                    ImGui.EndTabItem();
+                }
+
+                if (ImGui.BeginTabItem("Console"))
+                {
+                    DrawConsoleTab();
+                    ImGui.EndTabItem();
+                }
+
+                ImGui.EndTabBar();
+            }
+
+            ImGui.EndChild();
+
+            console?.ShowWindow();
+            packetTracker?.ShowWindow();
+        }
+
+        private void DrawGeneralTab()
+        {
             if (ImGui.Button("Open Mod Directory"))
             {
-                string dir = Path.GetDirectoryName(ModDirectory);
-                Process.Start(new ProcessStartInfo()
+                Process.Start(new ProcessStartInfo
                 {
-                    FileName = dir,
+                    FileName = Path.GetDirectoryName(ModDirectory),
                     UseShellExecute = true
                 });
             }
-            ImGui.SameLine();
-            if (ImGui.Button("Toggle Debug Console"))
-            {
-                console?.Toggle();
-            }
-            if (ImGui.Button("Toggle Packet Tracker"))
-            {
-                packetTracker?.Toggle();
-            }
-            packetTracker.ShowWindow();
-            console?.ShowWindow();
 
-            ImGui.NewLine();
             ImGui.Separator();
 
-            if (ImGui.CollapsingHeader("Player Color"))
+            if (ImGui.CollapsingHeader("Player Color", ImGuiTreeNodeFlags.DefaultOpen))
             {
                 if (ImGui.Checkbox("Use Random Color", ref useRandomColor))
-                {
-                    Configuration.SetClientProperty<bool>("UseRandomPlayerColor", useRandomColor);
-                }
+                    Configuration.SetClientProperty("UseRandomPlayerColor", useRandomColor);
 
-                if (ImGui.ColorPicker3("Player Color", ref playerColor))
+                if (ImGui.ColorPicker3("Color", ref playerColor))
                 {
-                    ColorRGB colorRGB = new ColorRGB();
-                    colorRGB.R = (byte)(255 * playerColor.x);
-                    colorRGB.G = (byte)(255 * playerColor.y);
-                    colorRGB.B = (byte)(255 * playerColor.z);
-                    Configuration.SetClientProperty<ColorRGB>("PlayerColor", colorRGB);
+                    Configuration.SetClientProperty("PlayerColor", new ColorRGB
+                    {
+                        R = (byte)(playerColor.x * 255),
+                        G = (byte)(playerColor.y * 255),
+                        B = (byte)(playerColor.z * 255),
+                    });
                 }
             }
+        }
 
-            // Multiplayer status section
-            ImGui.TextColored(new Vector4(0.3f, 1f, 0.3f, 1f), "Multiplayer Active");
+        private void DrawSessionTab()
+        {
+            if(MultiplayerSession.InSession)
+                ImGui.TextColored(new Vector4(0.3f, 1f, 0.3f, 1f), "Multiplayer Active");
+            else
+                ImGui.TextColored(new Vector4(1f, 0.3f, 0.3f, 1f), "Multiplayer Not Active");
+            ImGui.Separator();
 
             if (ImGui.Button("Create Lobby"))
             {
                 SteamLobby.CreateLobby(onSuccess: () =>
                 {
                     SpeedControlScreen.Instance?.Unpause(false);
-					Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
-				});
+                    Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
+                });
             }
 
             ImGui.SameLine();
             if (ImGui.Button("Leave Lobby"))
-            {
                 SteamLobby.LeaveLobby();
-            }
 
-            ImGui.NewLine();
+            ImGui.SameLine();
             if (ImGui.Button("Client Disconnect"))
             {
                 GameClient.CacheCurrentServer();
@@ -142,13 +175,61 @@ namespace ONI_MP.DebugTools
 
             ImGui.SameLine();
             if (ImGui.Button("Reconnect"))
-            {
                 GameClient.ReconnectFromCache();
+
+            ImGui.Separator();
+            DisplaySessionDetails();
+
+            if (MultiplayerSession.InSession)
+                DrawPlayerList();
+            else
+                ImGui.TextDisabled("Not in a multiplayer session.");
+        }
+
+        private void DrawNetworkTab()
+        {
+            if (!MultiplayerSession.InSession)
+            {
+                ImGui.TextDisabled("Not connected.");
+                return;
             }
 
-            ImGui.NewLine();
-            ImGui.Separator();
+            DisplayNetworkStatistics();
 
+            if (ImGui.CollapsingHeader("Packet Tracker"))
+            {
+                ImGui.Indent();
+                if (ImGui.Button("Toggle Popout"))
+                    packetTracker?.Toggle();
+                packetTracker?.ShowInTab();
+                ImGui.Unindent();
+            }
+
+            if (MultiplayerSession.IsHost)
+            {
+                ImGui.Separator();
+                if (ImGui.Button("Test Hard Sync"))
+                    GameServerHardSync.PerformHardSync();
+            }
+        }
+
+        private void DrawDebugTab()
+        {
+            DisplayProfilers();
+            ImGui.Separator();
+            DisplayNetIdHolders();
+        }
+
+        private void DrawConsoleTab()
+        {
+            if (ImGui.Button("Toggle Popout"))
+                console?.Toggle();
+            ImGui.SameLine();
+            console?.ShowInTab();
+        }
+
+        public void DisplaySessionDetails()
+        {
             ImGui.Text("Session details:");
             ImGui.Text($"Connected clients: {(MultiplayerSession.InSession ? (MultiplayerSession.PlayerCursors.Count + 1) : 0)}");
             ImGui.Text($"Is Host: {MultiplayerSession.IsHost}");
@@ -156,47 +237,6 @@ namespace ONI_MP.DebugTools
             ImGui.Text($"In Session: {MultiplayerSession.InSession}");
             ImGui.Text($"Local ID: {MultiplayerSession.LocalSteamID}");
             ImGui.Text($"Host ID: {MultiplayerSession.HostSteamID}");
-
-            DisplayNetworkStatistics();
-			ImGui.Separator();
-			DisplayNetIdHolders();
-
-			ImGui.Separator();
-
-            try
-            {
-                if (MultiplayerSession.InSession)
-                {
-                    if (!MultiplayerSession.IsHost)
-                    {
-                        int? ping = GameClient.GetPingToHost();
-                        string pingDisplay = ping >= 0 ? $"{ping} ms" : "Pending...";
-                        ImGui.Text($"Ping to Host: {pingDisplay}");
-                    }
-                    else
-                    {
-                        ImGui.Text("Hosting multiplayer session.");
-                        if (ImGui.Button("Test Hard Sync"))
-                        {
-                            GameServerHardSync.PerformHardSync();
-                        }
-                    }
-
-                    ImGui.Separator();
-                    
-                    DrawPlayerList();
-                }
-                else
-                {
-                    ImGui.Text("Not in a multiplayer session.");
-                }
-            }
-            catch (Exception e)
-            {
-                ImGui.TextColored(new Vector4(1f, 0.3f, 0.3f, 1f), $"Error: {e.Message}");
-            }
-
-            ImGui.EndChild();
         }
 
         private void DrawPlayerList()
@@ -290,7 +330,8 @@ namespace ONI_MP.DebugTools
                 }
             }
         }
-		private string netIdFilter = string.Empty;
+		
+        private string netIdFilter = string.Empty;
 		public void DisplayNetIdHolders()
 		{
 			if (ImGui.CollapsingHeader("Net Id Holders"))
@@ -340,6 +381,15 @@ namespace ONI_MP.DebugTools
 				}
 			}
 		}
-	}
+	
+        public void DisplayProfilers()
+        {
+            if (ImGui.CollapsingHeader("Profilers"))
+            {
+                GameClientProfiler.DrawImGui();
+                GameServerProfiler.DrawImGui();
+            }
+        }
+    }
 }
 #endif

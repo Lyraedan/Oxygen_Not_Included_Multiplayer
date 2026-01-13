@@ -1,6 +1,7 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Handshake;
+using ONI_MP.Networking.Profiling;
 using ONI_MP.Networking.States;
 using Shared;
 using Steamworks;
@@ -235,20 +236,25 @@ namespace ONI_MP.Networking
 
 		private static void ReceiveMessages()
 		{
-			int maxMessagesPerPoll = Configuration.GetHostProperty<int>("MaxMessagesPerPoll");
+            long t0 = GameServerProfiler.Begin();
+            int totalBytes = 0;
+
+            int maxMessagesPerPoll = Configuration.GetHostProperty<int>("MaxMessagesPerPoll");
 			var messages = new IntPtr[maxMessagesPerPoll];
 			int msgCount = SteamNetworkingSockets.ReceiveMessagesOnPollGroup(PollGroup, messages, maxMessagesPerPoll);
 
 			for (int i = 0; i < msgCount; i++)
 			{
 				var msg = Marshal.PtrToStructure<SteamNetworkingMessage_t>(messages[i]);
-				byte[] bytes = new byte[msg.m_cbSize];
+                totalBytes += msg.m_cbSize;
+                byte[] bytes = new byte[msg.m_cbSize];
 				Marshal.Copy(msg.m_pData, bytes, 0, msg.m_cbSize);
 
 				PacketHandler.HandleIncoming(bytes);
 
 				SteamNetworkingMessage_t.Release(messages[i]);
 			}
-		}
+            GameServerProfiler.End(t0, msgCount, totalBytes);
+        }
 	}
 }
