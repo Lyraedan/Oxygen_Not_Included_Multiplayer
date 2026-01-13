@@ -1,5 +1,6 @@
 ﻿#if DEBUG
 using ImGuiNET;
+#endif
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -28,12 +29,20 @@ namespace ONI_MP.Networking.Profiling
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static long Begin()
         {
+#if RELEASE
+            return 0;
+#endif
+
             return Enabled ? Stopwatch.GetTimestamp() : 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void End(long startTicks, int msgCount, int bytes)
         {
+#if RELEASE
+            return;
+#endif
+
             if (!Enabled)
                 return;
 
@@ -55,6 +64,10 @@ namespace ONI_MP.Networking.Profiling
 
         public static void Reset()
         {
+#if RELEASE
+            return;
+#endif
+
             samples = 0;
             AvgMs = 0;
             AvgBytes = 0;
@@ -63,6 +76,7 @@ namespace ONI_MP.Networking.Profiling
             MaxTicks = 0;
         }
 
+#if DEBUG
         public static void DrawImGui()
         {
             if (!ImGui.Begin("GameClient Network Profiler"))
@@ -95,6 +109,6 @@ namespace ONI_MP.Networking.Profiling
 
             ImGui.End();
         }
+#endif
     }
 }
-#endif
