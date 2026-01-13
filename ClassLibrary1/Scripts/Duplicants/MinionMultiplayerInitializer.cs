@@ -1,6 +1,7 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
+using ONI_MP.Patches.StateMachines;
 using Shared;
 using System;
 using System.Collections;
@@ -58,7 +59,6 @@ namespace ONI_MP.Scripts.Duplicants
 				if (go.TryGetComponent<Sensors>(out var sensors)) sensors.enabled = false;
 
 				//disable all RationalAi smis
-				/*
 				var ai_smi = this.GetSMI<RationalAi.Instance>();
 				if (ai_smi != null)
 				{
@@ -66,11 +66,13 @@ namespace ONI_MP.Scripts.Duplicants
 					foreach(var getter in stateMachinesToStopGetter)
 					{
 						var smi = getter.Invoke(ai_smi);
-						smi.StopSM("Stopped by multiplayer mod");
-					}
+						//smi.StopSM("Stopped by multiplayer mod");
+						smi.PauseSMI();
+                    }
 
-					ai_smi.StopSM("Client dupe do not get to have ai");
-				}*/
+					ai_smi.PauseSMI();
+                    //ai_smi.StopSM("Client dupe do not get to have ai");
+                }
 
 				// Disable state machine controllers that could override animations
 				var stateMachineControllers = go.GetComponents<StateMachineController>();
