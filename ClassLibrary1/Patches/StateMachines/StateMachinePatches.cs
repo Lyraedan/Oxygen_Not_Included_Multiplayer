@@ -16,7 +16,7 @@ namespace ONI_MP.Patches.StateMachines
             {
                 if (__instance.IsSMIPaused())
                 {
-                    __result = true;
+                    __result = false;
                     return false;
                 }
 
