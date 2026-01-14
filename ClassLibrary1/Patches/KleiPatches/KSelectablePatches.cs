@@ -19,6 +19,9 @@ namespace ONI_MP.Patches.KleiPatches
         {
             public static void Postfix(KSelectable __instance)
             {
+                // Disabled for now
+                return;
+
                 SelectableStatusItemGroupToNetIdentity.Add(__instance.statusItemGroup, __instance.GetNetIdentity());
             }
         }
@@ -28,6 +31,9 @@ namespace ONI_MP.Patches.KleiPatches
         {
             public static bool Prefix(KSelectable __instance)
             {
+                // Disabled for now
+                return true;
+
                 if (SelectableStatusItemGroupToNetIdentity.TryGetValue(__instance.statusItemGroup, out NetworkIdentity netIdentity)) {
                     SelectableStatusItemGroupToNetIdentity.Remove(__instance.statusItemGroup);
                 }
