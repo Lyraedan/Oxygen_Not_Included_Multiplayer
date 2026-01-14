@@ -28,11 +28,7 @@ public class UIDragHandler : MonoBehaviour, IPointerDownHandler, IDragHandler
 
         RectTransform parent = target.parent as RectTransform;
 
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            parent,
-            eventData.position,
-            eventData.pressEventCamera,
-            out Vector2 localMousePosition))
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, eventData.position, eventData.pressEventCamera, out Vector2 localMousePosition))
         {
             Vector2 newPos = localMousePosition + offset;
 

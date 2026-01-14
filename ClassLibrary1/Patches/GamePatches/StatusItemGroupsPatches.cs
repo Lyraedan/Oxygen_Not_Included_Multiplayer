@@ -18,6 +18,9 @@ namespace ONI_MP.Patches.GamePatches
         {
             public static void Postfix(StatusItemGroup __instance, StatusItem item, object data, StatusItemCategory category, Guid __result)
             {
+                // Disabled for now
+                return;
+
                 if (__instance.IsNullOrDestroyed())
                     return;
 
@@ -50,6 +53,9 @@ namespace ONI_MP.Patches.GamePatches
 
             public static bool Prefix(StatusItemGroup __instance, int itemIdx)
             {
+                // Disabled for now
+                return true;
+
                 // Capture the entry BEFORE it is removed
                 if (itemIdx >= 0 && itemIdx < __instance.items.Count)
                 {
@@ -64,6 +70,9 @@ namespace ONI_MP.Patches.GamePatches
 
             public static void Postfix(StatusItemGroup __instance, Guid guid, bool immediate)
             {
+                // Disabled for now
+                return;
+
                 if (__instance.IsNullOrDestroyed())
                     return;
 
