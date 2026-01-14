@@ -71,6 +71,8 @@ namespace ONI_MP.Networking.Packets.Social
                 return;
 
             Schedule schedule = schedules[ScheduleIndex];
+            if (schedule == null)
+                return;
 
             // Screen has not been opened so update cache data
             if(ScheduleScreen.Instance == null)

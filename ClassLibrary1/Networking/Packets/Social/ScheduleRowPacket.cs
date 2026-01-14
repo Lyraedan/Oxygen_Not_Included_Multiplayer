@@ -93,6 +93,8 @@ namespace ONI_MP.Networking.Packets.Social
                 return;
 
             Schedule schedule = schedules[ScheduleIndex];
+            if (schedule == null)
+                return;
 
             switch(Action)
             {
