@@ -172,7 +172,16 @@ namespace ONI_MP.Networking.Packets.Social
         {
             if(ScheduleScreen.Instance == null)
             {
-                schedule.RemoveTimetable(TimetableToIndex);
+                int index = TimetableToIndex * 24;
+                int num = schedule.blocks.Count / 24;
+                schedule.blocks.RemoveRange(index, 24);
+                bool flag = TimetableToIndex == schedule.progressTimetableIdx;
+                bool flag2 = schedule.progressTimetableIdx == num - 1;
+                if (TimetableToIndex < schedule.progressTimetableIdx || (flag && flag2))
+                {
+                    schedule.progressTimetableIdx--;
+                }
+                // We can't do anything that triggers ScheduleScreen here
                 return;
             }
 
