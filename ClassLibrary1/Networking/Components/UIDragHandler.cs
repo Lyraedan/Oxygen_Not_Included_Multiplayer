@@ -3,30 +3,31 @@ using UnityEngine.EventSystems;
 
 public class UIDragHandler : MonoBehaviour, IPointerDownHandler, IDragHandler
 {
-	private RectTransform rectTransform;
-	private Vector2 offset;
-	private Canvas canvas;
+    [SerializeField] public RectTransform target;
 
-	private void Awake()
-	{
-		rectTransform = GetComponent<RectTransform>();
-		canvas = GetComponentInParent<Canvas>();
-	}
+    private Vector2 offset;
 
-	public void OnPointerDown(PointerEventData eventData)
-	{
-		RectTransformUtility.ScreenPointToLocalPointInRectangle(
-				rectTransform.parent as RectTransform, eventData.position, eventData.pressEventCamera, out Vector2 localMousePosition);
+    private void Awake()
+    {
+        if (target == null)
+            target = GetComponent<RectTransform>();
+    }
 
-		offset = localMousePosition - rectTransform.anchoredPosition;
-	}
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        RectTransform parent = target.parent as RectTransform;
 
-	public void OnDrag(PointerEventData eventData)
-	{
-		if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-				rectTransform.parent as RectTransform, eventData.position, eventData.pressEventCamera, out Vector2 localMousePosition))
-		{
-			rectTransform.anchoredPosition = localMousePosition - offset;
-		}
-	}
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, eventData.position, eventData.pressEventCamera, out Vector2 localMousePosition);
+        offset = target.anchoredPosition - localMousePosition;
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        RectTransform parent = target.parent as RectTransform;
+
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, eventData.position, eventData.pressEventCamera, out Vector2 localMousePosition))
+        {
+            target.anchoredPosition = localMousePosition + offset;
+        }
+    }
 }

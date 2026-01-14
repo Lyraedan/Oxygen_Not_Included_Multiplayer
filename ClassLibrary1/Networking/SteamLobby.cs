@@ -233,7 +233,8 @@ namespace ONI_MP.Networking
 				DebugConsole.Log($"[SteamLobby] {name} joined the lobby.");
 				ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_JOINED, name));
 				ChatScreen.QueueMessage(pending);
-			}
+                Game.Instance?.Trigger(MP_HASHES.OnPlayerJoined);
+            }
 
 			if ((stateChange & EChatMemberStateChange.k_EChatMemberStateChangeLeft) != 0 ||
 					(stateChange & EChatMemberStateChange.k_EChatMemberStateChangeDisconnected) != 0 ||
@@ -248,7 +249,8 @@ namespace ONI_MP.Networking
 				DebugConsole.Log($"[SteamLobby] {name} left the lobby.");
                 ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, name));
                 ChatScreen.QueueMessage(pending);
-			}
+                Game.Instance?.Trigger(MP_HASHES.OnPlayerLeft);
+            }
 		}
 
 		public static void JoinLobby(CSteamID lobbyId, Action<CSteamID> onJoinedLobby = null, string password = null)

@@ -51,96 +51,95 @@ namespace ONI_MP.UI
 
 			Instance.SetupUI();
 		}
-		private void SetupUI()
-		{
-			var chatWindowRoot = new GameObject("ChatWindowRoot", typeof(RectTransform));
-			chatWindowRoot.transform.SetParent(transform, false);
-			var rootRT = chatWindowRoot.GetComponent<RectTransform>();
-			rootRT.anchorMin = new Vector2(0.5f, 0);
-			rootRT.anchorMax = new Vector2(0.5f, 0);
-			rootRT.pivot = new Vector2(0.5f, 0);
-			rootRT.anchoredPosition = new Vector2(0, 250);
-			rootRT.sizeDelta = new Vector2(400, 230);
+        private void SetupUI()
+        {
+            var chatWindowRoot = new GameObject("ChatWindowRoot", typeof(RectTransform));
+            chatWindowRoot.transform.SetParent(transform, false);
+            var rootRT = chatWindowRoot.GetComponent<RectTransform>();
+            rootRT.anchorMin = new Vector2(0.5f, 0);
+            rootRT.anchorMax = new Vector2(0.5f, 0);
+            rootRT.pivot = new Vector2(0.5f, 0);
+            rootRT.anchoredPosition = new Vector2(0, 250);
+            rootRT.sizeDelta = new Vector2(400, 230);
 
-			chatWindowRoot.AddComponent<UIDragHandler>();
+            header = new GameObject("ChatHeader", typeof(RectTransform), typeof(Image), typeof(Button));
+            header.transform.SetParent(chatWindowRoot.transform, false);
+            var headerRT = header.GetComponent<RectTransform>();
+            headerRT.anchorMin = new Vector2(0, 1);
+            headerRT.anchorMax = new Vector2(1, 1);
+            headerRT.pivot = new Vector2(0.5f, 1);
+            headerRT.anchoredPosition = new Vector2(0, 20);
+            headerRT.sizeDelta = new Vector2(0, 30);
+            header.GetComponent<Image>().color = new Color(0.4f, 0.2f, 0.3f, 0.9f);
 
-			var chatboxContents = new GameObject("Chatbox_Contents");
-			chatboxContents.transform.SetParent(chatWindowRoot.transform, false);
-			chatbox = chatboxContents;
+            var drag = header.AddComponent<UIDragHandler>();
+            drag.target = rootRT;
 
-			var contentsRT = chatboxContents.AddComponent<RectTransform>();
-			contentsRT.anchorMin = new Vector2(0, 0);
-			contentsRT.anchorMax = new Vector2(1, 1);
-			contentsRT.pivot = new Vector2(0.5f, 0);
-			contentsRT.offsetMin = new Vector2(0, 0);
-			contentsRT.offsetMax = new Vector2(0, -30);
+            var chatboxContents = new GameObject("Chatbox_Contents");
+            chatboxContents.transform.SetParent(chatWindowRoot.transform, false);
+            chatbox = chatboxContents;
 
-			var panel = CreatePanel("ChatPanel", chatboxContents.transform, new Vector2(400, 200));
-			panel.GetComponent<Image>().color = new Color(0, 0, 0, 0.7f);
-			var panelRT = panel.GetComponent<RectTransform>();
-			panelRectTransform = panelRT;
+            var contentsRT = chatboxContents.AddComponent<RectTransform>();
+            contentsRT.anchorMin = new Vector2(0, 0);
+            contentsRT.anchorMax = new Vector2(1, 1);
+            contentsRT.pivot = new Vector2(0.5f, 0);
+            contentsRT.offsetMin = new Vector2(0, 0);
+            contentsRT.offsetMax = new Vector2(0, -30);
 
-			var scroll = CreateScrollArea("Scroll", panel.transform, out messageContainer);
-			var scrollRT = scroll.GetComponent<RectTransform>();
-			scrollRT.anchorMin = new Vector2(0, 0);
-			scrollRT.anchorMax = new Vector2(1, 1);
-			scrollRT.pivot = new Vector2(0.5f, 1f);
-			scrollRT.offsetMin = new Vector2(10, 50);
-			scrollRT.offsetMax = new Vector2(-10, -10);
+            var panel = CreatePanel("ChatPanel", chatboxContents.transform, new Vector2(400, 200));
+            panel.GetComponent<Image>().color = new Color(0, 0, 0, 0.7f);
+            panelRectTransform = panel.GetComponent<RectTransform>();
 
-			messageContainer.anchorMin = new Vector2(0, 0);
-			messageContainer.anchorMax = new Vector2(1, 1);
-			messageContainer.offsetMin = Vector2.zero;
-			messageContainer.offsetMax = Vector2.zero;
-			messageContainer.pivot = new Vector2(0.5f, 1f);
+            var scroll = CreateScrollArea("Scroll", panel.transform, out messageContainer);
+            var scrollRT = scroll.GetComponent<RectTransform>();
+            scrollRT.anchorMin = new Vector2(0, 0);
+            scrollRT.anchorMax = new Vector2(1, 1);
+            scrollRT.pivot = new Vector2(0.5f, 1f);
+            scrollRT.offsetMin = new Vector2(10, 50);
+            scrollRT.offsetMax = new Vector2(-10, -10);
 
-			inputField = CreateInputField("ChatInput", panel.transform, new Vector2(10, 15), new Vector2(380, 30));
-			inputField.onEndEdit.AddListener(OnInputSubmitted);
+            messageContainer.anchorMin = new Vector2(0, 0);
+            messageContainer.anchorMax = new Vector2(1, 1);
+            messageContainer.offsetMin = Vector2.zero;
+            messageContainer.offsetMax = Vector2.zero;
+            messageContainer.pivot = new Vector2(0.5f, 1f);
 
-			header = new GameObject("ChatHeader", typeof(RectTransform), typeof(Image), typeof(Button));
-			header.transform.SetParent(chatWindowRoot.transform, false);
-			var headerRT = header.GetComponent<RectTransform>();
-			headerRT.anchorMin = new Vector2(0, 1);
-			headerRT.anchorMax = new Vector2(1, 1);
-			headerRT.pivot = new Vector2(0.5f, 1);
-			headerRT.anchoredPosition = new Vector2(0, 20);
-			headerRT.sizeDelta = new Vector2(0, 30);
-			header.GetComponent<Image>().color = new Color(0.4f, 0.2f, 0.3f, 0.9f);
+            inputField = CreateInputField("ChatInput", panel.transform, new Vector2(10, 15), new Vector2(380, 30));
+            inputField.onEndEdit.AddListener(OnInputSubmitted);
 
-			var headerTextGO = new GameObject("HeaderText", typeof(TextMeshProUGUI));
-			headerTextGO.transform.SetParent(header.transform, false);
-			var headerText = headerTextGO.GetComponent<TextMeshProUGUI>();
-			headerText.text = STRINGS.UI.MP_CHATWINDOW.RESIZE.RETRACT;
-			headerText.alignment = TextAlignmentOptions.MidlineLeft;
-			headerText.fontSize = 20;
-			headerText.color = Color.white;
-			headerText.margin = new Vector4(10, 0, 0, 0);
+            var headerTextGO = new GameObject("HeaderText", typeof(TextMeshProUGUI));
+            headerTextGO.transform.SetParent(header.transform, false);
+            var headerText = headerTextGO.GetComponent<TextMeshProUGUI>();
+            headerText.text = STRINGS.UI.MP_CHATWINDOW.RESIZE.RETRACT;
+            headerText.alignment = TextAlignmentOptions.MidlineLeft;
+            headerText.fontSize = 20;
+            headerText.color = Color.white;
+            headerText.margin = new Vector4(10, 0, 0, 0);
 
-			var headerTextRT = headerText.GetComponent<RectTransform>();
-			headerTextRT.anchorMin = new Vector2(0, 0);
-			headerTextRT.anchorMax = new Vector2(1, 1);
-			headerTextRT.offsetMin = new Vector2(5, 0);
-			headerTextRT.offsetMax = new Vector2(-5, 0);
+            var headerTextRT = headerText.GetComponent<RectTransform>();
+            headerTextRT.anchorMin = new Vector2(0, 0);
+            headerTextRT.anchorMax = new Vector2(1, 1);
+            headerTextRT.offsetMin = new Vector2(5, 0);
+            headerTextRT.offsetMax = new Vector2(-5, 0);
 
+            expanded = true;
+            header.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                expanded = !expanded;
+                chatbox.SetActive(expanded);
+                headerText.text = expanded ? STRINGS.UI.MP_CHATWINDOW.RESIZE.RETRACT : STRINGS.UI.MP_CHATWINDOW.RESIZE.EXPAND;
+            });
 
-			expanded = true;
-			header.GetComponent<Button>().onClick.AddListener(() =>
-			{
-				expanded = !expanded;
-				chatbox.SetActive(expanded);
-				headerText.text = expanded ? STRINGS.UI.MP_CHATWINDOW.RESIZE.RETRACT : STRINGS.UI.MP_CHATWINDOW.RESIZE.EXPAND;
-			});
+            header.transform.SetAsLastSibling();
 
-			header.transform.SetAsLastSibling();
+            PendingMessage init_message = GeneratePendingMessage(STRINGS.UI.MP_CHATWINDOW.CHAT_INITIALIZED);
+            QueueMessage(init_message);
+            ProcessMessageQueue();
 
-			PendingMessage init_message = GeneratePendingMessage(STRINGS.UI.MP_CHATWINDOW.CHAT_INITIALIZED);
-			QueueMessage(init_message);
-			ProcessMessageQueue();
+            StartCoroutine(FixInputFieldDisplay());
+        }
 
-			StartCoroutine(FixInputFieldDisplay());
-		}
-
-		public void ProcessMessageQueue()
+        public void ProcessMessageQueue()
 		{
 			foreach (var pending in pendingMessages)
 				QueueMessage(pending);

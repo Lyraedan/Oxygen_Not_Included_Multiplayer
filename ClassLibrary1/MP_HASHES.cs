@@ -17,5 +17,8 @@ namespace ONI_MP
         public static readonly ModHashes GameClient_OnConnectedInGame = new("MP_OnConnectedInGame");
 
 		public static readonly ModHashes OnMultiplayerGameSessionInitialized = new("MP_OnMultiplayerSessionStarted");
-	}
+
+        public static readonly ModHashes OnPlayerJoined = new("OnPlayerJoined");
+        public static readonly ModHashes OnPlayerLeft = new("OnPlayerLeft");
+    }
 }
