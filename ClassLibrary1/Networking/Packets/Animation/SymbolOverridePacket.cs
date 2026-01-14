@@ -1,5 +1,6 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
+using Shared.Interfaces.Networking;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ONI_MP.Networking.Packets.Animation
 {
-	internal class SymbolOverridePacket : IPacket
+	internal class SymbolOverridePacket : IPacket, IBulkablePacket
 	{
 		public enum Mode
 		{
@@ -25,7 +26,11 @@ namespace ONI_MP.Networking.Packets.Animation
 		public KAnimHashedString Override_Symbol_Name;
 		public int Priority;
 
-		public SymbolOverridePacket() { }
+        public int MaxPackSize => 500;
+
+        public uint IntervalMs => 50;
+
+        public SymbolOverridePacket() { }
 		public SymbolOverridePacket(SymbolOverrideController soc, Mode mode, HashedString? target_symbol = null, KAnim.Build.Symbol source_symbol = null, int priority = 0)
 		{
 			NetId = soc.GetNetId();

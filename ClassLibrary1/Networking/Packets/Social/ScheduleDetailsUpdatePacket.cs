@@ -71,6 +71,22 @@ namespace ONI_MP.Networking.Packets.Social
                 return;
 
             Schedule schedule = schedules[ScheduleIndex];
+
+            // Screen has not been opened so update cache data
+            if(ScheduleScreen.Instance == null)
+            {
+                switch (UpdateType)
+                {
+                    case DetailsUpdateType.NAME:
+                        schedule.name = Name;
+                        break;
+                    case DetailsUpdateType.ALARM_STATE:
+                        schedule.alarmActivated = AlarmActivated;
+                        break;
+                }
+                return;
+            }
+
             ScheduleScreenEntry entry = ScheduleScreen.Instance.scheduleEntries[ScheduleIndex];
             switch (UpdateType)
             {
