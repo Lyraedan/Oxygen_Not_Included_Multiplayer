@@ -7,7 +7,7 @@ using System;
 using System.IO;
 using UnityEngine;
 
-public class EntityPositionPacket : IPacket
+public class EntityPositionPacket : IPacket, IBulkablePacket
 {
 	public int NetId;
 	public Vector3 Position;
@@ -17,6 +17,10 @@ public class EntityPositionPacket : IPacket
 	public NavType NavType;
 	public float SendInterval;
 	public long Timestamp;
+
+    public int MaxPackSize => 500;
+
+    public uint IntervalMs => 50;
 
     public void Serialize(BinaryWriter writer)
 	{
@@ -52,16 +56,15 @@ public class EntityPositionPacket : IPacket
 			if (!handler)
 				return;
 
-			if (handler.serverTimestamp > Timestamp)
-			{
-				return; // Recieved out of date position packet, ignore.
-			}
-
-            handler.serverPosition = Position;
-            handler.serverVelocity = Velocity;
-            handler.serverTimestamp = Timestamp;
-            handler.serverFlipX = FlipX;
-			handler.serverFlipY = FlipY;
+            var sample = new EntityPositionHandler.PositionSample
+            {
+                Position = Position,
+                Velocity = Velocity,
+                FlipX = FlipX,
+                FlipY = FlipY,
+                Timestamp = Timestamp
+            };
+            handler.EnqueuePosition(sample);
         }
 		else
 		{

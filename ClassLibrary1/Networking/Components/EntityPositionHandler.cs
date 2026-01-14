@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using ONI_MP.DebugTools;
 using TMPro;
 using UnityEngine;
@@ -7,6 +9,15 @@ namespace ONI_MP.Networking.Components
 {
 	public class EntityPositionHandler : KMonoBehaviour
 	{
+        public struct PositionSample
+        {
+            public Vector3 Position;
+            public Vector3 Velocity;
+            public bool FlipX;
+            public bool FlipY;
+            public long Timestamp;
+        }
+
         [MyCmpGet] KBatchedAnimController kbac;
         [MyCmpGet] Navigator navigator;
 
@@ -17,44 +28,20 @@ namespace ONI_MP.Networking.Components
         public static float SendIntervalStationary = 2.0f; // 2 seconds 
 
 		private Vector3 velocity;
-
-        // Client position syncing, these are all updated from the EntityPositionPacket
-        public Vector3 clientVelocity;
-        public Vector3 serverPosition;
-        public Vector3 serverVelocity;
-        public long serverTimestamp;
-        public bool serverFlipX;
-        public bool serverFlipY;
+        private Queue<PositionSample> positionQueue = new Queue<PositionSample>();
 
         #region Position Sync Tuning
 
         /// <summary>
-        /// Maximum time (seconds) we allow for prediction forward
-        /// Prevents extreme warping on lag spikes
-        /// </summary>
-        private const float MAX_PREDICTION_TIME = 0.25f;
-
-        /// <summary>
         /// Distance at which we hard-snap instead of smoothing (world units)
         /// </summary>
-        private const float SNAP_DISTANCE = 1.5f;
+        private const float SNAP_DISTANCE = 10f;
 
         /// <summary>
         /// How fast velocity converges to the corrected velocity
         /// Higher = more responsive, lower = smoother
         /// </summary>
         private const float VELOCITY_SMOOTHING = 10f;
-
-        /// <summary>
-        /// Minimum & maximum lerp factor per frame
-        /// </summary>
-        private const float MIN_INTERPOLATION = 0.05f;
-        private const float MAX_INTERPOLATION = 0.25f;
-
-        /// <summary>
-        /// Prevent divide-by-zero and extreme velocity spikes
-        /// </summary>
-        private const float MIN_DT = 0.016f;
 
         #endregion
 
@@ -89,35 +76,82 @@ namespace ONI_MP.Networking.Components
 			SendPositionPacket();
 		}
 
-        // Ported this from my own Godot game, its not perfect. But it feels better
         private void UpdatePosition()
         {
-            if (serverTimestamp == 0)
+            if (positionQueue.Count == 0)
                 return;
 
-            kbac.FlipX = serverFlipX;
-            kbac.FlipY = serverFlipY;
+            Vector3 currentPosition = transform.position;
+            var nextSample = positionQueue.Peek();
+
+            kbac.FlipX = nextSample.FlipX;
+            kbac.FlipY = nextSample.FlipY;
+
+            Vector3 targetPosition = nextSample.Position;
+            float distanceToTarget = Vector3.Distance(currentPosition, targetPosition);
+
+            if (distanceToTarget > SNAP_DISTANCE)
+            {
+                currentPosition = targetPosition;
+                positionQueue.Dequeue();
+            }
+            else
+            {
+                float gameSpeed = SpeedControlScreen.Instance.GetSpeed() + 1f;
+                float moveDistance = VELOCITY_SMOOTHING * Time.unscaledDeltaTime * gameSpeed;
+
+                currentPosition = Vector3.MoveTowards(currentPosition, targetPosition, moveDistance);
+
+                if (Vector3.Distance(currentPosition, targetPosition) < 0.01f)
+                    positionQueue.Dequeue();
+            }
+
+            transform.SetPosition(currentPosition);
+        }
+
+        public void EnqueuePosition(PositionSample sample)
+        {
+            // Ignore outdated packets
+            if (positionQueue.Count > 0 && sample.Timestamp <= positionQueue.Last().Timestamp)
+                return;
+
+            positionQueue.Enqueue(sample);
+        }
+
+        private void UpdatePositionOLd()
+        {
+            if (positionQueue.Count == 0)
+                return;
+
+            PositionSample sample = positionQueue.Last();
+            Vector3 clientVelocity = sample.Velocity;
+
+            float MAX_PREDICTION_TIME = 0.25f;
+            float MIN_INTERPOLATION = 0.1f;
+            float MAX_INTERPOLATION = 1f;
+            float MIN_DT = 0.001f;
+            if (sample.Timestamp == 0)
+                return;
+
+            kbac.FlipX = sample.FlipX;
+            kbac.FlipY = sample.FlipY;
 
             float localTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            float packetTime = serverTimestamp;
+            float packetTime = sample.Timestamp;
 
-            // Clamp prediction time
             float dt = Mathf.Clamp(localTime - packetTime, 0f, MAX_PREDICTION_TIME);
 
-            // Predict forward using server velocity
-            Vector3 predictedPosition = serverPosition + serverVelocity * dt;
+            Vector3 predictedPosition = sample.Position + sample.Velocity * dt;
 
             float error = Vector3.Distance(transform.position, predictedPosition);
 
-            // Large desync -> snap
             if (error > SNAP_DISTANCE)
             {
-                transform.SetPosition(serverPosition);
-                clientVelocity = serverVelocity;
+                transform.SetPosition(sample.Position);
+                clientVelocity = sample.Velocity;
                 return;
             }
 
-            // Smooth correction
             float interpolationFactor = Mathf.Clamp(Time.unscaledDeltaTime * VELOCITY_SMOOTHING, MIN_INTERPOLATION, MAX_INTERPOLATION);
 
             Vector3 correctedVelocity = (predictedPosition - transform.position) / Mathf.Max(dt, MIN_DT);
