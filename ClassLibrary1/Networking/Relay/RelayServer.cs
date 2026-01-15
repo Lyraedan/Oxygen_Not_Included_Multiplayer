@@ -8,5 +8,12 @@ namespace ONI_MP.Networking.Relay
 {
     public interface RelayServer
     {
+        public void Start();
+
+        public void Stop();
+
+        public void Update();
+
+        public void OnMessageRecieved();
     }
 }

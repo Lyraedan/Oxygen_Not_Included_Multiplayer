@@ -8,5 +8,21 @@ namespace ONI_MP.Networking.Relay.Lan
 {
     public class LanServer : RelayServer
     {
+
+        public void Start()
+        {
+        }
+
+        public void Stop()
+        {
+        }
+
+        public void Update()
+        {
+        }
+
+        public void OnMessageRecieved()
+        {
+        }
     }
 }

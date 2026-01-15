@@ -8,5 +8,20 @@ namespace ONI_MP.Networking.Relay.Steam
 {
     public class SteamServer : RelayServer
     {
+        public void Start()
+        {
+        }
+
+        public void Stop()
+        {
+        }
+
+        public void Update()
+        {
+        }
+
+        public void OnMessageRecieved()
+        {
+        }
     }
 }
