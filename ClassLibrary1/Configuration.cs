@@ -105,10 +105,18 @@ namespace ONI_MP
 
     class HostSettings
     {
+        public int NetworkRelay = 0; // 0 = steam, 1 = lan
         public int MaxLobbySize { get; set; } = 4;
         public int MaxMessagesPerPoll { get; set; } = 128;
         public int SaveFileTransferChunkKB { get; set; } = 256;
+        public LanSettings LanSettings { get; set; } = new LanSettings();
         public LobbySettings Lobby { get; set; } = new LobbySettings();
+    }
+
+    class LanSettings
+    {
+        public string Ip { get; set; } = "127.0.0.1";
+        public int Port { get; set; } = 8080;
     }
 
     class LobbySettings
