@@ -343,7 +343,8 @@ namespace ONI_MP.Misc
         {
             unchecked
             {
-                ulong hash = 14695981039346656037UL; // FNV-1a 64-bit offset
+				//https://gist.github.com/RevenantX/9817785b5a0741f124bc2a12ede85f9d
+				ulong hash = 14695981039346656037UL; // FNV-1a 64-bit offset
                 const ulong prime = 1099511628211UL;
 
                 // IP bytes
