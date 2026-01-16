@@ -15,6 +15,9 @@ namespace ONI_MP.Networking.Relay.Steam
     {
         public override bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
         {
+            if (conn is not HSteamNetConnection)
+                return false;
+
             HSteamNetConnection s_conn = (HSteamNetConnection)conn;
 
             var bytes = PacketSender.SerializePacketForSending(packet);

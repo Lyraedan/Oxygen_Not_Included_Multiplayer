@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ONI_MP.Networking.Relay;
+using ONI_MP.Networking.Relay.Lan;
 using ONI_MP.Networking.Relay.Steam;
 
 namespace ONI_MP.Networking
@@ -27,6 +28,8 @@ namespace ONI_MP.Networking
             {
                 case NetworkRelay.STEAM:
                     return new SteamServer();
+                case NetworkRelay.LAN:
+                    return new LanServer();
                 default:
                     return new SteamServer();
             }
@@ -38,6 +41,8 @@ namespace ONI_MP.Networking
             {
                 case NetworkRelay.STEAM:
                     return new SteamClient();
+                case NetworkRelay.LAN:
+                    return new LanClient();
                 default:
                     return new SteamClient();
             }
@@ -49,6 +54,8 @@ namespace ONI_MP.Networking
             {
                 case NetworkRelay.STEAM:
                     return new SteamPacketSender();
+                case NetworkRelay.LAN:
+                    return new LanPacketSender();
                 default:
                     return new SteamPacketSender();
             }

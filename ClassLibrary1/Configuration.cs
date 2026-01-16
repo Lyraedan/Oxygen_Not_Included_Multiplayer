@@ -113,12 +113,6 @@ namespace ONI_MP
         public LobbySettings Lobby { get; set; } = new LobbySettings();
     }
 
-    class LanSettings
-    {
-        public string Ip { get; set; } = "127.0.0.1";
-        public int Port { get; set; } = 8080;
-    }
-
     class LobbySettings
     {
         public bool IsPrivate { get; set; } = false;
@@ -133,6 +127,14 @@ namespace ONI_MP
         public int MaxMessagesPerPoll { get; set; } = 16;
         public bool UseRandomPlayerColor { get; set; } = true;
         public ColorRGB PlayerColor { get; set; } = new ColorRGB(255, 255, 255);
+
+        public LanSettings LanSettings { get; set; } = new LanSettings();
+    }
+
+    class LanSettings
+    {
+        public string Ip { get; set; } = "127.0.0.1";
+        public int Port { get; set; } = 8080;
     }
 
     class ColorRGB
