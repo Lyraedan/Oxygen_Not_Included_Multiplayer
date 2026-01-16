@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Sockets;
-using System.Threading;
+using Mono.Nat;
 using LiteNetLib.Utils;
 using LiteNetLib;
 using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Profiling;
+
 using static ONI_MP.STRINGS.UI.MP_OVERLAY;
+using static LogicPorts;
 
 namespace ONI_MP.Networking.Relay.Lan
 {
@@ -19,12 +18,15 @@ namespace ONI_MP.Networking.Relay.Lan
         public enum TransportType
         {
             DIRECT,
-            STUN // TODO: Research
+            NAT,
+            //STUN //TODO Research
         }
 
+        public TransportType transport = TransportType.DIRECT;
         private NetManager netManager;
         private NetDataWriter writer;
 
+        private int port;
         public static ulong MY_CLIENT_ID = 0;
 
         // Anything to init before start
@@ -39,7 +41,7 @@ namespace ONI_MP.Networking.Relay.Lan
                 return;
 
             string ip = Configuration.Instance.Host.LanSettings.Ip;
-            int port = Configuration.Instance.Host.LanSettings.Port;
+            port = Configuration.Instance.Host.LanSettings.Port;
 
             netManager = new NetManager(this)
             {
@@ -50,12 +52,22 @@ namespace ONI_MP.Networking.Relay.Lan
 
             netManager.Start(port);
 
+            if(transport.Equals(TransportType.NAT))
+            {
+                // NAT Discovery
+                try
+                {
+                    NatUtility.DeviceFound += OnNatDeviceFound;
+                    NatUtility.StartDiscovery();
+                }
+                catch (Exception e)
+                {
+                    DebugConsole.LogWarning($"[LanServer] NAT discovery failed: {e}");
+                }
+            }
+
             MY_CLIENT_ID = Utils.GetClientId(new IPEndPoint(IPAddress.Parse(ip), port));
             DebugConsole.Log($"[LanServer] MY_CLIENT_ID = {MY_CLIENT_ID} ({ip}:{port})");
-
-            LanPacketSender packetSender = (LanPacketSender)NetworkConfig.GetRelayPacketSender();
-            //packetSender.netManager = netManager;
-
             DebugConsole.Log($"[LanServer] LiteNetLib LAN server started on {ip}:{port}");
         }
 
@@ -63,6 +75,12 @@ namespace ONI_MP.Networking.Relay.Lan
         {
             netManager?.Stop();
             netManager = null;
+
+            if(transport.Equals(TransportType.NAT))
+            {
+                NatUtility.StopDiscovery();
+                NatUtility.DeviceFound -= OnNatDeviceFound;
+            }
 
             DebugConsole.Log("[LanServer] LiteNetLib LAN server stopped");
         }
@@ -162,6 +180,39 @@ namespace ONI_MP.Networking.Relay.Lan
             }
 
             reader.Recycle();
+        }
+
+        ///////////// STUN
+        ///
+        public void StartNATMapping(int port)
+        {
+            try
+            {
+                NatUtility.DeviceFound += OnNatDeviceFound;
+                NatUtility.StartDiscovery();
+            }
+            catch (Exception e)
+            {
+                DebugConsole.LogWarning($"[LanServer] NAT discovery failed: {e}");
+            }
+        }
+
+        private void OnNatDeviceFound(object sender, DeviceEventArgs e)
+        {
+            try
+            {
+                DebugConsole.Log($"[LanServer] NAT device found: {e.Device.DeviceEndpoint}, Type:  {e.Device.NatProtocol.ToString()}");
+
+                // Map public port to the server port
+                Mapping mapping = new Mapping(Protocol.Udp, port, port, 0, "ONI_MP_LAN_Server");
+                e.Device.CreatePortMap(mapping);
+
+                DebugConsole.Log($"[LanServer] Port mapped: {e.Device.DeviceEndpoint}:{port}");
+            }
+            catch (Exception ex)
+            {
+                DebugConsole.LogWarning($"[LanServer] Port mapping failed: {ex}");
+            }
         }
     }
 }
