@@ -9,6 +9,12 @@ namespace ONI_MP.Networking.Components
 	{
 		public static UnityTaskScheduler scheduler = new UnityTaskScheduler();
 
+		/*
+		 * TODO:
+		 * Update this class now that we can have different relay types. This is not steam specific anymore
+		 * 
+		 * **/
+
 		private void Start()
 		{
 			SteamNetworkingUtils.InitRelayNetworkAccess();

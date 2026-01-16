@@ -8,20 +8,27 @@ namespace ONI_MP.Networking.Relay.Lan
 {
     public class LanClient : RelayClient
     {
-
-        public void Start()
+        public override void Prepare()
         {
         }
 
-        public void Stop()
+        public override void ConnectToHost()
         {
         }
 
-        public void Update()
+        public override void Disconnect()
         {
         }
 
-        public void OnMessageRecieved()
+        public override void ReconnectToSession()
+        {
+        }
+
+        public override void OnMessageRecieved()
+        {
+        }
+
+        public override void Update()
         {
         }
     }

@@ -6,14 +6,26 @@ using System.Threading.Tasks;
 
 namespace ONI_MP.Networking.Relay
 {
-    public interface RelayClient
+    public abstract class RelayClient
     {
-        public void Start();
+        public System.Action OnClientConnected;
+        public System.Action OnClientDisconnected;
 
-        public void Stop();
+        public System.Action OnContinueConnectionFlow;
 
-        public void Update();
+        public System.Action OnRequestStateOrReturn;
+        public System.Action OnReturnToMenu;
 
-        public void OnMessageRecieved();
+        public abstract void Prepare();
+
+        public abstract void ConnectToHost();
+
+        public abstract void Disconnect();
+
+        public abstract void ReconnectToSession();
+
+        public abstract void Update();
+
+        public abstract void OnMessageRecieved();
     }
 }
