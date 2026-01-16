@@ -73,7 +73,11 @@ namespace ONI_MP.Networking.Relay.Steam
             {
                 if (player.Connection != null)
                 {
-                    SteamNetworkingSockets.CloseConnection(player.Connection.Value, 0, "Shutdown", false); // TODO UPDATE
+                    if (player.Connection is HSteamNetConnection)
+                    {
+                        var conn = (HSteamNetConnection) player.Connection;
+                        SteamNetworkingSockets.CloseConnection(conn, 0, "Shutdown", false);
+                    }
                     player.Connection = null;
                 }
             }

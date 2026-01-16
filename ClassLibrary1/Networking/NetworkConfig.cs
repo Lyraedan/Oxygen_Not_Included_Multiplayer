@@ -8,6 +8,9 @@ using ONI_MP.Networking.Relay;
 using ONI_MP.Networking.Relay.Lan;
 using ONI_MP.Networking.Relay.Steam;
 using Steamworks;
+using SteamServer = ONI_MP.Networking.Relay.Steam.SteamServer;
+using SteamClient = ONI_MP.Networking.Relay.Steam.SteamClient;
+using ONI_MP.DebugTools;
 
 namespace ONI_MP.Networking
 {
@@ -15,14 +18,23 @@ namespace ONI_MP.Networking
     {
         public enum NetworkRelay
         {
-            STEAM,
-            LAN
+            STEAM = 0,
+            LAN = 1
         }
-        public static NetworkRelay relay = NetworkRelay.STEAM;
+        public static NetworkRelay relay { get; private set; } = NetworkRelay.STEAM;
 
         public static RelayServer RelayServer { get; set; } = new SteamServer();
         public static RelayClient RelayClient { get; set; } = new SteamClient();
         public static RelayPacketSender RelayPacketSender { get; set; } = new SteamPacketSender();
+
+        public static void UpdateRelay(NetworkRelay newRelay)
+        {
+            relay = newRelay;
+            RelayServer = GetRelayServer();
+            RelayClient = GetRelayClient();
+            RelayPacketSender = GetRelayPacketSender();
+            DebugConsole.Log($"Updated network relay to: {newRelay.ToString()}");
+        }
 
         public static RelayServer GetRelayServer()
         {
@@ -65,7 +77,7 @@ namespace ONI_MP.Networking
     
         public static ulong GetLocalID()
         {
-            switch(relay)
+            switch (relay)
             {
                 case NetworkRelay.STEAM:
                     return SteamUser.GetSteamID().m_SteamID;
@@ -73,12 +85,24 @@ namespace ONI_MP.Networking
                     if (MultiplayerSession.IsClient)
                     {
                         return LanClient.MY_CLIENT_ID;
-                    } else
+                    }
+                    else
                     {
                         return LanServer.MY_CLIENT_ID;
                     }
                 default:
                     return Utils.NilUlong();
+            }
+        }
+
+        public static bool IsSteamConfig()
+        {
+            return relay.Equals(NetworkRelay.STEAM);
+        }
+
+        public static bool IsLanConfig()
+        {
+            return relay.Equals(NetworkRelay.LAN);
         }
     }
 }

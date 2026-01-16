@@ -126,8 +126,17 @@ namespace ONI_MP.Networking
 				DebugConsole.Log($"[SteamLobby] Lobby created: {CurrentLobby}");
 
 				SteamMatchmaking.SetLobbyData(CurrentLobby, "name", SteamFriends.GetPersonaName() + "'s Lobby");
-				SteamMatchmaking.SetLobbyData(CurrentLobby, "host", SteamUser.GetSteamID().ToString());
+				SteamMatchmaking.SetLobbyData(CurrentLobby, "host", NetworkConfig.GetLocalID().ToString());
 				SteamMatchmaking.SetLobbyData(CurrentLobby, "hostname", SteamFriends.GetPersonaName());
+
+				SteamMatchmaking.SetLobbyData(CurrentLobby, "relay", ((int)NetworkConfig.relay).ToString());
+				if (NetworkConfig.IsLanConfig())
+				{
+					string address = Configuration.Instance.Host.LanSettings.GetHashedAddress();
+					DebugConsole.Log($"[SteamLobby] Detected Lan config! Hashed address: {address}");
+					SteamMatchmaking.SetLobbyData(CurrentLobby, "lan_address", address);
+				}
+
 				bool isPrivate = Configuration.Instance.Host.Lobby.IsPrivate;
 				SteamMatchmaking.SetLobbyData(CurrentLobby, "visibility", isPrivate ? "private" : "public");
 				SteamMatchmaking.SetLobbyData(CurrentLobby, "is_spacedout", DlcManager.IsExpansion1Active() ? "1" : "0");
@@ -564,6 +573,8 @@ namespace ONI_MP.Networking
 					LobbyCode = SteamMatchmaking.GetLobbyData(lobbyId, "lobby_code"),
 					IsFriend = isFriend,
 					IsPrivate = SteamMatchmaking.GetLobbyData(lobbyId, "visibility") == "private",
+					IsLan = SteamMatchmaking.GetLobbyData(lobbyId, "relay") == "1",
+					LanAddress = SteamMatchmaking.GetLobbyData(lobbyId, "lan_address"),
 					PingMs = pingMs,
 					// Game info
 					ColonyName = SteamMatchmaking.GetLobbyData(lobbyId, "colony_name"),

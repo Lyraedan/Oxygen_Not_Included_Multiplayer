@@ -36,22 +36,21 @@ namespace ONI_MP.Networking.Relay.Lan
             if (running)
                 return;
 
-            udp = new UdpClient(PORT);
+            string ip = Configuration.Instance.Host.LanSettings.Ip;
+            int port = Configuration.Instance.Host.LanSettings.Port;
+
+            udp = new UdpClient(port);
             udp.Client.Blocking = false;
 
-            if (udp.Client.LocalEndPoint is IPEndPoint localEndpoint)
-            {
-                MY_CLIENT_ID = Utils.GetClientId(localEndpoint);
-                Debug.Log($"[LanServer] MY_CLIENT_ID = {MY_CLIENT_ID} ({localEndpoint})");
-            }
-            else
-            {
-                Debug.LogWarning("[LanServer] Failed to determine local endpoint");
-            }
+            MY_CLIENT_ID = Utils.GetClientId(new IPEndPoint(IPAddress.Parse(ip), port));
+            Debug.Log($"[LanServer] MY_CLIENT_ID = {MY_CLIENT_ID} ({ip}:{port})");
+
+            LanPacketSender packetSender = (LanPacketSender)NetworkConfig.GetRelayPacketSender();
+            packetSender.udpClient = udp;
 
             running = true;
 
-            DebugConsole.Log($"[LanServer] LAN UDP Server started on port {PORT}");
+            DebugConsole.Log($"[LanServer] LAN UDP Server started on {ip}:{port}");
         }
 
         public override void Stop()
@@ -74,8 +73,9 @@ namespace ONI_MP.Networking.Relay.Lan
             // TODO Update
             foreach (MultiplayerPlayer player in MultiplayerSession.AllPlayers)
             {
-
+                player.Connection = null;
             }
+            MultiplayerSession.ConnectedPlayers.Clear();
         }
 
         public override void OnMessageRecieved()

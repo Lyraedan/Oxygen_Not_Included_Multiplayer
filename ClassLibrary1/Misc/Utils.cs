@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
+using System.Text;
 using TMPro;
 using UnityEngine;
 
@@ -317,11 +318,27 @@ namespace ONI_MP.Misc
             return 0uL;
         }
 
-		/// <summary>
-		/// Get a deterministic client id based off a remotes IP and PORT
-		/// </summary>
-		/// <param name="endpoint"></param>
-		/// <returns></returns>
+        public static LanSettings DecodeHashedAddress(string encoded)
+        {
+            byte[] bytes = Convert.FromBase64String(encoded);
+            string decoded = Encoding.UTF8.GetString(bytes);
+
+            string[] parts = decoded.Split(':');
+            if (parts.Length != 2)
+                throw new FormatException("Invalid LAN address encoding");
+
+            return new LanSettings
+            {
+                Ip = parts[0],
+                Port = int.Parse(parts[1])
+            };
+        }
+
+        /// <summary>
+        /// Get a deterministic client id based off a remotes IP and PORT
+        /// </summary>
+        /// <param name="endpoint"></param>
+        /// <returns></returns>
         public static ulong GetClientId(IPEndPoint endpoint)
         {
             unchecked

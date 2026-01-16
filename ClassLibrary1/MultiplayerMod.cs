@@ -87,6 +87,13 @@ namespace ONI_MP
 
 
 			RegisterDevTools();
+			LoadNetworkRelay();
+		}
+
+		void LoadNetworkRelay()
+		{
+			int relay = Configuration.Instance.Host.NetworkRelay;
+			NetworkConfig.UpdateRelay((NetworkConfig.NetworkRelay)relay);
 		}
 
 		void LoadAssetBundles()

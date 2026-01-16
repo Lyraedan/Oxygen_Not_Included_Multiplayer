@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -131,10 +132,17 @@ namespace ONI_MP
         public LanSettings LanSettings { get; set; } = new LanSettings();
     }
 
-    class LanSettings
+    public class LanSettings
     {
         public string Ip { get; set; } = "127.0.0.1";
         public int Port { get; set; } = 8080;
+
+        public string GetHashedAddress()
+        {
+            string value = $"{Ip}:{Port}";
+            byte[] bytes = Encoding.UTF8.GetBytes(value);
+            return Convert.ToBase64String(bytes);
+        }
     }
 
     class ColorRGB

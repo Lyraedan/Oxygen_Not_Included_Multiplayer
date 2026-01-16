@@ -17,9 +17,9 @@ namespace ONI_MP.Networking
 		/// </summary>
 		public static readonly Dictionary<ulong, MultiplayerPlayer> ConnectedPlayers = new Dictionary<ulong, MultiplayerPlayer>();
 
-		public static ulong LocalSteamID => SteamUser.GetSteamID().m_SteamID;
+		public static ulong LocalSteamID => NetworkConfig.GetLocalID();
 
-		public static ulong HostSteamID { get; set; } = Utils.NilUlong(); // TODO Update every single god damn CSteamID to a ulong fml
+		public static ulong HostSteamID { get; set; } = Utils.NilUlong();
 
 		public static bool InSession = false;
 		public static bool SessionHasPlayers => InSession && ConnectedPlayers.Count > 1;

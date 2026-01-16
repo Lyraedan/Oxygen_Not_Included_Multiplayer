@@ -20,14 +20,34 @@ namespace ONI_MP.Networking.Relay.Lan
         private IPEndPoint serverEndpoint;
         private bool connected;
 
+        public static string HASHED_ADDRESS = string.Empty;
         public string HOST_ADDRESS = "127.0.0.1";
 
         public static ulong MY_CLIENT_ID = 0;
 
+        public static bool ConnectFromConfig = false;
         public override void Prepare()
         {
-            SERVER_PORT = Configuration.Instance.Client.LanSettings.Port;
-            HOST_ADDRESS = Configuration.Instance.Client.LanSettings.Ip;
+            if (ConnectFromConfig)
+            {
+                SERVER_PORT = Configuration.Instance.Client.LanSettings.Port;
+                HOST_ADDRESS = Configuration.Instance.Client.LanSettings.Ip;
+            } 
+            else
+            {
+                if (!string.IsNullOrEmpty(HASHED_ADDRESS))
+                {
+                    try
+                    {
+                        LanSettings lan = Utils.DecodeHashedAddress(HASHED_ADDRESS);
+                        HOST_ADDRESS = lan.Ip;
+                        SERVER_PORT = lan.Port;
+                    } catch (Exception e)
+                    {
+                        DebugConsole.LogError("Failed to decode hashed LAN Address", false);
+                    }
+                }
+            }
         }
 
         public override void ConnectToHost()
@@ -55,6 +75,8 @@ namespace ONI_MP.Networking.Relay.Lan
                 Debug.LogWarning("[LanClient] Failed to determine local endpoint");
             }
 
+            LanPacketSender packetSender = (LanPacketSender) NetworkConfig.GetRelayPacketSender();
+            packetSender.udpClient = udp;
             connected = true;
 
             Debug.Log($"LAN Client connected to {serverEndpoint}");

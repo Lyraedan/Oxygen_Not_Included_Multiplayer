@@ -49,7 +49,7 @@ namespace ONI_MP.Networking
 
 			var packet = new ClientReadyStatusPacket
 			{
-				SenderId = SteamUser.GetSteamID().m_SteamID,
+				SenderId = NetworkConfig.GetLocalID(),
 				Status = state
 			};
 			PacketSender.SendToHost(packet);

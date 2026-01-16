@@ -12,7 +12,7 @@ namespace ONI_MP.Networking.Relay.Lan
 {
     public class LanPacketSender : RelayPacketSender
     {
-        private UdpClient udpClient;
+        public UdpClient udpClient;
 
         public override bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
         {
@@ -25,6 +25,7 @@ namespace ONI_MP.Networking.Relay.Lan
             var bytes = PacketSender.SerializePacketForSending(packet);
             var _sendType = (int)sendType;
 
+            DebugConsole.Log("[LanPacketSender] Sending UDP bytes");
             try
             {
                 udpClient.Send(bytes, bytes.Length);

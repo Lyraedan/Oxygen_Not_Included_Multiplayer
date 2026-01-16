@@ -166,7 +166,7 @@ namespace ONI_MP.Networking
 				return false;
 			}
 
-			return SendToConnection(player.Connection.Value, packet, sendType);
+			return SendToConnection(player.Connection, packet, sendType);
 		}
 
 		public static void SendToHost(IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
@@ -188,7 +188,7 @@ namespace ONI_MP.Networking
 					continue;
 
 				if (player.Connection != null)
-					SendToConnection(player.Connection.Value, packet, sendType);
+					SendToConnection(player.Connection, packet, sendType);
 			}
 		}
 
@@ -210,7 +210,7 @@ namespace ONI_MP.Networking
 					continue;
 
 				if (player.Connection != null)
-					SendToConnection(player.Connection.Value, packet, sendType);
+					SendToConnection(player.Connection, packet, sendType);
 			}
 		}
 

@@ -15,6 +15,7 @@ using Steamworks;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Profiling;
+using System.Text;
 
 namespace ONI_MP.DebugTools
 {
@@ -33,6 +34,15 @@ namespace ONI_MP.DebugTools
 
         // Open player profile
         private ulong? selectedPlayer = null;
+
+        // Network relay
+        private int selectedRelayType = 0; // 0 = Steam, 1 = LAN
+        private string hostIP = "";
+        private int hostPort = 7777;
+        private string clientIP = "";
+        private int clientPort = 7777;
+        LanSettings settings_host = new LanSettings();
+        LanSettings settings_client = new LanSettings();
 
         private static readonly string ModDirectory = Path.Combine(
             Path.GetDirectoryName(typeof(DevToolMultiplayer).Assembly.Location),
@@ -53,6 +63,17 @@ namespace ONI_MP.DebugTools
             OnInit += () => Init();
             OnUpdate += () => Update();
             OnUninit += () => UnInit();
+
+            selectedRelayType = Configuration.Instance.Host.NetworkRelay;
+            hostIP = Configuration.Instance.Host.LanSettings.Ip;
+            hostPort = Configuration.Instance.Host.LanSettings.Port;
+            settings_host.Ip = hostIP;
+            settings_host.Port = hostPort;
+
+            clientIP = Configuration.Instance.Client.LanSettings.Ip;
+            clientPort = Configuration.Instance.Client.LanSettings.Port;
+            settings_client.Ip = clientIP;
+            settings_client.Port = clientPort;
         }
 
         void Init()
@@ -190,6 +211,7 @@ namespace ONI_MP.DebugTools
 
         private void DrawNetworkTab()
         {
+            DrawNetworkRelayDetails();
             if (!MultiplayerSession.InSession)
             {
                 ImGui.TextDisabled("Not connected.");
@@ -400,6 +422,52 @@ namespace ONI_MP.DebugTools
                 GameClientProfiler.DrawImGuiInTab();
 
                 ImGui.EndTable();
+            }
+        }
+
+        public void DrawNetworkRelayDetails()
+        {
+            ImGui.Text("Network Relay Settings");
+
+            string[] options = new string[] { "Steam", "LAN" };
+            ImGui.Text($"Currently used relay: {options[(int)NetworkConfig.relay]}");
+
+            // Dropdown for Steam/LAN
+            ImGui.Combo("Relay Type", ref selectedRelayType, options, options.Length);
+
+            // Only show LAN-specific fields if LAN is selected
+            if (selectedRelayType == ((int) NetworkConfig.NetworkRelay.LAN))
+            {
+                ImGui.Indent();
+                ImGui.Separator();
+
+                // Host section
+                ImGui.Text("Host Settings (Used for hosting a server)");
+                ImGui.InputText("Host IP", ref hostIP, 64);
+                ImGui.InputInt("Host Port", ref hostPort);
+                settings_host.Ip = hostIP;
+                settings_host.Port = hostPort;
+
+                ImGui.Separator();
+
+                // Client section
+                ImGui.Text("Client Settings (The server you are connecting too)");
+                ImGui.InputText("Client IP", ref clientIP, 64);
+                ImGui.InputInt("Client Port", ref clientPort);
+                settings_client.Ip = hostIP;
+                settings_client.Port = hostPort;
+                ImGui.Unindent();
+            }
+
+            if (ImGui.Button("Save & Apply"))
+            {
+                Configuration.Instance.Host.NetworkRelay = selectedRelayType;
+                Configuration.Instance.Host.LanSettings.Ip = hostIP;
+                Configuration.Instance.Host.LanSettings.Port = hostPort;
+                Configuration.Instance.Client.LanSettings.Ip = clientIP;
+                Configuration.Instance.Client.LanSettings.Port = clientPort;
+                Configuration.Instance.Save();
+                NetworkConfig.UpdateRelay((NetworkConfig.NetworkRelay)selectedRelayType);
             }
         }
     }

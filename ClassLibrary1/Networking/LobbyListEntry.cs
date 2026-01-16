@@ -18,6 +18,9 @@ namespace ONI_MP.Networking
 		public string LobbyCode { get; set; }
 		public bool IsFriend { get; set; } = false;
 
+		public bool IsLan { get; set; } = false;
+		public string LanAddress { get; set; } = "127.0.0.1";
+
 		public bool IsPrivate { get; set; } = false;
 
 		// Game info
