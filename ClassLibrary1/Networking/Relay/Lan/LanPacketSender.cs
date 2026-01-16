@@ -7,13 +7,8 @@ namespace ONI_MP.Networking.Relay.Lan
 {
     public class LanPacketSender : RelayPacketSender
     {
-        public NetManager netManager;
-
         public override bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
         {
-            if (netManager == null)
-                return false;
-
             if (conn is not NetPeer peer)
                 return false;
 

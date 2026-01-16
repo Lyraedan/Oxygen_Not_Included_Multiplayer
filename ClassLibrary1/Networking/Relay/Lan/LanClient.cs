@@ -52,17 +52,13 @@ namespace ONI_MP.Networking.Relay.Lan
             netManager = new NetManager(this)
             {
                 IPv6Enabled = false,
-                AutoRecycle = true
+                AutoRecycle = false
             };
             netManager.Start();
 
             serverPeer = netManager.Connect(HOST_ADDRESS, SERVER_PORT, "ONI_MP"); // key matches server
 
-            // Assign packet sender
-            if (NetworkConfig.GetRelayPacketSender() is LanPacketSender packetSender)
-                packetSender.netManager = netManager;
-
-            MY_CLIENT_ID = Utils.GetClientId(new System.Net.IPEndPoint(System.Net.IPAddress.Parse(HOST_ADDRESS), SERVER_PORT));
+            MY_CLIENT_ID = Utils.GetClientId(new IPEndPoint(IPAddress.Parse(HOST_ADDRESS), SERVER_PORT));
 
             DebugConsole.Log($"[LanClient] Connecting to {HOST_ADDRESS}:{SERVER_PORT} with MY_CLIENT_ID = {MY_CLIENT_ID}");
         }
@@ -97,8 +93,6 @@ namespace ONI_MP.Networking.Relay.Lan
             netManager?.PollEvents();
         }
 
-        /* ================= LiteNetLib Callbacks ================= */
-
         public void OnPeerConnected(NetPeer peer)
         {
             DebugConsole.Log($"[LanClient] Connected to server: {Utils.GetClientId(peer)}");
@@ -113,7 +107,7 @@ namespace ONI_MP.Networking.Relay.Lan
 
         public void OnNetworkError(System.Net.IPEndPoint endPoint, System.Net.Sockets.SocketError socketError)
         {
-            DebugConsole.Log($"[LanClient] Network error: {socketError} from {endPoint}");
+            DebugConsole.LogError($"[LanClient] Network error: {socketError} from {endPoint}", false);
         }
 
         public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
