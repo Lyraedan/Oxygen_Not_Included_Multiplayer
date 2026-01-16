@@ -212,7 +212,7 @@ namespace ONI_MP.Networking
 
 			if (!MultiplayerSession.IsHost && MultiplayerSession.HostSteamID.IsValid())
 			{
-				GameClient.ConnectToHost(MultiplayerSession.HostSteamID);
+				GameClient.ConnectToHost();
 			}
 		}
 

@@ -33,7 +33,7 @@ namespace ONI_MP.Networking.Relay.Steam
 
         public override void ConnectToHost()
         {
-            CSteamID hostSteamId = CSteamID.Nil; // TODO Update --------------------- IMPORTANT THIS WONT WORK WITHOUT THIS BEING UPDATED - 1:35am luke
+            CSteamID hostSteamId = MultiplayerSession.HostSteamID;
             DebugConsole.Log($"[GameClient] Attempting ConnectP2P to host {hostSteamId}...");
 
             var identity = new SteamNetworkingIdentity();

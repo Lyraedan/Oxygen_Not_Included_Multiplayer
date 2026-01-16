@@ -18,7 +18,7 @@ namespace ONI_MP.Networking
 
 		public static CSteamID LocalSteamID => SteamUser.GetSteamID();
 
-		public static CSteamID HostSteamID { get; set; } = CSteamID.Nil;
+		public static CSteamID HostSteamID { get; set; } = CSteamID.Nil; // TODO Update every single god damn CSteamID to a ulong fml
 
 		public static bool InSession = false;
 		public static bool SessionHasPlayers => InSession && ConnectedPlayers.Count > 1;

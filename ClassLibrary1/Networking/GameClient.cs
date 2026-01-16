@@ -84,7 +84,7 @@ namespace ONI_MP.Networking
             NetworkConfig.RelayClient.Prepare();
 		}
 
-		public static void ConnectToHost(CSteamID hostSteamId, bool showLoadingScreen = true)
+		public static void ConnectToHost(bool showLoadingScreen = true)
 		{
 			// Reset mod verification for new connection attempts
 			_modVerificationSent = false;
@@ -286,6 +286,7 @@ namespace ONI_MP.Networking
 				DebugConsole.Log($"[GameClient] Reconnecting to cached server: {_cachedConnectionInfo.Value.HostSteamID}");
 				var hostId = _cachedConnectionInfo.Value.HostSteamID;
 				_cachedConnectionInfo = null; // Clear cache to prevent re-triggering
+				MultiplayerSession.HostSteamID = hostId;
 				ConnectToHost(hostId, false);
 			}
 			else
