@@ -130,6 +130,7 @@ namespace ONI_MP.Networking.Relay.Lan
             int totalBytes = 0;
             long t0 = GameServerProfiler.Begin();
 
+            // Process the packets on the main Unity thread
             while (packetQueue.TryDequeue(out var packet) && msgCount < maxMessagesPerPoll)
             {
                 msgCount++;
