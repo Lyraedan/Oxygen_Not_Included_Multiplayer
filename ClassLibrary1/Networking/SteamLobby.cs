@@ -15,6 +15,12 @@ namespace ONI_MP.Networking
 	public static class SteamLobby
 	{
 
+		/*
+		 
+		TODO: Split this..... this is gonna f*cking suck
+		 
+		 */
+
 		public static readonly int LOBBY_SIZE_MIN = 2;
 		public static readonly int LOBBY_SIZE_DEFAULT = 4;
 		public static readonly int LOBBY_SIZE_MAX = 16;
