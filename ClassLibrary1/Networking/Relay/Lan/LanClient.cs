@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Profiling;
+using ONI_MP.Misc;
 
 namespace ONI_MP.Networking.Relay.Lan
 {
@@ -20,6 +21,8 @@ namespace ONI_MP.Networking.Relay.Lan
         private bool connected;
 
         public string HOST_ADDRESS = "127.0.0.1";
+
+        public static ulong MY_CLIENT_ID = 0;
 
         public override void Prepare()
         {
@@ -41,6 +44,16 @@ namespace ONI_MP.Networking.Relay.Lan
             // Initial handshake packet (any data works for UDP)
             byte[] hello = Encoding.UTF8.GetBytes("hello");
             udp.Send(hello, hello.Length, serverEndpoint);
+
+            if (udp.Client.LocalEndPoint is IPEndPoint localEndpoint)
+            {
+                MY_CLIENT_ID = Utils.GetClientId(localEndpoint);
+                Debug.Log($"[LanClient] MY_CLIENT_ID = {MY_CLIENT_ID} ({localEndpoint})");
+            }
+            else
+            {
+                Debug.LogWarning("[LanClient] Failed to determine local endpoint");
+            }
 
             connected = true;
 

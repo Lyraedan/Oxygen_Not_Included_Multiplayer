@@ -4,6 +4,7 @@ using ONI_MP.Misc.World;
 using ONI_MP.Networking;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
@@ -314,6 +315,34 @@ namespace ONI_MP.Misc
         public static ulong NilUlong()
         {
             return 0uL;
+        }
+
+		/// <summary>
+		/// Get a deterministic client id based off a remotes IP and PORT
+		/// </summary>
+		/// <param name="endpoint"></param>
+		/// <returns></returns>
+        public static ulong GetClientId(IPEndPoint endpoint)
+        {
+            unchecked
+            {
+                ulong hash = 14695981039346656037UL; // FNV-1a 64-bit offset
+                const ulong prime = 1099511628211UL;
+
+                // IP bytes
+                byte[] ipBytes = endpoint.Address.GetAddressBytes();
+                for (int i = 0; i < ipBytes.Length; i++)
+                {
+                    hash ^= ipBytes[i];
+                    hash *= prime;
+                }
+
+                // Port
+                hash ^= (ulong)endpoint.Port;
+                hash *= prime;
+
+                return hash;
+            }
         }
 
         #region SaveLoadRoot Extensions

@@ -7,10 +7,11 @@ public class MultiplayerPlayer
 {
 	public ulong SteamID { get; private set; }
 	public string SteamName { get; private set; }
-	public bool IsLocal => SteamID == SteamUser.GetSteamID().m_SteamID;
+	public bool IsLocal => SteamID == NetworkConfig.GetLocalID();
 
 	public int AvatarImageId { get; private set; } = -1;
-	public HSteamNetConnection? Connection { get; set; } = null;
+	//public HSteamNetConnection? Connection { get; set; } = null;
+	public object? Connection { get; set; } = null;
 	public bool IsConnected => Connection != null;
 
 	public ClientReadyState readyState = ClientReadyState.Ready;

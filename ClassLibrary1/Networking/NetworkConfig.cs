@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ONI_MP.Misc;
 using ONI_MP.Networking.Relay;
 using ONI_MP.Networking.Relay.Lan;
 using ONI_MP.Networking.Relay.Steam;
+using Steamworks;
 
 namespace ONI_MP.Networking
 {
@@ -59,6 +61,24 @@ namespace ONI_MP.Networking
                 default:
                     return new SteamPacketSender();
             }
+        }
+    
+        public static ulong GetLocalID()
+        {
+            switch(relay)
+            {
+                case NetworkRelay.STEAM:
+                    return SteamUser.GetSteamID().m_SteamID;
+                case NetworkRelay.LAN:
+                    if (MultiplayerSession.IsClient)
+                    {
+                        return LanClient.MY_CLIENT_ID;
+                    } else
+                    {
+                        return LanServer.MY_CLIENT_ID;
+                    }
+                default:
+                    return Utils.NilUlong();
         }
     }
 }

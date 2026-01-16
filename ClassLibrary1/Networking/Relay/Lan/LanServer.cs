@@ -1,7 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using ONI_MP.DebugTools;
+using ONI_MP.Misc;
+using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Networking.Profiling;
+using static ONI_MP.STRINGS.UI.MP_OVERLAY;
 
 namespace ONI_MP.Networking.Relay.Lan
 {
@@ -18,7 +23,7 @@ namespace ONI_MP.Networking.Relay.Lan
         private UdpClient udp;
         private bool running;
 
-        private readonly HashSet<IPEndPoint> clients = new HashSet<IPEndPoint>();
+        public static ulong MY_CLIENT_ID = 0;
 
         // Anything to init before start
         public override void Prepare()
@@ -33,6 +38,16 @@ namespace ONI_MP.Networking.Relay.Lan
 
             udp = new UdpClient(PORT);
             udp.Client.Blocking = false;
+
+            if (udp.Client.LocalEndPoint is IPEndPoint localEndpoint)
+            {
+                MY_CLIENT_ID = Utils.GetClientId(localEndpoint);
+                Debug.Log($"[LanServer] MY_CLIENT_ID = {MY_CLIENT_ID} ({localEndpoint})");
+            }
+            else
+            {
+                Debug.LogWarning("[LanServer] Failed to determine local endpoint");
+            }
 
             running = true;
 
@@ -55,7 +70,12 @@ namespace ONI_MP.Networking.Relay.Lan
 
         public override void CloseConnections()
         {
-            clients.Clear();
+            //clients.Clear();
+            // TODO Update
+            foreach (MultiplayerPlayer player in MultiplayerSession.AllPlayers)
+            {
+
+            }
         }
 
         public override void OnMessageRecieved()
@@ -63,32 +83,58 @@ namespace ONI_MP.Networking.Relay.Lan
             if (!running || udp == null)
                 return;
 
-            // Poll for incoming packets
-            while (udp.Available > 0)
+            long t0 = GameServerProfiler.Begin();
+            int totalBytes = 0;
+            int msgCount = 0;
+
+            int maxMessagesPerPoll = Configuration.GetHostProperty<int>("MaxMessagesPerPoll");
+
+            while (udp.Available > 0 && msgCount < maxMessagesPerPoll)
             {
                 IPEndPoint remote = null;
-                byte[] data = udp.Receive(ref remote);
+                byte[] data;
 
-                if (!clients.Contains(remote))
+                try
                 {
-                    clients.Add(remote);
-                    Debug.Log($"Client joined: {remote}");
+                    data = udp.Receive(ref remote);
+                }
+                catch
+                {
+                    break;
                 }
 
-                HandleMessage(remote, data);
+                msgCount++;
+                totalBytes += data.Length;
+
+                ulong clientId = Utils.GetClientId(remote);
+                if (!MultiplayerSession.ConnectedPlayers.ContainsKey(clientId))
+                {
+                    OnClientConnected(remote, clientId);
+                }
+                try
+                {
+                    PacketHandler.HandleIncoming(data);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"[LanServer] Failed to handle incoming packet: {ex}");
+                }
             }
+
+            GameServerProfiler.End(t0, msgCount, totalBytes);
         }
 
-        private void HandleMessage(IPEndPoint sender, byte[] data)
+        public void OnClientConnected(IPEndPoint remote, ulong clientId)
         {
-            // Example: relay to all other clients
-            foreach (var client in clients)
+            MultiplayerPlayer player;
+            if (!MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out player))
             {
-                if (client.Equals(sender))
-                    continue;
-
-                udp.Send(data, data.Length, client);
+                player = new MultiplayerPlayer(clientId);
+                MultiplayerSession.ConnectedPlayers.Add(clientId, player);
             }
+            player.Connection = remote;
+
+            DebugConsole.Log($"[GameServer] Connection to {clientId} fully established!");
         }
     }
 }
