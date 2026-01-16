@@ -182,21 +182,7 @@ namespace ONI_MP.Networking.Relay.Lan
             reader.Recycle();
         }
 
-        ///////////// STUN
-        ///
-        public void StartNATMapping(int port)
-        {
-            try
-            {
-                NatUtility.DeviceFound += OnNatDeviceFound;
-                NatUtility.StartDiscovery();
-            }
-            catch (Exception e)
-            {
-                DebugConsole.LogWarning($"[LanServer] NAT discovery failed: {e}");
-            }
-        }
-
+        ///////////// STUN / NAT
         private void OnNatDeviceFound(object sender, DeviceEventArgs e)
         {
             try
