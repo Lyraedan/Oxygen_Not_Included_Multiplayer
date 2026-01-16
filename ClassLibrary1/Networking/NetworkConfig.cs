@@ -19,6 +19,7 @@ namespace ONI_MP.Networking
 
         public static RelayServer RelayServer { get; set; } = new SteamServer();
         public static RelayClient RelayClient { get; set; } = new SteamClient();
+        public static RelayPacketSender RelayPacketSender { get; set; } = new SteamPacketSender();
 
         public static RelayServer GetRelayServer()
         {
@@ -39,6 +40,17 @@ namespace ONI_MP.Networking
                     return new SteamClient();
                 default:
                     return new SteamClient();
+            }
+        }
+
+        public static RelayPacketSender GetRelayPacketSender()
+        {
+            switch (relay)
+            {
+                case NetworkRelay.STEAM:
+                    return new SteamPacketSender();
+                default:
+                    return new SteamPacketSender();
             }
         }
     }

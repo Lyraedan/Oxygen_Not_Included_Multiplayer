@@ -70,7 +70,7 @@ namespace ONI_MP.Networking
 		}
 
 		static Dictionary<int, PacketUpdateRunner> UpdateRunners = [];
-		static Dictionary<HSteamNetConnection, Dictionary<int, List<byte[]>>> WaitingBulkPacketsPerReceiver = [];
+		static Dictionary<object, Dictionary<int, List<byte[]>>> WaitingBulkPacketsPerReceiver = [];
 		public static void DispatchPendingBulkPackets()
 		{
 			foreach (var kvp in WaitingBulkPacketsPerReceiver)
@@ -83,7 +83,7 @@ namespace ONI_MP.Networking
 			}
 		}
 
-		static void DispatchPendingBulkPacketOfType(HSteamNetConnection conn, int packetId, bool intervalRun = false)
+		static void DispatchPendingBulkPacketOfType(object conn, int packetId, bool intervalRun = false)
 		{
 			if (!WaitingBulkPacketsPerReceiver.TryGetValue(conn, out var allPendingPackets)
 				|| !allPendingPackets.TryGetValue(packetId, out var pendingPackets)
@@ -99,7 +99,7 @@ namespace ONI_MP.Networking
 			SendToConnection(conn, new BulkSenderPacket(packetId, pendingPackets), SteamNetworkingSend.ReliableNoNagle);
 			pendingPackets.Clear();
 		}
-		public static void AppendPendingBulkPacket(HSteamNetConnection conn, IPacket packet, IBulkablePacket bp)
+		public static void AppendPendingBulkPacket(object conn, IPacket packet, IBulkablePacket bp)
 		{
 			int packetId = PacketRegistry.GetPacketId(packet);
 			int maxPacketNumberPerPacket = bp.MaxPackSize;
@@ -113,13 +113,11 @@ namespace ONI_MP.Networking
 			{
 				WaitingBulkPacketsPerReceiver[conn] = [];
 				bulkPacketWaitingData = WaitingBulkPacketsPerReceiver[conn];
-				DebugConsole.Log("Creating new Dict. for connection " + conn.m_HSteamNetConnection);
 			}
 			if (!bulkPacketWaitingData.TryGetValue(packetId, out var pendingPackets))
 			{
 				bulkPacketWaitingData[packetId] = new List<byte[]>(maxPacketNumberPerPacket);
 				pendingPackets = bulkPacketWaitingData[packetId];
-				DebugConsole.Log("Creating new list for packet id " + packetId + " for connection " + conn.m_HSteamNetConnection);
 			}
 			pendingPackets.Add(packet.SerializeToByteArray());
 			if (pendingPackets.Count >= maxPacketNumberPerPacket)
@@ -140,46 +138,14 @@ namespace ONI_MP.Networking
 		/// </summary>
 		/// 
 
-		public static bool SendToConnection(HSteamNetConnection conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
+		public static bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
 		{
 			if (packet is IBulkablePacket bp)
 			{
 				AppendPendingBulkPacket(conn, packet, bp);
 				return true;
 			}
-
-
-			var bytes = SerializePacketForSending(packet);
-			var _sendType = (int)sendType;
-
-			IntPtr unmanagedPointer = Marshal.AllocHGlobal(bytes.Length);
-			try
-			{
-				Marshal.Copy(bytes, 0, unmanagedPointer, bytes.Length);
-
-				var result = SteamNetworkingSockets.SendMessageToConnection(conn, unmanagedPointer, (uint)bytes.Length, _sendType, out long msgNum);
-
-				bool sent = result == EResult.k_EResultOK;
-
-				if (!sent)
-				{
-					// DebugConsole.LogError($"[Sockets] Failed to send {packet.Type} to conn {conn} ({Utils.FormatBytes(bytes.Length)} | result: {result})", false);
-				}
-				else
-				{
-					PacketTracker.TrackSent(new PacketTracker.PacketTrackData
-					{
-						packet = packet,
-						size = bytes.Length
-					});
-					//DebugConsole.Log($"[Sockets] Sent {packet.Type} to conn {conn} ({Utils.FormatBytes(bytes.Length)})");
-				}
-				return sent;
-			}
-			finally
-			{
-				Marshal.FreeHGlobal(unmanagedPointer);
-			}
+			return NetworkConfig.RelayPacketSender.SendToConnection(conn, packet, sendType);
 		}
 
 		/// <summary>
