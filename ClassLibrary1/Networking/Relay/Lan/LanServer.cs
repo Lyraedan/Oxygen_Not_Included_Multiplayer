@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
@@ -18,17 +20,18 @@ namespace ONI_MP.Networking.Relay.Lan
             STUN // TODO: Research
         }
 
-        private int PORT = 8080;
+        private ConcurrentQueue<(IPEndPoint remote, byte[] data)> packetQueue = new ConcurrentQueue<(IPEndPoint remote, byte[] data)>();
 
         private UdpClient udp;
         private bool running;
+        private Thread listenerThread;
 
         public static ulong MY_CLIENT_ID = 0;
 
         // Anything to init before start
         public override void Prepare()
         {
-            PORT = Configuration.Instance.Host.LanSettings.Port;
+
         }
 
         public override void Start()
@@ -43,12 +46,19 @@ namespace ONI_MP.Networking.Relay.Lan
             udp.Client.Blocking = false;
 
             MY_CLIENT_ID = Utils.GetClientId(new IPEndPoint(IPAddress.Parse(ip), port));
-            Debug.Log($"[LanServer] MY_CLIENT_ID = {MY_CLIENT_ID} ({ip}:{port})");
+            DebugConsole.Log($"[LanServer] MY_CLIENT_ID = {MY_CLIENT_ID} ({ip}:{port})");
 
             LanPacketSender packetSender = (LanPacketSender)NetworkConfig.GetRelayPacketSender();
             packetSender.udpClient = udp;
 
             running = true;
+
+            listenerThread = new Thread(ListenLoop)
+            {
+                IsBackground = true,
+                Name = "LanServerListener"
+            };
+            listenerThread.Start();
 
             DebugConsole.Log($"[LanServer] LAN UDP Server started on {ip}:{port}");
         }
@@ -58,8 +68,12 @@ namespace ONI_MP.Networking.Relay.Lan
             udp?.Close();
             udp = null;
 
+            // Wait for listener thread to exit
+            listenerThread?.Join();
+            listenerThread = null;
+
             running = false;
-            Debug.Log("LAN UDP Server stopped");
+            DebugConsole.Log("[LanServer] LAN UDP Server stopped");
         }
 
         public override void Update()
@@ -67,10 +81,37 @@ namespace ONI_MP.Networking.Relay.Lan
             
         }
 
+        private void ListenLoop()
+        {
+            while (running && udp != null)
+            {
+                try
+                {
+                    IPEndPoint remote = null;
+                    if (udp.Available > 0)
+                    {
+                        byte[] data = udp.Receive(ref remote);
+                        if (data != null && remote != null)
+                            packetQueue.Enqueue((remote, data));
+                    }
+                    else
+                    {
+                        Thread.Sleep(1); // Prevent busy waiting
+                    }
+                }
+                catch (SocketException)
+                {
+                    // Non-blocking socket may throw when no data is available; safe to ignore
+                }
+                catch (ObjectDisposedException)
+                {
+                    break; // Socket closed
+                }
+            }
+        }
+
         public override void CloseConnections()
         {
-            //clients.Clear();
-            // TODO Update
             foreach (MultiplayerPlayer player in MultiplayerSession.AllPlayers)
             {
                 player.Connection = null;
@@ -83,37 +124,26 @@ namespace ONI_MP.Networking.Relay.Lan
             if (!running || udp == null)
                 return;
 
-            long t0 = GameServerProfiler.Begin();
-            int totalBytes = 0;
-            int msgCount = 0;
-
+            // Process queued packets on main thread
             int maxMessagesPerPoll = Configuration.GetHostProperty<int>("MaxMessagesPerPoll");
+            int msgCount = 0;
+            int totalBytes = 0;
+            long t0 = GameServerProfiler.Begin();
 
-            while (udp.Available > 0 && msgCount < maxMessagesPerPoll)
+            while (packetQueue.TryDequeue(out var packet) && msgCount < maxMessagesPerPoll)
             {
-                IPEndPoint remote = null;
-                byte[] data;
-
-                try
-                {
-                    data = udp.Receive(ref remote);
-                }
-                catch
-                {
-                    break;
-                }
-
                 msgCount++;
-                totalBytes += data.Length;
+                totalBytes += packet.data.Length;
 
-                ulong clientId = Utils.GetClientId(remote);
+                ulong clientId = Utils.GetClientId(packet.remote);
                 if (!MultiplayerSession.ConnectedPlayers.ContainsKey(clientId))
                 {
-                    OnClientConnected(remote, clientId);
+                    OnClientConnected(packet.remote, clientId);
                 }
+
                 try
                 {
-                    PacketHandler.HandleIncoming(data);
+                    PacketHandler.HandleIncoming(packet.data);
                 }
                 catch (Exception ex)
                 {
@@ -121,13 +151,13 @@ namespace ONI_MP.Networking.Relay.Lan
                 }
             }
 
-            GameServerProfiler.End(t0, msgCount, totalBytes);
+            if (msgCount > 0)
+                GameServerProfiler.End(t0, msgCount, totalBytes);
         }
 
         public void OnClientConnected(IPEndPoint remote, ulong clientId)
         {
-            MultiplayerPlayer player;
-            if (!MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out player))
+            if (!MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out var player))
             {
                 player = new MultiplayerPlayer(clientId);
                 MultiplayerSession.ConnectedPlayers.Add(clientId, player);
