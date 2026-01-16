@@ -60,4 +60,8 @@
 	  <Folder Include="ModAssets\translations\" />
 	  <Folder Include="Networking\Packets\BulkDataPackets\" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="LiteNetLib" Version="1.3.5" />
+	</ItemGroup>
 </Project>

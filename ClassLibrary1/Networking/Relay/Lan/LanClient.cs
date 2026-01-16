@@ -1,51 +1,45 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+using LiteNetLib;
+using LiteNetLib.Utils;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Profiling;
 using ONI_MP.Misc;
+using System.Net;
 
 namespace ONI_MP.Networking.Relay.Lan
 {
-    public class LanClient : RelayClient
+    public class LanClient : RelayClient, INetEventListener
     {
         private int SERVER_PORT = 7777;
-
-        private UdpClient udp;
-        private IPEndPoint serverEndpoint;
+        private NetManager netManager;
+        private NetPeer serverPeer;
         private bool connected;
 
         public static string HASHED_ADDRESS = string.Empty;
         public string HOST_ADDRESS = "127.0.0.1";
 
         public static ulong MY_CLIENT_ID = 0;
-
         public static bool ConnectFromConfig = false;
+
         public override void Prepare()
         {
             if (ConnectFromConfig)
             {
                 SERVER_PORT = Configuration.Instance.Client.LanSettings.Port;
                 HOST_ADDRESS = Configuration.Instance.Client.LanSettings.Ip;
-            } 
-            else
+            }
+            else if (!string.IsNullOrEmpty(HASHED_ADDRESS))
             {
-                if (!string.IsNullOrEmpty(HASHED_ADDRESS))
+                try
                 {
-                    try
-                    {
-                        LanSettings lan = Utils.DecodeHashedAddress(HASHED_ADDRESS);
-                        HOST_ADDRESS = lan.Ip;
-                        SERVER_PORT = lan.Port;
-                    } catch (Exception e)
-                    {
-                        DebugConsole.LogError("Failed to decode hashed LAN Address", false);
-                    }
+                    LanSettings lan = Utils.DecodeHashedAddress(HASHED_ADDRESS);
+                    HOST_ADDRESS = lan.Ip;
+                    SERVER_PORT = lan.Port;
+                }
+                catch (Exception e)
+                {
+                    DebugConsole.LogError("Failed to decode hashed LAN Address", false);
                 }
             }
         }
@@ -55,41 +49,36 @@ namespace ONI_MP.Networking.Relay.Lan
             if (connected)
                 return;
 
-            // HostAddress should come from your RelayClient base
-            serverEndpoint = new IPEndPoint(IPAddress.Parse(HOST_ADDRESS), SERVER_PORT);
-
-            udp = new UdpClient();
-            udp.Client.Blocking = false;
-
-            // Initial handshake packet (any data works for UDP)
-            byte[] hello = Encoding.UTF8.GetBytes("hello");
-            udp.Send(hello, hello.Length, serverEndpoint);
-
-            if (udp.Client.LocalEndPoint is IPEndPoint localEndpoint)
+            netManager = new NetManager(this)
             {
-                MY_CLIENT_ID = Utils.GetClientId(localEndpoint);
-                Debug.Log($"[LanClient] MY_CLIENT_ID = {MY_CLIENT_ID} ({localEndpoint})");
-            }
-            else
-            {
-                Debug.LogWarning("[LanClient] Failed to determine local endpoint");
-            }
+                IPv6Enabled = false,
+                AutoRecycle = true
+            };
+            netManager.Start();
 
-            LanPacketSender packetSender = (LanPacketSender) NetworkConfig.GetRelayPacketSender();
-            packetSender.udpClient = udp;
-            connected = true;
+            serverPeer = netManager.Connect(HOST_ADDRESS, SERVER_PORT, "ONI_MP"); // key matches server
 
-            Debug.Log($"LAN Client connected to {serverEndpoint}");
+            // Assign packet sender
+            if (NetworkConfig.GetRelayPacketSender() is LanPacketSender packetSender)
+                packetSender.netManager = netManager;
+
+            MY_CLIENT_ID = Utils.GetClientId(new System.Net.IPEndPoint(System.Net.IPAddress.Parse(HOST_ADDRESS), SERVER_PORT));
+
+            DebugConsole.Log($"[LanClient] Connecting to {HOST_ADDRESS}:{SERVER_PORT} with MY_CLIENT_ID = {MY_CLIENT_ID}");
         }
 
         public override void Disconnect()
         {
             connected = false;
 
-            udp?.Close();
-            udp = null;
+            if (serverPeer != null)
+                serverPeer.Disconnect();
 
-            Debug.Log("[LanClient] LAN Client disconnected");
+            netManager?.Stop();
+            netManager = null;
+            serverPeer = null;
+
+            DebugConsole.Log("[LanClient] LAN Client disconnected");
         }
 
         public override void ReconnectToSession()
@@ -100,58 +89,86 @@ namespace ONI_MP.Networking.Relay.Lan
 
         public override void OnMessageRecieved()
         {
-            if (!connected || udp == null)
-                return;
-
-            ProcessIncomingMessages();
+            //netManager?.PollEvents();
         }
 
         public override void Update()
         {
-            
+            netManager?.PollEvents();
         }
 
-        private void ProcessIncomingMessages()
+        /* ================= LiteNetLib Callbacks ================= */
+
+        public void OnPeerConnected(NetPeer peer)
         {
+            DebugConsole.Log($"[LanClient] Connected to server: {Utils.GetClientId(peer)}");
+            connected = true;
+        }
+
+        public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
+        {
+            DebugConsole.Log($"[LanClient] Disconnected from server ({disconnectInfo.Reason})");
+            connected = false;
+        }
+
+        public void OnNetworkError(System.Net.IPEndPoint endPoint, System.Net.Sockets.SocketError socketError)
+        {
+            DebugConsole.Log($"[LanClient] Network error: {socketError} from {endPoint}");
+        }
+
+        public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
+        {
+            // Optional: track latency
+        }
+
+        public void OnConnectionRequest(ConnectionRequest request)
+        {
+            // This should not happen for a client
+            request.Reject();
+        }
+
+        public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
+        {
+            int msgCount = 1;
+            int totalBytes = reader.AvailableBytes;
             long t0 = GameClientProfiler.Begin();
-            int totalBytes = 0;
-            int msgCount = 0;
 
-            int maxMessagesPerPoll = Configuration.GetClientProperty<int>("MaxMessagesPerPoll");
+            byte[] data = reader.GetRemainingBytes();
 
-            while (udp.Available > 0 && msgCount < maxMessagesPerPoll)
+            try
             {
-                IPEndPoint remote = null;
-                byte[] data;
-
-                try
-                {
-                    data = udp.Receive(ref remote);
-                }
-                catch
-                {
-                    break;
-                }
-
-                // Security: only accept packets from host
-                if (!remote.Equals(serverEndpoint))
-                    continue;
-
-                msgCount++;
-                totalBytes += data.Length;
-
-                try
-                {
-                    PacketHandler.HandleIncoming(data);
-                }
-                catch (Exception ex)
-                {
-                    DebugConsole.LogWarning(
-                        $"[GameClient] Failed to handle incoming packet: {ex}");
-                }
+                PacketHandler.HandleIncoming(data);
+            }
+            catch (Exception ex)
+            {
+                DebugConsole.LogWarning($"[LanClient] Failed to handle incoming packet: {ex}");
             }
 
             GameClientProfiler.End(t0, msgCount, totalBytes);
+            reader.Recycle();
+        }
+
+        public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
+        {
+            // Only accept unconnected messages from the expected server
+            if (serverPeer == null || !remoteEndPoint.Equals(serverPeer))
+                return;
+
+            int totalBytes = reader.AvailableBytes;
+            long t0 = GameClientProfiler.Begin();
+            byte[] data = reader.GetRemainingBytes();
+
+            try
+            {
+                PacketHandler.HandleIncoming(data);
+            }
+            catch (Exception ex)
+            {
+                DebugConsole.LogWarning($"[LanClient] Failed to handle unconnected packet: {ex}");
+            }
+
+            GameClientProfiler.End(t0, 1, totalBytes);
+            reader.Recycle();
         }
     }
 }

@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
+using LiteNetLib;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 
@@ -12,32 +7,56 @@ namespace ONI_MP.Networking.Relay.Lan
 {
     public class LanPacketSender : RelayPacketSender
     {
-        public UdpClient udpClient;
+        public NetManager netManager;
 
         public override bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
         {
-            if (conn is not IPEndPoint)
+            if (netManager == null)
                 return false;
 
-            if (udpClient == null)
+            if (conn is not NetPeer peer)
                 return false;
 
-            var bytes = PacketSender.SerializePacketForSending(packet);
-            var _sendType = (int)sendType;
+            if (peer.ConnectionState != ConnectionState.Connected)
+                return false;
 
-            DebugConsole.Log("[LanPacketSender] Sending UDP bytes");
+            byte[] bytes = PacketSender.SerializePacketForSending(packet);
+            DeliveryMethod deliveryMethod = ConvertSendType(sendType);
+
+            DebugConsole.Log($"[LanPacketSender] Sending {bytes.Length} bytes ({deliveryMethod})");
+
             try
             {
-                udpClient.Send(bytes, bytes.Length);
+                peer.Send(bytes, deliveryMethod);
                 return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                DebugConsole.LogError($"[LanPacketSender] UDP send failed: {e}", false);
+                DebugConsole.LogError($"[LanPacketSender] Send failed: {e}", false);
                 return false;
             }
         }
 
-        // TODO since this won't use Steam the SteamNetworkingSend will need converting to the correct equivilent sendtype here
+        private static DeliveryMethod ConvertSendType(SteamNetworkingSend sendType)
+        {
+            switch (sendType)
+            {
+                case SteamNetworkingSend.Reliable:
+                case SteamNetworkingSend.ReliableNoNagle:
+                    return DeliveryMethod.ReliableOrdered;
+
+                case SteamNetworkingSend.Unreliable:
+                case SteamNetworkingSend.UnreliableNoNagle:
+                case SteamNetworkingSend.UnreliableNoDelay:
+                    return DeliveryMethod.Unreliable;
+
+                default:
+                    // Catch-all for any unexpected flag combos
+                    if ((sendType & SteamNetworkingSend.Reliable) != 0)
+                        return DeliveryMethod.ReliableOrdered;
+
+                    return DeliveryMethod.Unreliable;
+            }
+        }
     }
 }
