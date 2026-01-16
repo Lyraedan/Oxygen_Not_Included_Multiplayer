@@ -8,20 +8,33 @@ namespace ONI_MP.Networking.Relay.Lan
 {
     public class LanServer : RelayServer
     {
+        public enum TransportType
+        {
+            DIRECT,
+            STUN // TODO: Research
+        }
 
-        public void Start()
+        public override void Start()
         {
         }
 
-        public void Stop()
+        public override void Stop()
         {
         }
 
-        public void Update()
+        public override void Update()
         {
         }
 
-        public void OnMessageRecieved()
+        public override void CloseConnections()
+        {
+        }
+
+        public override void OnMessageRecieved()
+        {
+        }
+
+        public override void Prepare()
         {
         }
     }

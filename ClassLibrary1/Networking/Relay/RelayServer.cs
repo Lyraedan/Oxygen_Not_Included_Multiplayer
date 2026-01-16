@@ -6,14 +6,20 @@ using System.Threading.Tasks;
 
 namespace ONI_MP.Networking.Relay
 {
-    public interface RelayServer
+    public abstract class RelayServer
     {
-        public void Start();
+        public System.Action OnError;
 
-        public void Stop();
+        public abstract void Prepare();
 
-        public void Update();
+        public abstract void Start();
 
-        public void OnMessageRecieved();
+        public abstract void Stop();
+
+        public abstract void CloseConnections();
+
+        public abstract void Update();
+
+        public abstract void OnMessageRecieved();
     }
 }

@@ -1,27 +1,218 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using ONI_MP.DebugTools;
+using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Networking.Profiling;
+using ONI_MP.Networking.States;
+using Steamworks;
 
 namespace ONI_MP.Networking.Relay.Steam
 {
     public class SteamServer : RelayServer
     {
-        public void Start()
+        public static HSteamListenSocket ListenSocket { get; private set; }
+        public static HSteamNetPollGroup PollGroup { get; private set; }
+        private static Callback<SteamNetConnectionStatusChangedCallback_t> _connectionStatusChangedCallback;
+
+        public override void Prepare()
         {
+            if (!SteamManager.Initialized)
+            {
+                OnError.Invoke();
+                DebugConsole.LogError("[GameServer] SteamManager not initialized! Cannot start listen server.");
+                return;
+            }
         }
 
-        public void Stop()
+        public override void Start()
         {
+            // Create listen socket for P2P
+            ListenSocket = SteamNetworkingSockets.CreateListenSocketP2P(
+                    0, // Virtual port
+                    0, // nOptions
+                    null // pOptions
+            );
+
+            if (ListenSocket.m_HSteamListenSocket == 0)
+            {
+                OnError.Invoke();
+                DebugConsole.LogError("[GameServer] Failed to create ListenSocket!");
+                return;
+            }
+
+            PollGroup = SteamNetworkingSockets.CreatePollGroup();
+
+            if (PollGroup.m_HSteamNetPollGroup == 0)
+            {
+                OnError.Invoke();
+                DebugConsole.LogError("[GameServer] Failed to create PollGroup!");
+                SteamNetworkingSockets.CloseListenSocket(ListenSocket);
+                return;
+            }
+
+            _connectionStatusChangedCallback = Callback<SteamNetConnectionStatusChangedCallback_t>.Create(OnConnectionStatusChanged);
         }
 
-        public void Update()
+        public override void Stop()
         {
+            if (PollGroup.m_HSteamNetPollGroup != 0)
+                SteamNetworkingSockets.DestroyPollGroup(PollGroup);
+
+            if (ListenSocket.m_HSteamListenSocket != 0)
+                SteamNetworkingSockets.CloseListenSocket(ListenSocket);
         }
 
-        public void OnMessageRecieved()
+        public override void CloseConnections()
         {
+            // Close all client connections and clean up
+            foreach (var player in MultiplayerSession.ConnectedPlayers.Values)
+            {
+                if (player.Connection != null)
+                {
+                    SteamNetworkingSockets.CloseConnection(player.Connection.Value, 0, "Shutdown", false); // TODO UPDATE
+                    player.Connection = null;
+                }
+            }
+        }
+
+        public override void Update()
+        {
+            SteamAPI.RunCallbacks();
+            SteamNetworkingSockets.RunCallbacks();
+        }
+
+        public override void OnMessageRecieved()
+        {
+            long t0 = GameServerProfiler.Begin();
+            int totalBytes = 0;
+
+            int maxMessagesPerPoll = Configuration.GetHostProperty<int>("MaxMessagesPerPoll");
+            var messages = new IntPtr[maxMessagesPerPoll];
+            int msgCount = SteamNetworkingSockets.ReceiveMessagesOnPollGroup(PollGroup, messages, maxMessagesPerPoll);
+
+            for (int i = 0; i < msgCount; i++)
+            {
+                var msg = Marshal.PtrToStructure<SteamNetworkingMessage_t>(messages[i]);
+                totalBytes += msg.m_cbSize;
+                byte[] bytes = new byte[msg.m_cbSize];
+                Marshal.Copy(msg.m_pData, bytes, 0, msg.m_cbSize);
+
+                PacketHandler.HandleIncoming(bytes);
+
+                SteamNetworkingMessage_t.Release(messages[i]);
+            }
+            GameServerProfiler.End(t0, msgCount, totalBytes);
+        }
+
+        private static void OnConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t data)
+        {
+            var conn = data.m_hConn;
+            var clientId = data.m_info.m_identityRemote.GetSteamID();
+            var state = data.m_info.m_eState;
+
+            DebugConsole.Log($"[GameServer] OnConnectionStatusChanged: state={state} from {clientId}");
+
+            switch (state)
+            {
+                case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_Connecting:
+                    TryAcceptConnection(conn, clientId);
+                    break;
+
+                case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_Connected:
+                    OnClientConnected(conn, clientId);
+                    break;
+
+                case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ClosedByPeer:
+                case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
+                    OnClientClosed(conn, clientId);
+                    break;
+            }
+        }
+
+        private static void TryAcceptConnection(HSteamNetConnection conn, CSteamID clientId)
+        {
+            // Get connection info to check actual state
+            SteamNetConnectionInfo_t info = default;
+            if (!SteamNetworkingSockets.GetConnectionInfo(conn, out info))
+            {
+                DebugConsole.LogWarning($"[GameServer] TryAcceptConnection: Could not get connection info for {clientId}");
+            }
+            else
+            {
+                DebugConsole.Log($"[GameServer] TryAcceptConnection: Connection state for {clientId} is {info.m_eState}");
+            }
+
+            // Only accept if in Connecting state
+            if (info.m_eState != ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_Connecting)
+            {
+                DebugConsole.LogWarning($"[GameServer] TryAcceptConnection: Connection {clientId} is not in Connecting state (actual: {info.m_eState}), skipping accept");
+                return;
+            }
+
+            var result = SteamNetworkingSockets.AcceptConnection(conn);
+            if (result == EResult.k_EResultOK)
+            {
+                SteamNetworkingSockets.SetConnectionPollGroup(conn, PollGroup);
+                DebugConsole.Log($"[GameServer] Connection accepted from {clientId}");
+            }
+            else
+            {
+                // k_EResultInvalidState means the connection has already transitioned away
+                if (result == EResult.k_EResultInvalidState)
+                {
+                    DebugConsole.LogWarning($"[GameServer] AcceptConnection returned InvalidState for {clientId} - connection may have already been handled or closed");
+                }
+                else
+                {
+                    RejectConnection(conn, clientId, $"Accept failed ({result})");
+                }
+            }
+        }
+
+        private static void RejectConnection(HSteamNetConnection conn, CSteamID clientId, string reason)
+        {
+            DebugConsole.LogError($"[GameServer] Rejecting connection from {clientId}: {reason}", false);
+            SteamNetworkingSockets.CloseConnection(conn, 0, reason, false);
+        }
+
+        private static void OnClientConnected(HSteamNetConnection conn, CSteamID clientId)
+        {
+            MultiplayerPlayer player;
+            if (!MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out player))
+            {
+                player = new MultiplayerPlayer(clientId);
+                MultiplayerSession.ConnectedPlayers.Add(clientId, player);
+                //MultiplayerSession.ConnectedPlayers[clientId] = player;
+            }
+            player.Connection = conn;
+
+            DebugConsole.Log($"[GameServer] Connection to {clientId} fully established!");
+            //SaveFileRequestPacket.SendSaveFile(clientId); // Old method
+            //GoogleDriveUtils.UploadAndSendToClient(clientId); // Upload to googledrive and send to the client
+        }
+
+        private static void OnClientClosed(HSteamNetConnection conn, CSteamID clientId)
+        {
+            SteamNetworkingSockets.CloseConnection(conn, 0, null, false);
+
+            if (MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out var playerToRemove))
+            {
+                playerToRemove.Connection = null;
+            }
+
+            DebugConsole.Log($"[GameServer] Connection closed for {clientId}");
+
+            ReadyManager.RefreshReadyState();
+            // Do I wanna auto shutdown here? I don't think so
+            // if (MultiplayerSession.ConnectedPlayers.Count == 0)
+            // {
+            //     SetState(ServerState.Stopped);
+            //     Shutdown
+            // }
         }
     }
 }
