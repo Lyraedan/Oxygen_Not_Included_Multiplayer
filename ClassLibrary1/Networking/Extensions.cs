@@ -43,7 +43,7 @@ namespace ONI_MP.Networking
 		// Used to replace CSteamID
         public static bool IsValid(this ulong value)
         {
-            return value != ulong.MaxValue;
+            return value != ulong.MaxValue && !value.Equals(value.Nil());
         }
 
 		public static CSteamID AsCSteamID(this ulong value)
@@ -53,7 +53,7 @@ namespace ONI_MP.Networking
 
 		public static ulong Nil(this ulong value)
 		{
-			return 0uL;
+			return 0uL; // Stole this badboy from the steamworks api
         }
     }
 }

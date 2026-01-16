@@ -75,7 +75,7 @@ namespace ONI_MP.UI
 		bool init = false;
 		static string lastScene = string.Empty;
 		Coroutine LobbyRefresh;
-		CSteamID _pendingLobbyId = CSteamID.Nil;
+		ulong _pendingLobbyId = Utils.NilUlong();
 
 		public void Init()
 		{
@@ -277,10 +277,10 @@ namespace ONI_MP.UI
 				return;
 
 			JoinOrOpenPasswordDialogue(_pendingLobbyId);
-			_pendingLobbyId = CSteamID.Nil;
+			_pendingLobbyId = Utils.NilUlong();
 		}
 
-		void JoinOrOpenPasswordDialogue(CSteamID lobbyId)
+		void JoinOrOpenPasswordDialogue(ulong lobbyId)
 		{
 			bool hasPassword = SteamMatchmaking.GetLobbyData(lobbyId, "has_password") == "1";
 
@@ -290,7 +290,7 @@ namespace ONI_MP.UI
 				OpenPasswordDialogue(lobbyId);
 
 		}
-		void JoinSteamLobby(CSteamID lobbyId)
+		void JoinSteamLobby(ulong lobbyId)
 		{
 			SteamLobby.JoinLobby(lobbyId, (lobbyId) =>
 			{
@@ -298,7 +298,7 @@ namespace ONI_MP.UI
 				this.Show(false);
 			});
 		}
-		void OpenPasswordDialogue(CSteamID lobbyId)
+		void OpenPasswordDialogue(ulong lobbyId)
 		{
 			UnityPasswordInputDialogueUI.ShowPasswordDialogueFor(lobbyId);
 		}

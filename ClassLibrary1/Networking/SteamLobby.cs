@@ -203,7 +203,7 @@ namespace ONI_MP.Networking
 			string hostStr = SteamMatchmaking.GetLobbyData(CurrentLobby, "host");
 			if (ulong.TryParse(hostStr, out ulong hostId))
 			{
-				MultiplayerSession.SetHost(new CSteamID(hostId));
+				MultiplayerSession.SetHost(hostId);
 			}
 
 			SteamRichPresence.SetLobbyInfo(CurrentLobby, "Multiplayer – In Lobby");
@@ -218,7 +218,8 @@ namespace ONI_MP.Networking
 
 		private static void OnLobbyChatUpdate(LobbyChatUpdate_t callback)
 		{
-			CSteamID user = new CSteamID(callback.m_ulSteamIDUserChanged);
+			ulong userId = callback.m_ulSteamIDUserChanged;
+			CSteamID user = userId.AsCSteamID();
 			EChatMemberStateChange stateChange = (EChatMemberStateChange)callback.m_rgfChatMemberStateChange;
 			string name = SteamFriends.GetFriendPersonaName(user);
 
@@ -226,14 +227,14 @@ namespace ONI_MP.Networking
 			{
 				if (MultiplayerSession.IsHost)
 				{
-					if (!MultiplayerSession.ConnectedPlayers.ContainsKey(user))
+					if (!MultiplayerSession.ConnectedPlayers.ContainsKey(userId))
 						//MultiplayerSession.ConnectedPlayers[user] = new MultiplayerPlayer(user);
-						MultiplayerSession.ConnectedPlayers.Add(user, new MultiplayerPlayer(user));
+						MultiplayerSession.ConnectedPlayers.Add(userId, new MultiplayerPlayer(user));
 				}
-				else if (user == MultiplayerSession.HostSteamID && !MultiplayerSession.ConnectedPlayers.ContainsKey(user))
+				else if (userId == MultiplayerSession.HostSteamID && !MultiplayerSession.ConnectedPlayers.ContainsKey(userId))
 				{
 					//MultiplayerSession.ConnectedPlayers[user] = new MultiplayerPlayer(user);
-                    MultiplayerSession.ConnectedPlayers.Add(user, new MultiplayerPlayer(user));
+                    MultiplayerSession.ConnectedPlayers.Add(userId, new MultiplayerPlayer(user));
                 }
 
 				DebugConsole.Log($"[SteamLobby] {name} joined the lobby.");
@@ -246,10 +247,10 @@ namespace ONI_MP.Networking
 					(stateChange & EChatMemberStateChange.k_EChatMemberStateChangeDisconnected) != 0 ||
 					(stateChange & EChatMemberStateChange.k_EChatMemberStateChangeKicked) != 0)
 			{
-				if (MultiplayerSession.ConnectedPlayers.TryGetValue(user, out var p))
+				if (MultiplayerSession.ConnectedPlayers.TryGetValue(userId, out var p))
 					p.Connection = null;
 
-				MultiplayerSession.ConnectedPlayers.Remove(user);
+				MultiplayerSession.ConnectedPlayers.Remove(userId);
 
 				RefreshLobbyMembers();
 				DebugConsole.Log($"[SteamLobby] {name} left the lobby.");
@@ -361,9 +362,9 @@ namespace ONI_MP.Networking
 		/// <summary>
 		/// Validate a password against the lobby's stored hash.
 		/// </summary>
-		public static bool ValidateLobbyPassword(CSteamID lobbyId, string password)
+		public static bool ValidateLobbyPassword(ulong lobbyId, string password)
 		{
-			string storedHash = SteamMatchmaking.GetLobbyData(lobbyId, "password_hash");
+			string storedHash = SteamMatchmaking.GetLobbyData(lobbyId.AsCSteamID(), "password_hash");
 			if (string.IsNullOrEmpty(storedHash))
 				return true; // No password set
 
