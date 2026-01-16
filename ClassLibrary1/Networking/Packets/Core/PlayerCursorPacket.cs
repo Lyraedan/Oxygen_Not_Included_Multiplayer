@@ -12,7 +12,7 @@ namespace ONI_MP.Networking.Packets.Core
 {
 	public class PlayerCursorPacket : IPacket
 	{
-		public CSteamID SteamID;
+		public ulong SteamID;
 		public Vector3 Position;
 		public Color Color;
 		public CursorState CursorState;
@@ -22,10 +22,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Serialize(BinaryWriter writer)
 		{
-			writer.Write(SteamID.m_SteamID);
-			writer.Write(Position.x);
-			writer.Write(Position.y);
-			writer.Write(Position.z);
+			writer.Write(SteamID);
+			writer.Write(Position);
 			writer.Write(Color.r);
 			writer.Write(Color.g);
 			writer.Write(Color.b);
@@ -39,11 +37,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Deserialize(BinaryReader reader)
 		{
-			SteamID = new CSteamID(reader.ReadUInt64());
-			float x = reader.ReadSingle();
-			float y = reader.ReadSingle();
-			float z = reader.ReadSingle();
-			Position = new Vector3(x, y, z);
+			SteamID = reader.ReadUInt64();
+			Position = reader.ReadVector3();
 			float r = reader.ReadSingle();
 			float g = reader.ReadSingle();
 			float b = reader.ReadSingle();
@@ -88,12 +83,7 @@ namespace ONI_MP.Networking.Packets.Core
 					WorldStateSyncer.Instance.UpdateClientView(SteamID, ViewMinX, ViewMinY, ViewMaxX, ViewMaxY);
 				}
 
-				HashSet<CSteamID> excluding = new HashSet<CSteamID>
-								{
-										SteamID,
-										MultiplayerSession.LocalSteamID
-								};
-				PacketSender.SendToAllExcluding(this, excluding);
+				PacketSender.SendToAllOtherPeers(this);
 			}
 		}
 

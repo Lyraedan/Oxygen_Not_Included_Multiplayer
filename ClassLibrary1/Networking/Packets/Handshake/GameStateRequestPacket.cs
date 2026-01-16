@@ -13,16 +13,16 @@ namespace ONI_MP.Networking.Packets.Handshake
 	public class GameStateRequestPacket : IPacket
 	{
 		public GameStateRequestPacket() { }
-		public GameStateRequestPacket(CSteamID steamID) { ClientId = steamID; }
+		public GameStateRequestPacket(ulong steamID) { ClientId = steamID; }
 
-		public CSteamID ClientId;
+		public ulong ClientId;
 		public HashSet<string> ActiveDlcIds = [];
 		public List<ulong> ActiveModIds = [];
 
 
 		public void Serialize(BinaryWriter writer)
 		{
-			writer.Write(ClientId.m_SteamID);
+			writer.Write(ClientId);
 			writer.Write(ActiveDlcIds.Count);
 			foreach (var id in ActiveDlcIds)
 			{
@@ -37,7 +37,7 @@ namespace ONI_MP.Networking.Packets.Handshake
 
 		public void Deserialize(BinaryReader reader)
 		{
-			ClientId = new CSteamID(reader.ReadUInt64());
+			ClientId = reader.ReadUInt64();
 			int count = reader.ReadInt32();
 			ActiveDlcIds = new HashSet<string>(count);
 			for (int i = 0; i < count; i++)

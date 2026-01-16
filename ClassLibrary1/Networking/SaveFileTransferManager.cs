@@ -15,7 +15,7 @@ namespace ONI_MP.Networking
     {
         private class ClientTransfer
         {
-            public CSteamID ClientID;
+            public ulong ClientID;
             public string TransferId;
             public string FileName;
             public byte[] FileData;
@@ -29,7 +29,7 @@ namespace ONI_MP.Networking
             public int HighestAckReceived = -1; // Last sequential ACK received
             public System.DateTime LastActivity = System.DateTime.Now;
 
-            public ClientTransfer(CSteamID clientID, string transferId, string fileName, byte[] data, int chunkSize)
+            public ClientTransfer(ulong clientID, string transferId, string fileName, byte[] data, int chunkSize)
             {
                 ClientID = clientID;
                 TransferId = transferId;
@@ -46,7 +46,7 @@ namespace ONI_MP.Networking
 
         private static readonly Dictionary<string, ClientTransfer> ActiveTransfers = new Dictionary<string, ClientTransfer>();
 
-        private static string GetTransferKey(CSteamID clientID, string transferId)
+        private static string GetTransferKey(ulong clientID, string transferId)
         {
             return $"{clientID}_{transferId}";
         }
@@ -54,7 +54,7 @@ namespace ONI_MP.Networking
         /// <summary>
         /// Register new transfer and track chunks
         /// </summary>
-        public static void StartTransfer(CSteamID clientID, string transferId, string fileName, byte[] data, int chunkSize)
+        public static void StartTransfer(ulong clientID, string transferId, string fileName, byte[] data, int chunkSize)
         {
             string key = GetTransferKey(clientID, transferId);
             var transfer = new ClientTransfer(clientID, transferId, fileName, data, chunkSize);
@@ -66,7 +66,7 @@ namespace ONI_MP.Networking
         /// <summary>
         /// Mark chunk as sent when server sends it
         /// </summary>
-        public static void MarkChunkSent(CSteamID clientID, string transferId, int chunkIndex)
+        public static void MarkChunkSent(ulong clientID, string transferId, int chunkIndex)
         {
             string key = GetTransferKey(clientID, transferId);
             if (ActiveTransfers.TryGetValue(key, out var transfer))
@@ -80,7 +80,7 @@ namespace ONI_MP.Networking
         /// <summary>
         /// Process ACK received from client
         /// </summary>
-        public static void HandleChunkAck(CSteamID clientID, string transferId, int chunkIndex)
+        public static void HandleChunkAck(ulong clientID, string transferId, int chunkIndex)
         {
             string key = GetTransferKey(clientID, transferId);
             if (!ActiveTransfers.TryGetValue(key, out var transfer))

@@ -1,12 +1,13 @@
 ﻿using ONI_MP.Misc;
+using ONI_MP.Networking;
 using ONI_MP.Networking.States;
 using Steamworks;
 
 public class MultiplayerPlayer
 {
-	public CSteamID SteamID { get; private set; }
+	public ulong SteamID { get; private set; }
 	public string SteamName { get; private set; }
-	public bool IsLocal => SteamID == SteamUser.GetSteamID();
+	public bool IsLocal => SteamID == SteamUser.GetSteamID().m_SteamID;
 
 	public int AvatarImageId { get; private set; } = -1;
 	public HSteamNetConnection? Connection { get; set; } = null;
@@ -14,11 +15,11 @@ public class MultiplayerPlayer
 
 	public ClientReadyState readyState = ClientReadyState.Ready;
 
-    public MultiplayerPlayer(CSteamID steamID)
+    public MultiplayerPlayer(ulong steamID)
 	{
 		SteamID = steamID;
-		SteamName = Utils.TrucateName(SteamFriends.GetFriendPersonaName(steamID));
-		AvatarImageId = SteamFriends.GetLargeFriendAvatar(steamID);
+		SteamName = Utils.TrucateName(SteamFriends.GetFriendPersonaName(steamID.AsCSteamID()));
+		AvatarImageId = SteamFriends.GetLargeFriendAvatar(steamID.AsCSteamID());
 	}
 
 	public override string ToString()

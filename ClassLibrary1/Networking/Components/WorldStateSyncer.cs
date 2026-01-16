@@ -32,14 +32,14 @@ namespace ONI_MP.Networking.Components
 		private ushort[] _shadowElements;
 		private float[] _shadowMass;
 
-		private readonly Dictionary<Steamworks.CSteamID, RectInt> _clientViewports = new Dictionary<Steamworks.CSteamID, RectInt>();
+		private readonly Dictionary<ulong, RectInt> _clientViewports = new Dictionary<ulong, RectInt>();
 
 		private void Awake()
 		{
 			Instance = this;
 		}
 
-		public void UpdateClientView(Steamworks.CSteamID steamId, int minX, int minY, int maxX, int maxY)
+		public void UpdateClientView(ulong steamId, int minX, int minY, int maxX, int maxY)
 		{
 			// Update or add
 			_clientViewports[steamId] = new RectInt(minX, minY, maxX - minX, maxY - minY);

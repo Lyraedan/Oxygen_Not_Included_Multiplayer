@@ -35,9 +35,9 @@ namespace ONI_MP.Networking
 
 		private struct CachedConnectionInfo
 		{
-			public CSteamID HostSteamID;
+			public ulong HostSteamID;
 
-			public CachedConnectionInfo(CSteamID id)
+			public CachedConnectionInfo(ulong id)
 			{
 				HostSteamID = id;
 			}
@@ -91,7 +91,7 @@ namespace ONI_MP.Networking
 
 			if (showLoadingScreen)
 			{
-				MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTING_TO_HOST, SteamFriends.GetFriendPersonaName(hostSteamId)));
+				MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTING_TO_HOST, SteamFriends.GetFriendPersonaName(MultiplayerSession.HostSteamID.AsCSteamID())));
 			}
 
 			SetState(ClientState.Connecting);
@@ -195,7 +195,7 @@ namespace ONI_MP.Networking
 				DebugConsole.Log("[GameClient] PacketHandler.readyToProcess = true (menu)");
 
 				// Show overlay with localized message
-				MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.WAITING_FOR_PLAYER, SteamFriends.GetFriendPersonaName(MultiplayerSession.HostSteamID)));
+				MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.WAITING_FOR_PLAYER, SteamFriends.GetFriendPersonaName(MultiplayerSession.HostSteamID.AsCSteamID())));
 				if (!IsHardSyncInProgress)
 				{
 					DebugConsole.Log("[GameClient] Requesting save file from host");
@@ -266,7 +266,7 @@ namespace ONI_MP.Networking
 
 		public static void CacheCurrentServer()
 		{
-			if (MultiplayerSession.HostSteamID != CSteamID.Nil)
+			if (MultiplayerSession.HostSteamID != Utils.NilUlong())
 			{
 				_cachedConnectionInfo = new CachedConnectionInfo(
 						MultiplayerSession.HostSteamID
@@ -287,7 +287,7 @@ namespace ONI_MP.Networking
 				var hostId = _cachedConnectionInfo.Value.HostSteamID;
 				_cachedConnectionInfo = null; // Clear cache to prevent re-triggering
 				MultiplayerSession.HostSteamID = hostId;
-				ConnectToHost(hostId, false);
+				ConnectToHost(false);
 			}
 			else
 			{

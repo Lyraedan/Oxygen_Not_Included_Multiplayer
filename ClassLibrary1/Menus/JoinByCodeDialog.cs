@@ -23,7 +23,7 @@ namespace ONI_MP.Menus
         private TextMeshProUGUI _errorText;
         private TextMeshProUGUI _statusText;
 
-        private CSteamID _pendingLobbyId = CSteamID.Nil;
+        private ulong _pendingLobbyId = Utils.NilUlong();
         private bool _awaitingPasswordRetry = false;
 
         public static void Show(Transform parent)
@@ -155,7 +155,7 @@ namespace ONI_MP.Menus
                 return;
             }
 
-            if (!LobbyCodeHelper.TryParseCode(code, out CSteamID lobbyId))
+            if (!LobbyCodeHelper.TryParseCode(code, out ulong lobbyId))
             {
                 _errorText.text = STRINGS.UI.JOINBYDIALOGMENU.ERR_PARSE_CODE_FAILED;
                 return;
@@ -166,18 +166,18 @@ namespace ONI_MP.Menus
 
             // We need to join the lobby to get its metadata (including password status)
             // But first, let's check if we can get the data by requesting lobby data
-            SteamMatchmaking.RequestLobbyData(lobbyId);
+            SteamMatchmaking.RequestLobbyData(lobbyId.AsCSteamID());
 
             // Wait a moment for data to arrive, then check password
             StartCoroutine(CheckLobbyPasswordAfterDelay(lobbyId));
         }
 
-        private System.Collections.IEnumerator CheckLobbyPasswordAfterDelay(CSteamID lobbyId)
+        private System.Collections.IEnumerator CheckLobbyPasswordAfterDelay(ulong lobbyId)
         {
             yield return new WaitForSeconds(0.5f);
 
             // Check if lobby requires password
-            string hasPassword = SteamMatchmaking.GetLobbyData(lobbyId, "has_password");
+            string hasPassword = SteamMatchmaking.GetLobbyData(lobbyId.AsCSteamID(), "has_password");
 
             if (hasPassword == "1")
             {
@@ -208,7 +208,7 @@ namespace ONI_MP.Menus
             }
 
             // Check password against stored hash
-            string storedHash = SteamMatchmaking.GetLobbyData(_pendingLobbyId, "password_hash");
+            string storedHash = SteamMatchmaking.GetLobbyData(_pendingLobbyId.AsCSteamID(), "password_hash");
             if (!string.IsNullOrEmpty(storedHash))
             {
                 if (!PasswordHelper.VerifyPassword(password, storedHash))
@@ -223,12 +223,12 @@ namespace ONI_MP.Menus
             JoinLobbyDirectly(_pendingLobbyId, password);
         }
 
-        private void JoinLobbyDirectly(CSteamID lobbyId, string password)
+        private void JoinLobbyDirectly(ulong lobbyId, string password)
         {
             _statusText.text = STRINGS.UI.JOINBYDIALOGMENU.JOINING;
             _errorText.text = "";
 
-            SteamLobby.JoinLobby(lobbyId, (joinedId) =>
+            SteamLobby.JoinLobby(lobbyId.AsCSteamID(), (joinedId) =>
             {
                 DebugConsole.Log($"[JoinByCodeDialog] Successfully joined lobby: {joinedId}");
                 Close();

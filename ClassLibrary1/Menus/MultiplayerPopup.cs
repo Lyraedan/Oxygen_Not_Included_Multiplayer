@@ -52,7 +52,7 @@ public static class MultiplayerPopup
 		AddPopupButton(popup.transform, "Join Game", new Vector2(0, 40), () =>
 		{
 			//SteamFriends.ActivateGameOverlay("friends");
-			SteamFriends.ActivateGameOverlayInviteDialog(MultiplayerSession.LocalSteamID);
+			SteamFriends.ActivateGameOverlayInviteDialog(MultiplayerSession.LocalSteamID.AsCSteamID());
 		});
 
 

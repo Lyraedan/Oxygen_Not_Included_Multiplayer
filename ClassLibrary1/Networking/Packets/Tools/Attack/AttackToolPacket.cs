@@ -8,7 +8,7 @@ namespace ONI_MP.Networking.Packets.Tools.Attack;
 
 public class AttackToolPacket : IPacket
 {
-    private CSteamID        SenderId = MultiplayerSession.LocalSteamID;
+    private ulong        SenderId = MultiplayerSession.LocalSteamID;
     private Vector2         Min;
     private Vector2         Max;
     private PrioritySetting Priority = ToolMenu.Instance.PriorityScreen.GetLastSelectedPriority();
@@ -25,7 +25,7 @@ public class AttackToolPacket : IPacket
 
     public void Serialize(BinaryWriter writer)
     {
-        writer.Write(SenderId.m_SteamID);
+        writer.Write(SenderId);
         writer.Write(Min);
         writer.Write(Max);
         writer.Write((int)Priority.priority_class);
@@ -34,7 +34,7 @@ public class AttackToolPacket : IPacket
 
     public void Deserialize(BinaryReader reader)
     {
-        SenderId = new CSteamID(reader.ReadUInt64());
+        SenderId = reader.ReadUInt64();
         Min      = reader.ReadVector2();
         Max      = reader.ReadVector2();
         Priority = new PrioritySetting((PriorityScreen.PriorityClass)reader.ReadInt32(), reader.ReadInt32());

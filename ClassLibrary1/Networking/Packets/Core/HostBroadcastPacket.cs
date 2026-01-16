@@ -16,7 +16,7 @@ namespace ONI_MP.Networking.Packets.Core
 	internal class HostBroadcastPacket : IPacket
 	{
 		public HostBroadcastPacket() { }
-		public HostBroadcastPacket(IPacket innerPacket, CSteamID sender)
+		public HostBroadcastPacket(IPacket innerPacket, ulong sender)
 		{
 			InnerPacketId = API_Helper.GetHashCode(innerPacket.GetType());
 			using var ms = new MemoryStream();
@@ -28,20 +28,20 @@ namespace ONI_MP.Networking.Packets.Core
 
 
 		int InnerPacketId;
-		public CSteamID SenderId;
+		public ulong SenderId;
 		byte[] InnerPacketData;
 
 		public void Serialize(BinaryWriter writer)
 		{
 			writer.Write(InnerPacketId);
-			writer.Write(SenderId.m_SteamID);
+			writer.Write(SenderId);
 			writer.Write(InnerPacketData.Length);
 			writer.Write(InnerPacketData);
 		}
 		public void Deserialize(BinaryReader reader)
 		{
 			InnerPacketId = reader.ReadInt32();
-			SenderId = new CSteamID(reader.ReadUInt64());
+			SenderId = reader.ReadUInt64();
 			int dataLength = reader.ReadInt32();
 			InnerPacketData = reader.ReadBytes(dataLength);
 		}

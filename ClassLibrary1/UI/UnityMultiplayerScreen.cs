@@ -255,7 +255,7 @@ namespace ONI_MP.UI
 				return;
 			}
 
-			if (!LobbyCodeHelper.TryParseCode(code, out CSteamID lobbyId))
+			if (!LobbyCodeHelper.TryParseCode(code, out ulong lobbyId))
 			{
 				DialogUtil.CreateConfirmDialogFrontend(JOINBYDIALOGMENU.JOIN_BY_CODE, STRINGS.UI.JOINBYDIALOGMENU.ERR_PARSE_CODE_FAILED);
 				return;
@@ -265,12 +265,12 @@ namespace ONI_MP.UI
 
 			// We need to join the lobby to get its metadata (including password status)
 			// But first, let's check if we can get the data by requesting lobby data
-			SteamMatchmaking.RequestLobbyData(lobbyId);
+			SteamMatchmaking.RequestLobbyData(lobbyId.AsCSteamID());
 		}
 
 		void OnLobbyDataUpdateReceived(LobbyDataUpdate_t data)
 		{
-			if (data.m_ulSteamIDLobby != _pendingLobbyId.m_SteamID)
+			if (data.m_ulSteamIDLobby != _pendingLobbyId)
 				return;
 
 			if (data.m_bSuccess == 0)
@@ -282,7 +282,7 @@ namespace ONI_MP.UI
 
 		void JoinOrOpenPasswordDialogue(ulong lobbyId)
 		{
-			bool hasPassword = SteamMatchmaking.GetLobbyData(lobbyId, "has_password") == "1";
+			bool hasPassword = SteamMatchmaking.GetLobbyData(lobbyId.AsCSteamID(), "has_password") == "1";
 
 			if (!hasPassword)
 				JoinSteamLobby(lobbyId);
@@ -292,7 +292,7 @@ namespace ONI_MP.UI
 		}
 		void JoinSteamLobby(ulong lobbyId)
 		{
-			SteamLobby.JoinLobby(lobbyId, (lobbyId) =>
+			SteamLobby.JoinLobby(lobbyId.AsCSteamID(), (lobbyId) =>
 			{
 				DebugConsole.Log($"[LobbyBrowser] Successfully joined lobby: {lobbyId}");
 				this.Show(false);

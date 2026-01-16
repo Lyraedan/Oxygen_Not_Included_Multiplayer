@@ -14,20 +14,20 @@ namespace ONI_MP.Networking.Packets.World
     {
         public int SequenceNumber;       // ID of chunk that was received (0, 1, 2, 3...)
         public string TransferId;        // Transfer ID (same as SecureTransferPacket)
-        public CSteamID ClientSteamID;   // Who is sending the ACK
+        public ulong ClientSteamID;   // Who is sending the ACK
 
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(SequenceNumber);
             writer.Write(TransferId);
-            writer.Write(ClientSteamID.m_SteamID);
+            writer.Write(ClientSteamID);
         }
 
         public void Deserialize(BinaryReader reader)
         {
             SequenceNumber = reader.ReadInt32();
             TransferId = reader.ReadString();
-            ClientSteamID = new CSteamID(reader.ReadUInt64());
+            ClientSteamID = reader.ReadUInt64();
         }
 
         public void OnDispatched()

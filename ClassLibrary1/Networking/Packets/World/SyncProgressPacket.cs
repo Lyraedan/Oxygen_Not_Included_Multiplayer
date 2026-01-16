@@ -15,7 +15,7 @@ namespace ONI_MP.Networking.Packets.World
     public class SyncProgressPacket : IPacket
     {
         // Tracks progress of all clients for host UI
-        private static readonly Dictionary<CSteamID, ClientSyncInfo> ClientProgress = new Dictionary<CSteamID, ClientSyncInfo>();
+        private static readonly Dictionary<ulong, ClientSyncInfo> ClientProgress = new Dictionary<ulong, ClientSyncInfo>();
 
         private struct ClientSyncInfo
         {
@@ -26,7 +26,7 @@ namespace ONI_MP.Networking.Packets.World
             public int TotalChunks;
             public System.DateTime LastUpdate;
         }
-        public CSteamID ClientSteamID;      // Who is sending the progress
+        public ulong ClientSteamID;      // Who is sending the progress
         public string ClientName;           // Readable player name
         public string FileName;             // Name of file being downloaded
         public int ReceivedChunks;          // How many chunks have been received
@@ -35,7 +35,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Serialize(BinaryWriter writer)
         {
-            writer.Write(ClientSteamID.m_SteamID);
+            writer.Write(ClientSteamID);
             writer.Write(ClientName);
             writer.Write(FileName);
             writer.Write(ReceivedChunks);
@@ -45,7 +45,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Deserialize(BinaryReader reader)
         {
-            ClientSteamID = new CSteamID(reader.ReadUInt64());
+            ClientSteamID = reader.ReadUInt64();
             ClientName = reader.ReadString();
             FileName = reader.ReadString();
             ReceivedChunks = reader.ReadInt32();
@@ -92,11 +92,11 @@ namespace ONI_MP.Networking.Packets.World
                     // Show visual progress bar with player name
                     string progressBar = CreateProgressBar(info.ProgressPercent);
                     string clientName = info.ClientName;
-                    bool isFriends = SteamFriends.HasFriend(client, EFriendFlags.k_EFriendFlagImmediate);
+                    bool isFriends = SteamFriends.HasFriend(client.AsCSteamID(), EFriendFlags.k_EFriendFlagImmediate);
                     if(isFriends)
                     {
                         // Display the friends name as we have them on our friends list
-                        clientName = SteamFriends.GetFriendPersonaName(client);
+                        clientName = SteamFriends.GetFriendPersonaName(client.AsCSteamID());
                     }
 
                     string clientLine = string.Format(STRINGS.UI.MP_OVERLAY.SYNC.CLIENT_PROGRESS, clientName, progressBar, info.ProgressPercent);
@@ -162,7 +162,7 @@ namespace ONI_MP.Networking.Packets.World
         /// <summary>
         /// Remove client from progress tracking (when client disconnects)
         /// </summary>
-        public static void RemoveClientProgress(CSteamID clientId)
+        public static void RemoveClientProgress(ulong clientId)
         {
             ClientProgress.Remove(clientId);
             if (ClientProgress.Count == 0)

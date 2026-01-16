@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ONI_MP.Networking.Relay
 {
-    public interface RelayPacketSender
+    public class RelayPacketSender
     {
     }
 }

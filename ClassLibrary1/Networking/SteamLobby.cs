@@ -133,7 +133,7 @@ namespace ONI_MP.Networking
 				SteamMatchmaking.SetLobbyData(CurrentLobby, "is_spacedout", DlcManager.IsExpansion1Active() ? "1" : "0");
 
 				// Generate and store lobby code
-				CurrentLobbyCode = LobbyCodeHelper.GenerateCode(CurrentLobby);
+				CurrentLobbyCode = LobbyCodeHelper.GenerateCode(CurrentLobby.m_SteamID);
 				SteamMatchmaking.SetLobbyData(CurrentLobby, "lobby_code", CurrentLobbyCode);
 				DebugConsole.Log($"[SteamLobby] Lobby code: {CurrentLobbyCode}");
 
@@ -184,7 +184,7 @@ namespace ONI_MP.Networking
             if (hasPassword == "1")
             {
 				DebugConsole.Log("CheckLobbyPasswordAfterDelay - lobby requires password");
-                UnityPasswordInputDialogueUI.ShowPasswordDialogueFor(lobbyId);
+                UnityPasswordInputDialogueUI.ShowPasswordDialogueFor(lobbyId.m_SteamID);
             }
             else
             {
@@ -229,12 +229,12 @@ namespace ONI_MP.Networking
 				{
 					if (!MultiplayerSession.ConnectedPlayers.ContainsKey(userId))
 						//MultiplayerSession.ConnectedPlayers[user] = new MultiplayerPlayer(user);
-						MultiplayerSession.ConnectedPlayers.Add(userId, new MultiplayerPlayer(user));
+						MultiplayerSession.ConnectedPlayers.Add(userId, new MultiplayerPlayer(user.m_SteamID));
 				}
 				else if (userId == MultiplayerSession.HostSteamID && !MultiplayerSession.ConnectedPlayers.ContainsKey(userId))
 				{
 					//MultiplayerSession.ConnectedPlayers[user] = new MultiplayerPlayer(user);
-                    MultiplayerSession.ConnectedPlayers.Add(userId, new MultiplayerPlayer(user));
+                    MultiplayerSession.ConnectedPlayers.Add(userId, new MultiplayerPlayer(user.m_SteamID));
                 }
 
 				DebugConsole.Log($"[SteamLobby] {name} joined the lobby.");
@@ -339,10 +339,10 @@ namespace ONI_MP.Networking
 			}
 
 			// Try to parse the code directly to a lobby ID
-			if (LobbyCodeHelper.TryParseCode(code, out CSteamID lobbyId))
+			if (LobbyCodeHelper.TryParseCode(code, out ulong lobbyId))
 			{
 				DebugConsole.Log($"[SteamLobby] Joining lobby by code: {code} => {lobbyId}");
-				JoinLobby(lobbyId, onJoined, password);
+				JoinLobby(lobbyId.AsCSteamID(), onJoined, password);
 			}
 			else
 			{
@@ -554,8 +554,8 @@ namespace ONI_MP.Networking
 
 				var entry = new LobbyListEntry
 				{
-					LobbyId = lobbyId,
-					HostSteamId = hostSteamId,
+					LobbyId = lobbyId.m_SteamID,
+					HostSteamId = hostSteamId.m_SteamID,
 					LobbyName = SteamMatchmaking.GetLobbyData(lobbyId, "name"),
 					HostName = GetHostName(lobbyId),
 					PlayerCount = SteamMatchmaking.GetNumLobbyMembers(lobbyId),
@@ -579,7 +579,7 @@ namespace ONI_MP.Networking
 					entry.ColonyName = "---";
 
 				if (string.IsNullOrEmpty(entry.LobbyCode))
-					entry.LobbyCode = LobbyCodeHelper.GenerateCode(lobbyId);
+					entry.LobbyCode = LobbyCodeHelper.GenerateCode(lobbyId.m_SteamID);
 
 				lobbies.Add(entry);
 			}

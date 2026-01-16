@@ -1,5 +1,6 @@
 ﻿using Epic.OnlineServices.P2P;
 using ONI_MP.DebugTools;
+using ONI_MP.Misc;
 using ONI_MP.Networking.Packets;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Core;
@@ -156,8 +157,7 @@ namespace ONI_MP.Networking
 			{
 				Marshal.Copy(bytes, 0, unmanagedPointer, bytes.Length);
 
-				var result = SteamNetworkingSockets.SendMessageToConnection(
-						conn, unmanagedPointer, (uint)bytes.Length, _sendType, out long msgNum);
+				var result = SteamNetworkingSockets.SendMessageToConnection(conn, unmanagedPointer, (uint)bytes.Length, _sendType, out long msgNum);
 
 				bool sent = result == EResult.k_EResultOK;
 
@@ -185,7 +185,7 @@ namespace ONI_MP.Networking
 		/// <summary>
 		/// Send a packet to a player by their SteamID.
 		/// </summary>
-		public static bool SendToPlayer(CSteamID steamID, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
+		public static bool SendToPlayer(ulong steamID, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
 		{
 			// Prevent host from sending packets to itself (can cause loops and errors)
 			if (MultiplayerSession.IsHost && steamID == MultiplayerSession.HostSteamID)
@@ -214,7 +214,7 @@ namespace ONI_MP.Networking
 		}
 
 		/// Original single-exclude overload
-		public static void SendToAll(IPacket packet, CSteamID? exclude = null, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
+		public static void SendToAll(IPacket packet, ulong? exclude = null, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
 		{
 			foreach (var player in MultiplayerSession.ConnectedPlayers.Values)
 			{
@@ -236,7 +236,7 @@ namespace ONI_MP.Networking
 			SendToAll(packet, MultiplayerSession.HostSteamID, sendType);
 		}
 
-		public static void SendToAllExcluding(IPacket packet, HashSet<CSteamID> excludedIds, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
+		public static void SendToAllExcluding(IPacket packet, HashSet<ulong> excludedIds, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
 		{
 			foreach (var player in MultiplayerSession.ConnectedPlayers.Values)
 			{
@@ -268,7 +268,7 @@ namespace ONI_MP.Networking
 			if (MultiplayerSession.IsHost)
 				SendToAllClients(packet);
 			else
-				SendToHost(new HostBroadcastPacket(packet, CSteamID.Nil));
+				SendToHost(new HostBroadcastPacket(packet, Utils.NilUlong()));
 		}
 
 		public static void SendToAllOtherPeersFromHost_API(object api_packet)
@@ -331,7 +331,7 @@ namespace ONI_MP.Networking
 		/// <param name="api_packet">data object of the packet class that got registered with a ModApiPacket wrapper earlier</param>
 		/// <param name="exclude"></param>
 		/// <param name="sendType"></param>
-		public static void SendToAll_API(object api_packet, CSteamID? exclude = null, int sendType = (int)SteamNetworkingSend.Reliable)
+		public static void SendToAll_API(object api_packet, ulong? exclude = null, int sendType = (int)SteamNetworkingSend.Reliable)
 		{
 			var type = api_packet.GetType();
 			if (!PacketRegistry.HasRegisteredPacket(type))
@@ -364,7 +364,7 @@ namespace ONI_MP.Networking
 			SendToAllClients(packet, (SteamNetworkingSend)sendType);
 		}
 
-		public static void SendToAllExcluding_API(object api_packet, HashSet<CSteamID> excludedIds, int sendType = (int)SteamNetworkingSend.Reliable)
+		public static void SendToAllExcluding_API(object api_packet, HashSet<ulong> excludedIds, int sendType = (int)SteamNetworkingSend.Reliable)
 		{
 			var type = api_packet.GetType();
 			if (!PacketRegistry.HasRegisteredPacket(type))
@@ -381,7 +381,7 @@ namespace ONI_MP.Networking
 			SendToAllExcluding(packet, excludedIds, (SteamNetworkingSend)sendType);
 		}
 
-		public static void SendToPlayer_API(CSteamID steamID, object api_packet, int sendType = (int)SteamNetworkingSend.ReliableNoNagle)
+		public static void SendToPlayer_API(ulong steamID, object api_packet, int sendType = (int)SteamNetworkingSend.ReliableNoNagle)
 		{
 			var type = api_packet.GetType();
 			if (!PacketRegistry.HasRegisteredPacket(type))

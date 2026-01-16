@@ -11,18 +11,18 @@ namespace ONI_MP.Networking.Packets.World
 {
 	public class SaveFileRequestPacket : IPacket
 	{
-		public CSteamID Requester;
+		public ulong Requester;
 
 		public const float SAVE_DATA_SEND_DELAY = 0.05f;
 
 		public void Serialize(BinaryWriter writer)
 		{
-			writer.Write(Requester.m_SteamID);
+			writer.Write(Requester);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Requester = new CSteamID(reader.ReadUInt64());
+			Requester = reader.ReadUInt64();
 		}
 
 		public void OnDispatched()
@@ -35,7 +35,7 @@ namespace ONI_MP.Networking.Packets.World
 			SendSaveFile(Requester);
 		}
 
-		public static void SendSaveFile(CSteamID requester)
+		public static void SendSaveFile(ulong requester)
 		{
 			if (!MultiplayerSession.IsHost)
 				return;
@@ -62,14 +62,14 @@ namespace ONI_MP.Networking.Packets.World
 
             foreach(CSteamID steamId in SteamLobby.GetAllLobbyMembers())
 			{
-				if (steamId != MultiplayerSession.HostSteamID) {
-                    SendSaveFile(steamId);
+				if (steamId.m_SteamID != MultiplayerSession.HostSteamID) {
+                    SendSaveFile(steamId.m_SteamID);
                 }
             }
         }
 
 
-        private static IEnumerator StreamChunks(byte[] data, string fileName, CSteamID steamID)
+        private static IEnumerator StreamChunks(byte[] data, string fileName, ulong steamID)
 		{
 			int chunkSize = SaveHelper.SAVEFILE_CHUNKSIZE_KB * 1024;
 			int totalChunks = (int)Math.Ceiling((double)data.Length / chunkSize);

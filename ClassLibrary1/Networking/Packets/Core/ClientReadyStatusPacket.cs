@@ -10,12 +10,12 @@ namespace ONI_MP.Networking.Packets.Core
 {
 	class ClientReadyStatusPacket : IPacket
 	{
-		public CSteamID SenderId;
+		public ulong SenderId;
 		public ClientReadyState Status = ClientReadyState.Unready;
 
 		public ClientReadyStatusPacket() { }
 
-		public ClientReadyStatusPacket(CSteamID senderId, ClientReadyState status)
+		public ClientReadyStatusPacket(ulong senderId, ClientReadyState status)
 		{
 			SenderId = senderId;
 			Status = status;
@@ -24,13 +24,13 @@ namespace ONI_MP.Networking.Packets.Core
 		public void Serialize(BinaryWriter writer)
 		{
 			writer.Write((int)Status);
-			writer.Write(SenderId.m_SteamID);
+			writer.Write(SenderId);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
 			Status = (ClientReadyState)reader.ReadInt32();
-			SenderId = new CSteamID(reader.ReadUInt64());
+			SenderId = reader.ReadUInt64();
 		}
 
 		public void OnDispatched()

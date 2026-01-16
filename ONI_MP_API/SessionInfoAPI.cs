@@ -73,24 +73,24 @@ namespace ONI_MP_API
 				return (bool)_IsClientGetter.Invoke(null, null);
 			}
 		}
-		public static CSteamID LocalSteamID
+		public static ulong LocalSteamID
 		{
 			get
 			{
 				Init();
 				if (_LocalSteamIDGetter == null)
-					return CSteamID.Nil;
-				return (CSteamID)_LocalSteamIDGetter.Invoke(null, null);
+					return 0uL;
+				return (ulong) _LocalSteamIDGetter.Invoke(null, null);
 			}
 		}
-		public static CSteamID HostSteamID
+		public static ulong HostSteamID
 		{
 			get
 			{
 				Init();
 				if (_HostSteamIDGetter == null)
-					return CSteamID.Nil;
-				return (CSteamID)_HostSteamIDGetter.Invoke(null, null);
+					return 0uL;
+				return (ulong)_HostSteamIDGetter.Invoke(null, null);
 			}
 		}
 

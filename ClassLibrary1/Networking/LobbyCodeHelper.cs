@@ -1,4 +1,5 @@
 using ONI_MP.DebugTools;
+using ONI_MP.Misc;
 using Steamworks;
 using System;
 using System.Numerics;
@@ -18,7 +19,7 @@ namespace ONI_MP.Networking
         /// <summary>
         /// Convert a Steam Lobby ID to a short alphanumeric code.
         /// </summary>
-        public static string GenerateCode(CSteamID lobbyId)
+        public static string GenerateCode(ulong lobbyId)
         {
             if (!lobbyId.IsValid())
             {
@@ -28,7 +29,7 @@ namespace ONI_MP.Networking
 
             try
             {
-                ulong id = lobbyId.m_SteamID;
+                ulong id = lobbyId;
                 return EncodeBase36(id);
             }
             catch (Exception ex)
@@ -41,9 +42,9 @@ namespace ONI_MP.Networking
         /// <summary>
         /// Parse a lobby code back to a Steam Lobby ID.
         /// </summary>
-        public static bool TryParseCode(string code, out CSteamID lobbyId)
+        public static bool TryParseCode(string code, out ulong lobbyId)
         {
-            lobbyId = CSteamID.Nil;
+            lobbyId = Utils.NilUlong();
 
             if (string.IsNullOrWhiteSpace(code))
             {
@@ -55,7 +56,7 @@ namespace ONI_MP.Networking
             {
                 code = code.Trim().ToUpperInvariant();
                 ulong id = DecodeBase36(code);
-                lobbyId = new CSteamID(id);
+                lobbyId = id;
                 return lobbyId.IsValid();
             }
             catch (Exception ex)

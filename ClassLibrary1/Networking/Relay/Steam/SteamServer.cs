@@ -182,10 +182,10 @@ namespace ONI_MP.Networking.Relay.Steam
         private static void OnClientConnected(HSteamNetConnection conn, CSteamID clientId)
         {
             MultiplayerPlayer player;
-            if (!MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out player))
+            if (!MultiplayerSession.ConnectedPlayers.TryGetValue(clientId.m_SteamID, out player))
             {
-                player = new MultiplayerPlayer(clientId);
-                MultiplayerSession.ConnectedPlayers.Add(clientId, player);
+                player = new MultiplayerPlayer(clientId.m_SteamID);
+                MultiplayerSession.ConnectedPlayers.Add(clientId.m_SteamID, player);
                 //MultiplayerSession.ConnectedPlayers[clientId] = player;
             }
             player.Connection = conn;
@@ -199,7 +199,7 @@ namespace ONI_MP.Networking.Relay.Steam
         {
             SteamNetworkingSockets.CloseConnection(conn, 0, null, false);
 
-            if (MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out var playerToRemove))
+            if (MultiplayerSession.ConnectedPlayers.TryGetValue(clientId.m_SteamID, out var playerToRemove))
             {
                 playerToRemove.Connection = null;
             }

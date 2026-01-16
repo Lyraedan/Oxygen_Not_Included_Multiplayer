@@ -7,8 +7,8 @@ namespace ONI_MP.Networking
 	/// </summary>
 	public class LobbyListEntry
 	{
-		public CSteamID LobbyId { get; set; }
-		public CSteamID HostSteamId { get; set; }
+		public ulong LobbyId { get; set; }
+		public ulong HostSteamId { get; set; }
 		public string LobbyName { get; set; }
 		public string HostName { get; set; }
 		public int PlayerCount { get; set; }

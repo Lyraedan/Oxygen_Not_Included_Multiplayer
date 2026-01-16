@@ -77,7 +77,7 @@ namespace ONI_MP.Networking
 			playerCursor.Init();
 
 			PlayerCursors[steamID] = playerCursor;
-			DebugConsole.Log($"[MultiplayerSession] Created new cursor for {SteamFriends.GetFriendPersonaName(steamID)}");
+			DebugConsole.Log($"[MultiplayerSession] Created new cursor for {steamID}");
 		}
 
 		public static void CreateConnectedPlayerCursors()
@@ -85,14 +85,14 @@ namespace ONI_MP.Networking
 			var members = SteamLobby.GetAllLobbyMembers();
 			foreach (var playerId in members)
 			{
-				if (playerId == LocalSteamID)
+				if (playerId.m_SteamID == LocalSteamID)
 					continue;
 
-				CreateNewPlayerCursor(playerId);
+				CreateNewPlayerCursor(playerId.m_SteamID);
 			}
 		}
 
-		public static void RemovePlayerCursor(CSteamID steamID)
+		public static void RemovePlayerCursor(ulong steamID)
 		{
 			if (!PlayerCursors.TryGetValue(steamID, out var cursor))
 				return;
@@ -104,7 +104,7 @@ namespace ONI_MP.Networking
 			}
 
 			PlayerCursors.Remove(steamID);
-			DebugConsole.Log($"[MultiplayerSession] Removed player cursor for {SteamFriends.GetFriendPersonaName(steamID)}");
+			DebugConsole.Log($"[MultiplayerSession] Removed player cursor for {steamID}");
 		}
 
 		public static void RemoveAllPlayerCursors()
@@ -123,7 +123,7 @@ namespace ONI_MP.Networking
 			DebugConsole.Log("[MultiplayerSession] Removed all player cursors.");
 		}
 
-		public static bool TryGetCursorObject(CSteamID steamID, out GameObject cursorGO)
+		public static bool TryGetCursorObject(ulong steamID, out GameObject cursorGO)
 		{
 			if (PlayerCursors.TryGetValue(steamID, out var cursor) && cursor != null)
 			{

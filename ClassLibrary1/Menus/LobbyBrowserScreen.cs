@@ -416,7 +416,7 @@ namespace ONI_MP.Menus
             foreach (var lobby in _filteredLobbies)
             {
                 // Its private AND we are not friends with the host then HIDE from the list
-                if (lobby.IsPrivate && !SteamFriends.HasFriend(lobby.HostSteamId, EFriendFlags.k_EFriendFlagImmediate))
+                if (lobby.IsPrivate && !SteamFriends.HasFriend(lobby.HostSteamId.AsCSteamID(), EFriendFlags.k_EFriendFlagImmediate))
                     continue;
 
                 var rowGO = CreateLobbyRow(lobby);
@@ -454,7 +454,7 @@ namespace ONI_MP.Menus
             CreateCell(rowGO.transform, lobby.PingDisplay, 55, 0);             // Fixed
 
             // Join button
-            bool join_interactable = !lobby.IsPrivate || SteamFriends.HasFriend(lobby.HostSteamId, EFriendFlags.k_EFriendFlagImmediate);
+            bool join_interactable = !lobby.IsPrivate || SteamFriends.HasFriend(lobby.HostSteamId.AsCSteamID(), EFriendFlags.k_EFriendFlagImmediate);
             string label = join_interactable ? STRINGS.UI.SERVERBROWSER.JOIN_BUTTON : STRINGS.UI.SERVERBROWSER.FRIEND_ONLY; 
             CreateButton(rowGO.transform, label, () => JoinLobby(lobby), 70, 30, join_interactable);
 
@@ -502,7 +502,7 @@ namespace ONI_MP.Menus
             else
             {
                 // Direct join
-                SteamLobby.JoinLobby(lobby.LobbyId, (lobbyId) =>
+                SteamLobby.JoinLobby(lobby.LobbyId.AsCSteamID(), (lobbyId) =>
                 {
                     DebugConsole.Log($"[LobbyBrowser] Successfully joined lobby: {lobbyId}");
                     Close();
@@ -515,7 +515,7 @@ namespace ONI_MP.Menus
             ShowPasswordDialog(parent, lobby.LobbyId);
         }
 
-        public static void ShowPasswordDialog(Transform parent, CSteamID lobbyID)
+        public static void ShowPasswordDialog(Transform parent, ulong lobbyID)
         {
             // Create password dialog
             var dialogGO = new GameObject("PasswordDialog", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
@@ -615,7 +615,7 @@ namespace ONI_MP.Menus
                 if (SteamLobby.ValidateLobbyPassword(lobbyID, password))
                 {
                     Destroy(dialogGO);
-                    SteamLobby.JoinLobby(lobbyID, (lobbyId) =>
+                    SteamLobby.JoinLobby(lobbyID.AsCSteamID(), (lobbyId) =>
                     {
                         DebugConsole.Log($"[LobbyBrowser] Successfully joined lobby: {lobbyId}");
                         Close();

@@ -6,9 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
+using ONI_MP.Networking.Relay.Steam;
 using Steamworks;
 using UnityEngine;
 using UnityEngine.UI;
+using SteamClient = ONI_MP.Networking.Relay.Steam.SteamClient;
 
 namespace ONI_MP.Menus
 {
@@ -159,7 +161,7 @@ namespace ONI_MP.Menus
             if (MultiplayerSession.IsHost)
                 return NetworkState.GOOD;
 
-            var connhealth = GameClient.GetConnectionHealth();
+            var connhealth = SteamClient.GetConnectionHealth();
             if (!connhealth.HasValue)
                 return NetworkState.BAD;
 
@@ -209,7 +211,7 @@ namespace ONI_MP.Menus
             if (MultiplayerSession.IsHost)
                 return NetworkState.GOOD;
 
-            var connhealth = GameClient.GetConnectionHealth();
+            var connhealth = SteamClient.GetConnectionHealth();
             if (!connhealth.HasValue)
                 return NetworkState.BAD;
 
@@ -236,7 +238,7 @@ namespace ONI_MP.Menus
             if (MultiplayerSession.IsHost)
                 return NetworkState.GOOD;
 
-            var connhealth = GameClient.GetConnectionHealth();
+            var connhealth = SteamClient.GetConnectionHealth();
             if (!connhealth.HasValue)
                 return NetworkState.BAD;
 
@@ -259,10 +261,10 @@ namespace ONI_MP.Menus
             if (MultiplayerSession.IsHost)
                 return NetworkState.GOOD;
 
-            if (!GameClient.Connection.HasValue)
+            if (!SteamClient.Connection.HasValue)
                 return NetworkState.BAD;
 
-            var connHealth = GameClient.GetConnectionHealth();
+            var connHealth = SteamClient.GetConnectionHealth();
 
             // Connection no longer exists
             if (!connHealth.HasValue)
