@@ -311,6 +311,11 @@ namespace ONI_MP.Misc
             }
         }
 
+        public static ulong NilUlong()
+        {
+            return 0uL;
+        }
+
         #region SaveLoadRoot Extensions
         private static readonly FieldInfo optionalComponentListField =
 				typeof(SaveLoadRoot).GetField("m_optionalComponentTypeNames", BindingFlags.NonPublic | BindingFlags.Instance);

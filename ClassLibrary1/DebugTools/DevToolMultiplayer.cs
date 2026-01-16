@@ -32,7 +32,7 @@ namespace ONI_MP.DebugTools
         private bool showRestartPrompt = false;
 
         // Open player profile
-        private CSteamID? selectedPlayer = null;
+        private ulong? selectedPlayer = null;
 
         private static readonly string ModDirectory = Path.Combine(
             Path.GetDirectoryName(typeof(DevToolMultiplayer).Assembly.Location),
@@ -264,17 +264,17 @@ namespace ONI_MP.DebugTools
             foreach (var playerId in players)
             {
                 string playerName = SteamFriends.GetFriendPersonaName(playerId);
-                bool isHost = MultiplayerSession.HostSteamID == playerId;
+                bool isHost = MultiplayerSession.HostSteamID == playerId.m_SteamID;
 
                 string label = isHost
                     ? $"[HOST] {playerName} ({playerId})"
                     : $"{playerName} ({playerId})";
 
-                bool isSelected = selectedPlayer.HasValue && selectedPlayer.Value == playerId;
+                bool isSelected = selectedPlayer.HasValue && selectedPlayer.Value == playerId.m_SteamID;
 
                 if (ImGui.Selectable(label, isSelected))
                 {
-                    selectedPlayer = playerId;
+                    selectedPlayer = playerId.m_SteamID;
                 }
 
                 // Right-click context menu
@@ -297,11 +297,12 @@ namespace ONI_MP.DebugTools
 
             ImGui.Separator();
             ImGui.Text("Network Statistics");
-            ImGui.Text($"Ping: {GameClient.GetPingToHost()}");
-            ImGui.Text($"Quality(L/R): {GameClient.GetLocalPacketQuality():0.00} / {GameClient.GetRemotePacketQuality():0.00}");
-            ImGui.Text($"Unacked Reliable: {GameClient.GetUnackedReliable()}");
-            ImGui.Text($"Pending Unreliable: {GameClient.GetPendingUnreliable()}");
-            ImGui.Text($"Queue Time: {GameClient.GetUsecQueueTime() / 1000}ms");
+            // TODO Update:
+            //ImGui.Text($"Ping: {GameClient.GetPingToHost()}");
+            //ImGui.Text($"Quality(L/R): {GameClient.GetLocalPacketQuality():0.00} / {GameClient.GetRemotePacketQuality():0.00}");
+            //ImGui.Text($"Unacked Reliable: {GameClient.GetUnackedReliable()}");
+            //ImGui.Text($"Pending Unreliable: {GameClient.GetPendingUnreliable()}");
+            //ImGui.Text($"Queue Time: {GameClient.GetUsecQueueTime() / 1000}ms");
             ImGui.Spacing();
             ImGui.Text($"Latency: {Utils.NetworkStateToString(NetworkIndicatorsScreen.latencyState)}");
             ImGui.Text($"Jitter: {Utils.NetworkStateToString(NetworkIndicatorsScreen.jitterState)}");

@@ -1,4 +1,5 @@
 ﻿using ONI_MP.DebugTools;
+using ONI_MP.Misc;
 using Shared;
 using Steamworks;
 using System.Collections.Generic;
@@ -14,11 +15,11 @@ namespace ONI_MP.Networking
 		/// <summary>
 		/// HOST ONLY - Returns a list of connected players
 		/// </summary>
-		public static readonly Dictionary<CSteamID, MultiplayerPlayer> ConnectedPlayers = new Dictionary<CSteamID, MultiplayerPlayer>();
+		public static readonly Dictionary<ulong, MultiplayerPlayer> ConnectedPlayers = new Dictionary<ulong, MultiplayerPlayer>();
 
-		public static CSteamID LocalSteamID => SteamUser.GetSteamID();
+		public static ulong LocalSteamID => SteamUser.GetSteamID().m_SteamID;
 
-		public static CSteamID HostSteamID { get; set; } = CSteamID.Nil; // TODO Update every single god damn CSteamID to a ulong fml
+		public static ulong HostSteamID { get; set; } = Utils.NilUlong(); // TODO Update every single god damn CSteamID to a ulong fml
 
 		public static bool InSession = false;
 		public static bool SessionHasPlayers => InSession && ConnectedPlayers.Count > 1;
@@ -30,22 +31,22 @@ namespace ONI_MP.Networking
 
 		public static bool IsHostInSession => IsHost && InSession;
 
-		public static readonly Dictionary<CSteamID, PlayerCursor> PlayerCursors = new Dictionary<CSteamID, PlayerCursor>();
+		public static readonly Dictionary<ulong, PlayerCursor> PlayerCursors = new Dictionary<ulong, PlayerCursor>();
 		
 		public static void Clear()
 		{
 			ConnectedPlayers.Clear();
-			HostSteamID = CSteamID.Nil;
+			HostSteamID = Utils.NilUlong();
 			DebugConsole.Log("[MultiplayerSession] Session cleared.");
 		}
 
-		public static void SetHost(CSteamID host)
+		public static void SetHost(ulong host)
 		{
 			HostSteamID = host;
 			DebugConsole.Log($"[MultiplayerSession] Host set to: {host}");
 		}
 
-		public static MultiplayerPlayer GetPlayer(CSteamID id)
+		public static MultiplayerPlayer GetPlayer(ulong id)
 		{
 			return ConnectedPlayers.TryGetValue(id, out var player) ? player : null;
 		}
@@ -54,7 +55,7 @@ namespace ONI_MP.Networking
 
 		public static IEnumerable<MultiplayerPlayer> AllPlayers => ConnectedPlayers.Values;
 
-		public static void CreateNewPlayerCursor(CSteamID steamID)
+		public static void CreateNewPlayerCursor(ulong steamID)
 		{
 			if (PlayerCursors.ContainsKey(steamID))
 				return;

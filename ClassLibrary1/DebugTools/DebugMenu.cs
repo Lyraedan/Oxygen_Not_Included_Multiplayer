@@ -79,9 +79,9 @@ namespace ONI_MP.DebugTools
 			}
 			else
 			{
-				foreach (CSteamID playerId in players)
+				foreach (ulong playerId in players)
 				{
-					var playerName = SteamFriends.GetFriendPersonaName(playerId);
+					var playerName = SteamFriends.GetFriendPersonaName(playerId.AsCSteamID());
 					string prefix = (MultiplayerSession.HostSteamID == playerId) ? "[HOST] " : "";
 					GUILayout.Label($"{prefix}{playerName} ({playerId})", UnityEngine.GUI.skin.label);
 				}

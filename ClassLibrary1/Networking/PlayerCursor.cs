@@ -20,7 +20,7 @@ namespace ONI_MP.Networking
 		private Image cursorImage = null;
 		private TextMeshProUGUI cursorText = null;
 
-		private CSteamID assignedPlayer;
+		private ulong assignedPlayer;
 		public string playerName = string.Empty;
 
 		private CursorState cursorState = CursorState.NONE;
@@ -61,7 +61,7 @@ namespace ONI_MP.Networking
 			base.OnSpawn();
 		}
 
-		public void AssignPlayer(CSteamID steamId)
+		public void AssignPlayer(ulong steamId)
 		{
 			this.assignedPlayer = steamId;
 		}
@@ -86,7 +86,7 @@ namespace ONI_MP.Networking
 			cursor.transform.SetParent(transform, false);
 			gameObject.SetLayerRecursively(LayerMask.NameToLayer("UI"));
 
-			playerName = SteamFriends.GetFriendPersonaName(assignedPlayer);
+			playerName = SteamFriends.GetFriendPersonaName(assignedPlayer.AsCSteamID());
 			cursorText.text = $"{playerName}";
 
 			OnCursorStateChanged += () => UpdateActionImage();
