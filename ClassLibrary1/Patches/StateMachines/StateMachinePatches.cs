@@ -14,6 +14,8 @@ namespace ONI_MP.Patches.StateMachines
         {
             static bool Prefix(StateMachine.Instance __instance, ref bool __result)
             {
+                return true; // disabled
+                /*
                 if (__instance.IsSMIPaused())
                 {
                     __result = false;
@@ -21,6 +23,7 @@ namespace ONI_MP.Patches.StateMachines
                 }
 
                 return true; // run original
+                */
             }
         }
     }
