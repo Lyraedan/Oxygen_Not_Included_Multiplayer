@@ -58,6 +58,8 @@ namespace ONI_MP.Scripts.Duplicants
 				// Disable sensors that might trigger behaviors
 				if (go.TryGetComponent<Sensors>(out var sensors)) sensors.enabled = false;
 
+                /*
+                // I think the state machine crashes are caused by all the RationalAi smis being disabled
 				//disable all RationalAi smis
 				var ai_smi = this.GetSMI<RationalAi.Instance>();
 				if (ai_smi != null)
@@ -72,17 +74,17 @@ namespace ONI_MP.Scripts.Duplicants
 
 					ai_smi.PauseSMI();
                     //ai_smi.StopSM("Client dupe do not get to have ai");
-                }
+                }*/
 
-				// Disable state machine controllers that could override animations
-				var stateMachineControllers = go.GetComponents<StateMachineController>();
+                // Disable state machine controllers that could override animations
+                var stateMachineControllers = go.GetComponents<StateMachineController>();
 				foreach (var smc in stateMachineControllers)
 				{
 					if (smc != null) smc.enabled = false;
 				}
 
-				// Add our client controller for receiving position/animation updates
-				go.AddOrGet<DuplicantClientController>();
+                // Add our client controller for receiving position/animation updates
+                go.AddOrGet<DuplicantClientController>();
 				DebugConsole.Log($"[DuplicantSpawn] Client setup complete for {go.name} (NetId: {identity.NetId})");
 			}
 			else if (MultiplayerSession.IsHost)
