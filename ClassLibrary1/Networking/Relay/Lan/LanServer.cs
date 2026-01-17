@@ -140,6 +140,13 @@ namespace ONI_MP.Networking.Relay.Lan
 
         public void OnConnectionRequest(ConnectionRequest request)
         {
+            int peer_limit = Configuration.Instance.Host.MaxLobbySize;
+            if (netManager.GetPeersCount(ConnectionState.Any) >= peer_limit)
+            {
+                DebugConsole.Log($"[LanServer] Server full rejecting");
+                request.Reject();
+                return;
+            }
             request.AcceptIfKey("ONI_MP");
         }
 

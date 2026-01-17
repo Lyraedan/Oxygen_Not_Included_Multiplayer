@@ -235,10 +235,16 @@ namespace ONI_MP.DebugTools
             ImGui.Separator();
             DisplaySessionDetails();
 
-            if (MultiplayerSession.InSession)
-                DrawPlayerList();
-            else
-                ImGui.TextDisabled("Not in a multiplayer session.");
+            if (NetworkConfig.relay.Equals(NetworkConfig.NetworkRelay.STEAM))
+            {
+                if (MultiplayerSession.InSession)
+                    DrawPlayerList();
+                else
+                    ImGui.TextDisabled("Not in a multiplayer session.");
+            } else
+            {
+                ImGui.TextDisabled("No access to a player list.");
+            }
         }
 
         private void DrawNetworkTab()
