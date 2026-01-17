@@ -222,7 +222,7 @@ namespace ONI_MP.Misc.World
 
 			var requestPacket = new SaveFileRequestPacket
 			{
-				Requester = MultiplayerSession.LocalSteamID
+				Requester = MultiplayerSession.LocalUserID
 			};
 
 			PacketSender.SendToHost(requestPacket);
@@ -282,7 +282,7 @@ namespace ONI_MP.Misc.World
 
 				var progressPacket = new ONI_MP.Networking.Packets.World.SyncProgressPacket
 				{
-					ClientSteamID = MultiplayerSession.LocalSteamID,
+					ClientSteamID = MultiplayerSession.LocalUserID,
 					ClientName = playerName,
 					FileName = fileName,
 					ReceivedChunks = receivedChunks,

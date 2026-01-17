@@ -145,6 +145,7 @@ namespace ONI_MP.Networking
 				AppendPendingBulkPacket(conn, packet, bp);
 				return true;
 			}
+
 			return NetworkConfig.RelayPacketSender.SendToConnection(conn, packet, sendType);
 		}
 
@@ -154,7 +155,7 @@ namespace ONI_MP.Networking
 		public static bool SendToPlayer(ulong steamID, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
 		{
 			// Prevent host from sending packets to itself (can cause loops and errors)
-			if (MultiplayerSession.IsHost && steamID == MultiplayerSession.HostSteamID)
+			if (MultiplayerSession.IsHost && steamID == MultiplayerSession.HostUserID)
 			{
 				DebugConsole.LogWarning($"[PacketSender] Host attempted to send packet {packet.GetType().Name} to itself - blocked");
 				return false;
@@ -171,12 +172,12 @@ namespace ONI_MP.Networking
 
 		public static void SendToHost(IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
 		{
-			if (!MultiplayerSession.HostSteamID.IsValid())
+			if (!MultiplayerSession.HostUserID.IsValid())
 			{
 				DebugConsole.LogWarning($"[PacketSender] Failed to send to host. Host is invalid.");
 				return;
 			}
-			SendToPlayer(MultiplayerSession.HostSteamID, packet, sendType);
+			SendToPlayer(MultiplayerSession.HostUserID, packet, sendType);
 		}
 
 		/// Original single-exclude overload
@@ -199,7 +200,7 @@ namespace ONI_MP.Networking
 				DebugConsole.LogWarning("[PacketSender] Only the host can send to all clients. Tried sending: " + packet.GetType());
 				return;
 			}
-			SendToAll(packet, MultiplayerSession.HostSteamID, sendType);
+			SendToAll(packet, MultiplayerSession.HostUserID, sendType);
 		}
 
 		public static void SendToAllExcluding(IPacket packet, HashSet<ulong> excludedIds, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
@@ -229,7 +230,7 @@ namespace ONI_MP.Networking
 				DebugConsole.LogWarning("[PacketSender] Not in a multiplayer session, cannot send to other peers");
 				return;
 			}
-			DebugConsole.Log("[PacketSender] Sending packet to all other peers: " + packet.GetType().Name);
+			DebugConsole.Log("[PacketSender] Sending packet to all other peers: " + packet.GetType().Name + " from host");
 
 			if (MultiplayerSession.IsHost)
 				SendToAllClients(packet);
@@ -272,7 +273,7 @@ namespace ONI_MP.Networking
 			if (MultiplayerSession.IsHost)
 				SendToAllClients(packet);
 			else
-				SendToHost(new HostBroadcastPacket(packet, MultiplayerSession.LocalSteamID));
+				SendToHost(new HostBroadcastPacket(packet, MultiplayerSession.LocalUserID));
 		}
 
 		public static void SendToAllOtherPeers_API(object api_packet)

@@ -23,7 +23,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public ChatMessagePacket(string message)
 		{
-			SenderId = MultiplayerSession.LocalSteamID;
+			SenderId = MultiplayerSession.LocalUserID;
             SenderName = SteamFriends.GetPersonaName();
             Message = message;
 			PlayerColor = CursorManager.Instance.color;

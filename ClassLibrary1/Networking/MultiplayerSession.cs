@@ -17,15 +17,15 @@ namespace ONI_MP.Networking
 		/// </summary>
 		public static readonly Dictionary<ulong, MultiplayerPlayer> ConnectedPlayers = new Dictionary<ulong, MultiplayerPlayer>();
 
-		public static ulong LocalSteamID => NetworkConfig.GetLocalID();
+		public static ulong LocalUserID => NetworkConfig.GetLocalID();
 
-		public static ulong HostSteamID { get; set; } = Utils.NilUlong();
+		public static ulong HostUserID { get; set; } = Utils.NilUlong();
 
 		public static bool InSession = false;
 		public static bool SessionHasPlayers => InSession && ConnectedPlayers.Count > 1;
 		public static bool NotInSession => !InSession;
 
-		public static bool IsHost => HostSteamID == LocalSteamID;
+		public static bool IsHost => HostUserID == LocalUserID;
 
 		public static bool IsClient => InSession && !IsHost;
 
@@ -36,13 +36,13 @@ namespace ONI_MP.Networking
 		public static void Clear()
 		{
 			ConnectedPlayers.Clear();
-			HostSteamID = Utils.NilUlong();
+			HostUserID = Utils.NilUlong();
 			DebugConsole.Log("[MultiplayerSession] Session cleared.");
 		}
 
 		public static void SetHost(ulong host)
 		{
-			HostSteamID = host;
+			HostUserID = host;
 			DebugConsole.Log($"[MultiplayerSession] Host set to: {host}");
 		}
 
@@ -51,7 +51,7 @@ namespace ONI_MP.Networking
 			return ConnectedPlayers.TryGetValue(id, out var player) ? player : null;
 		}
 
-		public static MultiplayerPlayer LocalPlayer => GetPlayer(LocalSteamID);
+		public static MultiplayerPlayer LocalPlayer => GetPlayer(LocalUserID);
 
 		public static IEnumerable<MultiplayerPlayer> AllPlayers => ConnectedPlayers.Values;
 
@@ -85,7 +85,7 @@ namespace ONI_MP.Networking
 			var members = SteamLobby.GetAllLobbyMembers();
 			foreach (var playerId in members)
 			{
-				if (playerId.m_SteamID == LocalSteamID)
+				if (playerId.m_SteamID == LocalUserID)
 					continue;
 
 				CreateNewPlayerCursor(playerId.m_SteamID);

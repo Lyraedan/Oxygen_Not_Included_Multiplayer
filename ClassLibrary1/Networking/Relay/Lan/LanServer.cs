@@ -8,9 +8,6 @@ using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Profiling;
 
-using static ONI_MP.STRINGS.UI.MP_OVERLAY;
-using static LogicPorts;
-
 namespace ONI_MP.Networking.Relay.Lan
 {
     public class LanServer : RelayServer, INetEventListener
@@ -47,7 +44,7 @@ namespace ONI_MP.Networking.Relay.Lan
             {
                 IPv6Enabled = false,
                 UnconnectedMessagesEnabled = false,
-                AutoRecycle = true
+                AutoRecycle = false,
             };
 
             netManager.Start(port);
@@ -88,6 +85,7 @@ namespace ONI_MP.Networking.Relay.Lan
         public override void Update()
         {
             netManager?.PollEvents();
+            DebugConsole.Log("[LanServer] Polling events");
         }
 
         public override void CloseConnections()
@@ -100,7 +98,7 @@ namespace ONI_MP.Networking.Relay.Lan
 
         public override void OnMessageRecieved()
         {
-            
+            // LiteNetLib uses its own internal functions
         }
 
         public void OnPeerConnected(NetPeer peer)

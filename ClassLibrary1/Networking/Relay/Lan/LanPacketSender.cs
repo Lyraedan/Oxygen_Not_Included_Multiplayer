@@ -9,9 +9,13 @@ namespace ONI_MP.Networking.Relay.Lan
     {
         public override bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
         {
-            if (conn is not NetPeer peer)
+            DebugConsole.Log(string.Format("[LanPacketSender] Connection is NetPeer: {0}", conn is not NetPeer));
+
+            if (conn is not NetPeer)
                 return false;
 
+            NetPeer peer = (NetPeer)conn;
+            DebugConsole.Log(string.Format("[LanPacketSender] Connection state: {0}", peer.ConnectionState));
             if (peer.ConnectionState != ConnectionState.Connected)
                 return false;
 

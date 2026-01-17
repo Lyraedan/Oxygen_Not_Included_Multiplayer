@@ -29,8 +29,11 @@ namespace ONI_MP.Networking.Components
 		{
 			scheduler.Tick();
 
-			if (!SteamManager.Initialized)
-				return;
+			if (NetworkConfig.relay.Equals(NetworkConfig.NetworkRelay.STEAM))
+			{
+				if (!SteamManager.Initialized)
+					return;
+			}
 
 			if (!MultiplayerSession.InSession)
 				return;
@@ -39,7 +42,7 @@ namespace ONI_MP.Networking.Components
 			{
 				GameServer.Update();
 			}
-			else if (MultiplayerSession.IsClient && MultiplayerSession.HostSteamID.IsValid())
+			else if (MultiplayerSession.IsClient && MultiplayerSession.HostUserID.IsValid())
 			{
 				GameClient.Poll();
 
@@ -53,7 +56,10 @@ namespace ONI_MP.Networking.Components
 			if (!MultiplayerSession.InSession)
 				return;
 
-			SteamLobby.LeaveLobby();
+			if (NetworkConfig.relay.Equals(NetworkConfig.NetworkRelay.STEAM))
+			{
+				SteamLobby.LeaveLobby();
+			}
 		}
 	}
 }

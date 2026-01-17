@@ -16,6 +16,7 @@ using ONI_MP.Menus;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Profiling;
 using System.Text;
+using ONI_MP.Patches.ToolPatches;
 
 namespace ONI_MP.DebugTools
 {
@@ -176,18 +177,49 @@ namespace ONI_MP.DebugTools
                 ImGui.TextColored(new Vector4(1f, 0.3f, 0.3f, 1f), "Multiplayer Not Active");
             ImGui.Separator();
 
-            if (ImGui.Button("Create Lobby"))
+            switch (NetworkConfig.relay) 
             {
-                SteamLobby.CreateLobby(onSuccess: () =>
-                {
-                    SpeedControlScreen.Instance?.Unpause(false);
-                    Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
-                });
-            }
+                case NetworkConfig.NetworkRelay.STEAM:
+                    if (ImGui.Button("Create Lobby"))
+                    {
+                        SteamLobby.CreateLobby(onSuccess: () =>
+                        {
+                            SpeedControlScreen.Instance?.Unpause(false);
+                            Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
+                        });
+                    }
 
-            ImGui.SameLine();
-            if (ImGui.Button("Leave Lobby"))
-                SteamLobby.LeaveLobby();
+                    ImGui.SameLine();
+                    if (ImGui.Button("Leave Lobby"))
+                        SteamLobby.LeaveLobby();
+                    break;
+                case NetworkConfig.NetworkRelay.LAN:
+                    if (ImGui.Button("Start Lan"))
+                    {
+                        MultiplayerSession.Clear();
+                        Networking.GameServer.Start();
+                        SelectToolPatch.UpdateColor();
+                        Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
+                    }
+
+                    ImGui.SameLine();
+                    if (ImGui.Button("Stop Lan"))
+                    {
+                        if (MultiplayerSession.IsHost)
+                            Networking.GameServer.Shutdown();
+
+                        if (MultiplayerSession.IsClient)
+                            GameClient.Disconnect();
+
+                        NetworkIdentityRegistry.Clear();
+                        MultiplayerSession.Clear();
+
+                        SelectToolPatch.UpdateColor();
+                    }
+                    break;
+                default:
+                    break;
+            }
 
             ImGui.SameLine();
             if (ImGui.Button("Client Disconnect"))
@@ -259,8 +291,8 @@ namespace ONI_MP.DebugTools
             ImGui.Text($"Is Host: {MultiplayerSession.IsHost}");
             ImGui.Text($"Is Client: {MultiplayerSession.IsClient}");
             ImGui.Text($"In Session: {MultiplayerSession.InSession}");
-            ImGui.Text($"Local ID: {MultiplayerSession.LocalSteamID}");
-            ImGui.Text($"Host ID: {MultiplayerSession.HostSteamID}");
+            ImGui.Text($"Local ID: {MultiplayerSession.LocalUserID}");
+            ImGui.Text($"Host ID: {MultiplayerSession.HostUserID}");
         }
 
         private void DrawPlayerList()
@@ -270,7 +302,7 @@ namespace ONI_MP.DebugTools
             ImGui.Separator();
             ImGui.Text("Players in Lobby:");
 
-            string self = $"[YOU] {SteamFriends.GetPersonaName()} ({MultiplayerSession.LocalSteamID})";
+            string self = $"[YOU] {SteamFriends.GetPersonaName()} ({MultiplayerSession.LocalUserID})";
 
             if (players.Count == 0)
             {
@@ -278,15 +310,15 @@ namespace ONI_MP.DebugTools
                 return;
             }
 
-            if (MultiplayerSession.HostSteamID == MultiplayerSession.LocalSteamID)
-                self = $"[YOU|HOST] {SteamFriends.GetPersonaName()} ({MultiplayerSession.LocalSteamID})";
+            if (MultiplayerSession.HostUserID == MultiplayerSession.LocalUserID)
+                self = $"[YOU|HOST] {SteamFriends.GetPersonaName()} ({MultiplayerSession.LocalUserID})";
 
             ImGui.TextColored(new Vector4(0.3f, 1f, 0.3f, 1f), self);
 
             foreach (var playerId in players)
             {
                 string playerName = SteamFriends.GetFriendPersonaName(playerId);
-                bool isHost = MultiplayerSession.HostSteamID == playerId.m_SteamID;
+                bool isHost = MultiplayerSession.HostUserID == playerId.m_SteamID;
 
                 string label = isHost
                     ? $"[HOST] {playerName} ({playerId})"

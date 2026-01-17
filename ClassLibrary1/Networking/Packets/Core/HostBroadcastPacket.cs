@@ -64,7 +64,7 @@ namespace ONI_MP.Networking.Packets.Core
 				//trigger it on the host
 				innerPacket.OnDispatched();
 				//send it to all other clients except the sender
-				PacketSender.SendToAllExcluding(innerPacket, [MultiplayerSession.HostSteamID, SenderId]);
+				PacketSender.SendToAllExcluding(innerPacket, [MultiplayerSession.HostUserID, SenderId]);
 			}
 		}
 

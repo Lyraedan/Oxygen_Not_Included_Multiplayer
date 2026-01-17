@@ -61,12 +61,12 @@ namespace ONI_MP.Networking
 				return;
 
 			MultiplayerPlayer host;
-			MultiplayerSession.ConnectedPlayers.TryGetValue(MultiplayerSession.HostSteamID, out host);
+			MultiplayerSession.ConnectedPlayers.TryGetValue(MultiplayerSession.HostUserID, out host);
 			host.readyState = ClientReadyState.Ready; // Host is always ready
 
 			foreach (MultiplayerPlayer player in MultiplayerSession.ConnectedPlayers.Values)
 			{
-				if (player.SteamID == MultiplayerSession.HostSteamID)
+				if (player.SteamID == MultiplayerSession.HostUserID)
 					continue;
 
 				player.readyState = ClientReadyState.Unready;
@@ -76,7 +76,7 @@ namespace ONI_MP.Networking
 
 		public static void SetPlayerReadyState(MultiplayerPlayer player, ClientReadyState state)
 		{
-			if (player.SteamID == MultiplayerSession.HostSteamID)
+			if (player.SteamID == MultiplayerSession.HostUserID)
 				return;
 
 			player.readyState = state;

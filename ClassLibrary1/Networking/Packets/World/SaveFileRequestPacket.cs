@@ -62,7 +62,7 @@ namespace ONI_MP.Networking.Packets.World
 
             foreach(CSteamID steamId in SteamLobby.GetAllLobbyMembers())
 			{
-				if (steamId.m_SteamID != MultiplayerSession.HostSteamID) {
+				if (steamId.m_SteamID != MultiplayerSession.HostUserID) {
                     SendSaveFile(steamId.m_SteamID);
                 }
             }

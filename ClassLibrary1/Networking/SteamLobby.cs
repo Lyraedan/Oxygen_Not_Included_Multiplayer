@@ -9,6 +9,7 @@ using Steamworks;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static STRINGS.GAMEPLAY_EVENTS;
 
 namespace ONI_MP.Networking
 {
@@ -156,18 +157,17 @@ namespace ONI_MP.Networking
 				MultiplayerSession.Clear();
 
 				GameServer.Start();
-
 				SteamRichPresence.SetLobbyInfo(CurrentLobby, "Multiplayer – Hosting Lobby");
 				_onLobbyCreatedSuccess?.Invoke();
 				_onLobbyCreatedSuccess = null;
 
-				// Update game info if available
-				UpdateGameInfo();
+                // Update game info if available
+                UpdateGameInfo();
 
 				//CursorManager.Instance.AssignColor();
 				SelectToolPatch.UpdateColor();
-			}
-			else
+            }
+            else
 			{
 				DebugConsole.LogError($"[SteamLobby] Failed to create lobby: {callback.m_eResult}");
 				_onLobbyCreatedSuccess = null;
@@ -219,7 +219,7 @@ namespace ONI_MP.Networking
 			_onLobbyJoined?.Invoke(CurrentLobby);
 			RefreshLobbyMembers();
 
-			if (!MultiplayerSession.IsHost && MultiplayerSession.HostSteamID.IsValid())
+			if (!MultiplayerSession.IsHost && MultiplayerSession.HostUserID.IsValid())
 			{
 				GameClient.ConnectToHost();
 			}
@@ -240,7 +240,7 @@ namespace ONI_MP.Networking
 						//MultiplayerSession.ConnectedPlayers[user] = new MultiplayerPlayer(user);
 						MultiplayerSession.ConnectedPlayers.Add(userId, new MultiplayerPlayer(user.m_SteamID));
 				}
-				else if (userId == MultiplayerSession.HostSteamID && !MultiplayerSession.ConnectedPlayers.ContainsKey(userId))
+				else if (userId == MultiplayerSession.HostUserID && !MultiplayerSession.ConnectedPlayers.ContainsKey(userId))
 				{
 					//MultiplayerSession.ConnectedPlayers[user] = new MultiplayerPlayer(user);
                     MultiplayerSession.ConnectedPlayers.Add(userId, new MultiplayerPlayer(user.m_SteamID));
@@ -464,8 +464,16 @@ namespace ONI_MP.Networking
 				SteamMatchmaking.SetLobbyData(CurrentLobby, "duplicant_alive", aliveCount.ToString());
 				SteamMatchmaking.SetLobbyData(CurrentLobby, "duplicant_count", totalCount.ToString());
 
-				// Store host's ping location for client ping estimation
-				float age = SteamNetworkingUtils.GetLocalPingLocation(out SteamNetworkPingLocation_t pingLocation);
+				if (!NetworkConfig.relay.Equals(NetworkConfig.NetworkRelay.STEAM))
+				{
+                    SteamMatchmaking.SetLobbyData(CurrentLobby, "host_ping_location", "???");
+                    return;
+				}
+
+				// Steam utils not in use outside steam relay
+
+                // Store host's ping location for client ping estimation
+                float age = SteamNetworkingUtils.GetLocalPingLocation(out SteamNetworkPingLocation_t pingLocation);
 				if (age >= 0)
 				{
 					SteamNetworkingUtils.ConvertPingLocationToString(ref pingLocation, out string locationStr, 256);

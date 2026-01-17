@@ -8,7 +8,7 @@ namespace ONI_MP.Networking.Packets.Tools.Attack;
 
 public class AttackToolPacket : IPacket
 {
-    private ulong        SenderId = MultiplayerSession.LocalSteamID;
+    private ulong        SenderId = MultiplayerSession.LocalUserID;
     private Vector2         Min;
     private Vector2         Max;
     private PrioritySetting Priority = ToolMenu.Instance.PriorityScreen.GetLastSelectedPriority();

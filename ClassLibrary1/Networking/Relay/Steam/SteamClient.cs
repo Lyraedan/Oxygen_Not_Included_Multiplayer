@@ -33,7 +33,7 @@ namespace ONI_MP.Networking.Relay.Steam
 
         public override void ConnectToHost()
         {
-            ulong hostSteamId = MultiplayerSession.HostSteamID;
+            ulong hostSteamId = MultiplayerSession.HostUserID;
             DebugConsole.Log($"[GameClient] Attempting ConnectP2P to host {hostSteamId}...");
 
             var identity = new SteamNetworkingIdentity();
@@ -77,7 +77,7 @@ namespace ONI_MP.Networking.Relay.Steam
                 System.Threading.Thread.Sleep(100);
             }
 
-            if (MultiplayerSession.HostSteamID != Utils.NilUlong())
+            if (MultiplayerSession.HostUserID != Utils.NilUlong())
             {
                 DebugConsole.Log("[GameClient] Attempting to reconnect to host...");
                 //ConnectToHost(MultiplayerSession.HostSteamID);
@@ -172,7 +172,7 @@ namespace ONI_MP.Networking.Relay.Steam
             Game.Instance?.Trigger(MP_HASHES.OnConnected);
             NetworkConfig.RelayClient.OnClientConnected.Invoke();
 
-            var hostId = MultiplayerSession.HostSteamID;
+            var hostId = MultiplayerSession.HostUserID;
             if (!MultiplayerSession.ConnectedPlayers.ContainsKey(hostId))
             {
                 var hostPlayer = new MultiplayerPlayer(hostId);
@@ -218,7 +218,7 @@ namespace ONI_MP.Networking.Relay.Steam
             {
                 case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ClosedByPeer:
                     // The host closed our connection
-                    if (remote.m_SteamID == MultiplayerSession.HostSteamID)
+                    if (remote.m_SteamID == MultiplayerSession.HostUserID)
                     {
                         NetworkConfig.RelayClient.OnReturnToMenu.Invoke();
                     }

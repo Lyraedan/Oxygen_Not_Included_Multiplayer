@@ -78,7 +78,7 @@ namespace ONI_MP.Networking
 			NetworkConfig.RelayClient.OnReturnToMenu = () => CoroutineRunner.RunOne(ShowMessageAndReturnToTitle());
 			NetworkConfig.RelayClient.OnRequestStateOrReturn = () =>
 			{
-                PacketSender.SendToHost(new GameStateRequestPacket(MultiplayerSession.LocalSteamID));
+                PacketSender.SendToHost(new GameStateRequestPacket(MultiplayerSession.LocalUserID));
                 MP_Timer.Instance.StartDelayedAction(10, () => CoroutineRunner.RunOne(ShowMessageAndReturnToTitle()));
             };
             NetworkConfig.RelayClient.Prepare();
@@ -91,7 +91,7 @@ namespace ONI_MP.Networking
 
 			if (showLoadingScreen)
 			{
-				MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTING_TO_HOST, SteamFriends.GetFriendPersonaName(MultiplayerSession.HostSteamID.AsCSteamID())));
+				MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTING_TO_HOST, SteamFriends.GetFriendPersonaName(MultiplayerSession.HostUserID.AsCSteamID())));
 			}
 
 			SetState(ClientState.Connecting);
@@ -195,13 +195,13 @@ namespace ONI_MP.Networking
 				DebugConsole.Log("[GameClient] PacketHandler.readyToProcess = true (menu)");
 
 				// Show overlay with localized message
-				MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.WAITING_FOR_PLAYER, SteamFriends.GetFriendPersonaName(MultiplayerSession.HostSteamID.AsCSteamID())));
+				MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.WAITING_FOR_PLAYER, SteamFriends.GetFriendPersonaName(MultiplayerSession.HostUserID.AsCSteamID())));
 				if (!IsHardSyncInProgress)
 				{
 					DebugConsole.Log("[GameClient] Requesting save file from host");
 					var packet = new SaveFileRequestPacket
 					{
-						Requester = MultiplayerSession.LocalSteamID
+						Requester = MultiplayerSession.LocalUserID
 					};
 					PacketSender.SendToHost(packet);
 				}
@@ -266,10 +266,10 @@ namespace ONI_MP.Networking
 
 		public static void CacheCurrentServer()
 		{
-			if (MultiplayerSession.HostSteamID != Utils.NilUlong())
+			if (MultiplayerSession.HostUserID != Utils.NilUlong())
 			{
 				_cachedConnectionInfo = new CachedConnectionInfo(
-						MultiplayerSession.HostSteamID
+						MultiplayerSession.HostUserID
 				);
 				DebugConsole.Log($"[GameClient] Cached server: {_cachedConnectionInfo.Value.HostSteamID}");
 			}
@@ -286,7 +286,7 @@ namespace ONI_MP.Networking
 				DebugConsole.Log($"[GameClient] Reconnecting to cached server: {_cachedConnectionInfo.Value.HostSteamID}");
 				var hostId = _cachedConnectionInfo.Value.HostSteamID;
 				_cachedConnectionInfo = null; // Clear cache to prevent re-triggering
-				MultiplayerSession.HostSteamID = hostId;
+				MultiplayerSession.HostUserID = hostId;
 				ConnectToHost(false);
 			}
 			else
