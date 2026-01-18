@@ -79,8 +79,18 @@ namespace ONI_MP.Networking.Packets.Animation
 					DebugConsole.LogWarning("Could not find workable of type " + WorkableType + " on " + workableGO.GetProperName());
 					return;
 				}
-				worker.StartWork(new(workable));
-			}
+
+				// StartWork can only trigger if the Working state is idle
+				if (worker.state.Equals(StandardWorker.State.Idle))
+				{
+					worker.StartWork(new(workable));
+				} else
+				{
+					// We are not idle, stop whatever the hell we're doing and start the new workable
+					worker.StopWork();
+                    worker.StartWork(new(workable));
+                }
+            }
 			else
 				worker.StopWork();
 
