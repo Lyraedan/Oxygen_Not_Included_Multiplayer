@@ -293,7 +293,7 @@ namespace ONI_MP.DebugTools
         {
             if (ImGui.Button("Riptide Smoke Test"))
             {
-                RiptideSmokeTest.Run(7777);
+                RiptideSmokeTest.Run();
             }
             ImGui.SameLine();
             if (ImGui.Button("LiteNetLib Smoke Test"))

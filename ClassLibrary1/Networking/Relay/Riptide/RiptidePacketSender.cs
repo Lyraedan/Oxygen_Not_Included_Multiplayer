@@ -7,13 +7,8 @@ namespace ONI_MP.Networking.Relay.Lan
 {
     public class RiptidePacketSender : RelayPacketSender
     {
-        public override bool SendToConnection(
-            object conn,
-            IPacket packet,
-            SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
+        public override bool SendToConnection(object conn,IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
         {
-            DebugConsole.Log($"[LanPacketSender] Connection is Riptide Connection: {conn is Connection}");
-
             if (conn is not Connection connection)
                 return false;
 
@@ -23,21 +18,18 @@ namespace ONI_MP.Networking.Relay.Lan
             byte[] bytes = PacketSender.SerializePacketForSending(packet);
             MessageSendMode sendMode = ConvertSendType(sendType);
 
-            DebugConsole.Log($"[LanPacketSender] Sending {bytes.Length} bytes ({sendMode})");
+            Riptide.Message msg = Riptide.Message.Create(sendMode, 1); // dummy ID
+            msg.AddBytes(bytes);
 
-            try
+            if(MultiplayerSession.IsHost)
             {
-                Riptide.Message msg = Riptide.Message.Create(sendMode);
-                msg.AddBytes(bytes);
+                RiptideServer.Client.Send(msg);
+            } else
+            {
+                RiptideClient.Client.Send(msg);
+            }
 
-                connection.Send(msg);
-                return true;
-            }
-            catch (Exception e)
-            {
-                DebugConsole.LogError($"[LanPacketSender] Send failed: {e}", false);
-                return false;
-            }
+            return true;
         }
 
         private static MessageSendMode ConvertSendType(SteamNetworkingSend sendType)

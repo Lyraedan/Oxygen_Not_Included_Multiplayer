@@ -11,122 +11,102 @@ namespace ONI_MP.Networking.Relay.Lan
 {
     public class RiptideClient : RelayClient
     {
-        private int SERVER_PORT = 7777;
-        private Client client;
-        private bool connected;
+        private static Client _client;
 
-        public static string HASHED_ADDRESS = string.Empty;
-        public string HOST_ADDRESS = "127.0.0.1";
-
-        public static ulong MY_CLIENT_ID = 0;
-        public static bool ConnectFromConfig = false;
+        public static Client Client
+        {
+            get { return _client; }
+        }
 
         public override void Prepare()
         {
-            if (ConnectFromConfig)
-            {
-                SERVER_PORT = Configuration.Instance.Client.LanSettings.Port;
-                HOST_ADDRESS = Configuration.Instance.Client.LanSettings.Ip;
-            }
-            else if (!string.IsNullOrEmpty(HASHED_ADDRESS))
-            {
-                try
-                {
-                    LanSettings lan = Utils.DecodeHashedAddress(HASHED_ADDRESS);
-                    HOST_ADDRESS = lan.Ip;
-                    SERVER_PORT = lan.Port;
-                }
-                catch
-                {
-                    DebugConsole.LogError("Failed to decode hashed LAN Address", false);
-                }
-            }
-
-            // Optional but recommended
-            RiptideLogger.Initialize(DebugConsole.Log, true);
+            RiptideLogger.Initialize(DebugConsole.Log, false);
         }
 
         public override void ConnectToHost()
         {
-            if (connected)
+            if (!_client.IsNotConnected)
                 return;
 
-            client = new Client();
-            client.Connected += OnConnected;
-            client.Disconnected += OnDisconnected;
-            client.MessageReceived += OnMessageReceived;
+            string ip = Configuration.Instance.Client.LanSettings.Ip;
+            int port = Configuration.Instance.Client.LanSettings.Port;
+            _client = new Client();
+            _client.Connected += OnConnectedToServer;
+            _client.Disconnected += OnDisconnectedFromServer;
+            _client.MessageReceived += OnMessageRecievedFromServer;
+            _client.Connect($"{ip}:{port}");
+        }
 
-            client.Connect($"{HOST_ADDRESS}:{SERVER_PORT}");
+        private void OnMessageRecievedFromServer(object sender, MessageReceivedEventArgs e)
+        {
+            ulong clientId = e.FromConnection.Id;
+            byte[] rawData = e.Message.GetBytes();
+            int size = rawData.Length;
 
-            DebugConsole.Log($"[LanClient] Connecting to {HOST_ADDRESS}:{SERVER_PORT}");
+            // Try to read the 4-byte packet type at the start
+            int packetType = 0;
+            if (rawData.Length >= 4)
+                packetType = BitConverter.ToInt32(rawData, 0);
+
+            //DebugConsole.Log(
+            //    $"[RiptideSmokeTest] Server received packet from {clientId}, " +
+            //    $"PacketType={packetType}, Size={size} bytes"
+            //);
+
+            //DebugConsole.Log($"[RiptideSmokeTest] Handling packet: " + packetType);
+
+            long t0 = GameServerProfiler.Begin();
+
+            try
+            {
+                // Pass the full payload (including packetType) to your handler
+                PacketHandler.HandleIncoming(rawData);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[LanServer] Failed to handle packet {packetType}: {ex}");
+            }
+
+            GameServerProfiler.End(t0, 1, size);
+        }
+
+        private void OnConnectedToServer(object sender, EventArgs e)
+        {
+            OnClientConnected.Invoke();
+            MultiplayerSession.HostUserID = 1; // Host's client is always 1
+        }
+        private void OnDisconnectedFromServer(object sender, DisconnectedEventArgs e)
+        {
+            OnClientDisconnected.Invoke();
+            MultiplayerSession.HostUserID = Utils.NilUlong();
         }
 
         public override void Disconnect()
         {
-            connected = false;
+            if (_client.IsNotConnected)
+                return;
 
-            if (client != null)
-            {
-                client.Disconnect();
-                client = null;
-            }
-
-            DebugConsole.Log("[LanClient] LAN Client disconnected");
-        }
-
-        public override void ReconnectToSession()
-        {
-            Disconnect();
-            ConnectToHost();
+            _client.Disconnect();
         }
 
         public override void OnMessageRecieved()
         {
-            // Riptide uses MessageReceived event
+            // Riptide uses OnMessageRecievedFromServer
+        }
+
+        public override void ReconnectToSession()
+        {
+
         }
 
         public override void Update()
         {
-            client?.Update();
+            _client?.Update();
         }
 
-        private void OnConnected(object sender, EventArgs e)
+        public ulong GetClientID()
         {
-            connected = true;
-
-            // Session-scoped ID assigned by server
-            MY_CLIENT_ID = client.Id;
-
-            DebugConsole.Log($"[LanClient] Connected to server with MY_CLIENT_ID = {MY_CLIENT_ID}");
-        }
-
-        private void OnDisconnected(object sender, DisconnectedEventArgs e)
-        {
-            connected = false;
-
-            DebugConsole.Log($"[LanClient] Disconnected from server ({e.Reason})");
-        }
-
-        private void OnMessageReceived(object sender, MessageReceivedEventArgs e)
-        {
-            Riptide.Message message = e.Message;
-            int totalBytes = message.BytesInUse;
-            int msgCount = 1;
-
-            long t0 = GameClientProfiler.Begin();
-
-            byte[] data = message.GetBytes();
-
-            try
-            {
-                PacketHandler.HandleIncoming(data);
-            }
-            catch (Exception ex)
-            {
-                DebugConsole.LogWarning($"[LanClient] Failed to handle incoming packet: {ex}");
-            }
-
-            GameClientProfiler.End(t0, msgCount, totalBytes);
+            return Utils.NilUlong();
         }
     }
 }

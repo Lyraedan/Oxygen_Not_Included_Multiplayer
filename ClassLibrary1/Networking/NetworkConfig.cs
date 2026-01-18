@@ -87,11 +87,13 @@ namespace ONI_MP.Networking
                 case NetworkRelay.RIPTIDE:
                     if (MultiplayerSession.IsClient)
                     {
-                        return RiptideClient.MY_CLIENT_ID;
+                        RiptideClient client = RelayClient as RiptideClient;
+                        return client.GetClientID();
                     }
                     else
                     {
-                        return RiptideServer.MY_CLIENT_ID;
+                        RiptideServer server = RelayServer as RiptideServer;
+                        return server.GetClientID();
                     }
                 case NetworkRelay.LITENETLIB:
                     if (MultiplayerSession.IsClient)
@@ -100,7 +102,7 @@ namespace ONI_MP.Networking
                     }
                     else
                     {
-                        return RiptideServer.MY_CLIENT_ID;
+                        return LiteNetLibClient.MY_CLIENT_ID;
                     }
                 default:
                     return Utils.NilUlong();

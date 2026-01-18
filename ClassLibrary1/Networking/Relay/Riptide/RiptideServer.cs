@@ -7,117 +7,164 @@ using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Profiling;
 using UnityEngine.Sprites;
+using static LogicPorts;
 
 namespace ONI_MP.Networking.Relay.Lan
 {
     public class RiptideServer : RelayServer
     {
-        private Server server;
-        private int port;
+        private static Server _server;
+        private static Client _client; // Server client (Other users will use GameClient)
 
-        public static ulong MY_CLIENT_ID = 0;
+        public static Client Client
+        {
+            get { return _client; }
+        }
 
         public override void Prepare()
         {
-            // Optional but recommended
             RiptideLogger.Initialize(DebugConsole.Log, false);
         }
 
         public override void Start()
         {
-            if (server != null)
+            if (_server != null)
                 return;
 
             string ip = Configuration.Instance.Host.LanSettings.Ip;
-            port = Configuration.Instance.Host.LanSettings.Port;
+            int port = Configuration.Instance.Host.LanSettings.Port;
+            _server = new Server("Lan/Riptide");
+            _server.MessageReceived += OnServerMessageReceived;
+            _server.ClientConnected += ServerOnClientConnected;
+            _server.ClientDisconnected += ServerOnClientDisconnected;
+            _server.Start((ushort)port, 1, useMessageHandlers: false);
+            DebugConsole.Log("[RiptideServer] Riptide server started!");
 
-            server = new Server("Riptide LAN Server");
-            server.ClientConnected += OnClientConnected;
-            server.ClientDisconnected += OnClientDisconnected;
-            server.MessageReceived += OnMessageReceived;
+            _client = new Client();
+            _client.Connect($"127.0.0.1:{port}"); // Since we're running locally we should be able to connect this way
+        }
 
-            server.Start((ushort)port, (ushort)Configuration.Instance.Host.MaxLobbySize);
-            MY_CLIENT_ID = 0;
+        private void ServerOnClientConnected(object sender, ServerConnectedEventArgs e)
+        {
+            ulong clientId = e.Client.Id;
+            MultiplayerPlayer player;
+            if (!MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out player))
+            {
+                player = new MultiplayerPlayer(clientId);
+                MultiplayerSession.ConnectedPlayers.Add(clientId, player);
+            }
+            player.Connection = e.Client;
+            DebugConsole.Log($"New client connected: {clientId}");
+        }
 
-            DebugConsole.Log($"[LanServer] Riptide LAN server started on {ip}:{port}");
+        private void ServerOnClientDisconnected(object sender, ServerDisconnectedEventArgs e)
+        {
+            ulong clientId = e.Client.Id;
+            if (MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out MultiplayerPlayer player))
+            {
+                player.Connection = null;
+
+                MultiplayerSession.ConnectedPlayers.Remove(clientId);
+
+                DebugConsole.Log($"Player {clientId} disconnected.");
+            }
+            else
+            {
+                DebugConsole.LogWarning($"Disconnected client {clientId} was not found in ConnectedPlayers.");
+            }
+            ReadyManager.RefreshReadyState();
+        }
+
+        private void OnServerMessageReceived(object sender, MessageReceivedEventArgs e)
+        {
+            ulong clientId = e.FromConnection.Id;
+            byte[] rawData = e.Message.GetBytes();
+            int size = rawData.Length;
+
+            int packetType = 0;
+            if (rawData.Length >= 4)
+                packetType = BitConverter.ToInt32(rawData, 0);
+
+            //DebugConsole.Log(
+            //    $"[RiptideSmokeTest] Server received packet from {clientId}, " +
+            //    $"PacketType={packetType}, Size={size} bytes"
+            //);
+
+            long t0 = GameServerProfiler.Begin();
+
+            try
+            {
+                PacketHandler.HandleIncoming(rawData);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[LanServer] Failed to handle packet {packetType}: {ex}");
+            }
+
+            GameServerProfiler.End(t0, 1, size);
         }
 
         public override void Stop()
         {
-            if (server == null)
+            if (_server == null)
                 return;
 
-            server.Stop();
-            server = null;
+            if (!_server.IsRunning)
+                return;
 
-            DebugConsole.Log("[LanServer] Riptide LAN server stopped");
+            if (!_client.IsNotConnected)
+            {
+                _client.Disconnect();
+                _client = null;
+            }
+
+            _server.Stop();
+            _server = null;
         }
 
-        public override void Update()
-        {
-            server?.Update();
-        }
-
+        // The server is shutting down so disconnect everyone
         public override void CloseConnections()
         {
-            foreach (MultiplayerPlayer player in MultiplayerSession.AllPlayers)
-                player.Connection = null;
+            if (_server == null || !_server.IsRunning)
+                return;
 
+            // Disconnect all clients
+            foreach (Connection client in _server.Clients)
+            {
+                if (!client.IsNotConnected)
+                {
+                    DebugConsole.Log($"Client {client.Id} disconnected by server shutdown.");
+                    _server.DisconnectClient(client);
+                }
+            }
+
+            // Clear our session player list
             MultiplayerSession.ConnectedPlayers.Clear();
         }
 
         public override void OnMessageRecieved()
         {
-            // Riptide uses MessageReceived event
+            // Riptide uses its own OnServerMessageReceived function
         }
 
-        private void OnClientConnected(object sender, ServerConnectedEventArgs e)
+        public override void Update()
         {
-            ulong clientId = e.Client.Id;
+            if(_server == null) 
+                return;
 
-            if (!MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out var player))
-            {
-                player = new MultiplayerPlayer(clientId);
-                MultiplayerSession.ConnectedPlayers.Add(clientId, player);
-            }
+            if (!_server.IsRunning)
+                return;
 
-            player.Connection = e.Client;
-
-            DebugConsole.Log($"[LanServer] Client connected: {clientId}");
+            _server?.Update();
+            _client?.Update();
         }
 
-        private void OnClientDisconnected(object sender, ServerDisconnectedEventArgs e)
+        public ulong GetClientID()
         {
-            ulong clientId = e.Client.Id;
+            if (_client.IsNotConnected)
+                return Utils.NilUlong();
 
-            if (MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out var player))
-                player.Connection = null;
-
-            MultiplayerSession.ConnectedPlayers.Remove(clientId);
-
-            DebugConsole.Log($"[LanServer] Client disconnected: {clientId} ({e.Reason})");
-        }
-
-        private void OnMessageReceived(object sender, MessageReceivedEventArgs e)
-        {
-            Riptide.Message message = e.Message;
-            int size = message.BytesInUse;
-
-            byte[] data = message.GetBytes();
-
-            ulong clientId = e.FromConnection.Id;
-            long t0 = GameServerProfiler.Begin();
-
-            try
-            {
-                PacketHandler.HandleIncoming(data);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"[LanServer] Failed to handle packet from {clientId}: {ex}");
-            }
-
-            GameServerProfiler.End(t0, 1, size);
+            return _client.Id;
         }
     }
 }

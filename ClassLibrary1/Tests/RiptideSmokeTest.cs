@@ -18,7 +18,7 @@ namespace ONI_MP.Tests
         private static Client _client;
         private static bool _packetReceived;
 
-        public static void Run(ushort port = 7777)
+        public static void Run(string ip = "127.0.0.1", ushort port = 7777)
         {
             DebugConsole.Log("[RiptideSmokeTest] Starting");
 
@@ -28,7 +28,7 @@ namespace ONI_MP.Tests
 
                 _server = new Server("SmokeTest");
                 _server.MessageReceived += OnServerMessageReceived;
-                _server.Start(port, 1);
+                _server.Start(port, 1, useMessageHandlers: false);
 
                 //MultiplayerSession.InSession = true; // THIS LINE RIGHT HERE CAUSES THE CRASHING
 
@@ -37,7 +37,7 @@ namespace ONI_MP.Tests
 
                 _client = new Client();
                 _client.Connected += OnClientConnected;
-                _client.Connect($"127.0.0.1:{port}");
+                _client.Connect($"{ip}:{port}");
 
                 // Tick until packet received or timeout
                 int ticks = 0;
@@ -97,18 +97,6 @@ namespace ONI_MP.Tests
                 $"[RiptideSmokeTest] Server received packet from {clientId}, " +
                 $"PacketType={packetType}, Size={size} bytes"
             );
-        }
-
-        [MessageHandler(1)] // Handle message with dummy id
-        private static void HandleSomeMessageFromServer(Riptide.Message message)
-        {
-            byte[] rawData = message.GetBytes();
-            int size = rawData.Length;
-
-            // Try to read the 4-byte packet type at the start
-            int packetType = 0;
-            if (rawData.Length >= 4)
-                packetType = BitConverter.ToInt32(rawData, 0);
 
             DebugConsole.Log($"[RiptideSmokeTest] Handling packet: " + packetType);
 
