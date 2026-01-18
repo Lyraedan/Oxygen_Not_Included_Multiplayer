@@ -1,20 +1,24 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using ONI_MP.DebugTools;
+using Shared.Helpers;
 using Steamworks;
 using UnityEngine;
+using YamlDotNet.RepresentationModel;
 
-namespace ONI_MP.Updater
+namespace ONI_MP.ModUpdater
 {
     public static class Updater
     {
         private static readonly PublishedFileId_t WORKSHOP_ID = new PublishedFileId_t(3630759126);
-
-        public static System.Action OnUpdateAvailable;
-        public static System.Action OnUptoDate;
+        public static string CURRENT_VERSION { get; private set; }
+        public static string WORKSHOP_VERSION { get; private set; }
 
         public static void CheckForUpdate()
         {
+            CURRENT_VERSION = GetVersion();
+
             if (!SteamAPI.IsSteamRunning() || !SteamAPI.Init())
             {
                 DebugConsole.LogError("[Updater] Failed to initialize SteamAPI.", false);
@@ -22,6 +26,7 @@ namespace ONI_MP.Updater
             }
 
             UGCQueryHandle_t queryHandle = SteamUGC.CreateQueryUGCDetailsRequest(new PublishedFileId_t[] { WORKSHOP_ID }, 1);
+            SteamUGC.SetReturnLongDescription(queryHandle, true);
             SteamAPICall_t apiCall = SteamUGC.SendQueryUGCRequest(queryHandle);
             CallResult<SteamUGCQueryCompleted_t> result = CallResult<SteamUGCQueryCompleted_t>.Create(OnUGCQueryCompleted);
             result.Set(apiCall);
@@ -49,6 +54,7 @@ namespace ONI_MP.Updater
             System.DateTime workshopUpdated = System.DateTimeOffset.FromUnixTimeSeconds(details.m_rtimeUpdated).UtcDateTime;
 
             DebugConsole.Log($"[Updater] Workshop last updated at {workshopUpdated.ToLocalTime()}");
+            WORKSHOP_VERSION = GetWorkshopVersion(details.m_rgchDescription);
             CompareLocalModVersion(details.m_nPublishedFileId.m_PublishedFileId, workshopUpdated);
         }
 
@@ -72,13 +78,80 @@ namespace ONI_MP.Updater
             if (workshopUpdated > localModTime)
             {
                 DebugConsole.Log("[Updater] Update available!");
-                OnUpdateAvailable?.Invoke();
+                OnUpdateAvailable();
             }
             else
             {
                 DebugConsole.Log("[Updater] Mod is up to date.");
-                OnUptoDate?.Invoke();
+                OnUpdateAvailable();
             }
+        }
+
+        public static string GetVersion()
+        {
+            try
+            {
+                string path = Path.Combine(Path.GetDirectoryName(typeof(Updater).Assembly.Location), "mod_info.yaml");
+                if (!File.Exists(path))
+                {
+                    Debug.LogWarning("[MyMod] mod_info.yaml not found.");
+                    return "Unknown";
+                }
+
+                var yaml = new YamlStream();
+                using (var reader = new StreamReader(path))
+                {
+                    yaml.Load(reader);
+                    var root = (YamlMappingNode)yaml.Documents[0].RootNode;
+                    var versionNode = root.Children[new YamlScalarNode("version")];
+
+                    string rawVersion = versionNode.ToString();
+
+                    var match = Regex.Match(
+                        rawVersion,
+                        @"(?<ver>\d+(\.\d+){1,2})"
+                    );
+
+                    string version = match.Success ? match.Groups["ver"].Value : rawVersion;
+                    DebugConsole.Log($"[Updater] Current Version: {version}");
+                    return version;
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[Updater] Failed to load mod version: {e}");
+                return "Unknown";
+            }
+        }
+    
+        public static string GetWorkshopVersion(string description)
+        {
+            DebugConsole.Log("Trying to parse:\n" + description);
+            if (string.IsNullOrEmpty(description))
+                return "Unknown";
+
+            var match = Regex.Match(
+                description,
+                @"Current Stage:\s*v(?<version>[0-9]+(\.[0-9]+)*)",
+                RegexOptions.IgnoreCase
+            );
+
+            if (!match.Success)
+            {
+                DebugConsole.LogWarning("[Updater] Failed to parse workshop version.");
+                return "Unknown";
+            }
+
+            string version = match.Groups["version"].Value;
+
+            DebugConsole.Log($"[Updater] Workshop Version: {version}");
+            return version;
+        }
+
+        public static void OnUpdateAvailable()
+        {
+            string mod_updater_workshop_url = "https://steamcommunity.com/sharedfiles/filedetails/?id=2018291283";
+            DialogUtil.CreateConfirmDialogFrontend(STRINGS.UI.MP_SCREEN.UPDATER.MOD_UPDATE_TITLE, string.Format(STRINGS.UI.MP_SCREEN.UPDATER.MOD_UPDATE_TEXT, WORKSHOP_VERSION, CURRENT_VERSION, mod_updater_workshop_url));
         }
     }
 }

@@ -336,7 +336,7 @@ namespace ONI_MP
 				public class UPDATER
 				{
 					public static LocString MOD_UPDATE_TITLE = "ONI Together: New Update Available";
-					public static LocString MOD_UPDATE_TEXT = "It appears you are running an older version of Oxygen Not Included Together.\n\nIt is recommended you update using the Mod Updater!";
+					public static LocString MOD_UPDATE_TEXT = "It appears you are running an older version of Oxygen Not Included Together.\n\nLatest Version: {0}\nRunning: {1}\n\nIt is recommended you update using the <b><link={2}>Mod Updater</link></b>!";
                 }
 
 				public class HOSTMENU
