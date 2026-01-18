@@ -6,6 +6,7 @@ using Shared.Helpers;
 using Steamworks;
 using UnityEngine;
 using YamlDotNet.RepresentationModel;
+using Version = System.Version;
 
 namespace ONI_MP.ModUpdater
 {
@@ -75,9 +76,19 @@ namespace ONI_MP.ModUpdater
 
             System.DateTime localModTime = Directory.GetLastWriteTimeUtc(localPath);
 
+            Version localVer = new Version(CURRENT_VERSION);
+            Version workshopVer = new Version(WORKSHOP_VERSION);
+
+            // Workshop has been update since the last time we updated the mod
             if (workshopUpdated > localModTime)
             {
-                DebugConsole.Log("[Updater] Update available!");
+                DebugConsole.Log("[Updater] Update available based on workshop timestamp!");
+                OnUpdateAvailable();
+            }
+            // The mod has attempted to update since the workshop was updated but the versions are still mismatched (in theory these should ALWAYS be less then the workshop version)
+            else if (localVer < workshopVer)
+            {
+                DebugConsole.Log("[Updater] Version mismatch found! Local: " + localVer + " | Workshop: " + workshopVer);
                 OnUpdateAvailable();
             }
             else
@@ -125,7 +136,6 @@ namespace ONI_MP.ModUpdater
     
         public static string GetWorkshopVersion(string description)
         {
-            DebugConsole.Log("Trying to parse:\n" + description);
             if (string.IsNullOrEmpty(description))
                 return "Unknown";
 
