@@ -24,7 +24,9 @@ namespace ONI_MP
 		public static System.Action OnPostSceneLoaded;
 		public static Harmony Harmony;
 
-		public override void OnLoad(Harmony harmony)
+		public static bool UseSteamOverlay = true; // Will be false for non steam instances
+
+        public override void OnLoad(Harmony harmony)
 		{
 			Harmony = harmony;
 			base.OnLoad(harmony);
