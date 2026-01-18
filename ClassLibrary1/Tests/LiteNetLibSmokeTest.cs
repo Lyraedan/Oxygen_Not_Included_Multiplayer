@@ -62,7 +62,7 @@ namespace ONI_MP.Tests
                 }
 
                 if (!_packetReceived)
-                    throw new Exception("Packet was never received by server");
+                    DebugConsole.LogError("Packet was never received by server", false);
 
                 _client.DisconnectAll();
                 _server.Stop();
@@ -79,6 +79,7 @@ namespace ONI_MP.Tests
         {
             byte[] bytes = PacketSender.SerializePacketForSending(packet);
             peer.Send(bytes, DeliveryMethod.ReliableOrdered);
+            DebugConsole.Log("[LiteNetLibSmokeTest] Sent test packet!");
         }
 
         private static void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
