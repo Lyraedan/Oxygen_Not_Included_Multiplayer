@@ -41,7 +41,23 @@ namespace ONI_MP.Networking.Relay.Lan
             DebugConsole.Log("[RiptideServer] Riptide server started!");
 
             _client = new Client();
+            _client.Connected += OnLocalClientConnected;
+            _client.Disconnected += OnLocalClientDisconnected;
             _client.Connect($"127.0.0.1:{port}"); // Since we're running locally we should be able to connect this way
+        }
+
+        private void OnLocalClientConnected(object sender, EventArgs e)
+        {
+            DebugConsole.Log("[RiptideServer] Host client connected to server!");
+            MultiplayerSession.HostUserID = GetClientID();
+            MultiplayerSession.InSession = true;
+        }
+
+        private void OnLocalClientDisconnected(object sender, DisconnectedEventArgs e)
+        {
+            DebugConsole.Log("[RiptideServer] Host client disconnected from server!");
+            MultiplayerSession.HostUserID = Utils.NilUlong();
+            MultiplayerSession.InSession = false;
         }
 
         private void ServerOnClientConnected(object sender, ServerConnectedEventArgs e)
@@ -161,7 +177,7 @@ namespace ONI_MP.Networking.Relay.Lan
 
         public ulong GetClientID()
         {
-            if (_client.IsNotConnected)
+            if (_client == null || _client.IsNotConnected)
                 return Utils.NilUlong();
 
             return _client.Id;

@@ -9,9 +9,10 @@ namespace ONI_MP.Networking.Relay.Lan
     {
         public override bool SendToConnection(object conn,IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
         {
-            if (conn is not Connection connection)
+            if (conn is not Connection)
                 return false;
 
+            Connection connection = conn as Connection;
             if (!connection.IsConnected)
                 return false;
 

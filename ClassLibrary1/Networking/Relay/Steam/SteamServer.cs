@@ -55,6 +55,8 @@ namespace ONI_MP.Networking.Relay.Steam
             }
 
             _connectionStatusChangedCallback = Callback<SteamNetConnectionStatusChangedCallback_t>.Create(OnConnectionStatusChanged);
+
+            MultiplayerSession.InSession = true;
         }
 
         public override void Stop()
@@ -64,6 +66,8 @@ namespace ONI_MP.Networking.Relay.Steam
 
             if (ListenSocket.m_HSteamListenSocket != 0)
                 SteamNetworkingSockets.CloseListenSocket(ListenSocket);
+
+            MultiplayerSession.InSession = false;
         }
 
         public override void CloseConnections()

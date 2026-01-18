@@ -74,11 +74,13 @@ namespace ONI_MP.Networking.Relay.Lan
         {
             OnClientConnected.Invoke();
             MultiplayerSession.HostUserID = 1; // Host's client is always 1
+            MultiplayerSession.InSession = true;
         }
         private void OnDisconnectedFromServer(object sender, DisconnectedEventArgs e)
         {
             OnClientDisconnected.Invoke();
             MultiplayerSession.HostUserID = Utils.NilUlong();
+            MultiplayerSession.InSession = false;
         }
 
         public override void Disconnect()
@@ -106,7 +108,10 @@ namespace ONI_MP.Networking.Relay.Lan
 
         public ulong GetClientID()
         {
-            return Utils.NilUlong();
+            if (_client == null || _client.IsNotConnected)
+                return Utils.NilUlong();
+
+            return _client.Id;
         }
     }
 }

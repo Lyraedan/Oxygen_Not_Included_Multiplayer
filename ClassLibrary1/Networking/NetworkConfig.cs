@@ -45,6 +45,8 @@ namespace ONI_MP.Networking
                     return new SteamServer();
                 case NetworkRelay.RIPTIDE:
                     return new RiptideServer();
+                case NetworkRelay.LITENETLIB:
+                    return new LiteNetLibServer();
                 default:
                     return new SteamServer();
             }

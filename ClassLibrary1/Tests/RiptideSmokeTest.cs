@@ -26,11 +26,9 @@ namespace ONI_MP.Tests
             {
                 RiptideLogger.Initialize(DebugConsole.Log, false);
 
-                _server = new Server("SmokeTest");
+                _server = new Server("Riptide SmokeTest");
                 _server.MessageReceived += OnServerMessageReceived;
                 _server.Start(port, 1, useMessageHandlers: false);
-
-                //MultiplayerSession.InSession = true; // THIS LINE RIGHT HERE CAUSES THE CRASHING
 
                 //Game.Instance?.Trigger(MP_HASHES.OnConnected);
                 //Game.Instance?.Trigger(MP_HASHES.GameServer_OnServerStarted);
@@ -53,7 +51,6 @@ namespace ONI_MP.Tests
 
                 _client.Disconnect();
                 _server.Stop();
-                MultiplayerSession.InSession = false;
 
                 DebugConsole.Log("[RiptideSmokeTest] PASSED");
             }
@@ -76,7 +73,7 @@ namespace ONI_MP.Tests
         {
             byte[] bytes = PacketSender.SerializePacketForSending(packet);
 
-            Riptide.Message msg = Riptide.Message.Create(MessageSendMode.Reliable, 1); // dummy ID
+            Riptide.Message msg = Riptide.Message.Create(MessageSendMode.Reliable); // dummy ID
             msg.AddBytes(bytes);
 
             _client.Send(msg);

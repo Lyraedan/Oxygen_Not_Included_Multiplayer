@@ -39,6 +39,7 @@ namespace ONI_MP.DebugTools
 
         // Network relay
         private int selectedRelayType = 0; // 0 = Steam, 1 = LAN
+        private int selectedLanType = 0; // 0 = Riptide, 1 = LiteNetLib
         private string hostIP = "";
         private int hostPort = 7777;
         private string clientIP = "";
@@ -305,6 +306,17 @@ namespace ONI_MP.DebugTools
             {
                 MultiplayerSession.InSession = true;
             }
+
+            if (ImGui.Button("Start Current Config Server"))
+            {
+                NetworkConfig.RelayServer.Start();
+            }
+
+            ImGui.SameLine();
+            if (ImGui.Button("Stop Current Config Server"))
+            {
+                NetworkConfig.RelayServer.Stop();
+            }
         }
 
         private void DrawConsoleTab()
@@ -492,16 +504,21 @@ namespace ONI_MP.DebugTools
         {
             ImGui.Text("Network Relay Settings");
 
-            string[] options = new string[] { "Steam", "LAN" };
-            ImGui.Text($"Currently used relay: {options[(int)NetworkConfig.relay]}");
+            string[] display_options = new string[] { "Steam", "LAN/Riptide", "Lan/LiteNetLib" };
+            ImGui.Text($"Currently used relay: {display_options[(int)NetworkConfig.relay]}");
 
+            string[] options = new string[] { "Steam", "LAN" };
             // Dropdown for Steam/LAN
             ImGui.Combo("Relay Type", ref selectedRelayType, options, options.Length);
 
             // Only show LAN-specific fields if LAN is selected
-            if (selectedRelayType == ((int) NetworkConfig.NetworkRelay.RIPTIDE))
+            if (selectedRelayType == 1)
             {
                 ImGui.Indent();
+                ImGui.Separator();
+
+                string[] lan_options = new string[] { "Riptide", "LiteNetLib" };
+                ImGui.Combo("Lan Type", ref selectedLanType, lan_options, lan_options.Length);
                 ImGui.Separator();
 
                 // Host section
@@ -524,13 +541,29 @@ namespace ONI_MP.DebugTools
 
             if (ImGui.Button("Save & Apply"))
             {
-                Configuration.Instance.Host.NetworkRelay = selectedRelayType;
                 Configuration.Instance.Host.LanSettings.Ip = hostIP;
                 Configuration.Instance.Host.LanSettings.Port = hostPort;
                 Configuration.Instance.Client.LanSettings.Ip = clientIP;
                 Configuration.Instance.Client.LanSettings.Port = clientPort;
+
+                NetworkConfig.NetworkRelay selected_relay = NetworkConfig.NetworkRelay.STEAM;
+                if (selectedRelayType == 0)
+                {
+                    selected_relay = NetworkConfig.NetworkRelay.STEAM;
+                }
+                else
+                {
+                    if(selectedLanType == 0)
+                    {
+                        selected_relay = NetworkConfig.NetworkRelay.RIPTIDE;
+                    } else
+                    {
+                        selected_relay = NetworkConfig.NetworkRelay.LITENETLIB;
+                    }
+                }
+                Configuration.Instance.Host.NetworkRelay = (int)selected_relay;
+                NetworkConfig.UpdateRelay(selected_relay);
                 Configuration.Instance.Save();
-                NetworkConfig.UpdateRelay((NetworkConfig.NetworkRelay)selectedRelayType);
             }
         }
     }

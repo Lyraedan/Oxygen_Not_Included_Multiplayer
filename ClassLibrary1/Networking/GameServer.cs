@@ -37,7 +37,7 @@ namespace ONI_MP.Networking
 			NetworkConfig.RelayServer.Start();
 
 			DebugConsole.Log("[GameServer] Game Server started!");
-			MultiplayerSession.InSession = true;
+			//MultiplayerSession.InSession = true;
 			Game.Instance?.Trigger(MP_HASHES.OnConnected);
 			Game.Instance?.Trigger(MP_HASHES.GameServer_OnServerStarted);
 			//MultiplayerOverlay.Close();
@@ -52,7 +52,7 @@ namespace ONI_MP.Networking
 			NetworkConfig.RelayServer.CloseConnections();
 			NetworkConfig.RelayServer.Stop();
 
-			MultiplayerSession.InSession = false;
+			//MultiplayerSession.InSession = false;
 
 			DebugConsole.Log("[GameServer] Shutdown complete.");
 		}
