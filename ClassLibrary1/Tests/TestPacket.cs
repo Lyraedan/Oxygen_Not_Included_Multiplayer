@@ -27,7 +27,7 @@ namespace ONI_MP.Tests
 
         public void OnDispatched()
         {
-            DebugConsole.Log($"Recieved test packet from: {ClientID}");
+            DebugConsole.Log($"[TestPacket] Recieved test packet from: {ClientID}");
         }
     }
 }

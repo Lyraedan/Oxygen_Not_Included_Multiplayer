@@ -33,9 +33,10 @@ namespace ONI_MP.Tests
                 //Game.Instance?.Trigger(MP_HASHES.OnConnected);
                 //Game.Instance?.Trigger(MP_HASHES.GameServer_OnServerStarted);
 
-                _client = new Client();
+                _client = new Client("Host client");
                 _client.Connected += OnClientConnected;
-                _client.Connect($"{ip}:{port}");
+                _client.Disconnected += OnClientDisconnected;
+                _client.Connect($"{ip}:{port}", useMessageHandlers: false);
 
                 // Tick until packet received or timeout
                 int ticks = 0;
@@ -49,8 +50,8 @@ namespace ONI_MP.Tests
                 if (!_packetReceived)
                     DebugConsole.LogError("Packet was never received by server", false);
 
-                _client.Disconnect();
-                _server.Stop();
+                //_client.Disconnect();
+                //_server.Stop();
 
                 DebugConsole.Log("[RiptideSmokeTest] PASSED");
             }
@@ -60,9 +61,18 @@ namespace ONI_MP.Tests
             }
         }
 
+        private static void OnClientDisconnected(object sender, DisconnectedEventArgs e)
+        {
+            MultiplayerSession.InSession = false;
+            DebugConsole.Log("[RiptideSmokeTest] Client disconnected");
+        }
+
         private static void OnClientConnected(object sender, EventArgs e)
         {
             DebugConsole.Log("[RiptideSmokeTest] Client connected");
+
+            MultiplayerSession.InSession = true;
+            MultiplayerSession.SetHost(_client.Id);
 
             TestPacket packet = new TestPacket();
             packet.ClientID = 512;
@@ -73,7 +83,7 @@ namespace ONI_MP.Tests
         {
             byte[] bytes = PacketSender.SerializePacketForSending(packet);
 
-            Riptide.Message msg = Riptide.Message.Create(MessageSendMode.Reliable); // dummy ID
+            Riptide.Message msg = Riptide.Message.Create(MessageSendMode.Reliable, 1); // dummy ID
             msg.AddBytes(bytes);
 
             _client.Send(msg);

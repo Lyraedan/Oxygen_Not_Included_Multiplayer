@@ -30,11 +30,11 @@ namespace ONI_MP.Networking.Relay.Lan
 
             string ip = Configuration.Instance.Client.LanSettings.Ip;
             int port = Configuration.Instance.Client.LanSettings.Port;
-            _client = new Client();
+            _client = new Client("RiptideClient");
             _client.Connected += OnConnectedToServer;
             _client.Disconnected += OnDisconnectedFromServer;
             _client.MessageReceived += OnMessageRecievedFromServer;
-            _client.Connect($"{ip}:{port}");
+            _client.Connect($"{ip}:{port}", useMessageHandlers: false);
         }
 
         private void OnMessageRecievedFromServer(object sender, MessageReceivedEventArgs e)
@@ -73,7 +73,7 @@ namespace ONI_MP.Networking.Relay.Lan
         private void OnConnectedToServer(object sender, EventArgs e)
         {
             OnClientConnected.Invoke();
-            MultiplayerSession.HostUserID = 1; // Host's client is always 1
+            MultiplayerSession.SetHost(1); // Host's client is always 1
             MultiplayerSession.InSession = true;
         }
         private void OnDisconnectedFromServer(object sender, DisconnectedEventArgs e)

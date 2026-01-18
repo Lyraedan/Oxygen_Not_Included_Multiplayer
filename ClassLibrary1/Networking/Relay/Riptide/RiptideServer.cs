@@ -33,23 +33,25 @@ namespace ONI_MP.Networking.Relay.Lan
 
             string ip = Configuration.Instance.Host.LanSettings.Ip;
             int port = Configuration.Instance.Host.LanSettings.Port;
+            int maxClients = Configuration.Instance.Host.MaxLobbySize;
+
             _server = new Server("Lan/Riptide");
             _server.MessageReceived += OnServerMessageReceived;
             _server.ClientConnected += ServerOnClientConnected;
             _server.ClientDisconnected += ServerOnClientDisconnected;
-            _server.Start((ushort)port, 1, useMessageHandlers: false);
+            _server.Start((ushort)port, (ushort)maxClients, useMessageHandlers: false);
             DebugConsole.Log("[RiptideServer] Riptide server started!");
 
-            _client = new Client();
+            _client = new Client("Lan/Riptide/HostClient");
             _client.Connected += OnLocalClientConnected;
             _client.Disconnected += OnLocalClientDisconnected;
-            _client.Connect($"127.0.0.1:{port}"); // Since we're running locally we should be able to connect this way
+            _client.Connect($"127.0.0.1:{port}", useMessageHandlers: false); // Since we're running locally we should be able to connect this way
         }
 
         private void OnLocalClientConnected(object sender, EventArgs e)
         {
             DebugConsole.Log("[RiptideServer] Host client connected to server!");
-            MultiplayerSession.HostUserID = GetClientID();
+            MultiplayerSession.SetHost(GetClientID());
             MultiplayerSession.InSession = true;
         }
 
@@ -101,10 +103,10 @@ namespace ONI_MP.Networking.Relay.Lan
             if (rawData.Length >= 4)
                 packetType = BitConverter.ToInt32(rawData, 0);
 
-            //DebugConsole.Log(
-            //    $"[RiptideSmokeTest] Server received packet from {clientId}, " +
-            //    $"PacketType={packetType}, Size={size} bytes"
-            //);
+            DebugConsole.Log(
+                $"[RiptideSmokeTest] Server received packet from {clientId}, " +
+                $"PacketType={packetType}, Size={size} bytes"
+            );
 
             long t0 = GameServerProfiler.Begin();
 
@@ -165,12 +167,6 @@ namespace ONI_MP.Networking.Relay.Lan
 
         public override void Update()
         {
-            if(_server == null) 
-                return;
-
-            if (!_server.IsRunning)
-                return;
-
             _server?.Update();
             _client?.Update();
         }

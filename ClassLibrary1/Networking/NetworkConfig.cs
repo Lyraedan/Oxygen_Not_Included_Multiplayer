@@ -20,7 +20,7 @@ namespace ONI_MP.Networking
         {
             STEAM = 0,
             RIPTIDE = 1,
-            LITENETLIB = 2,
+            LITENETLIB = 2, // Non functional right now
         }
         public static NetworkRelay relay { get; private set; } = NetworkRelay.STEAM;
 

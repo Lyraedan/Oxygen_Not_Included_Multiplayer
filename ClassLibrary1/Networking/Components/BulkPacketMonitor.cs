@@ -15,6 +15,8 @@ namespace ONI_MP.Networking.Components
 
 		public void LateUpdate()
 		{
+			return;
+
 			if (!MultiplayerSession.InSession)
 				return;
 
