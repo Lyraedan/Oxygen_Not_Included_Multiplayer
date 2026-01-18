@@ -54,6 +54,7 @@ namespace ONI_MP.Tests
                     if (_clientPeer != null && _clientPeer.ConnectionState == ConnectionState.Connected && ticks == 0)
                     {
                         TestPacket packet = new TestPacket();
+                        packet.ClientID = 512;
                         SendPacket(_clientPeer, packet);
                     }
 

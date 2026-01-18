@@ -68,6 +68,7 @@ namespace ONI_MP.Tests
             DebugConsole.Log("[RiptideSmokeTest] Client connected");
 
             TestPacket packet = new TestPacket();
+            packet.ClientID = 512;
             SendPacket(packet);
         }
 
