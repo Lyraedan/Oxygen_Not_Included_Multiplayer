@@ -55,11 +55,11 @@ namespace ONI_MP.Updater
         private static void CompareLocalModVersion(ulong fileId, System.DateTime workshopUpdated)
         {
             string SteamPath = Path.Combine(KMod.Manager.GetDirectory(), "Steam");
+            string localPath = Path.Combine(SteamPath, fileId.ToString());
 #if DEBUG
             SteamPath = Path.Combine(KMod.Manager.GetDirectory(), "dev"); // Goto the dev folder instead
+            localPath = Path.Combine(SteamPath, "ONI_MP_dev"); // Use the dev build instead
 #endif
-
-            string localPath = Path.Combine(SteamPath, fileId.ToString());
             if (!Directory.Exists(localPath))
             {
                 // Just in case
