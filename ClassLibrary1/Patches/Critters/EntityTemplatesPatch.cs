@@ -21,7 +21,6 @@ namespace ONI_MP.Patches.Critters
                     return;
 
                 var KPrefabID = __result.TryGetComponent<KPrefabID>(out var pid) ? pid.PrefabTag.ToString() : "NO KPrefabID";
-                DebugConsole.Log($"[ExtendEntityToBasicCreature_Patch] Result prefab: {__result.name} | PrefabID: {KPrefabID}");
 
                 if (!__result.HasTag(GameTags.Creature)) // I don't expect this to trigger ever
                     return;
@@ -30,8 +29,6 @@ namespace ONI_MP.Patches.Critters
                     return;
 
                 __result.AddOrGet<EntityPositionHandler>();
-
-                DebugConsole.Log($"[ExtendEntityToBasicCreature_Patch] Added EntityPositionHandler to {__result.PrefabID().Name}");
             }
         }
     }

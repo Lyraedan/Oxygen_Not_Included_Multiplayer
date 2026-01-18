@@ -17,6 +17,7 @@ using ONI_MP.Misc;
 using ONI_MP.Networking.Profiling;
 using System.Text;
 using ONI_MP.Patches.ToolPatches;
+using ONI_MP.Tests;
 
 namespace ONI_MP.DebugTools
 {
@@ -122,6 +123,12 @@ namespace ONI_MP.DebugTools
                     ImGui.EndTabItem();
                 }
 
+                if (ImGui.BeginTabItem("Unit Tests"))
+                {
+                    DrawTestsTab();
+                    ImGui.EndTabItem();
+                }
+
                 if (ImGui.BeginTabItem("Console"))
                 {
                     DrawConsoleTab();
@@ -193,7 +200,7 @@ namespace ONI_MP.DebugTools
                     if (ImGui.Button("Leave Lobby"))
                         SteamLobby.LeaveLobby();
                     break;
-                case NetworkConfig.NetworkRelay.LAN:
+                case NetworkConfig.NetworkRelay.RIPTIDE:
                     if (ImGui.Button("Start Lan"))
                     {
                         MultiplayerSession.Clear();
@@ -280,6 +287,24 @@ namespace ONI_MP.DebugTools
             DisplayProfilers();
             ImGui.Separator();
             DisplayNetIdHolders();
+        }
+
+        private void DrawTestsTab()
+        {
+            if (ImGui.Button("Riptide Smoke Test"))
+            {
+                RiptideSmokeTest.Run(7777);
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("LiteNetLib Smoke Test"))
+            {
+                LiteNetLibSmokeTest.Run(7777);
+            }
+
+            if (ImGui.Button("Explode"))
+            {
+                MultiplayerSession.InSession = true;
+            }
         }
 
         private void DrawConsoleTab()
@@ -474,7 +499,7 @@ namespace ONI_MP.DebugTools
             ImGui.Combo("Relay Type", ref selectedRelayType, options, options.Length);
 
             // Only show LAN-specific fields if LAN is selected
-            if (selectedRelayType == ((int) NetworkConfig.NetworkRelay.LAN))
+            if (selectedRelayType == ((int) NetworkConfig.NetworkRelay.RIPTIDE))
             {
                 ImGui.Indent();
                 ImGui.Separator();

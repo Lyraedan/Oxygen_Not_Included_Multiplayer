@@ -5,7 +5,7 @@ using ONI_MP.Networking.Packets.Architecture;
 
 namespace ONI_MP.Networking.Relay.Lan
 {
-    public class LanPacketSender : RelayPacketSender
+    public class LiteNetLibPacketSender : RelayPacketSender
     {
         public override bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
         {

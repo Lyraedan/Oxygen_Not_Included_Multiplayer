@@ -9,7 +9,7 @@ using System.Net;
 
 namespace ONI_MP.Networking.Relay.Lan
 {
-    public class LanClient : RelayClient, INetEventListener
+    public class LiteNetLibClient : RelayClient, INetEventListener
     {
         private int SERVER_PORT = 7777;
         private NetManager netManager;

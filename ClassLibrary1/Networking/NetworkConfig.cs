@@ -19,7 +19,8 @@ namespace ONI_MP.Networking
         public enum NetworkRelay
         {
             STEAM = 0,
-            LAN = 1
+            RIPTIDE = 1,
+            LITENETLIB = 2,
         }
         public static NetworkRelay relay { get; private set; } = NetworkRelay.STEAM;
 
@@ -42,8 +43,8 @@ namespace ONI_MP.Networking
             {
                 case NetworkRelay.STEAM:
                     return new SteamServer();
-                case NetworkRelay.LAN:
-                    return new LanServer();
+                case NetworkRelay.RIPTIDE:
+                    return new RiptideServer();
                 default:
                     return new SteamServer();
             }
@@ -55,8 +56,10 @@ namespace ONI_MP.Networking
             {
                 case NetworkRelay.STEAM:
                     return new SteamClient();
-                case NetworkRelay.LAN:
-                    return new LanClient();
+                case NetworkRelay.RIPTIDE:
+                    return new RiptideClient();
+                case NetworkRelay.LITENETLIB:
+                    return new LiteNetLibClient();
                 default:
                     return new SteamClient();
             }
@@ -68,8 +71,8 @@ namespace ONI_MP.Networking
             {
                 case NetworkRelay.STEAM:
                     return new SteamPacketSender();
-                case NetworkRelay.LAN:
-                    return new LanPacketSender();
+                case NetworkRelay.RIPTIDE:
+                    return new RiptidePacketSender();
                 default:
                     return new SteamPacketSender();
             }
@@ -81,14 +84,23 @@ namespace ONI_MP.Networking
             {
                 case NetworkRelay.STEAM:
                     return SteamUser.GetSteamID().m_SteamID;
-                case NetworkRelay.LAN:
+                case NetworkRelay.RIPTIDE:
                     if (MultiplayerSession.IsClient)
                     {
-                        return LanClient.MY_CLIENT_ID;
+                        return RiptideClient.MY_CLIENT_ID;
                     }
                     else
                     {
-                        return LanServer.MY_CLIENT_ID;
+                        return RiptideServer.MY_CLIENT_ID;
+                    }
+                case NetworkRelay.LITENETLIB:
+                    if (MultiplayerSession.IsClient)
+                    {
+                        return LiteNetLibClient.MY_CLIENT_ID;
+                    }
+                    else
+                    {
+                        return RiptideServer.MY_CLIENT_ID;
                     }
                 default:
                     return Utils.NilUlong();
@@ -102,7 +114,7 @@ namespace ONI_MP.Networking
 
         public static bool IsLanConfig()
         {
-            return relay.Equals(NetworkRelay.LAN);
+            return relay.Equals(NetworkRelay.RIPTIDE) || relay.Equals(NetworkRelay.LITENETLIB);
         }
     }
 }

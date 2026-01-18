@@ -10,7 +10,7 @@ using ONI_MP.Networking.Profiling;
 
 namespace ONI_MP.Networking.Relay.Lan
 {
-    public class LanServer : RelayServer, INetEventListener
+    public class LiteNetLibServer : RelayServer, INetEventListener
     {
         public enum TransportType
         {
