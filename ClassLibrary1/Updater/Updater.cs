@@ -93,7 +93,7 @@ namespace ONI_MP.ModUpdater
                 string path = Path.Combine(Path.GetDirectoryName(typeof(Updater).Assembly.Location), "mod_info.yaml");
                 if (!File.Exists(path))
                 {
-                    Debug.LogWarning("[MyMod] mod_info.yaml not found.");
+                    Debug.LogWarning("[Updater] mod_info.yaml not found.");
                     return "Unknown";
                 }
 
