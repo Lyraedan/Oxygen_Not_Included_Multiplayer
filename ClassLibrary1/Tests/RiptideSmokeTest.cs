@@ -67,7 +67,7 @@ namespace ONI_MP.Tests
         {
             DebugConsole.Log("[RiptideSmokeTest] Client connected");
 
-            ChatMessagePacket packet = new ChatMessagePacket("Hello from smoke test");
+            TestPacket packet = new TestPacket();
             SendPacket(packet);
         }
 

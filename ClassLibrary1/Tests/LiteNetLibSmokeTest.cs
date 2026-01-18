@@ -53,7 +53,7 @@ namespace ONI_MP.Tests
                     // Send packet once client is connected
                     if (_clientPeer != null && _clientPeer.ConnectionState == ConnectionState.Connected && ticks == 0)
                     {
-                        ChatMessagePacket packet = new ChatMessagePacket("Hello from LiteNetLib smoke test");
+                        TestPacket packet = new TestPacket();
                         SendPacket(_clientPeer, packet);
                     }
 
