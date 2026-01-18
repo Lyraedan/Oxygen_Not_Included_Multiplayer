@@ -83,7 +83,6 @@ namespace ONI_MP.ModUpdater
             else
             {
                 DebugConsole.Log("[Updater] Mod is up to date.");
-                OnUpdateAvailable();
             }
         }
 
