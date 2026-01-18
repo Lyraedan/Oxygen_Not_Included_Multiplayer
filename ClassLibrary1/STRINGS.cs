@@ -332,6 +332,13 @@ namespace ONI_MP
 						public static LocString TEXT = "Cancel";
 					}
 				}
+
+				public class UPDATER
+				{
+					public static LocString MOD_UPDATE_TITLE = "ONI Together: New Update Available";
+					public static LocString MOD_UPDATE_TEXT = "It appears you are running an older version of Oxygen Not Included Together.\n\nIt is recommended you update using the Mod Updater!";
+                }
+
 				public class HOSTMENU
 				{
 					public static LocString TITLE = "Host Lobby Settings";

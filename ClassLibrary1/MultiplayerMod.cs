@@ -6,6 +6,7 @@ using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
+using Shared.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -118,6 +119,16 @@ namespace ONI_MP
 			};
 
 			ReadyManager.SetupListeners();
+
+			Updater.Updater.OnUpdateAvailable = () =>
+			{
+				DialogUtil.CreateConfirmDialogFrontend(STRINGS.UI.MP_SCREEN.UPDATER.MOD_UPDATE_TITLE, STRINGS.UI.MP_SCREEN.UPDATER.MOD_UPDATE_TEXT);
+            };
+
+			Updater.Updater.OnUptoDate = () =>
+			{
+
+			};
 		}
 		public static AssetBundle LoadAssetBundle(string bundleKey, string resourceName)
 		{
@@ -179,5 +190,11 @@ namespace ONI_MP
 			twitchDevToolRegister.Invoke(DevToolManager.Instance, new object[] { "Mods/MultiplayerMod" });
 #endif
 		}
-	}
+
+        public override void OnAllModsLoaded(Harmony harmony, IReadOnlyList<Mod> mods)
+        {
+            base.OnAllModsLoaded(harmony, mods);
+			Updater.Updater.CheckForUpdate();
+        }
+    }
 }
