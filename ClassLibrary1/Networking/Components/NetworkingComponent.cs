@@ -47,7 +47,7 @@ namespace ONI_MP.Networking.Components
 			}
 			else if (MultiplayerSession.IsClient && MultiplayerSession.HostUserID.IsValid())
 			{
-                GameClient.Update();
+                GameClient.Poll();
 
 				// Check for inactive transfers and request missing chunks
 				ONI_MP.Misc.World.SaveChunkAssembler.CheckInactiveTransfers();
