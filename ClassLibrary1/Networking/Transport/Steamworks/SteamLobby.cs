@@ -79,6 +79,9 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 		public static void CreateLobby(ELobbyType lobbyType = ELobbyType.k_ELobbyTypePublic, System.Action onSuccess = null)
 		{
+			if (!NetworkConfig.IsSteamConfig())
+				return;
+
 			if (!SteamManager.Initialized) return;
 			//if (!GoogleDrive.Instance.IsInitialized)
 			//{
@@ -99,6 +102,9 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 		public static void LeaveLobby()
 		{
+			if(!NetworkConfig.IsSteamConfig())
+				return;
+
 			if (InLobby)
 			{
 				DebugConsole.Log("[SteamLobby] Leaving lobby...");
@@ -290,6 +296,8 @@ namespace ONI_MP.Networking.Transport.Steamworks
 		{
 			List<CSteamID> members = new List<CSteamID>();
 
+			if (!NetworkConfig.IsSteamConfig()) return members;
+            
 			if (!InLobby) return members;
 
 			int memberCount = SteamMatchmaking.GetNumLobbyMembers(CurrentLobby);
@@ -373,6 +381,9 @@ namespace ONI_MP.Networking.Transport.Steamworks
 		/// </summary>
 		public static bool ValidateLobbyPassword(ulong lobbyId, string password)
 		{
+			if (!NetworkConfig.IsSteamConfig())
+				return false; // Default to invalid as these don't have passwords yet
+
 			string storedHash = SteamMatchmaking.GetLobbyData(lobbyId.AsCSteamID(), "password_hash");
 			if (string.IsNullOrEmpty(storedHash))
 				return true; // No password set
@@ -445,6 +456,9 @@ namespace ONI_MP.Networking.Transport.Steamworks
 		/// </summary>
 		public static void UpdateGameInfo()
 		{
+			if (!NetworkConfig.IsSteamConfig())
+				return;
+
 			if (!InLobby || !MultiplayerSession.IsHost)
 				return;
 
