@@ -22,15 +22,28 @@ namespace ONI_MP.Networking.Transport.Lan
             Riptide.Message msg = Riptide.Message.Create(sendMode, 1); // dummy ID
             msg.AddBytes(bytes);
 
+            ushort sent = 0;
             if(MultiplayerSession.IsHost)
             {
-                RiptideServer.Client.Send(msg);
-            } else
+                sent = RiptideServer.Client.Send(msg);
+            } 
+            else
             {
-                RiptideClient.Client.Send(msg);
+                sent = RiptideClient.Client.Send(msg);
             }
-
-            return true;
+            if (sent != 0)
+            {
+                PacketTracker.TrackSent(new PacketTracker.PacketTrackData
+                {
+                    packet = packet,
+                    size = bytes.Length
+                });
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private static MessageSendMode ConvertSendType(SteamNetworkingSend sendType)
