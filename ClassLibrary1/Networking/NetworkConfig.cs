@@ -87,20 +87,19 @@ namespace ONI_MP.Networking
                 case NetworkRelay.STEAM:
                     return SteamUser.GetSteamID().m_SteamID;
                 case NetworkRelay.RIPTIDE:
-                    if (MultiplayerSession.IsClient)
+                    if (MultiplayerSession.IsHost)
                     {
-                        RiptideClient client = RelayClient as RiptideClient;
-                        return client.GetClientID();
+                        return RiptideServer.ClientID;
                     }
                     else
                     {
-                        RiptideServer server = RelayServer as RiptideServer;
-                        return server.GetClientID();
+                        return RiptideClient.ClientID;
                     }
                 case NetworkRelay.LITENETLIB:
-                    if (MultiplayerSession.IsClient)
+                    if (MultiplayerSession.IsHost)
                     {
                         return LiteNetLibClient.MY_CLIENT_ID;
+                        
                     }
                     else
                     {

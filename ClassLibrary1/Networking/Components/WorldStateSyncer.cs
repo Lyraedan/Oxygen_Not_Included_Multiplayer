@@ -1,4 +1,5 @@
 using ONI_MP.DebugTools;
+using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.World;
 using ONI_MP.Networking.Trackers;
 using System.Collections.Generic;
@@ -47,7 +48,10 @@ namespace ONI_MP.Networking.Components
 
 		private void Update()
 		{
-			if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
+            if (!Utils.IsInGame())
+                return;
+
+            if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
 				return;
 
 			// Update game info even when no clients connected (for lobby browser)

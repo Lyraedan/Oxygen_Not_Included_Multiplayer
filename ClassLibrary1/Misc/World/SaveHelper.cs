@@ -31,7 +31,7 @@ public static class SaveHelper
 	}
 	public static void RequestWorldLoad(WorldSave world)
 	{
-		SteamNetworkingComponent.scheduler.Run(() => LoadWorldSave(Path.GetFileNameWithoutExtension(world.Name), world.Data));
+		NetworkingComponent.scheduler.Run(() => LoadWorldSave(Path.GetFileNameWithoutExtension(world.Name), world.Data));
 	}
 
 	private static void LoadWorldSave(string name, byte[] data)

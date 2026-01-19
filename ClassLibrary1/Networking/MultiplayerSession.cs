@@ -2,8 +2,10 @@
 using ONI_MP.Misc;
 using Shared;
 using Steamworks;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ONI_MP.Networking
 {
@@ -21,8 +23,22 @@ namespace ONI_MP.Networking
 
 		public static ulong HostUserID { get; set; } = Utils.NilUlong();
 
-		public static bool InSession = false;
-		public static bool SessionHasPlayers => InSession && ConnectedPlayers.Count > 1;
+		private static bool _inSession = false;
+		public static bool InSession 
+		{ 
+			get
+			{
+                //Debug.Log($"[STACK] GetInSession({_inSession})\n{Environment.StackTrace}");
+                return _inSession;
+			}
+			set
+			{
+                //Debug.Log($"[STACK] SetInSession({value})\n{Environment.StackTrace}");
+                _inSession = value;
+
+            }
+		}
+        public static bool SessionHasPlayers => InSession && ConnectedPlayers.Count > 1;
 		public static bool NotInSession => !InSession;
 
 		public static bool IsHost => HostUserID == LocalUserID;

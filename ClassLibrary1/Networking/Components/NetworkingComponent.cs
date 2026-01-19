@@ -1,11 +1,12 @@
-﻿using ONI_MP.Misc;
+﻿using ONI_MP.DebugTools;
+using ONI_MP.Misc;
 using ONI_MP.Networking.States;
 using Steamworks;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Components
 {
-	public class SteamNetworkingComponent : MonoBehaviour
+	public class NetworkingComponent : MonoBehaviour
 	{
 		public static UnityTaskScheduler scheduler = new UnityTaskScheduler();
 
@@ -17,8 +18,8 @@ namespace ONI_MP.Networking.Components
 
 		private void Start()
 		{
-			SteamNetworkingUtils.InitRelayNetworkAccess();
-			GameClient.Init();
+			//SteamNetworkingUtils.InitRelayNetworkAccess();
+			//GameClient.Init();
 
 			// NOTE: Client reconnection after world load is now handled in 
 			// GamePatch.OnSpawnPostfix which triggers AFTER the world is fully loaded.
@@ -35,16 +36,18 @@ namespace ONI_MP.Networking.Components
 					return;
 			}
 
-			if (!MultiplayerSession.InSession)
+            if (!MultiplayerSession.InSession)
 				return;
 
-			if (MultiplayerSession.IsHost)
+            // Its exploding after this point, no logs after this guard fire but commenting out this entire Update stops the issue
+
+            if (MultiplayerSession.IsHost)
 			{
-				GameServer.Update();
+                GameServer.Update();
 			}
 			else if (MultiplayerSession.IsClient && MultiplayerSession.HostUserID.IsValid())
 			{
-				GameClient.Poll();
+                GameClient.Poll();
 
 				// Check for inactive transfers and request missing chunks
 				ONI_MP.Misc.World.SaveChunkAssembler.CheckInactiveTransfers();

@@ -304,6 +304,7 @@ namespace ONI_MP.DebugTools
 
             if (ImGui.Button("Explode"))
             {
+                DebugConsole.Log("DOING EXPLODE");
                 MultiplayerSession.InSession = true;
             }
 
