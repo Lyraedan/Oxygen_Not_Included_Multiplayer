@@ -211,16 +211,17 @@ namespace ONI_MP.Networking.Transport.Lan
             if (_client == null || !_client.IsConnected)
                 return NetworkIndicatorsScreen.NetworkState.BAD;
 
-            var metrics = _client.Connection?.Metrics;
+            var metrics = Metrics;
             if (metrics == null)
                 return NetworkIndicatorsScreen.NetworkState.BAD;
 
             var reliableSends = metrics.RollingReliableSends;
-
+            
             double meanResends = reliableSends.Mean;
             double resendStdDev = reliableSends.StandardDev;
 
-            float remoteQuality = 1f - metrics.RollingNotifyLossRate;
+            float lossRate = metrics.RollingNotifyLossRate;
+            float remoteQuality = 1f - lossRate;
 
 
             if (meanResends >= 2.0 ||           // On average needs 2+ sends per reliable
