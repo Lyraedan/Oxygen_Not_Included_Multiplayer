@@ -9,9 +9,9 @@ using ONI_MP.Networking.Profiling;
 using UnityEngine.Sprites;
 using static LogicPorts;
 
-namespace ONI_MP.Networking.Relay.Lan
+namespace ONI_MP.Networking.Transport.Lan
 {
-    public class RiptideServer : RelayServer
+    public class RiptideServer : TransportServer
     {
         private static Server _server;
         private static Client _client; // Server client (Other users will use GameClient)

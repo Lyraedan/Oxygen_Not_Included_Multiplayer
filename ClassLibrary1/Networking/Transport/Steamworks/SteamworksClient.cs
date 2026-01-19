@@ -16,9 +16,9 @@ using Steamworks;
 using UnityEngine;
 using static ONI_MP.Menus.NetworkIndicatorsScreen;
 
-namespace ONI_MP.Networking.Relay.Steam
+namespace ONI_MP.Networking.Transport.Steam
 {
-    public class SteamClient : RelayClient
+    public class SteamworksClient : TransportClient
     {
         private static Callback<SteamNetConnectionStatusChangedCallback_t> _connectionStatusChangedCallback;
         public static HSteamNetConnection? Connection { get; private set; }
@@ -177,7 +177,7 @@ namespace ONI_MP.Networking.Relay.Steam
             // We've reconnected in game
             MultiplayerSession.InSession = true;
             Game.Instance?.Trigger(MP_HASHES.OnConnected);
-            NetworkConfig.RelayClient.OnClientConnected.Invoke();
+            NetworkConfig.TransportClient.OnClientConnected.Invoke();
 
             var hostId = MultiplayerSession.HostUserID;
             if (!MultiplayerSession.ConnectedPlayers.ContainsKey(hostId))
@@ -201,11 +201,11 @@ namespace ONI_MP.Networking.Relay.Steam
 
             if (Utils.IsInGame())
             {
-                NetworkConfig.RelayClient.OnContinueConnectionFlow.Invoke();
+                NetworkConfig.TransportClient.OnContinueConnectionFlow.Invoke();
             }
             else
             {
-                NetworkConfig.RelayClient.OnRequestStateOrReturn.Invoke();
+                NetworkConfig.TransportClient.OnRequestStateOrReturn.Invoke();
             }
         }
 
@@ -227,12 +227,12 @@ namespace ONI_MP.Networking.Relay.Steam
                     // The host closed our connection
                     if (remote.m_SteamID == MultiplayerSession.HostUserID)
                     {
-                        NetworkConfig.RelayClient.OnReturnToMenu.Invoke();
+                        NetworkConfig.TransportClient.OnReturnToMenu.Invoke();
                     }
                     break;
                 case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
                     // Something went wrong locally
-                    NetworkConfig.RelayClient.OnReturnToMenu.Invoke();
+                    NetworkConfig.TransportClient.OnReturnToMenu.Invoke();
                     break;
             }
         }

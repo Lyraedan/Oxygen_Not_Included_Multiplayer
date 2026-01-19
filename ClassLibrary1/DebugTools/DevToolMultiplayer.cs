@@ -18,6 +18,7 @@ using ONI_MP.Networking.Profiling;
 using System.Text;
 using ONI_MP.Patches.ToolPatches;
 using ONI_MP.Tests;
+using ONI_MP.Networking.Transport.Steamworks;
 
 namespace ONI_MP.DebugTools
 {
@@ -37,8 +38,8 @@ namespace ONI_MP.DebugTools
         // Open player profile
         private ulong? selectedPlayer = null;
 
-        // Network relay
-        private int selectedRelayType = 0; // 0 = Steam, 1 = LAN
+        // Network transport
+        private int selectedTransportType = 0; // 0 = Steam, 1 = LAN
         private int selectedLanType = 0; // 0 = Riptide, 1 = LiteNetLib
         private string hostIP = "";
         private int hostPort = 7777;
@@ -67,7 +68,7 @@ namespace ONI_MP.DebugTools
             OnUpdate += () => Update();
             OnUninit += () => UnInit();
 
-            selectedRelayType = Configuration.Instance.Host.NetworkRelay;
+            selectedTransportType = Configuration.Instance.Host.NetworkTransport;
             hostIP = Configuration.Instance.Host.LanSettings.Ip;
             hostPort = Configuration.Instance.Host.LanSettings.Port;
             settings_host.Ip = hostIP;
@@ -185,9 +186,9 @@ namespace ONI_MP.DebugTools
                 ImGui.TextColored(new Vector4(1f, 0.3f, 0.3f, 1f), "Multiplayer Not Active");
             ImGui.Separator();
 
-            switch (NetworkConfig.relay) 
+            switch (NetworkConfig.transport) 
             {
-                case NetworkConfig.NetworkRelay.STEAM:
+                case NetworkConfig.NetworkTransport.STEAMWORKS:
                     if (ImGui.Button("Create Lobby"))
                     {
                         SteamLobby.CreateLobby(onSuccess: () =>
@@ -201,7 +202,7 @@ namespace ONI_MP.DebugTools
                     if (ImGui.Button("Leave Lobby"))
                         SteamLobby.LeaveLobby();
                     break;
-                case NetworkConfig.NetworkRelay.RIPTIDE:
+                case NetworkConfig.NetworkTransport.RIPTIDE:
                     if (ImGui.Button("Start Lan"))
                     {
                         MultiplayerSession.Clear();
@@ -243,7 +244,7 @@ namespace ONI_MP.DebugTools
             ImGui.Separator();
             DisplaySessionDetails();
 
-            if (NetworkConfig.relay.Equals(NetworkConfig.NetworkRelay.STEAM))
+            if (NetworkConfig.transport.Equals(NetworkConfig.NetworkTransport.STEAMWORKS))
             {
                 if (MultiplayerSession.InSession)
                     DrawPlayerList();
@@ -257,7 +258,7 @@ namespace ONI_MP.DebugTools
 
         private void DrawNetworkTab()
         {
-            DrawNetworkRelayDetails();
+            DrawNetworkTransportDetails();
             if (!MultiplayerSession.InSession)
             {
                 ImGui.TextDisabled("Not connected.");
@@ -309,13 +310,13 @@ namespace ONI_MP.DebugTools
 
             if (ImGui.Button("Start Current Config Server"))
             {
-                NetworkConfig.RelayServer.Start();
+                NetworkConfig.TransportServer.Start();
             }
 
             ImGui.SameLine();
             if (ImGui.Button("Stop Current Config Server"))
             {
-                NetworkConfig.RelayServer.Stop();
+                NetworkConfig.TransportServer.Stop();
             }
         }
 
@@ -500,19 +501,19 @@ namespace ONI_MP.DebugTools
             }
         }
 
-        public void DrawNetworkRelayDetails()
+        public void DrawNetworkTransportDetails()
         {
-            ImGui.Text("Network Relay Settings");
+            ImGui.Text("Network Transport Settings");
 
             string[] display_options = new string[] { "Steam", "LAN/Riptide", "Lan/LiteNetLib" };
-            ImGui.Text($"Currently used relay: {display_options[(int)NetworkConfig.relay]}");
+            ImGui.Text($"Currently used transport: {display_options[(int)NetworkConfig.transport]}");
 
             string[] options = new string[] { "Steam", "LAN" };
             // Dropdown for Steam/LAN
-            ImGui.Combo("Relay Type", ref selectedRelayType, options, options.Length);
+            ImGui.Combo("Transport Type", ref selectedTransportType, options, options.Length);
 
             // Only show LAN-specific fields if LAN is selected
-            if (selectedRelayType == 1)
+            if (selectedTransportType == 1)
             {
                 ImGui.Indent();
                 ImGui.Separator();
@@ -546,23 +547,23 @@ namespace ONI_MP.DebugTools
                 Configuration.Instance.Client.LanSettings.Ip = clientIP;
                 Configuration.Instance.Client.LanSettings.Port = clientPort;
 
-                NetworkConfig.NetworkRelay selected_relay = NetworkConfig.NetworkRelay.STEAM;
-                if (selectedRelayType == 0)
+                NetworkConfig.NetworkTransport selected_transport = NetworkConfig.NetworkTransport.STEAMWORKS;
+                if (selectedTransportType == 0)
                 {
-                    selected_relay = NetworkConfig.NetworkRelay.STEAM;
+                    selected_transport = NetworkConfig.NetworkTransport.STEAMWORKS;
                 }
                 else
                 {
                     if(selectedLanType == 0)
                     {
-                        selected_relay = NetworkConfig.NetworkRelay.RIPTIDE;
+                        selected_transport = NetworkConfig.NetworkTransport.RIPTIDE;
                     } else
                     {
-                        selected_relay = NetworkConfig.NetworkRelay.LITENETLIB;
+                        selected_transport = NetworkConfig.NetworkTransport.LITENETLIB;
                     }
                 }
-                Configuration.Instance.Host.NetworkRelay = (int)selected_relay;
-                NetworkConfig.UpdateRelay(selected_relay);
+                Configuration.Instance.Host.NetworkTransport = (int)selected_transport;
+                NetworkConfig.UpdateTransport(selected_transport);
                 Configuration.Instance.Save();
             }
         }

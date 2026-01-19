@@ -3,9 +3,9 @@ using LiteNetLib;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 
-namespace ONI_MP.Networking.Relay.Lan
+namespace ONI_MP.Networking.Transport.Lan
 {
-    public class LiteNetLibPacketSender : RelayPacketSender
+    public class LiteNetLibPacketSender : TransportPacketSender
     {
         public override bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
         {

@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using static ONI_MP.Menus.NetworkIndicatorsScreen;
 
-namespace ONI_MP.Networking.Relay
+namespace ONI_MP.Networking.Transport
 {
-    public abstract class RelayClient
+    public abstract class TransportClient
     {
         /// <summary>
         /// When the client is connected to the server

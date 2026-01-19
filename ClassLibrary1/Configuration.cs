@@ -106,7 +106,7 @@ namespace ONI_MP
 
     class HostSettings
     {
-        public int NetworkRelay = 0; // 0 = steam, 1 = lan
+        public int NetworkTransport = 0; // 0 = steam, 1 = riptide, 2 = litenetlib
         public int MaxLobbySize { get; set; } = 4;
         public int MaxMessagesPerPoll { get; set; } = 128;
         public int SaveFileTransferChunkKB { get; set; } = 256;

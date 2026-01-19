@@ -7,6 +7,7 @@ using ONI_MP.Networking.Packets.Handshake;
 using ONI_MP.Networking.Packets.World;
 using ONI_MP.Networking.Profiling;
 using ONI_MP.Networking.States;
+using ONI_MP.Networking.Transport.Steamworks;
 using ONI_MP.Patches.ToolPatches;
 using Shared;
 using Shared.Helpers;
@@ -72,16 +73,16 @@ namespace ONI_MP.Networking
 		public static void Init()
 		{
 			// I fucking hate this, maybe replace this with hashes?
-			NetworkConfig.RelayClient.OnClientDisconnected = () => SetState(ClientState.Disconnected);
-			NetworkConfig.RelayClient.OnClientConnected = () => SetState(ClientState.Connected);
-			NetworkConfig.RelayClient.OnContinueConnectionFlow = () => ContinueConnectionFlow();
-			NetworkConfig.RelayClient.OnReturnToMenu = () => CoroutineRunner.RunOne(ShowMessageAndReturnToTitle());
-			NetworkConfig.RelayClient.OnRequestStateOrReturn = () =>
+			NetworkConfig.TransportClient.OnClientDisconnected = () => SetState(ClientState.Disconnected);
+			NetworkConfig.TransportClient.OnClientConnected = () => SetState(ClientState.Connected);
+			NetworkConfig.TransportClient.OnContinueConnectionFlow = () => ContinueConnectionFlow();
+			NetworkConfig.TransportClient.OnReturnToMenu = () => CoroutineRunner.RunOne(ShowMessageAndReturnToTitle());
+			NetworkConfig.TransportClient.OnRequestStateOrReturn = () =>
 			{
                 PacketSender.SendToHost(new GameStateRequestPacket(MultiplayerSession.LocalUserID));
                 MP_Timer.Instance.StartDelayedAction(10, () => CoroutineRunner.RunOne(ShowMessageAndReturnToTitle()));
             };
-            NetworkConfig.RelayClient.Prepare();
+            NetworkConfig.TransportClient.Prepare();
 		}
 
 		public static void ConnectToHost(bool showLoadingScreen = true)
@@ -95,17 +96,17 @@ namespace ONI_MP.Networking
 			}
 
 			SetState(ClientState.Connecting);
-			NetworkConfig.RelayClient.ConnectToHost();
+			NetworkConfig.TransportClient.ConnectToHost();
 		}
 
 		public static void Disconnect()
 		{
-			NetworkConfig.RelayClient.Disconnect();
+			NetworkConfig.TransportClient.Disconnect();
 		}
 
 		public static void ReconnectToSession()
 		{
-			NetworkConfig.RelayClient.ReconnectToSession();
+			NetworkConfig.TransportClient.ReconnectToSession();
 		}
 
 		public static void Poll()
@@ -113,13 +114,13 @@ namespace ONI_MP.Networking
 			if (_pollingPaused)
 				return;
 
-			NetworkConfig.RelayClient.Update();
+			NetworkConfig.TransportClient.Update();
 
 			switch (State)
 			{
 				case ClientState.Connected:
 				case ClientState.InGame:
-					NetworkConfig.RelayClient.OnMessageRecieved();
+					NetworkConfig.TransportClient.OnMessageRecieved();
 					break;
 				case ClientState.Connecting:
 				case ClientState.Disconnected:

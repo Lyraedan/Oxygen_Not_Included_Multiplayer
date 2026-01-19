@@ -10,9 +10,9 @@ using ONI_MP.Networking.Profiling;
 using ONI_MP.Networking.States;
 using Steamworks;
 
-namespace ONI_MP.Networking.Relay.Steam
+namespace ONI_MP.Networking.Transport.Steam
 {
-    public class SteamServer : RelayServer
+    public class SteamworksServer : TransportServer
     {
         public static HSteamListenSocket ListenSocket { get; private set; }
         public static HSteamNetPollGroup PollGroup { get; private set; }

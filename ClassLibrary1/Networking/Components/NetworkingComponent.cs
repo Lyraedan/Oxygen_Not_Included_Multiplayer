@@ -1,12 +1,13 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking.States;
+using ONI_MP.Networking.Transport.Steamworks;
 using Steamworks;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Components
 {
-	public class SteamNetworkingComponent : MonoBehaviour
+	public class NetworkingComponent : MonoBehaviour
 	{
 		public static UnityTaskScheduler scheduler = new UnityTaskScheduler();
 
@@ -30,7 +31,7 @@ namespace ONI_MP.Networking.Components
 		{
 			scheduler.Tick();
 
-			if (NetworkConfig.relay.Equals(NetworkConfig.NetworkRelay.STEAM))
+			if (NetworkConfig.transport.Equals(NetworkConfig.NetworkTransport.STEAMWORKS))
 			{
 				if (!SteamManager.Initialized)
 					return;
@@ -38,9 +39,6 @@ namespace ONI_MP.Networking.Components
 
 			if (!MultiplayerSession.InSession)
 				return;
-
-            // The InSession crash is happening here
-            DebugConsole.Log("Before GameServer and GameClient updates!");
 
             if (MultiplayerSession.IsHost)
 			{
@@ -53,7 +51,6 @@ namespace ONI_MP.Networking.Components
 				// Check for inactive transfers and request missing chunks
 				ONI_MP.Misc.World.SaveChunkAssembler.CheckInactiveTransfers();
 			}
-            DebugConsole.Log("After GameServer and GameClient updates!");
         }
 
         private void OnApplicationQuit()
@@ -61,7 +58,7 @@ namespace ONI_MP.Networking.Components
 			if (!MultiplayerSession.InSession)
 				return;
 
-			if (NetworkConfig.relay.Equals(NetworkConfig.NetworkRelay.STEAM))
+			if (NetworkConfig.transport.Equals(NetworkConfig.NetworkTransport.STEAMWORKS))
 			{
 				SteamLobby.LeaveLobby();
 			}

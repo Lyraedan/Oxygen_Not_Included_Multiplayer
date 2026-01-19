@@ -4,100 +4,102 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ONI_MP.Misc;
-using ONI_MP.Networking.Relay;
-using ONI_MP.Networking.Relay.Lan;
-using ONI_MP.Networking.Relay.Steam;
+using ONI_MP.Networking.Transport;
+using ONI_MP.Networking.Transport.Lan;
+using ONI_MP.Networking.Transport.Steam;
 using Steamworks;
-using SteamServer = ONI_MP.Networking.Relay.Steam.SteamServer;
-using SteamClient = ONI_MP.Networking.Relay.Steam.SteamClient;
+using SteamServer = ONI_MP.Networking.Transport.Steam.SteamworksServer;
+using SteamClient = ONI_MP.Networking.Transport.Steam.SteamworksClient;
 using ONI_MP.DebugTools;
 
 namespace ONI_MP.Networking
 {
     public static class NetworkConfig
     {
-        public enum NetworkRelay
+        public enum NetworkTransport
         {
-            STEAM = 0,
+            STEAMWORKS = 0,
             RIPTIDE = 1,
             LITENETLIB = 2, // Non functional right now
         }
-        public static NetworkRelay relay { get; private set; } = NetworkRelay.STEAM;
+        public static NetworkTransport transport { get; private set; } = NetworkTransport.STEAMWORKS;
 
-        public static RelayServer RelayServer { get; set; } = new SteamServer();
-        public static RelayClient RelayClient { get; set; } = new SteamClient();
-        public static RelayPacketSender RelayPacketSender { get; set; } = new SteamPacketSender();
+        public static TransportServer TransportServer { get; set; } = new SteamServer();
+        public static TransportClient TransportClient { get; set; } = new SteamClient();
+        public static TransportPacketSender TransportPacketSender { get; set; } = new SteamworksPacketSender();
 
-        public static void UpdateRelay(NetworkRelay newRelay)
+        public static void UpdateTransport(NetworkTransport newTransport)
         {
-            relay = newRelay;
-            RelayServer = GetRelayServer();
-            RelayClient = GetRelayClient();
-            RelayPacketSender = GetRelayPacketSender();
-            DebugConsole.Log($"Updated network relay to: {newRelay.ToString()}");
+            transport = newTransport;
+            TransportServer = GetTransportServer();
+            TransportClient = GetTransportClient();
+            TransportPacketSender = GetTransportPacketSender();
+            DebugConsole.Log($"Updated network transport to: {newTransport.ToString()}");
         }
 
-        public static RelayServer GetRelayServer()
+        public static TransportServer GetTransportServer()
         {
-            switch (relay)
+            switch (transport)
             {
-                case NetworkRelay.STEAM:
+                case NetworkTransport.STEAMWORKS:
                     return new SteamServer();
-                case NetworkRelay.RIPTIDE:
+                case NetworkTransport.RIPTIDE:
                     return new RiptideServer();
-                case NetworkRelay.LITENETLIB:
+                case NetworkTransport.LITENETLIB:
                     return new LiteNetLibServer();
                 default:
                     return new SteamServer();
             }
         }
 
-        public static RelayClient GetRelayClient()
+        public static TransportClient GetTransportClient()
         {
-            switch (relay)
+            switch (transport)
             {
-                case NetworkRelay.STEAM:
+                case NetworkTransport.STEAMWORKS:
                     return new SteamClient();
-                case NetworkRelay.RIPTIDE:
+                case NetworkTransport.RIPTIDE:
                     return new RiptideClient();
-                case NetworkRelay.LITENETLIB:
+                case NetworkTransport.LITENETLIB:
                     return new LiteNetLibClient();
                 default:
                     return new SteamClient();
             }
         }
 
-        public static RelayPacketSender GetRelayPacketSender()
+        public static TransportPacketSender GetTransportPacketSender()
         {
-            switch (relay)
+            switch (transport)
             {
-                case NetworkRelay.STEAM:
-                    return new SteamPacketSender();
-                case NetworkRelay.RIPTIDE:
+                case NetworkTransport.STEAMWORKS:
+                    return new SteamworksPacketSender();
+                case NetworkTransport.RIPTIDE:
                     return new RiptidePacketSender();
+                case NetworkTransport.LITENETLIB:
+                    return new LiteNetLibPacketSender();
                 default:
-                    return new SteamPacketSender();
+                    return new SteamworksPacketSender();
             }
         }
     
         public static ulong GetLocalID()
         {
-            switch (relay)
+            switch (transport)
             {
-                case NetworkRelay.STEAM:
+                case NetworkTransport.STEAMWORKS:
                     return SteamUser.GetSteamID().m_SteamID;
-                case NetworkRelay.RIPTIDE:
+                case NetworkTransport.RIPTIDE:
                     if (MultiplayerSession.IsClient)
                     {
-                        RiptideClient client = RelayClient as RiptideClient;
+                        RiptideClient client = TransportClient as RiptideClient;
                         return client.GetClientID();
                     }
                     else
                     {
-                        RiptideServer server = RelayServer as RiptideServer;
+                        RiptideServer server = TransportServer as RiptideServer;
                         return server.GetClientID();
                     }
-                case NetworkRelay.LITENETLIB:
+                case NetworkTransport.LITENETLIB:
                     if (MultiplayerSession.IsClient)
                     {
                         return LiteNetLibClient.MY_CLIENT_ID;
@@ -113,12 +115,12 @@ namespace ONI_MP.Networking
 
         public static bool IsSteamConfig()
         {
-            return relay.Equals(NetworkRelay.STEAM);
+            return transport.Equals(NetworkTransport.STEAMWORKS);
         }
 
         public static bool IsLanConfig()
         {
-            return relay.Equals(NetworkRelay.RIPTIDE) || relay.Equals(NetworkRelay.LITENETLIB);
+            return transport.Equals(NetworkTransport.RIPTIDE) || transport.Equals(NetworkTransport.LITENETLIB);
         }
     }
 }

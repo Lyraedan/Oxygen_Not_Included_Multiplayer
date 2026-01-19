@@ -11,9 +11,9 @@ using ONI_MP.Menus;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ONI_MP.Networking.Relay.Lan
+namespace ONI_MP.Networking.Transport.Lan
 {
-    public class RiptideClient : RelayClient
+    public class RiptideClient : TransportClient
     {
         private static Client _client;
 
@@ -60,6 +60,17 @@ namespace ONI_MP.Networking.Relay.Lan
             OnClientConnected.Invoke();
             MultiplayerSession.SetHost(1); // Host's client is always 1
             MultiplayerSession.InSession = true;
+
+            PacketHandler.readyToProcess = true;
+
+            if (Utils.IsInGame())
+            {
+                NetworkConfig.TransportClient.OnContinueConnectionFlow.Invoke();
+            }
+            else
+            {
+                NetworkConfig.TransportClient.OnRequestStateOrReturn.Invoke();
+            }
         }
         private void OnDisconnectedFromServer(object sender, DisconnectedEventArgs e)
         {

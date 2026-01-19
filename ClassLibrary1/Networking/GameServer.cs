@@ -29,12 +29,12 @@ namespace ONI_MP.Networking
 		{
 			SetState(ServerState.Preparing);
 
-            NetworkConfig.RelayServer.OnError = () => SetState(ServerState.Error);
-            NetworkConfig.RelayServer.Prepare();
+            NetworkConfig.TransportServer.OnError = () => SetState(ServerState.Error);
+            NetworkConfig.TransportServer.Prepare();
 
 			SetState(ServerState.Starting);
 
-			NetworkConfig.RelayServer.Start();
+			NetworkConfig.TransportServer.Start();
 
 			DebugConsole.Log("[GameServer] Game Server started!");
 			//MultiplayerSession.InSession = true;
@@ -49,8 +49,8 @@ namespace ONI_MP.Networking
 		{
 			SetState(ServerState.Stopped);
 
-			NetworkConfig.RelayServer.CloseConnections();
-			NetworkConfig.RelayServer.Stop();
+			NetworkConfig.TransportServer.CloseConnections();
+			NetworkConfig.TransportServer.Stop();
 
 			//MultiplayerSession.InSession = false;
 
@@ -62,8 +62,8 @@ namespace ONI_MP.Networking
 			switch (State)
 			{
 				case ServerState.Started:
-					NetworkConfig.RelayServer.Update();
-                    NetworkConfig.RelayServer.OnMessageRecieved();
+					NetworkConfig.TransportServer.Update();
+                    NetworkConfig.TransportServer.OnMessageRecieved();
 
                     // Check for lost chunks and retransmit specific missing chunks
                     SaveFileTransferManager.CheckForLostChunks();

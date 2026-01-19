@@ -6,11 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
-using ONI_MP.Networking.Relay.Steam;
+using ONI_MP.Networking.Transport.Steam;
 using Steamworks;
 using UnityEngine;
 using UnityEngine.UI;
-using SteamClient = ONI_MP.Networking.Relay.Steam.SteamClient;
+using SteamClient = ONI_MP.Networking.Transport.Steam.SteamworksClient;
 
 namespace ONI_MP.Menus
 {
@@ -158,7 +158,7 @@ namespace ONI_MP.Menus
             if (MultiplayerSession.IsHost)
                 return NetworkState.GOOD;
 
-            return NetworkConfig.RelayClient.GetJitterState();
+            return NetworkConfig.TransportClient.GetJitterState();
         }
 
         public static NetworkState GetLatencyState()
@@ -169,7 +169,7 @@ namespace ONI_MP.Menus
             if (MultiplayerSession.IsHost)
                 return NetworkState.GOOD;
 
-            return NetworkConfig.RelayClient.GetLatencyState();
+            return NetworkConfig.TransportClient.GetLatencyState();
         }
 
         public static NetworkState GetPacketlossState()
@@ -180,7 +180,7 @@ namespace ONI_MP.Menus
             if (MultiplayerSession.IsHost)
                 return NetworkState.GOOD;
 
-            return NetworkConfig.RelayClient.GetPacketlossState();
+            return NetworkConfig.TransportClient.GetPacketlossState();
         }
 
         public static NetworkState GetServerPerformanceState()
@@ -191,7 +191,7 @@ namespace ONI_MP.Menus
             if (MultiplayerSession.IsHost)
                 return NetworkState.GOOD;
 
-            return NetworkConfig.RelayClient.GetServerPerformanceState();
+            return NetworkConfig.TransportClient.GetServerPerformanceState();
         }
 
     }

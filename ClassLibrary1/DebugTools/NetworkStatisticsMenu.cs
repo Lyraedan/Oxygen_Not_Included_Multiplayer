@@ -5,7 +5,7 @@ using ONI_MP.Networking.States;
 using Steamworks;
 using System;
 using UnityEngine;
-using SteamClient = ONI_MP.Networking.Relay.Steam.SteamClient;
+using SteamworksClient = ONI_MP.Networking.Transport.Steam.SteamworksClient;
 
 namespace ONI_MP.DebugTools
 {
@@ -54,8 +54,8 @@ namespace ONI_MP.DebugTools
 		{
 			scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.Width(windowRect.width - 20), GUILayout.Height(windowRect.height - 40));
 
-			GUILayout.Label($"Ping: {SteamClient.GetPingToHost()}");
-            GUILayout.Label($"Quality(L/R): {SteamClient.GetLocalPacketQuality():0.00} / {SteamClient.GetRemotePacketQuality():0.00}");
+			GUILayout.Label($"Ping: {SteamworksClient.GetPingToHost()}");
+            GUILayout.Label($"Quality(L/R): {SteamworksClient.GetLocalPacketQuality():0.00} / {SteamworksClient.GetRemotePacketQuality():0.00}");
 			GUILayout.Space(10);
             GUILayout.Label($"Latency: {Utils.NetworkStateToString(NetworkIndicatorsScreen.latencyState)}");
             GUILayout.Label($"Jitter: {Utils.NetworkStateToString(NetworkIndicatorsScreen.jitterState)}");

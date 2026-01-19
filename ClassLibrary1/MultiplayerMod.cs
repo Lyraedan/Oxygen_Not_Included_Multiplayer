@@ -6,6 +6,7 @@ using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Networking.Transport.Steamworks;
 using Shared.Helpers;
 using System;
 using System.Collections.Generic;
@@ -59,7 +60,7 @@ namespace ONI_MP
 
 				// CHECKPOINT 4
 				System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 4: Pre-Components\n");
-				go.AddComponent<SteamNetworkingComponent>();
+				go.AddComponent<NetworkingComponent>();
 				go.AddComponent<UIVisibilityController>();
 				go.AddComponent<MainThreadExecutor>();
 				go.AddComponent<CursorManager>();
@@ -95,8 +96,8 @@ namespace ONI_MP
 
 		void LoadNetworkRelay()
 		{
-			int relay = Configuration.Instance.Host.NetworkRelay;
-			NetworkConfig.UpdateRelay((NetworkConfig.NetworkRelay)relay);
+			int relay = Configuration.Instance.Host.NetworkTransport;
+			NetworkConfig.UpdateTransport((NetworkConfig.NetworkTransport)relay);
 		}
 
 		void LoadAssetBundles()

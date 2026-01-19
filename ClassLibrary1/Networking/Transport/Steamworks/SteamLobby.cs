@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static STRINGS.GAMEPLAY_EVENTS;
 
-namespace ONI_MP.Networking
+namespace ONI_MP.Networking.Transport.Steamworks
 {
 	public static class SteamLobby
 	{
@@ -130,7 +130,7 @@ namespace ONI_MP.Networking
 				SteamMatchmaking.SetLobbyData(CurrentLobby, "host", NetworkConfig.GetLocalID().ToString());
 				SteamMatchmaking.SetLobbyData(CurrentLobby, "hostname", SteamFriends.GetPersonaName());
 
-				SteamMatchmaking.SetLobbyData(CurrentLobby, "relay", ((int)NetworkConfig.relay).ToString());
+				SteamMatchmaking.SetLobbyData(CurrentLobby, "relay", ((int)NetworkConfig.transport).ToString());
 				if (NetworkConfig.IsLanConfig())
 				{
 					string address = Configuration.Instance.Host.LanSettings.GetHashedAddress();
@@ -464,7 +464,7 @@ namespace ONI_MP.Networking
 				SteamMatchmaking.SetLobbyData(CurrentLobby, "duplicant_alive", aliveCount.ToString());
 				SteamMatchmaking.SetLobbyData(CurrentLobby, "duplicant_count", totalCount.ToString());
 
-				if (!NetworkConfig.relay.Equals(NetworkConfig.NetworkRelay.STEAM))
+				if (!NetworkConfig.transport.Equals(NetworkConfig.NetworkTransport.STEAMWORKS))
 				{
                     SteamMatchmaking.SetLobbyData(CurrentLobby, "host_ping_location", "???");
                     return;
@@ -483,7 +483,7 @@ namespace ONI_MP.Networking
 					}
 				}
 			}
-			catch (System.Exception ex)
+			catch (Exception ex)
 			{
 				DebugConsole.LogWarning($"[SteamLobby] Failed to update game info: {ex.Message}");
 			}

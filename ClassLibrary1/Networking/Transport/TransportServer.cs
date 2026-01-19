@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ONI_MP.Networking.Relay
+namespace ONI_MP.Networking.Transport
 {
-    public abstract class RelayServer
+    public abstract class TransportServer
     {
         public System.Action OnError;
 

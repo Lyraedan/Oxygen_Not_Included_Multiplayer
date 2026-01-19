@@ -8,9 +8,9 @@ using ONI_MP.Misc;
 using System.Net;
 using ONI_MP.Menus;
 
-namespace ONI_MP.Networking.Relay.Lan
+namespace ONI_MP.Networking.Transport.Lan
 {
-    public class LiteNetLibClient : RelayClient, INetEventListener
+    public class LiteNetLibClient : TransportClient, INetEventListener
     {
         private int SERVER_PORT = 7777;
         private NetManager netManager;

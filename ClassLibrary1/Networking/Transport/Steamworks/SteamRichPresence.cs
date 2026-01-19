@@ -1,7 +1,7 @@
 ﻿using ONI_MP.DebugTools;
 using Steamworks;
 
-namespace ONI_MP.Networking
+namespace ONI_MP.Networking.Transport.Steamworks
 {
 	public static class SteamRichPresence
 	{

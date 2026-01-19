@@ -9,9 +9,9 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using Steamworks;
 
-namespace ONI_MP.Networking.Relay.Steam
+namespace ONI_MP.Networking.Transport.Steam
 {
-    public class SteamPacketSender : RelayPacketSender
+    public class SteamworksPacketSender : TransportPacketSender
     {
         public override bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
         {

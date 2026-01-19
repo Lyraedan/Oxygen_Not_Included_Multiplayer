@@ -8,9 +8,9 @@ using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Profiling;
 
-namespace ONI_MP.Networking.Relay.Lan
+namespace ONI_MP.Networking.Transport.Lan
 {
-    public class LiteNetLibServer : RelayServer, INetEventListener
+    public class LiteNetLibServer : TransportServer, INetEventListener
     {
         public enum TransportType
         {

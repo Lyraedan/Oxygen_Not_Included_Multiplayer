@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 using ONI_MP.DebugTools;
-using ONI_MP.Networking;
+using ONI_MP.Networking.Transport.Steamworks;
 
 namespace ONI_MP.Patches
 {

@@ -4,8 +4,8 @@ using ONI_MP.Misc;
 using ONI_MP.Networking.Packets;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Core;
-using ONI_MP.Networking.Relay;
-using ONI_MP.Networking.Relay.Steam;
+using ONI_MP.Networking.Transport;
+using ONI_MP.Networking.Transport.Steam;
 using Shared.Interfaces.Networking;
 using Steamworks;
 using System;
@@ -55,7 +55,7 @@ namespace ONI_MP.Networking
 
 		public static int MAX_PACKET_SIZE_RELIABLE = 512;
 		public static int MAX_PACKET_SIZE_UNRELIABLE = 1024;
-		public static RelayPacketSender relaySender = new SteamPacketSender();
+		public static TransportPacketSender relaySender = new SteamworksPacketSender();
 
 		public static byte[] SerializePacketForSending(IPacket packet)
 		{
@@ -146,7 +146,7 @@ namespace ONI_MP.Networking
 				return true;
 			}
 
-			return NetworkConfig.RelayPacketSender.SendToConnection(conn, packet, sendType);
+			return NetworkConfig.TransportPacketSender.SendToConnection(conn, packet, sendType);
 		}
 
 		/// <summary>

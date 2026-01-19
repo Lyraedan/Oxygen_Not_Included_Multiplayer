@@ -9,6 +9,7 @@ using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.States;
+using ONI_MP.Networking.Transport.Steamworks;
 using Steamworks;
 using System;
 using System.Collections;
@@ -31,7 +32,7 @@ public static class SaveHelper
 	}
 	public static void RequestWorldLoad(WorldSave world)
 	{
-		SteamNetworkingComponent.scheduler.Run(() => LoadWorldSave(Path.GetFileNameWithoutExtension(world.Name), world.Data));
+		NetworkingComponent.scheduler.Run(() => LoadWorldSave(Path.GetFileNameWithoutExtension(world.Name), world.Data));
 	}
 
 	private static void LoadWorldSave(string name, byte[] data)
