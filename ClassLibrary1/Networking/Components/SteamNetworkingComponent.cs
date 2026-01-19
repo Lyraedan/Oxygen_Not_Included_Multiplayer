@@ -1,4 +1,5 @@
-﻿using ONI_MP.Misc;
+﻿using ONI_MP.DebugTools;
+using ONI_MP.Misc;
 using ONI_MP.Networking.States;
 using Steamworks;
 using UnityEngine;
@@ -17,8 +18,8 @@ namespace ONI_MP.Networking.Components
 
 		private void Start()
 		{
-			SteamNetworkingUtils.InitRelayNetworkAccess();
-			GameClient.Init();
+			//SteamNetworkingUtils.InitRelayNetworkAccess();
+			//GameClient.Init();
 
 			// NOTE: Client reconnection after world load is now handled in 
 			// GamePatch.OnSpawnPostfix which triggers AFTER the world is fully loaded.
@@ -38,7 +39,10 @@ namespace ONI_MP.Networking.Components
 			if (!MultiplayerSession.InSession)
 				return;
 
-			if (MultiplayerSession.IsHost)
+            // The InSession crash is happening here
+            DebugConsole.Log("Before GameServer and GameClient updates!");
+
+            if (MultiplayerSession.IsHost)
 			{
 				GameServer.Update();
 			}
@@ -49,9 +53,10 @@ namespace ONI_MP.Networking.Components
 				// Check for inactive transfers and request missing chunks
 				ONI_MP.Misc.World.SaveChunkAssembler.CheckInactiveTransfers();
 			}
-		}
+            DebugConsole.Log("After GameServer and GameClient updates!");
+        }
 
-		private void OnApplicationQuit()
+        private void OnApplicationQuit()
 		{
 			if (!MultiplayerSession.InSession)
 				return;

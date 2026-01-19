@@ -50,8 +50,8 @@ namespace ONI_MP.Tests
                 if (!_packetReceived)
                     DebugConsole.LogError("Packet was never received by server", false);
 
-                //_client.Disconnect();
-                //_server.Stop();
+                _client.Disconnect();
+                _server.Stop();
 
                 DebugConsole.Log("[RiptideSmokeTest] PASSED");
             }
@@ -63,7 +63,7 @@ namespace ONI_MP.Tests
 
         private static void OnClientDisconnected(object sender, DisconnectedEventArgs e)
         {
-            MultiplayerSession.InSession = false;
+            //MultiplayerSession.InSession = false;
             DebugConsole.Log("[RiptideSmokeTest] Client disconnected");
         }
 
@@ -71,8 +71,8 @@ namespace ONI_MP.Tests
         {
             DebugConsole.Log("[RiptideSmokeTest] Client connected");
 
-            MultiplayerSession.InSession = true;
-            MultiplayerSession.SetHost(_client.Id);
+            //MultiplayerSession.InSession = true;
+            //MultiplayerSession.SetHost(_client.Id);
 
             TestPacket packet = new TestPacket();
             packet.ClientID = 512;
