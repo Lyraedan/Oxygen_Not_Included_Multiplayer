@@ -21,17 +21,6 @@ namespace ONI_MP.Networking.Relay.Lan
             get { return _client; }
         }
 
-        public static ulong ClientID
-        {
-            get
-            {
-                if (_client == null || _client.IsNotConnected)
-                    return Utils.NilUlong();
-                else
-                    return _client.Id;
-            }
-        }
-
         public override void Prepare()
         {
             RiptideLogger.Initialize(DebugConsole.Log, false);

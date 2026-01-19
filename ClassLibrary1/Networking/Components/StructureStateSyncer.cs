@@ -1,5 +1,4 @@
 using ONI_MP.DebugTools;
-using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.World;
 using UnityEngine;
 
@@ -47,10 +46,7 @@ namespace ONI_MP.Networking.Components
 
 		private void Update()
 		{
-            if (!Utils.IsInGame())
-                return;
-
-            if (MultiplayerSession.IsHost)
+			if (MultiplayerSession.IsHost)
 			{
 				// Skip if no clients connected
 				if (MultiplayerSession.ConnectedPlayers.Count == 0)

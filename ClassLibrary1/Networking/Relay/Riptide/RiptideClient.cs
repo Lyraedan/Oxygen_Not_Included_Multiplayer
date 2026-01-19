@@ -18,17 +18,6 @@ namespace ONI_MP.Networking.Relay.Lan
             get { return _client; }
         }
 
-        public static ulong ClientID
-        {
-            get
-            {
-                if (_client == null || _client.IsNotConnected)
-                    return Utils.NilUlong();
-                else
-                    return _client.Id;
-            }
-        }
-
         public override void Prepare()
         {
             RiptideLogger.Initialize(DebugConsole.Log, false);
@@ -90,7 +79,7 @@ namespace ONI_MP.Networking.Relay.Lan
         private void OnDisconnectedFromServer(object sender, DisconnectedEventArgs e)
         {
             OnClientDisconnected.Invoke();
-            MultiplayerSession.SetHost(Utils.NilUlong());
+            MultiplayerSession.HostUserID = Utils.NilUlong();
             MultiplayerSession.InSession = false;
         }
 
@@ -115,6 +104,14 @@ namespace ONI_MP.Networking.Relay.Lan
         public override void Update()
         {
             _client?.Update();
+        }
+
+        public ulong GetClientID()
+        {
+            if (_client == null || _client.IsNotConnected)
+                return Utils.NilUlong();
+
+            return _client.Id;
         }
     }
 }

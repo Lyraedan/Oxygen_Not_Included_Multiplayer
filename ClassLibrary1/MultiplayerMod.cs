@@ -59,7 +59,7 @@ namespace ONI_MP
 
 				// CHECKPOINT 4
 				System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 4: Pre-Components\n");
-				go.AddComponent<NetworkingComponent>();
+				go.AddComponent<SteamNetworkingComponent>();
 				go.AddComponent<UIVisibilityController>();
 				go.AddComponent<MainThreadExecutor>();
 				go.AddComponent<CursorManager>();
