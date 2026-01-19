@@ -6,6 +6,7 @@ using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Profiling;
 using ONI_MP.Misc;
 using System.Net;
+using ONI_MP.Menus;
 
 namespace ONI_MP.Networking.Relay.Lan
 {
@@ -163,6 +164,26 @@ namespace ONI_MP.Networking.Relay.Lan
 
             GameClientProfiler.End(t0, 1, totalBytes);
             reader.Recycle();
+        }
+
+        public override NetworkIndicatorsScreen.NetworkState GetJitterState()
+        {
+            return NetworkIndicatorsScreen.NetworkState.BAD;
+        }
+
+        public override NetworkIndicatorsScreen.NetworkState GetLatencyState()
+        {
+            return NetworkIndicatorsScreen.NetworkState.BAD;
+        }
+
+        public override NetworkIndicatorsScreen.NetworkState GetPacketlossState()
+        {
+            return NetworkIndicatorsScreen.NetworkState.BAD;
+        }
+
+        public override NetworkIndicatorsScreen.NetworkState GetServerPerformanceState()
+        {
+            return NetworkIndicatorsScreen.NetworkState.BAD;
         }
     }
 }

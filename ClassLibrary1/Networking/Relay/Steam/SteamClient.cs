@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using ONI_MP.DebugTools;
+using ONI_MP.Menus;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Handshake;
@@ -12,6 +13,8 @@ using ONI_MP.Networking.Profiling;
 using ONI_MP.Networking.States;
 using Shared;
 using Steamworks;
+using UnityEngine;
+using static ONI_MP.Menus.NetworkIndicatorsScreen;
 
 namespace ONI_MP.Networking.Relay.Steam
 {
@@ -21,6 +24,10 @@ namespace ONI_MP.Networking.Relay.Steam
         public static HSteamNetConnection? Connection { get; private set; }
 
         private static SteamNetConnectionRealTimeStatus_t? connectionHealth = null;
+
+        // Network health
+        private const int JITTER_SAMPLE_COUNT = 20;
+        private static readonly Queue<int> _pingSamples = new();
 
         public override void Prepare()
         {
@@ -309,6 +316,126 @@ namespace ONI_MP.Networking.Relay.Steam
                 return -1;
 
             return (long)connectionHealth.Value.m_usecQueueTime;
+        }
+
+        public override NetworkState GetJitterState()
+        {
+            var connhealth = GetConnectionHealth();
+            if (!connhealth.HasValue)
+                return NetworkState.BAD;
+
+            int ping = connhealth.Value.m_nPing;
+            if (ping <= 0)
+                return NetworkState.BAD;
+
+            // Collect samples
+            _pingSamples.Enqueue(ping);
+            while (_pingSamples.Count > JITTER_SAMPLE_COUNT)
+                _pingSamples.Dequeue();
+
+            // Not enough data yet
+            if (_pingSamples.Count < 5)
+                return NetworkState.DEGRADED;
+
+            // Calculate mean
+            float mean = 0f;
+            foreach (var p in _pingSamples)
+                mean += p;
+            mean /= _pingSamples.Count;
+
+            // Calculate standard deviation
+            float variance = 0f;
+            foreach (var p in _pingSamples)
+            {
+                float diff = p - mean;
+                variance += diff * diff;
+            }
+
+            float jitter = Mathf.Sqrt(variance / _pingSamples.Count);
+
+            if (jitter <= 10f)
+                return NetworkState.GOOD;
+
+            if (jitter <= 30f)
+                return NetworkState.DEGRADED;
+
+            return NetworkState.BAD;
+        }
+
+        public override NetworkState GetLatencyState()
+        {
+            var connhealth = GetConnectionHealth();
+            if (!connhealth.HasValue)
+                return NetworkState.BAD;
+
+            int ping = connhealth.Value.m_nPing;
+
+            // Invalid or unknown ping
+            if (ping <= 0)
+                return NetworkState.BAD;
+
+            if (ping <= 60)
+                return NetworkState.GOOD;
+
+            if (ping <= 120)
+                return NetworkState.DEGRADED;
+
+            return NetworkState.BAD;
+        }
+
+        public override NetworkState GetPacketlossState()
+        {
+            var connhealth = GetConnectionHealth();
+            if (!connhealth.HasValue)
+                return NetworkState.BAD;
+
+            float quality = connhealth.Value.m_flConnectionQualityLocal;
+
+            if (quality >= 0.95f)
+                return NetworkState.GOOD;
+
+            if (quality >= 0.85f)
+                return NetworkState.DEGRADED;
+
+            return NetworkState.BAD;
+        }
+
+        public override NetworkState GetServerPerformanceState()
+        {
+            if (!Connection.HasValue)
+                return NetworkState.BAD;
+
+            var connHealth = GetConnectionHealth();
+
+            // Connection no longer exists
+            if (!connHealth.HasValue)
+                return NetworkState.BAD;
+
+            // Authoritative disconnect states
+            switch (connHealth.Value.m_eState)
+            {
+                case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ClosedByPeer:
+                case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
+                    return NetworkState.BAD;
+            }
+
+            // Hard transport failure
+            if (connHealth.Value.m_cbSentUnackedReliable > 64 * 1024 || // 64kb unacked by server
+                (long)connHealth.Value.m_usecQueueTime > 1_000_000 || // 1 second old unsent packets
+                connHealth.Value.m_flConnectionQualityRemote <= 0.85f) // server side reports badly degraded quality
+            {
+                return NetworkState.BAD;
+            }
+
+            // Soft degradation
+            if (connHealth.Value.m_cbSentUnackedReliable > 16 * 1024 || // 16kb unacked by server
+                (long)connHealth.Value.m_usecQueueTime > 500_000 || // 500ms old unsent packets
+                connHealth.Value.m_flConnectionQualityRemote <= 0.95f) // server side reports degraded quality
+            {
+                return NetworkState.DEGRADED;
+            }
+
+            return NetworkState.GOOD;
         }
         #endregion
     }

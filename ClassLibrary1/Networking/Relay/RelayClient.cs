@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static ONI_MP.Menus.NetworkIndicatorsScreen;
 
 namespace ONI_MP.Networking.Relay
 {
@@ -42,5 +43,15 @@ namespace ONI_MP.Networking.Relay
         public abstract void Update();
 
         public abstract void OnMessageRecieved();
+
+        // Network health functions
+
+        public abstract NetworkState GetJitterState();
+
+        public abstract NetworkState GetLatencyState();
+
+        public abstract NetworkState GetPacketlossState();
+
+        public abstract NetworkState GetServerPerformanceState();
     }
 }
