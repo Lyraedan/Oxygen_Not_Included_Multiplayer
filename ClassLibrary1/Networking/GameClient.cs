@@ -108,7 +108,7 @@ namespace ONI_MP.Networking
 			NetworkConfig.RelayClient.ReconnectToSession();
 		}
 
-		public static void Poll()
+		public static void Update()
 		{
 			if (_pollingPaused)
 				return;
