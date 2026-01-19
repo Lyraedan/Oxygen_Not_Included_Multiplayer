@@ -6,6 +6,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Profiling;
 using ONI_MP.Misc;
+using System.Collections.Concurrent;
 
 namespace ONI_MP.Networking.Relay.Lan
 {
@@ -17,6 +18,8 @@ namespace ONI_MP.Networking.Relay.Lan
         {
             get { return _client; }
         }
+
+        private static readonly ConcurrentQueue<byte[]> _incomingPackets = new ConcurrentQueue<byte[]>();
 
         public override void Prepare()
         {
@@ -39,35 +42,8 @@ namespace ONI_MP.Networking.Relay.Lan
 
         private void OnMessageRecievedFromServer(object sender, MessageReceivedEventArgs e)
         {
-            ulong clientId = e.FromConnection.Id;
             byte[] rawData = e.Message.GetBytes();
-            int size = rawData.Length;
-
-            // Try to read the 4-byte packet type at the start
-            int packetType = 0;
-            if (rawData.Length >= 4)
-                packetType = BitConverter.ToInt32(rawData, 0);
-
-            //DebugConsole.Log(
-            //    $"[RiptideSmokeTest] Server received packet from {clientId}, " +
-            //    $"PacketType={packetType}, Size={size} bytes"
-            //);
-
-            //DebugConsole.Log($"[RiptideSmokeTest] Handling packet: " + packetType);
-
-            long t0 = GameServerProfiler.Begin();
-
-            try
-            {
-                // Pass the full payload (including packetType) to your handler
-                PacketHandler.HandleIncoming(rawData);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"[LanServer] Failed to handle packet {packetType}: {ex}");
-            }
-
-            GameServerProfiler.End(t0, 1, size);
+            _incomingPackets.Enqueue(rawData);
         }
 
         private void OnConnectedToServer(object sender, EventArgs e)
@@ -93,7 +69,27 @@ namespace ONI_MP.Networking.Relay.Lan
 
         public override void OnMessageRecieved()
         {
-            // Riptide uses OnMessageRecievedFromServer
+            while (_incomingPackets.TryDequeue(out var rawData))
+            {
+                int size = rawData.Length;
+
+                int packetType = rawData.Length >= 4
+                    ? BitConverter.ToInt32(rawData, 0)
+                    : 0;
+
+                long t0 = GameServerProfiler.Begin();
+
+                try
+                {
+                    PacketHandler.HandleIncoming(rawData);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"[LanClient] Failed to handle packet {packetType}: {ex}");
+                }
+
+                GameServerProfiler.End(t0, 1, size);
+            }
         }
 
         public override void ReconnectToSession()
