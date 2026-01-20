@@ -22,10 +22,16 @@ namespace ONI_MP.DedicatedServer
         {
             public string Name;
             public string Description;
-            public System.Action Execute;
+            public System.Action<string[]> Execute;
         }
 
         private static readonly Dictionary<string, Command> commands = new Dictionary<string, Command>();
+        private static readonly Dictionary<string, string> whatisDictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "master", "The master is the primary client controlling the game state." },
+            { "player", "A player is any connected client." },
+            { "savefile", "The save file contains the current state of the game world.\nThe save file is controlled by the master." }
+        };
         private static bool stopped = true;
 
         /// <summary>
@@ -94,9 +100,24 @@ namespace ONI_MP.DedicatedServer
                 if (string.IsNullOrWhiteSpace(line))
                     continue;
 
-                if (commands.TryGetValue(line.ToLowerInvariant(), out var command))
+                var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                var cmdName = parts[0].ToLowerInvariant();
+                var args = parts.Length > 1 ? parts[1..] : Array.Empty<string>();
+
+                if (commands.TryGetValue(cmdName, out var command))
                 {
-                    command.Execute.Invoke();
+                    try
+                    {
+                        command.Execute.Invoke(args);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error executing command '{cmdName}': {ex.Message}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Unknown command: {cmdName}");
                 }
 
                 if (stopped)
@@ -110,7 +131,7 @@ namespace ONI_MP.DedicatedServer
             {
                 Name = "quit",
                 Description = "Stops the dedicated server",
-                Execute = () =>
+                Execute = (args) =>
                 {
                     Console.WriteLine("Stopping server...");
                     stopped = true;
@@ -123,7 +144,7 @@ namespace ONI_MP.DedicatedServer
             {
                 Name = "help",
                 Description = "Displays all available commands",
-                Execute = () =>
+                Execute = (args) =>
                 {
                     Console.WriteLine("Available commands:");
                     foreach (var cmd in commands.Values)
@@ -137,7 +158,7 @@ namespace ONI_MP.DedicatedServer
             {
                 Name = "listplayers",
                 Description = "Displays a list of all connected clients",
-                Execute = () =>
+                Execute = (args) =>
                 {
                     Console.WriteLine("Connected players:");
                     if (server.GetPlayers().Count == 0)
@@ -148,6 +169,39 @@ namespace ONI_MP.DedicatedServer
                     foreach(ONI_MP_DedicatedServer.ONI.Player player in server.GetPlayers().Values)
                     {
                         Console.WriteLine($" - [{player.ClientID}{(player.IsMaster ? "/Master" : string.Empty)}] {player.Connection.SmoothRTT}ms");
+                    }
+                }
+            });
+
+            RegisterCommand(new Command
+            {
+                Name = "whatis",
+                Description = "Displays information about a given thing. Usage: whatis <thing>",
+                Execute = args =>
+                {
+                    if (args.Length == 0)
+                    {
+                        Console.WriteLine("Usage: whatis <thing>");
+                        return;
+                    }
+
+                    string thing = string.Join(' ', args);
+
+                    if (thing.Equals("list", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.WriteLine("Available things you can 'whatis':");
+                        foreach (var key in whatisDictionary.Keys)
+                        {
+                            Console.WriteLine($" - {key}");
+                        }
+                    }
+                    else if (whatisDictionary.TryGetValue(thing, out var description))
+                    {
+                        Console.WriteLine(description);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"I don't know anything about \"{thing}\"");
                     }
                 }
             });

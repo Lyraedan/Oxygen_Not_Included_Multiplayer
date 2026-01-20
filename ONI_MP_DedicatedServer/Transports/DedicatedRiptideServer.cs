@@ -56,7 +56,7 @@ namespace ONI_MP_DedicatedServer.Transports
             if (!wasMaster) // We wasn't the master we don't care
                 return;
 
-            Console.WriteLine("The master disconnected! Assigning new master!");
+            Console.WriteLine("\nThe master disconnected! Attempting to assign a new master!");
             if (_server?.Clients.Length > 0)
             {
                 // Find the client with the smallest ping
