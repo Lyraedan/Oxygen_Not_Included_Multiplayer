@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using ONI_MP_DedicatedServer;
+using ONI_MP_DedicatedServer.ONI;
 using ONI_MP_DedicatedServer.Transports;
 
 namespace ONI_MP.DedicatedServer
@@ -14,8 +16,16 @@ namespace ONI_MP.DedicatedServer
 
         public static Transports transport = Transports.Riptide;
         private static TransportServer? server;
+        private static SaveFile? saveFile;
 
-        private static readonly Dictionary<string, System.Action> commands = new();
+        public struct Command
+        {
+            public string Name;
+            public string Description;
+            public System.Action Execute;
+        }
+
+        private static readonly Dictionary<string, Command> commands = new Dictionary<string, Command>();
         private static bool stopped = true;
 
         /// <summary>
@@ -26,9 +36,11 @@ namespace ONI_MP.DedicatedServer
         /// If a save action happens on the master, upload it to the dedi, if the master disconnects with clients present, the next client sends the save state to the dedi and it overwrites it with that one
         ///
         /// This is purely conceptual
+        /// 
+        /// Maybe it'll be better to hold the save file in Memory and use that then only save locally if the server shuts down
+        /// 
         /// </summary>
         /// <param name="args"></param>
-
         static void Main(string[] args)
         {
             Console.WriteLine("ONI Multiplayer Dedicated Server starting...");
@@ -38,23 +50,33 @@ namespace ONI_MP.DedicatedServer
 
             RegisterCommands();
 
-            server.Start();
-
-            var inputThread = new Thread(ReadConsole)
+            try
             {
-                IsBackground = true
-            };
-            inputThread.Start();
+                string savePath = Path.Combine(ServerConfiguration.ConfigDirectory, ServerConfiguration.Instance.Config.SaveFile);
+                saveFile = SaveFile.FromFile($"{savePath}.sav");
+                server.Start();
 
-            while (server.IsRunning())
-            {
-                if (stopped)
+                Console.WriteLine("\nType \"help\" to view a list of commands.");
+
+                var inputThread = new Thread(ReadConsole)
                 {
-                    server.Stop();
-                    break;
-                }
+                    IsBackground = true
+                };
+                inputThread.Start();
 
-                Thread.Sleep(50);
+                while (server.IsRunning())
+                {
+                    if (stopped)
+                    {
+                        server.Stop();
+                        break;
+                    }
+
+                    Thread.Sleep(50);
+                }
+            } catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to start server: {ex.Message}");
             }
 
             Console.WriteLine("Server stopped. Press Enter to close.");
@@ -74,7 +96,7 @@ namespace ONI_MP.DedicatedServer
 
                 if (commands.TryGetValue(line.ToLowerInvariant(), out var command))
                 {
-                    command.Invoke();
+                    command.Execute.Invoke();
                 }
 
                 if (stopped)
@@ -84,29 +106,53 @@ namespace ONI_MP.DedicatedServer
 
         static void RegisterCommands()
         {
-            RegisterCommand("quit", () =>
+            RegisterCommand(new Command
             {
-                Console.WriteLine("Stopping server...");
-                stopped = true;
+                Name = "quit",
+                Description = "Stops the dedicated server",
+                Execute = () =>
+                {
+                    Console.WriteLine("Stopping server...");
+                    stopped = true;
+                }
             });
 
             BindExistingCommandTo("stop", "quit");
+
+            RegisterCommand(new Command
+            {
+                Name = "help",
+                Description = "Displays all available commands",
+                Execute = () =>
+                {
+                    Console.WriteLine("Available commands:");
+                    foreach (var cmd in commands.Values)
+                    {
+                        Console.WriteLine($" - {cmd.Name} : {cmd.Description}");
+                    }
+                }
+            });
         }
 
-        public static void RegisterCommand(string command, System.Action execution)
+        public static void RegisterCommand(Command command)
         {
-            commands[command.ToLowerInvariant()] = execution;
+            commands[command.Name.ToLowerInvariant()] = command;
         }
 
         public static void BindExistingCommandTo(string newBinding, string commandToBindTo)
         {
-            if (!commands.TryGetValue(commandToBindTo.ToLowerInvariant(), out var execution))
+            if (!commands.TryGetValue(commandToBindTo.ToLowerInvariant(), out var existing))
             {
                 Console.WriteLine($"Failed to bind {newBinding} to {commandToBindTo}");
                 return;
             }
 
-            RegisterCommand(newBinding, execution);
+            RegisterCommand(new Command
+            {
+                Name = newBinding,
+                Description = existing.Description,
+                Execute = existing.Execute
+            });
         }
 
         public static TransportServer SetupTransport()

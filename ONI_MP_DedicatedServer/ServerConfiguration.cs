@@ -19,9 +19,9 @@ namespace ONI_MP_DedicatedServer
 
         public DedicatedConfig Config { get; private set; } = new DedicatedConfig();
 
-        private static readonly string ConfigDirectory = Path.Combine(AppContext.BaseDirectory, "dedicated_server_config");
+        public static readonly string ConfigDirectory = Path.Combine(AppContext.BaseDirectory, "dedicated_server_config");
 
-        private static readonly string ConfigPath = Path.Combine(ConfigDirectory, "multiplayer_settings.json");
+        public static readonly string ConfigPath = Path.Combine(ConfigDirectory, "multiplayer_settings.json");
 
         public static ServerConfiguration LoadOrCreate()
         {
@@ -53,10 +53,10 @@ namespace ONI_MP_DedicatedServer
 
     public class DedicatedConfig
     {
-        public int Transport = 0;
-        public string Ip = "127.0.0.1";
-        public int Port = 7777;
-
+        public int Transport { get; set; } = 0;
+        public string Ip { get; set; } = "127.0.0.1";
+        public int Port { get; set; } = 7777;
+        public string SaveFile { get; set; } = "";
         public int MaxLobbySize { get; set; } = 4;
         public int MaxMessagesPerPoll { get; set; } = 128;
     }
