@@ -111,7 +111,12 @@ namespace ONI_MP_DedicatedServer.Transports
                 // If we're the master, send it to everyone else and not the master
                 if (player.IsMaster)
                 {
-                    _server.SendToAll(msg);
+                    //_server.SendToAll(msg);
+                    var slaves = ConnectedPlayers.Values.Where(p => !p.IsMaster);
+                    foreach(ONI.Player client in slaves)
+                    {
+                        client.Connection.Send(msg);
+                    }
                 } else
                 {
                     ONI.Player master = ConnectedPlayers.Values.Where(p => p.IsMaster).FirstOrDefault();
