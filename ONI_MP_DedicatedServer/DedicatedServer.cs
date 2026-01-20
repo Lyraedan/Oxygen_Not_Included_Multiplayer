@@ -15,7 +15,7 @@ namespace ONI_MP.DedicatedServer
         }
 
         public static Transports transport = Transports.Riptide;
-        private static TransportServer? server;
+        private static DedicatedTransportServer? server;
         private static SaveFile? saveFile;
 
         public struct Command
@@ -155,13 +155,13 @@ namespace ONI_MP.DedicatedServer
             });
         }
 
-        public static TransportServer SetupTransport()
+        public static DedicatedTransportServer SetupTransport()
         {
             switch (transport) {
                 case Transports.Riptide:
-                    return new RiptideServer();
+                    return new DedicatedRiptideServer();
                 default:
-                    return new RiptideServer();
+                    return new DedicatedRiptideServer();
             }
         }
     }

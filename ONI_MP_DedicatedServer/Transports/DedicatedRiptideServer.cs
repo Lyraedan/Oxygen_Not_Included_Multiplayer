@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Riptide;
+﻿using Riptide;
 using Riptide.Utils;
-using static LogicPorts;
 
 namespace ONI_MP_DedicatedServer.Transports
 {
-    public class RiptideServer : TransportServer
+    public class DedicatedRiptideServer : DedicatedTransportServer
     {
-        public Server _server;
+        public Server? _server;
 
-        public RiptideServer()
+        public DedicatedRiptideServer()
         {
             RiptideLogger.Initialize(Console.WriteLine, false);
         }
@@ -32,7 +26,7 @@ namespace ONI_MP_DedicatedServer.Transports
             Console.WriteLine($"Started server on {ip}:{port}");
         }
 
-        private void OnServerMessageReceived(object? sender, MessageReceivedEventArgs e)
+        private void OnServerMessageReceived(object sender, MessageReceivedEventArgs e)
         {
             Console.WriteLine("Recieved message");
         }

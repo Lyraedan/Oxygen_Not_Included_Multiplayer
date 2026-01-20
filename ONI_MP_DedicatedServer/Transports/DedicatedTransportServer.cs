@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ONI_MP_DedicatedServer.Transports
 {
-    public abstract class TransportServer
+    public abstract class DedicatedTransportServer
     {
         public abstract void Start();
 
