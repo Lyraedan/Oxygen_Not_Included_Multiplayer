@@ -94,13 +94,31 @@ namespace ONI_MP_DedicatedServer.Transports
                     $"PacketType={packetType}, Size={size} bytes"
                 );
 
+                MessageSendMode SendMode = MessageSendMode.Reliable;
+                // Wrap this as a DedicatedServerMessagePacket
+                byte[] relayedPacketData = Utils.SerializePacketForSending(Utils.DEDICATED_SERVER_PACKET_ID, (writer) =>
+                {
+                    writer.Write(packetType); // PacketID
+                    writer.Write((int)SendMode); // Send Type
+                    writer.Write(rawData.Length);
+                    writer.Write(rawData); // PacketData
+                });
+
+                Riptide.Message msg = Riptide.Message.Create(SendMode, 1);
+
                 // Check if player.IsMaster
                 // If we're not the master, send this to the master
                 // If we're the master, send it to everyone else and not the master
-                if(player.IsMaster)
+                if (player.IsMaster)
                 {
-                    
-                }
+                    _server.SendToAll(msg);
+                } else
+                {
+                    ONI.Player master = ConnectedPlayers.Values.Where(p => p.IsMaster).FirstOrDefault();
+                    if (master != null)
+                    {
+                        _server.Send(msg, master.Connection);
+                    }
             }
         }
 

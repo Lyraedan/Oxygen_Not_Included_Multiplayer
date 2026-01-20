@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ONI_MP.Networking.Packets.Architecture;
 
 namespace ONI_MP_DedicatedServer
 {
     public static class Utils
     {
+        public static readonly int DEDICATED_SERVER_PACKET_ID = -235098231;
+
         public static string FormatBytes(long bytes)
         {
             string[] sizes = { "B", "KB", "MB", "GB", "TB" };
@@ -19,6 +22,17 @@ namespace ONI_MP_DedicatedServer
                 len /= 1024;
             }
             return $"{len:0.##} {sizes[order]}";
+        }
+
+        public static byte[] SerializePacketForSending(int packetType, Action<System.IO.BinaryWriter> serialize)
+        {
+            using (var ms = new System.IO.MemoryStream())
+            using (var writer = new System.IO.BinaryWriter(ms))
+            {
+                writer.Write(packetType);
+                serialize(writer);
+                return ms.ToArray();
+            }
         }
     }
 }
