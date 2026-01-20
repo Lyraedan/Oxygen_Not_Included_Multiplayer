@@ -11,6 +11,7 @@ using Steamworks;
 using SteamServer = ONI_MP.Networking.Transport.Steam.SteamworksServer;
 using SteamClient = ONI_MP.Networking.Transport.Steam.SteamworksClient;
 using ONI_MP.DebugTools;
+using ONI_MP.Networking.Transport.Steamworks;
 
 namespace ONI_MP.Networking
 {
@@ -91,13 +92,11 @@ namespace ONI_MP.Networking
                 case NetworkTransport.RIPTIDE:
                     if (MultiplayerSession.IsClient)
                     {
-                        RiptideClient client = TransportClient as RiptideClient;
-                        return client.GetClientID();
+                        return RiptideClient.CLIENT_ID;
                     }
                     else
                     {
-                        RiptideServer server = TransportServer as RiptideServer;
-                        return server.GetClientID();
+                        return RiptideServer.CLIENT_ID;
                     }
                 case NetworkTransport.LITENETLIB:
                     if (MultiplayerSession.IsClient)
@@ -121,6 +120,36 @@ namespace ONI_MP.Networking
         public static bool IsLanConfig()
         {
             return transport.Equals(NetworkTransport.RIPTIDE) || transport.Equals(NetworkTransport.LITENETLIB);
+        }
+    
+        public static List<ulong> GetConnectedClients()
+        {
+            List<ulong> clients = new List<ulong>();
+            switch(transport)
+            {
+                case NetworkTransport.STEAMWORKS:
+                    List<CSteamID> members = SteamLobby.GetAllLobbyMembers();
+                    foreach(CSteamID member in members)
+                    {
+                        clients.Add(member.m_SteamID);
+                    }
+                    break;
+                case NetworkTransport.RIPTIDE:
+                    if (MultiplayerSession.IsClient)
+                    {
+                        RiptideClient client = TransportClient as RiptideClient;
+                        return client.ClientList;
+                    }
+                    else
+                    {
+                        RiptideServer server = TransportServer as RiptideServer;
+                        return server.ClientList;
+                    }
+                    break;
+                case NetworkTransport.LITENETLIB:
+                    break;
+            }
+            return clients;
         }
     }
 }

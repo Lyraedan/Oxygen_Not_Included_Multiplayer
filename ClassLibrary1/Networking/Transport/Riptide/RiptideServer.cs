@@ -8,6 +8,7 @@ using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Profiling;
 using UnityEngine.Sprites;
 using static LogicPorts;
+using System.Collections.Generic;
 
 namespace ONI_MP.Networking.Transport.Lan
 {
@@ -20,6 +21,10 @@ namespace ONI_MP.Networking.Transport.Lan
         {
             get { return _client; }
         }
+
+        public List<ulong> ClientList { get; internal set; }
+
+        public static ulong CLIENT_ID { get; private set; }
 
         public override void Prepare()
         {
@@ -50,6 +55,7 @@ namespace ONI_MP.Networking.Transport.Lan
 
         private void OnLocalClientConnected(object sender, EventArgs e)
         {
+            CLIENT_ID = _client.Id;
             DebugConsole.Log("[RiptideServer] Host client connected to server!");
             MultiplayerSession.SetHost(GetClientID());
             MultiplayerSession.InSession = true;
@@ -57,6 +63,7 @@ namespace ONI_MP.Networking.Transport.Lan
 
         private void OnLocalClientDisconnected(object sender, DisconnectedEventArgs e)
         {
+            CLIENT_ID = Utils.NilUlong();
             DebugConsole.Log("[RiptideServer] Host client disconnected from server!");
             MultiplayerSession.HostUserID = Utils.NilUlong();
             MultiplayerSession.InSession = false;
@@ -72,6 +79,8 @@ namespace ONI_MP.Networking.Transport.Lan
                 MultiplayerSession.ConnectedPlayers.Add(clientId, player);
             }
             player.Connection = e.Client;
+
+            AddClientToList(e.Client.Id);
             DebugConsole.Log($"New client connected: {clientId}");
         }
 
@@ -91,6 +100,8 @@ namespace ONI_MP.Networking.Transport.Lan
                 DebugConsole.LogWarning($"Disconnected client {clientId} was not found in ConnectedPlayers.");
             }
             ReadyManager.RefreshReadyState();
+
+            RemoveClientFromList(clientId);
         }
 
         private void OnServerMessageReceived(object sender, MessageReceivedEventArgs e)
@@ -171,6 +182,21 @@ namespace ONI_MP.Networking.Transport.Lan
             _client?.Update();
         }
 
+        public void AddClientToList(ulong id)
+        {
+            if (ClientList.Contains(id))
+                return;
+
+            ClientList.Add(id);
+        }
+
+        public void RemoveClientFromList(ulong id)
+        {
+            if (!ClientList.Contains(id))
+                return;
+
+            ClientList.Remove(id);
+        }
         public ulong GetClientID()
         {
             if (_client == null || _client.IsNotConnected)

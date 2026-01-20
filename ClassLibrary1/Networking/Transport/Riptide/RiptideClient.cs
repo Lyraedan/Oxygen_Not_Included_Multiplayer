@@ -30,6 +30,9 @@ namespace ONI_MP.Networking.Transport.Lan
 
         private ConnectionMetrics Metrics => _client?.Connection?.Metrics;
 
+        public List<ulong> ClientList { get; private set; }
+        public static ulong CLIENT_ID { get; private set; }
+
         public override void Prepare()
         {
             RiptideLogger.Initialize(DebugConsole.Log, false);
@@ -46,7 +49,19 @@ namespace ONI_MP.Networking.Transport.Lan
             _client.Connected += OnConnectedToServer;
             _client.Disconnected += OnDisconnectedFromServer;
             _client.MessageReceived += OnMessageRecievedFromServer;
+            _client.ClientConnected += OnOtherClientConnected;
+            _client.ClientDisconnected += OnOtherClientDisconnected;
             _client.Connect($"{ip}:{port}", useMessageHandlers: false);
+        }
+
+        private void OnOtherClientDisconnected(object sender, ClientDisconnectedEventArgs e)
+        {
+            RemoveClientFromList(e.Id);
+        }
+
+        private void OnOtherClientConnected(object sender, ClientConnectedEventArgs e)
+        {
+            AddClientToList(e.Id);
         }
 
         private void OnMessageRecievedFromServer(object sender, MessageReceivedEventArgs e)
@@ -57,6 +72,9 @@ namespace ONI_MP.Networking.Transport.Lan
 
         private void OnConnectedToServer(object sender, EventArgs e)
         {
+            CLIENT_ID = GetClientID();
+            AddClientToList(CLIENT_ID);
+
             OnClientConnected.Invoke();
             MultiplayerSession.SetHost(1); // Host's client is always 1
             MultiplayerSession.InSession = true;
@@ -71,9 +89,13 @@ namespace ONI_MP.Networking.Transport.Lan
             {
                 NetworkConfig.TransportClient.OnRequestStateOrReturn.Invoke();
             }
+
         }
         private void OnDisconnectedFromServer(object sender, DisconnectedEventArgs e)
         {
+            RemoveClientFromList(CLIENT_ID);
+            CLIENT_ID = Utils.NilUlong();
+
             OnClientDisconnected.Invoke();
             MultiplayerSession.HostUserID = Utils.NilUlong();
             MultiplayerSession.InSession = false;
@@ -123,12 +145,28 @@ namespace ONI_MP.Networking.Transport.Lan
             _client?.Update();
         }
 
-        public ulong GetClientID()
+        private ulong GetClientID()
         {
             if (_client == null || _client.IsNotConnected)
                 return Utils.NilUlong();
 
             return _client.Id;
+        }
+
+        public void AddClientToList(ulong id)
+        {
+            if (ClientList.Contains(id))
+                return;
+
+            ClientList.Add(id);
+        }
+
+        public void RemoveClientFromList(ulong id)
+        {
+            if (!ClientList.Contains(id))
+                return;
+
+            ClientList.Remove(id);
         }
 
         public override NetworkIndicatorsScreen.NetworkState GetJitterState()
