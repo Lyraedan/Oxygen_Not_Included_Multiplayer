@@ -66,13 +66,13 @@ namespace ONI_MP.DedicatedServer
 
                 while (server.IsRunning())
                 {
+                    server.Update();
+
                     if (stopped)
                     {
                         server.Stop();
                         break;
                     }
-
-                    Thread.Sleep(50);
                 }
             } catch (Exception ex)
             {
@@ -129,6 +129,25 @@ namespace ONI_MP.DedicatedServer
                     foreach (var cmd in commands.Values)
                     {
                         Console.WriteLine($" - {cmd.Name} : {cmd.Description}");
+                    }
+                }
+            });
+
+            RegisterCommand(new Command
+            {
+                Name = "listplayers",
+                Description = "Displays a list of all connected clients",
+                Execute = () =>
+                {
+                    Console.WriteLine("Connected players:");
+                    if (server.GetPlayers().Count == 0)
+                    {
+                        Console.WriteLine(" - None");
+                        return;
+                    }
+                    foreach(ONI_MP_DedicatedServer.ONI.Player player in server.GetPlayers().Values)
+                    {
+                        Console.WriteLine($" - [{player.ClientID}{(player.IsMaster ? "/Master" : string.Empty)}] {player.Connection.SmoothRTT}ms");
                     }
                 }
             });

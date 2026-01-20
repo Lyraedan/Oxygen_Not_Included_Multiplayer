@@ -38,6 +38,7 @@ namespace ONI_MP_DedicatedServer.Transports
             {
                 ONI.Player player = new ONI.Player(e.Client, ConnectedPlayers.Count == 0); // If there are no connected clients we are the master
                 ConnectedPlayers.Add(clientId, player);
+                Console.Write($"A new player joined the server. {player.ClientID} : {player.IsMaster}");
             }
         }
 
@@ -50,6 +51,7 @@ namespace ONI_MP_DedicatedServer.Transports
                 wasMaster = player.IsMaster;
                 ConnectedPlayers.Remove(clientId);
             }
+            Console.Write($"A player disconnected from the server. {clientId} : {wasMaster}");
 
             if (!wasMaster) // We wasn't the master we don't care
                 return;
@@ -64,6 +66,8 @@ namespace ONI_MP_DedicatedServer.Transports
                 {
                     newMaster.UpdateMasterState(true);
                     Console.WriteLine($"New master assigned: Client {newMasterClient.Id} with ping {newMasterClient.SmoothRTT}");
+
+                    // Notify this client that they are now the master, TODO: Send a migration packet
                 }
             }
             else
@@ -91,6 +95,16 @@ namespace ONI_MP_DedicatedServer.Transports
                 return false;
 
             return _server.IsRunning;
+        }
+
+        public override void Update()
+        {
+            _server?.Update();
+        }
+
+        public override Dictionary<ulong, ONI.Player> GetPlayers()
+        {
+            return ConnectedPlayers;
         }
     }
 }
