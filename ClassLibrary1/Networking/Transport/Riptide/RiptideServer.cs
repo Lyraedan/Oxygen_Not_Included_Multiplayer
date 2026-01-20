@@ -7,7 +7,6 @@ using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Profiling;
 using UnityEngine.Sprites;
-using static LogicPorts;
 using System.Collections.Generic;
 
 namespace ONI_MP.Networking.Transport.Lan
