@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-	<PackageReference Include="RiptideNetworking.Riptide" Version="2.2.1" /> <!-- Comment this out before builds, its included with ONI_MP -->
+	<PackageReference Include="RiptideNetworking.Riptide" Version="2.2.1" />
   </ItemGroup>
 
   <ItemGroup>

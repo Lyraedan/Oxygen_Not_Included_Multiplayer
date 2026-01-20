@@ -43,7 +43,7 @@ namespace ONI_MP.DedicatedServer
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            Console.WriteLine("ONI Multiplayer Dedicated Server starting...");
+            Console.WriteLine("ONI Together: Dedicated Server starting...");
 
             server = SetupTransport();
             stopped = false;
