@@ -320,6 +320,7 @@ namespace ONI_MP.DebugTools
             }
             ImGui.Separator();
             ImGui.Text("Dedicated Server Tests");
+            DediTest.Update();
             if (ImGui.Button("Connect to dedi"))
             {
                 DediTest.Connect();

@@ -78,7 +78,27 @@ namespace ONI_MP_DedicatedServer.Transports
 
         private void OnServerMessageReceived(object sender, MessageReceivedEventArgs e)
         {
-            Console.WriteLine("Recieved message");
+            ulong clientId = e.FromConnection.Id;
+            byte[] rawData = e.Message.GetBytes();
+            int size = rawData.Length;
+
+            int packetType = 0;
+            if (rawData.Length >= 4)
+                packetType = BitConverter.ToInt32(rawData, 0);
+
+            Console.WriteLine(
+                $"\nServer received packet from {clientId}, " +
+                $"PacketType={packetType}, Size={size} bytes"
+            );
+
+            //try
+            //{
+            //    //PacketHandler.HandleIncoming(rawData);
+            //}
+            //catch (Exception ex)
+            //{
+            //    Debug.LogWarning($"[LanServer] Failed to handle packet {packetType}: {ex}");
+            //}
         }
 
         public override void Stop()

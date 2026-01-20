@@ -38,6 +38,13 @@ namespace ONI_MP.Tests
             DebugConsole.Log("[DediTest] Successfully disconnected to the Dedicated server!");
         }
 
+        public static void Update()
+        {
+            if (_client == null)
+                return;
+            _client.Update();
+        }
+
         public static void Disconnect()
         {
             if (_client == null || _client.IsNotConnected)
