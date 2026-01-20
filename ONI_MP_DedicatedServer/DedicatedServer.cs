@@ -22,7 +22,10 @@ namespace ONI_MP.DedicatedServer
         /// THIS IS PURELY EXPERIMENTAL!
         /// This is essentially a listening server, it doesn't run the simulation. It listens for network traffic and relays it to the clients.
         /// It will need to be informed about things like the save file etc.
-        /// A save file is uploaded by the host, a client connects and downloads that save file, the first client is considered the host and their state is what overwrites the dedi save
+        /// A save file is uploaded by the host, a client connects and downloads that save file, the first client is considered the master and their state is what overwrites the dedi save
+        /// If a save action happens on the master, upload it to the dedi, if the master disconnects with clients present, the next client sends the save state to the dedi and it overwrites it with that one
+        ///
+        /// This is purely conceptual
         /// </summary>
         /// <param name="args"></param>
 
