@@ -60,7 +60,7 @@ namespace ONI_MP_DedicatedServer.Transports
             if (_server?.Clients.Length > 0)
             {
                 // Find the client with the smallest ping
-                Connection? newMasterClient = _server.Clients.OrderBy(c => c.SmoothRTT).FirstOrDefault();
+                Connection? newMasterClient = _server.Clients.Where(c => c.SmoothRTT >= 0).OrderBy(c => c.SmoothRTT).FirstOrDefault();
 
                 if (newMasterClient != null && ConnectedPlayers.TryGetValue(newMasterClient.Id, out ONI.Player newMaster))
                 {
