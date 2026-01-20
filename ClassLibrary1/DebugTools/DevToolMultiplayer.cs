@@ -318,6 +318,23 @@ namespace ONI_MP.DebugTools
             {
                 NetworkConfig.TransportServer.Stop();
             }
+            ImGui.Separator();
+            ImGui.Text("Dedicated Server Tests");
+            if (ImGui.Button("Connect to dedi"))
+            {
+                DediTest.Connect();
+            }
+
+            ImGui.SameLine();
+            if(ImGui.Button("Disconnect from dedi"))
+            {
+                DediTest.Disconnect();
+            }
+
+            if(ImGui.Button("Send test packet"))
+            {
+                DediTest.SendTestPacket();
+            }
         }
 
         private void DrawConsoleTab()
