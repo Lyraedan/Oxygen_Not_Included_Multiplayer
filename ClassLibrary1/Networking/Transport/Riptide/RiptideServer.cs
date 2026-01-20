@@ -56,6 +56,7 @@ namespace ONI_MP.Networking.Transport.Lan
         private void OnLocalClientConnected(object sender, EventArgs e)
         {
             CLIENT_ID = _client.Id;
+            //AddClientToList(CLIENT_ID);
             DebugConsole.Log("[RiptideServer] Host client connected to server!");
             MultiplayerSession.SetHost(GetClientID());
             MultiplayerSession.InSession = true;
@@ -64,6 +65,7 @@ namespace ONI_MP.Networking.Transport.Lan
         private void OnLocalClientDisconnected(object sender, DisconnectedEventArgs e)
         {
             CLIENT_ID = Utils.NilUlong();
+            //RemoveClientFromList(CLIENT_ID);
             DebugConsole.Log("[RiptideServer] Host client disconnected from server!");
             MultiplayerSession.HostUserID = Utils.NilUlong();
             MultiplayerSession.InSession = false;
