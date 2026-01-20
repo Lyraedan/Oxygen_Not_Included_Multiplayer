@@ -22,12 +22,13 @@ namespace ONI_MP_DedicatedServer.Transports
 
             string ip = ServerConfiguration.Instance.Config.Ip;
             int port = ServerConfiguration.Instance.Config.Port;
+            int maxPlayers = ServerConfiguration.Instance.Config.MaxLobbySize;
 
             _server = new Server("ONI Together: Dedicated Server");
             _server.MessageReceived += OnServerMessageReceived;
             _server.ClientConnected += OnClientConnected;
             _server.ClientDisconnected += OnClientDisconnected;
-            _server.Start((ushort)port, 1, useMessageHandlers: false);
+            _server.Start((ushort)port, (ushort)maxPlayers, useMessageHandlers: false);
             Console.WriteLine($"Started server on {ip}:{port}");
         }
 
@@ -82,23 +83,25 @@ namespace ONI_MP_DedicatedServer.Transports
             byte[] rawData = e.Message.GetBytes();
             int size = rawData.Length;
 
-            int packetType = 0;
-            if (rawData.Length >= 4)
-                packetType = BitConverter.ToInt32(rawData, 0);
+            if (ConnectedPlayers.TryGetValue(clientId, out ONI.Player player))
+            {
+                int packetType = 0;
+                if (rawData.Length >= 4)
+                    packetType = BitConverter.ToInt32(rawData, 0);
 
-            Console.WriteLine(
-                $"\nServer received packet from {clientId}, " +
-                $"PacketType={packetType}, Size={size} bytes"
-            );
+                Console.WriteLine(
+                    $"\nServer received packet from {clientId}, " +
+                    $"PacketType={packetType}, Size={size} bytes"
+                );
 
-            //try
-            //{
-            //    //PacketHandler.HandleIncoming(rawData);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Debug.LogWarning($"[LanServer] Failed to handle packet {packetType}: {ex}");
-            //}
+                // Check if player.IsMaster
+                // If we're not the master, send this to the master
+                // If we're the master, send it to everyone else and not the master
+                if(player.IsMaster)
+                {
+                    
+                }
+            }
         }
 
         public override void Stop()
