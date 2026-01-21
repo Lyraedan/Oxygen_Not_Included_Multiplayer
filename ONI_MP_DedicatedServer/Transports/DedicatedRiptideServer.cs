@@ -105,6 +105,7 @@ namespace ONI_MP_DedicatedServer.Transports
                 });
 
                 Riptide.Message msg = Riptide.Message.Create(SendMode, 1);
+                msg.AddBytes(relayedPacketData);
 
                 // Check if player.IsMaster
                 // If we're not the master, send this to the master
@@ -112,18 +113,25 @@ namespace ONI_MP_DedicatedServer.Transports
                 if (player.IsMaster)
                 {
                     //_server.SendToAll(msg);
+                    Console.WriteLine("Broadcasting master packet to clients");
                     var slaves = ConnectedPlayers.Values.Where(p => !p.IsMaster);
-                    foreach(ONI.Player client in slaves)
+                    if (slaves.Any())
                     {
-                        client.Connection.Send(msg);
+                        foreach (ONI.Player client in slaves)
+                        {
+                            client.Connection.Send(msg);
+                        }
                     }
-                } else
+                }
+                else
                 {
+                    Console.WriteLine("Recieved packet from client, sending to master!");
                     ONI.Player master = ConnectedPlayers.Values.Where(p => p.IsMaster).FirstOrDefault();
                     if (master != null)
                     {
-                        _server.Send(msg, master.Connection);
+                        _server?.Send(msg, master.Connection);
                     }
+                }
             }
         }
 

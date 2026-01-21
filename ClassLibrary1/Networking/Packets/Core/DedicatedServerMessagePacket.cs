@@ -39,6 +39,8 @@ namespace ONI_MP.Networking.Packets.Core
                 return;
             }
 
+            DebugConsole.Log("Recieved a packet from a dedicated server with packet id: " + PacketID);
+
             var packet = PacketRegistry.Create(PacketID);
 
             using (var ms = new MemoryStream(PacketData))
