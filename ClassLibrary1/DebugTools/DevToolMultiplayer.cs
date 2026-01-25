@@ -312,11 +312,6 @@ namespace ONI_MP.DebugTools
                 LiteNetLibSmokeTest.Run(7777);
             }
 
-            if (ImGui.Button("Explode"))
-            {
-                MultiplayerSession.InSession = true;
-            }
-
             if (ImGui.Button("Start Current Config Server"))
             {
                 NetworkConfig.TransportServer.Start();
