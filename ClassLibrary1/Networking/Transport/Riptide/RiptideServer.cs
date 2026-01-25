@@ -41,6 +41,7 @@ namespace ONI_MP.Networking.Transport.Lan
 
             _server = new Server("Lan/Riptide");
             _server.MessageReceived += OnServerMessageReceived;
+            _server.ConnectionFailed += OnClientConnectionFailed;
             _server.ClientConnected += ServerOnClientConnected;
             _server.ClientDisconnected += ServerOnClientDisconnected;
             _server.Start((ushort)port, (ushort)maxClients, useMessageHandlers: false);
@@ -49,7 +50,13 @@ namespace ONI_MP.Networking.Transport.Lan
             _client = new Client("Lan/Riptide/HostClient");
             _client.Connected += OnLocalClientConnected;
             _client.Disconnected += OnLocalClientDisconnected;
-            _client.Connect($"127.0.0.1:{port}", useMessageHandlers: false); // Since we're running locally we should be able to connect this way
+            DebugConsole.Log("[RiptideServer] Connecting host client!");
+            _client.Connect($"{ip}:{port}", useMessageHandlers: false);
+        }
+
+        private void OnClientConnectionFailed(object sender, ServerConnectionFailedEventArgs e)
+        {
+            DebugConsole.Log("[RiptideServer] A client failed to connect to the server.");
         }
 
         private void OnLocalClientConnected(object sender, EventArgs e)
@@ -179,6 +186,7 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Update()
         {
+            DebugConsole.Log("[RiptideServer] Update tick");
             _server?.Update();
             _client?.Update();
         }

@@ -206,7 +206,16 @@ namespace ONI_MP.DebugTools
                     if (ImGui.Button("Start Lan"))
                     {
                         MultiplayerSession.Clear();
-                        Networking.GameServer.Start();
+                        try
+                        {
+                            DebugConsole.Log("Starting GameServer...");
+                            Networking.GameServer.Start();
+                            DebugConsole.Log("GameServer started successfully.");
+                        }
+                        catch (Exception ex)
+                        {
+                            DebugConsole.LogError($"GameServer.Start() failed: {ex}");
+                        }
                         SelectToolPatch.UpdateColor();
                         Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
                     }

@@ -1,9 +1,11 @@
-﻿using ONI_MP.DebugTools;
+﻿using KSerialization;
+using ONI_MP.DebugTools;
 using ONI_MP.Menus;
 using ONI_MP.Misc.World;
 using ONI_MP.Networking;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -414,6 +416,42 @@ namespace ONI_MP.Misc
             int scheduleIndex = schedules.IndexOf(schedule);
 			return scheduleIndex;
         }
-		#endregion
-	}
+        #endregion
+
+        #region BinaryReader / BinaryWriter Extensions
+        public static void Write(this BinaryWriter writer, Color c)
+        {
+            writer.WriteSingleFast(c.r);
+            writer.WriteSingleFast(c.g);
+            writer.WriteSingleFast(c.b);
+			writer.WriteSingleFast(c.a);
+        }
+
+        public static void Write(this BinaryWriter writer, ColorRGB c)
+        {
+            writer.WriteSingleFast(c.R);
+            writer.WriteSingleFast(c.G);
+            writer.WriteSingleFast(c.B);
+        }
+
+        public static Color ReadColor(this BinaryReader reader)
+        {
+            Color result = default(Color);
+            result.r = reader.ReadSingle();
+            result.g = reader.ReadSingle();
+            result.b = reader.ReadSingle();
+			result.a = reader.ReadSingle();
+            return result;
+        }
+
+        public static ColorRGB ReadColorRGB(this BinaryReader reader)
+        {
+            ColorRGB result = default(ColorRGB);
+            result.R = reader.ReadByte();
+            result.G = reader.ReadByte();
+            result.B = reader.ReadByte();
+            return result;
+        }
+        #endregion
+    }
 }

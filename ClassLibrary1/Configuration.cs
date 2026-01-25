@@ -145,7 +145,7 @@ namespace ONI_MP
         }
     }
 
-    class ColorRGB
+    public class ColorRGB
     {
         public byte R { get; set; }
         public byte G { get; set; }

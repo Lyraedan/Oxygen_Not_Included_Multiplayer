@@ -95,7 +95,7 @@ namespace ONI_MP.Networking.Components
 
 			var packet = new PlayerCursorPacket
 			{
-				SteamID = MultiplayerSession.LocalUserID,
+				PlayerID = MultiplayerSession.LocalUserID,
 				Position = cursorWorldPos,
 				Color = color,
 				CursorState = cursorState,

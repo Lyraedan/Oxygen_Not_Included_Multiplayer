@@ -37,8 +37,8 @@ namespace ONI_MP.Networking.Components
 					return;
 			}
 
-			if (!MultiplayerSession.InSession)
-				return;
+			//if (!MultiplayerSession.InSession)
+			//	return;
 
             if (MultiplayerSession.IsHost)
 			{

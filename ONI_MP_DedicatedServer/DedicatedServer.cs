@@ -205,6 +205,48 @@ namespace ONI_MP.DedicatedServer
                     }
                 }
             });
+
+            RegisterCommand(new Command
+            {
+                Name = "reloadconfig",
+                Description = "Reloads the server configuration from disk at runtime",
+                Execute = (args) =>
+                {
+                    try
+                    {
+                        ServerConfiguration.Instance.Reload();
+                        Console.WriteLine("Configuration reloaded successfully.");
+
+                        string savePath = Path.Combine(ServerConfiguration.ConfigDirectory, ServerConfiguration.Instance.Config.SaveFile);
+                        saveFile = SaveFile.FromFile($"{savePath}.sav");
+                        Console.WriteLine("Save file reloaded.");
+
+                        try
+                        {
+                            if (server != null && server.IsRunning())
+                            {
+                                Console.WriteLine("Stopping current transport server for hot-reload...");
+                                server.Stop();
+                                Thread.Sleep(500); // wait half a second
+                            }
+
+                            transport = (Transports)ServerConfiguration.Instance.Config.Transport;
+
+                            server = SetupTransport();
+                            server.Start();
+                            Console.WriteLine("Transport server hot-reloaded and started.");
+                        }
+                        catch (Exception transportEx)
+                        {
+                            Console.WriteLine($"Failed to hot-reload transport: {transportEx.Message}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Failed to reload configuration: {ex.Message}");
+                    }
+                }
+            });
         }
 
         public static void RegisterCommand(Command command)

@@ -83,13 +83,16 @@ namespace ONI_MP.Networking
 
 		public static void CreateConnectedPlayerCursors()
 		{
-			var members = SteamLobby.GetAllLobbyMembers();
-			foreach (var playerId in members)
+            var members = NetworkConfig.GetConnectedClients();
+            foreach (var playerId in members)
 			{
-				if (playerId.m_SteamID == LocalUserID)
+				if (playerId == LocalUserID)
 					continue;
 
-				CreateNewPlayerCursor(playerId.m_SteamID);
+				if (!PlayerCursors.ContainsKey(playerId))
+				{
+					CreateNewPlayerCursor(playerId);
+				}
 			}
 		}
 
@@ -124,11 +127,11 @@ namespace ONI_MP.Networking
 			DebugConsole.Log("[MultiplayerSession] Removed all player cursors.");
 		}
 
-		public static bool TryGetCursorObject(ulong steamID, out GameObject cursorGO)
+		public static bool TryGetCursorObject(ulong steamID, out PlayerCursor cursorGO)
 		{
 			if (PlayerCursors.TryGetValue(steamID, out var cursor) && cursor != null)
 			{
-				cursorGO = cursor.gameObject;
+				cursorGO = cursor;
 				return true;
 			}
 

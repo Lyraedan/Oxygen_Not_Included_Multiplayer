@@ -49,6 +49,20 @@ namespace ONI_MP_DedicatedServer
             string json = JsonConvert.SerializeObject(this, Formatting.Indented);
             File.WriteAllText(ConfigPath, json);
         }
+
+        public void Reload()
+        {
+            if (!File.Exists(ConfigPath))
+                throw new FileNotFoundException("Configuration file not found.", ConfigPath);
+
+            string json = File.ReadAllText(ConfigPath);
+            var loaded = JsonConvert.DeserializeObject<ServerConfiguration>(json);
+
+            if (loaded == null)
+                throw new InvalidOperationException("Failed to deserialize configuration.");
+
+            this.Config = loaded.Config;
+        }
     }
 
     public class DedicatedConfig

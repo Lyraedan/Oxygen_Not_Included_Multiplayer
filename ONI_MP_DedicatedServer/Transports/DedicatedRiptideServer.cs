@@ -141,6 +141,7 @@ namespace ONI_MP_DedicatedServer.Transports
                 return;
 
             _server.Stop();
+            _server = null;
         }
 
         public override bool IsRunning()
