@@ -34,6 +34,7 @@ namespace ONI_MP.Networking
 
 			SetState(ServerState.Starting);
 
+			MultiplayerSession.IsHost = true;
 			NetworkConfig.TransportServer.Start();
 
 			DebugConsole.Log("[GameServer] Game Server started!");
@@ -49,12 +50,13 @@ namespace ONI_MP.Networking
 		{
 			SetState(ServerState.Stopped);
 
-			NetworkConfig.TransportServer.CloseConnections();
+            NetworkConfig.TransportServer.CloseConnections();
 			NetworkConfig.TransportServer.Stop();
+            MultiplayerSession.IsHost = false;
 
-			//MultiplayerSession.InSession = false;
+            //MultiplayerSession.InSession = false;
 
-			DebugConsole.Log("[GameServer] Shutdown complete.");
+            DebugConsole.Log("[GameServer] Shutdown complete.");
 		}
 
 		public static void Update()

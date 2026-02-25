@@ -26,7 +26,7 @@ namespace ONI_MP.Networking
 		public static bool SessionHasPlayers => InSession && ConnectedPlayers.Count > 1;
 		public static bool NotInSession => !InSession;
 
-		public static bool IsHost => HostUserID == LocalUserID;
+		public static bool IsHost = false; //HostUserID == LocalUserID;
 
 		public static bool IsClient => InSession && !IsHost;
 
