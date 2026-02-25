@@ -233,7 +233,10 @@ namespace ONI_MP
 					public static LocString DOWNLOADING_SAVE_FILE = "Downloading Save File\n\n{0} {1}%\n({2}/{3} chunks)";
 					public static LocString DOWNLOAD_COMPLETE = "Download Complete!\n\n{0} 100%\n({1}/{2} chunks)\n\nLoading world...";
 
-					public class NETWORKINDICATORS
+					public static LocString CONNECTION_FAILED = "Failed to connect to host.";
+
+
+                    public class NETWORKINDICATORS
 					{
 						public static LocString DEGRADED_JITTER = "Network jitter is elevated";
                         public static LocString DEGRADED_LATENCY = "Latency is elevated";

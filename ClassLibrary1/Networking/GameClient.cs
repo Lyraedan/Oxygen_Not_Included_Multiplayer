@@ -92,7 +92,18 @@ namespace ONI_MP.Networking
 
 			if (showLoadingScreen)
 			{
-				MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTING_TO_HOST, SteamFriends.GetFriendPersonaName(MultiplayerSession.HostUserID.AsCSteamID())));
+				string hostName = string.Empty;
+				if (NetworkConfig.IsSteamConfig())
+				{
+					hostName = SteamFriends.GetFriendPersonaName(MultiplayerSession.HostUserID.AsCSteamID());
+                }
+				else
+				{
+					string ip = Configuration.Instance.Client.LanSettings.Ip;
+					string port = Configuration.Instance.Client.LanSettings.Port.ToString();
+					hostName = $"{ip}:{port}";
+                }
+					MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTING_TO_HOST, hostName));
 			}
 
 			SetState(ClientState.Connecting);

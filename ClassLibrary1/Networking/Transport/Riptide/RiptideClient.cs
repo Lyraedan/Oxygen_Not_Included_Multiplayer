@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using ONI_MP.Menus;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
 namespace ONI_MP.Networking.Transport.Lan
 {
@@ -30,7 +31,7 @@ namespace ONI_MP.Networking.Transport.Lan
 
         private ConnectionMetrics Metrics => _client?.Connection?.Metrics;
 
-        public List<ulong> ClientList { get; private set; }
+        public List<ulong> ClientList { get; private set; } = new();
         public static ulong CLIENT_ID { get; private set; }
 
         public override void Prepare()
@@ -40,8 +41,11 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void ConnectToHost()
         {
-            if (!_client.IsNotConnected)
-                return;
+            if (_client != null)
+            {
+                if (!_client.IsNotConnected)
+                    return;
+            }
 
             string ip = Configuration.Instance.Client.LanSettings.Ip;
             int port = Configuration.Instance.Client.LanSettings.Port;
@@ -51,6 +55,8 @@ namespace ONI_MP.Networking.Transport.Lan
             _client.MessageReceived += OnMessageRecievedFromServer;
             _client.ClientConnected += OnOtherClientConnected;
             _client.ClientDisconnected += OnOtherClientDisconnected;
+            DebugConsole.Log($"Connecting to {ip}:{port}");
+            CoroutineRunner.RunOne(WaitForConnectionSuccess());
             _client.Connect($"{ip}:{port}", useMessageHandlers: false);
         }
 
@@ -97,12 +103,14 @@ namespace ONI_MP.Networking.Transport.Lan
             CLIENT_ID = Utils.NilUlong();
 
             OnClientDisconnected.Invoke();
-            MultiplayerSession.HostUserID = Utils.NilUlong();
-            MultiplayerSession.InSession = false;
+            CleanupRiptide();
         }
 
         public override void Disconnect()
         {
+            if (_client == null)
+                return;
+
             if (_client.IsNotConnected)
                 return;
 
@@ -277,6 +285,66 @@ namespace ONI_MP.Networking.Transport.Lan
             }
 
             return NetworkIndicatorsScreen.NetworkState.GOOD;
+        }
+
+        IEnumerator WaitForConnectionSuccess()
+        {
+            const float timeout = 10f;
+            float timer = 0f;
+
+            while (timer < timeout)
+            {
+                if (_client != null && _client.IsConnected)
+                {
+                    DebugConsole.Log("[LanClient] Connection successful");
+                    MultiplayerOverlay.Close();
+                    yield break;
+                }
+
+                // If connection attempt was cancelled externally
+                if (_client == null || _client.IsNotConnected)
+                    yield break;
+
+                timer += Time.deltaTime;
+                yield return null;
+            }
+
+            CleanupRiptide();
+
+            MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTION_FAILED);
+
+            yield return new WaitForSeconds(3f);
+
+            MultiplayerOverlay.Close();
+        }
+
+        void CleanupRiptide()
+        {
+            // Timeout reached — double check we didn't connect at the last frame
+            if (_client != null && !_client.IsConnected)
+            {
+                DebugConsole.LogWarning("[LanClient] Connection timed out");
+
+                try
+                {
+                    _client.Disconnect();
+
+                    _client.Connected -= OnConnectedToServer;
+                    _client.Disconnected -= OnDisconnectedFromServer;
+                    _client.MessageReceived -= OnMessageRecievedFromServer;
+                    _client.ClientConnected -= OnOtherClientConnected;
+                    _client.ClientDisconnected -= OnOtherClientDisconnected;
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"[LanClient] Error during timeout cleanup: {ex}");
+                }
+
+                _client = null;
+            }
+
+            MultiplayerSession.HostUserID = Utils.NilUlong();
+            MultiplayerSession.InSession = false;
         }
     }
 }

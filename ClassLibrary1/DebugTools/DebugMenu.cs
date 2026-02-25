@@ -1,6 +1,7 @@
 ﻿using ONI_MP.Networking;
 using ONI_MP.Networking.States;
 using ONI_MP.Networking.Transport.Steamworks;
+using ONI_MP.Patches.ToolPatches;
 using Steamworks;
 using System;
 using UnityEngine;
@@ -18,8 +19,19 @@ namespace ONI_MP.DebugTools
 
 		private Vector2 scrollPosition = Vector2.zero;
 
+		// LAN
+        private string lanHostIP = "127.0.0.1";
+        private string lanHostPort = "7777";
+        private string[] hostTransportOptions = new string[]
+        {
+            "Steam",
+            "LAN"
+        };
+        private int selectedHostTransport = 0;
 
-		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private string lanJoinAddress = "127.0.0.1:7777";
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
 		public static void Init()
 		{
 			if (_instance != null) return;
@@ -37,10 +49,10 @@ namespace ONI_MP.DebugTools
 
 		private void Update()
 		{
-			//if (Input.GetKeyDown(KeyCode.F2) && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
-			//{
-			//	showMenu = !showMenu;
-			//}
+            if (Input.GetKeyDown(KeyCode.F2) && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
+			{
+				showMenu = !showMenu;
+			}
 		}
 
 		private void OnGUI()
@@ -51,44 +63,145 @@ namespace ONI_MP.DebugTools
 			windowRect = GUI.ModalWindow(888, windowRect, DrawMenuContents, "DEBUG MENU", windowStyle);
 		}
 
-		private void DrawMenuContents(int windowID)
-		{
-			scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.Width(windowRect.width - 20), GUILayout.Height(windowRect.height - 40));
+        private void DrawMenuContents(int windowID)
+        {
+            scrollPosition = GUILayout.BeginScrollView(
+                scrollPosition,
+                false,
+                true,
+                GUILayout.Width(windowRect.width - 20),
+                GUILayout.Height(windowRect.height - 40)
+            );
 
-			if (GUILayout.Button("Toggle Hierarchy Viewer"))
-				hierarchyViewer.Toggle();
+            GUILayout.Label("Hosting", GUI.skin.box);
+            GUILayout.Label("Transport:");
+            selectedHostTransport = GUILayout.Toolbar(selectedHostTransport, hostTransportOptions);
+            DebugConsole.Log($"Selected Host Transport: {hostTransportOptions[selectedHostTransport]} : {selectedHostTransport}");
 
-			if (GUILayout.Button("Send Unready Packet"))
-                ReadyManager.SendReadyStatusPacket(ClientReadyState.Unready);
+            GUILayout.Space(5);
 
-            if (GUILayout.Button("Send Ready Packet"))
-                ReadyManager.SendReadyStatusPacket(ClientReadyState.Ready);
+            GUILayout.Label("Host IP:");
+            lanHostIP = GUILayout.TextField(lanHostIP);
 
-			GUILayout.EndScrollView();
+            GUILayout.Label("Port:");
+            lanHostPort = GUILayout.TextField(lanHostPort);
 
-			GUI.DragWindow();
-		}
+            if (GUILayout.Button("Start Hosting"))
+            {
+                if(selectedHostTransport == 0)
+                {
+                    NetworkConfig.NetworkTransport selected_transport = NetworkConfig.NetworkTransport.STEAMWORKS;
+                    Configuration.Instance.Host.NetworkTransport = (int)selected_transport;
+                    NetworkConfig.UpdateTransport(selected_transport);
+                    Configuration.Instance.Save();
 
-		private void DrawPlayerList()
-		{
-			GUILayout.Label("Players in Lobby:", UnityEngine.GUI.skin.label);
+                    SteamLobby.CreateLobby(onSuccess: () =>
+                    {
+                        SpeedControlScreen.Instance?.Unpause(false);
+                        Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
+                    });
+                    return;
+                }
 
-			var players = SteamLobby.GetAllLobbyMembers();
-			if (players.Count == 0)
-			{
-				GUILayout.Label("<none>", UnityEngine.GUI.skin.label);
-			}
-			else
-			{
-				foreach (ulong playerId in players)
-				{
-					var playerName = SteamFriends.GetFriendPersonaName(playerId.AsCSteamID());
-					string prefix = (MultiplayerSession.HostUserID == playerId) ? "[HOST] " : "";
-					GUILayout.Label($"{prefix}{playerName} ({playerId})", UnityEngine.GUI.skin.label);
-				}
-			}
-		}
+                if (int.TryParse(lanHostPort, out int port))
+                {
+                    DebugConsole.Log($"[LAN] Hosting on {lanHostIP}:{port}");
+
+                    Configuration.Instance.Host.LanSettings.Ip = lanHostIP;
+                    Configuration.Instance.Host.LanSettings.Port = port;
+
+                    NetworkConfig.NetworkTransport selected_transport = NetworkConfig.NetworkTransport.RIPTIDE;
+                    Configuration.Instance.Host.NetworkTransport = (int)selected_transport;
+                    NetworkConfig.UpdateTransport(selected_transport);
+
+                    Configuration.Instance.Save();
+
+                    StartServer();
+                }
+                else
+                {
+                    DebugConsole.LogError("Invalid port!");
+                }
+            }
+            if (GUILayout.Button("Stop Hosting"))
+            {
+                if(selectedHostTransport == 0)
+                {
+                    SteamLobby.LeaveLobby();
+                    return;
+                }
+
+                Stop();
+            }
 
 
+            GUILayout.Space(10);
+
+            GUILayout.Label("LAN Join", GUI.skin.box);
+
+            GUILayout.Label("Server Address:");
+            lanJoinAddress = GUILayout.TextField(lanJoinAddress);
+
+            if (GUILayout.Button("Join Server"))
+            {
+                DebugConsole.Log($"[LAN] Joining {lanJoinAddress}");
+
+                string[] address = lanJoinAddress.Split(':');
+                if(address.Length != 2)
+                {
+                    DebugConsole.LogError("Invalid address format! Use IP:Port");
+                    return;
+                }
+
+                if (int.TryParse(address[1], out int port))
+                {
+                    Configuration.Instance.Client.LanSettings.Ip = address[0];
+                    Configuration.Instance.Client.LanSettings.Port = port;
+                    Configuration.Instance.Save();
+
+                    Join();
+                }
+            }
+
+            GUILayout.EndScrollView();
+
+            GUI.DragWindow();
+        }
+
+        void StartServer()
+        {
+            MultiplayerSession.Clear();
+            try
+            {
+                DebugConsole.Log("Starting GameServer...");
+                Networking.GameServer.Start();
+                DebugConsole.Log("GameServer started successfully.");
+            }
+            catch (Exception ex)
+            {
+                DebugConsole.LogError($"GameServer.Start() failed: {ex}");
+            }
+            SelectToolPatch.UpdateColor();
+            Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
+        }
+
+        void Stop()
+        {
+            if (MultiplayerSession.IsHost)
+                Networking.GameServer.Shutdown();
+
+            if (MultiplayerSession.IsClient)
+                GameClient.Disconnect();
+
+            NetworkIdentityRegistry.Clear();
+            MultiplayerSession.Clear();
+
+            SelectToolPatch.UpdateColor();
+        }
+
+        void Join()
+        {
+            GameClient.ConnectToHost();
+        }
 	}
 }

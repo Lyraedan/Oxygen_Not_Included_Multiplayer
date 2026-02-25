@@ -21,7 +21,7 @@ namespace ONI_MP.Networking.Transport.Lan
             get { return _client; }
         }
 
-        public List<ulong> ClientList { get; internal set; }
+        public List<ulong> ClientList { get; internal set; } = new();
 
         public static ulong CLIENT_ID { get; private set; }
 
