@@ -43,6 +43,7 @@
 		  TargetKind="SameAsPrimaryAssembly"
 		  InputAssemblies="@(InputAssemblies)"
 		  Wildcards="true"
+		  DebugInfo="$([System.String]::Equals('$(Configuration)', 'Debug', System.StringComparison.OrdinalIgnoreCase))"
 		  LibraryPath="$(GameLibsFolder)"
 		  OutputFile="$(TargetPath)"/>
 	</Target>
