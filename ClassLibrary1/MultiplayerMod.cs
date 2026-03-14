@@ -173,6 +173,7 @@ namespace ONI_MP
 			var baseMethod = AccessTools.Method(typeof(DevToolManager), "RegisterDevTool");
 			var twitchDevToolRegister = baseMethod.MakeGenericMethod(typeof(DevToolMultiplayer));
 			twitchDevToolRegister.Invoke(DevToolManager.Instance, new object[] { "Mods/MultiplayerMod" });
+			DevToolManager.Instance.showImGui = true;
 #endif
 		}
 
