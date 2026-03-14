@@ -5,7 +5,7 @@ using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Handshake;
 using ONI_MP.Networking.Packets.World;
-using ONI_MP.Networking.Profiling;
+using ONI_MP.Profiling;
 using ONI_MP.Networking.States;
 using ONI_MP.Patches.ToolPatches;
 using Shared;
@@ -173,7 +173,7 @@ namespace ONI_MP.Networking
 
 		private static void ProcessIncomingMessages(HSteamNetConnection conn)
 		{
-            long t0 = GameClientProfiler.Begin();
+            using var scope = Profiler.Client.Scope();
             int totalBytes = 0;
 
             int maxMessagesPerConnectionPoll = Configuration.GetClientProperty<int>("MaxMessagesPerPoll");
@@ -204,7 +204,7 @@ namespace ONI_MP.Networking
 
 				SteamNetworkingMessage_t.Release(messages[i]);
 			}
-            GameClientProfiler.End(t0, msgCount, totalBytes);
+            scope.End(msgCount, totalBytes);
         }
 
 		private static void OnConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t data)

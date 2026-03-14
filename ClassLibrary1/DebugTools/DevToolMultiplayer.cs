@@ -14,7 +14,7 @@ using static STRINGS.UI;
 using Steamworks;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
-using ONI_MP.Networking.Profiling;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.DebugTools
 {
@@ -94,6 +94,12 @@ namespace ONI_MP.DebugTools
                     ImGui.EndTabItem();
                 }
 
+                if (ImGui.BeginTabItem("Profiler"))
+                {
+                    DrawProfilerTab();
+                    ImGui.EndTabItem();
+                }
+
                 if (ImGui.BeginTabItem("Debug"))
                 {
                     DrawDebugTab();
@@ -113,8 +119,8 @@ namespace ONI_MP.DebugTools
 
             console?.ShowWindow();
             packetTracker?.ShowWindow();
-            GameClientProfiler.DrawImGuiPopout();
-            GameServerProfiler.DrawImGuiPopout();
+
+            Profiler.Active.DrawImGuiPopout();
         }
 
         private void DrawGeneralTab()
@@ -215,10 +221,32 @@ namespace ONI_MP.DebugTools
             }
         }
 
+        private void DrawProfilerTab()
+        {
+            if (!MultiplayerSession.InSession)
+            {
+                ImGui.TextDisabled("Not connected. Profiler data will appear when in a session.");
+                return;
+            }
+
+            // Show which role is active
+            var profiler = Profiler.Active;
+
+            ImGui.TextColored(
+                MultiplayerSession.IsHost ? new Vector4(1f, 0.8f, 0.3f, 1f) : new Vector4(0.3f, 0.8f, 1f, 1f),
+                $"Role: {profiler.Name}");
+
+            ImGui.SameLine();
+            if (ImGui.Button("Reset"))
+                profiler.Reset();
+
+            ImGui.Separator();
+
+            profiler.DrawImGuiInline();
+        }
+
         private void DrawDebugTab()
         {
-            DisplayProfilers();
-            ImGui.Separator();
             DisplayNetIdHolders();
         }
 
@@ -383,24 +411,6 @@ namespace ONI_MP.DebugTools
 				}
 			}
 		}
-	
-        public void DisplayProfilers()
-        {
-            if (ImGui.BeginTable("profilers", 2))
-            {
-                ImGui.TableNextColumn();
-                ImGui.Text("Server");
-                GameServerProfiler.DrawImGuiInTab();
-
-                // Why can I never interact with the toggles or buttons of the second one even if I saw them around
-
-                ImGui.TableNextColumn();
-                ImGui.Text("Client");
-                GameClientProfiler.DrawImGuiInTab();
-
-                ImGui.EndTable();
-            }
-        }
     }
 }
 #endif

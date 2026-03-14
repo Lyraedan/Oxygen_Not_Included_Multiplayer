@@ -1,7 +1,7 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Handshake;
-using ONI_MP.Networking.Profiling;
+using ONI_MP.Profiling;
 using ONI_MP.Networking.States;
 using Shared;
 using Steamworks;
@@ -236,7 +236,7 @@ namespace ONI_MP.Networking
 
 		private static void ReceiveMessages()
 		{
-            long t0 = GameServerProfiler.Begin();
+            using var scope = Profiler.Server.Scope();
             int totalBytes = 0;
 
             int maxMessagesPerPoll = Configuration.GetHostProperty<int>("MaxMessagesPerPoll");
@@ -254,7 +254,7 @@ namespace ONI_MP.Networking
 
 				SteamNetworkingMessage_t.Release(messages[i]);
 			}
-            GameServerProfiler.End(t0, msgCount, totalBytes);
+            scope.End(msgCount, totalBytes);
         }
 	}
 }

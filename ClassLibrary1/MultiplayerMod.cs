@@ -46,7 +46,6 @@ namespace ONI_MP
                 // CHECKPOINT 1
                 System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 1: Pre-DebugMenu\n");
 				DebugMenu.Init();
-				NetworkStatisticsMenu.Init();
 
 				// CHECKPOINT 2
 				System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 2: Pre-SteamLobby\n");

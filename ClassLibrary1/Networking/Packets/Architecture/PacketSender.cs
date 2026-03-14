@@ -3,6 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Core;
+using ONI_MP.Profiling;
 using Shared.Interfaces.Networking;
 using Steamworks;
 using System;
@@ -144,6 +145,7 @@ namespace ONI_MP.Networking
 				return true;
 			}
 
+			using var scope = Profiler.Active.Scope();
 
 			var bytes = SerializePacketForSending(packet);
 			var _sendType = (int)sendType;
@@ -169,12 +171,13 @@ namespace ONI_MP.Networking
 						packet = packet,
 						size = bytes.Length
 					});
-					//DebugConsole.Log($"[Sockets] Sent {packet.Type} to conn {conn} ({Utils.FormatBytes(bytes.Length)})");
+
 				}
 				return sent;
 			}
 			finally
 			{
+				scope.End(packet.GetType().Name, bytes.Length);
 				Marshal.FreeHGlobal(unmanagedPointer);
 			}
 		}
