@@ -52,41 +52,41 @@ namespace ONI_MP.Profiling
             public int    LineNumber;
 
             public long   Calls;
-            public double TotalMs;
-            public double PeakMs;
+            public double TotalCpu;
+            public double PeakCpu;
+            public double AvgCpu;
 
-            public long   TotalBytes;
-            public long   PeakBytes;
-            public double AvgBytes;
-            public bool   HasBytesData;
+            public long   TotalNetwork;
+            public long   PeakNetwork;
+            public double AvgNetwork;
+            public bool   HasNetworkData;
 
             private const double SectionAlpha = 0.08;
-            public        double AvgMs;
 
             public void Record( double ms )
             {
                 Calls++;
-                TotalMs += ms;
-                if( ms > PeakMs )
-                    PeakMs = ms;
+                TotalCpu += ms;
+                if( ms > PeakCpu )
+                    PeakCpu = ms;
 
                 if( Calls == 1 )
-                    AvgMs = ms;
+                    AvgCpu = ms;
                 else
-                    AvgMs += SectionAlpha * ( ms - AvgMs );
+                    AvgCpu += SectionAlpha * ( ms - AvgCpu );
             }
 
             public void RecordBytes( int bytes )
             {
-                HasBytesData =  true;
-                TotalBytes   += bytes;
-                if( bytes > PeakBytes )
-                    PeakBytes = bytes;
+                HasNetworkData =  true;
+                TotalNetwork   += bytes;
+                if( bytes > PeakNetwork )
+                    PeakNetwork = bytes;
 
-                if( TotalBytes == bytes )
-                    AvgBytes = bytes;
+                if( TotalNetwork == bytes )
+                    AvgNetwork = bytes;
                 else
-                    AvgBytes += SectionAlpha * ( bytes - AvgBytes );
+                    AvgNetwork += SectionAlpha * ( bytes - AvgNetwork );
             }
         }
 
@@ -364,7 +364,7 @@ namespace ONI_MP.Profiling
         private double LastMs => LastCpu * 1000.0 / Stopwatch.Frequency;
         private double PeakMs => PeakCpu * 1000.0 / Stopwatch.Frequency;
 
-        private bool HasAnyBytesData() => _hotPaths.Values.Any( entry => entry.HasBytesData );
+        private bool HasAnyBytesData() => _hotPaths.Values.Any( entry => entry.HasNetworkData );
 
         public void DrawImGuiPopout()
         {
@@ -543,9 +543,9 @@ namespace ONI_MP.Profiling
 
                 string displayName = location != null ? $"{displayKey}  [{location}]" : displayKey;
 
-                if( entry.AvgMs > 1.0 )
+                if( entry.AvgCpu > 1.0 )
                     ImGui.TextColored( new UnityEngine.Vector4( 1f, 0.3f, 0.3f, 1f ), displayName );
-                else if( entry.AvgMs > 0.2 )
+                else if( entry.AvgCpu > 0.2 )
                     ImGui.TextColored( new UnityEngine.Vector4( 1f, 1f, 0.3f, 1f ), displayName );
                 else
                     ImGui.Text( displayName );
@@ -555,9 +555,9 @@ namespace ONI_MP.Profiling
                     ImGui.BeginTooltip();
                     ImGui.Text( $"{entry.FilePath}" );
                     ImGui.Text( $"{entry.MemberName}() : line {entry.LineNumber}" );
-                    ImGui.Text( $"Avg: {entry.AvgMs:F4}ms  Peak: {entry.PeakMs:F4}ms  Calls: {entry.Calls:N0}" );
-                    if( entry.HasBytesData )
-                        ImGui.Text( $"Avg Bytes: {Utils.FormatBytes( ( long )entry.AvgBytes )}  Peak: {Utils.FormatBytes( entry.PeakBytes )}  Total: {Utils.FormatBytes( entry.TotalBytes )}" );
+                    ImGui.Text( $"Avg: {entry.AvgCpu:F4}ms  Peak: {entry.PeakCpu:F4}ms  Calls: {entry.Calls:N0}" );
+                    if( entry.HasNetworkData )
+                        ImGui.Text( $"Avg Bytes: {Utils.FormatBytes( ( long )entry.AvgNetwork )}  Peak: {Utils.FormatBytes( entry.PeakNetwork )}  Total: {Utils.FormatBytes( entry.TotalNetwork )}" );
                     ImGui.EndTooltip();
                 }
 
@@ -565,25 +565,25 @@ namespace ONI_MP.Profiling
                 ImGui.Text( $"{entry.Calls:N0}" );
 
                 ImGui.TableSetColumnIndex( 2 );
-                ImGui.Text( $"{entry.AvgMs:F4}" );
+                ImGui.Text( $"{entry.AvgCpu:F4}" );
 
                 ImGui.TableSetColumnIndex( 3 );
-                ImGui.Text( $"{entry.PeakMs:F4}" );
+                ImGui.Text( $"{entry.PeakCpu:F4}" );
 
                 ImGui.TableSetColumnIndex( 4 );
-                ImGui.Text( $"{entry.TotalMs:F2}" );
+                ImGui.Text( $"{entry.TotalCpu:F2}" );
 
                 if( !showBytesCols )
                     continue;
 
                 ImGui.TableSetColumnIndex( 5 );
-                ImGui.Text( entry.HasBytesData ? Utils.FormatBytes( ( long )entry.AvgBytes ) : "-" );
+                ImGui.Text( entry.HasNetworkData ? Utils.FormatBytes( ( long )entry.AvgNetwork ) : "-" );
 
                 ImGui.TableSetColumnIndex( 6 );
-                ImGui.Text( entry.HasBytesData ? Utils.FormatBytes( entry.PeakBytes ) : "-" );
+                ImGui.Text( entry.HasNetworkData ? Utils.FormatBytes( entry.PeakNetwork ) : "-" );
 
                 ImGui.TableSetColumnIndex( 7 );
-                ImGui.Text( entry.HasBytesData ? Utils.FormatBytes( entry.TotalBytes ) : "-" );
+                ImGui.Text( entry.HasNetworkData ? Utils.FormatBytes( entry.TotalNetwork ) : "-" );
             }
 
             ImGui.EndTable();
@@ -603,22 +603,22 @@ namespace ONI_MP.Profiling
                     _hotPathsSorted.Sort( ( a, b ) => _hotPathSortAscending ? a.Calls.CompareTo( b.Calls ) : b.Calls.CompareTo( a.Calls ) );
                     break;
                 case 2:
-                    _hotPathsSorted.Sort( ( a, b ) => _hotPathSortAscending ? a.AvgMs.CompareTo( b.AvgMs ) : b.AvgMs.CompareTo( a.AvgMs ) );
+                    _hotPathsSorted.Sort( ( a, b ) => _hotPathSortAscending ? a.AvgCpu.CompareTo( b.AvgCpu ) : b.AvgCpu.CompareTo( a.AvgCpu ) );
                     break;
                 case 3:
-                    _hotPathsSorted.Sort( ( a, b ) => _hotPathSortAscending ? a.PeakMs.CompareTo( b.PeakMs ) : b.PeakMs.CompareTo( a.PeakMs ) );
+                    _hotPathsSorted.Sort( ( a, b ) => _hotPathSortAscending ? a.PeakCpu.CompareTo( b.PeakCpu ) : b.PeakCpu.CompareTo( a.PeakCpu ) );
                     break;
                 case 4:
-                    _hotPathsSorted.Sort( ( a, b ) => _hotPathSortAscending ? a.TotalMs.CompareTo( b.TotalMs ) : b.TotalMs.CompareTo( a.TotalMs ) );
+                    _hotPathsSorted.Sort( ( a, b ) => _hotPathSortAscending ? a.TotalCpu.CompareTo( b.TotalCpu ) : b.TotalCpu.CompareTo( a.TotalCpu ) );
                     break;
                 case 5:
-                    _hotPathsSorted.Sort( ( a, b ) => _hotPathSortAscending ? a.AvgBytes.CompareTo( b.AvgBytes ) : b.AvgBytes.CompareTo( a.AvgBytes ) );
+                    _hotPathsSorted.Sort( ( a, b ) => _hotPathSortAscending ? a.AvgNetwork.CompareTo( b.AvgNetwork ) : b.AvgNetwork.CompareTo( a.AvgNetwork ) );
                     break;
                 case 6:
-                    _hotPathsSorted.Sort( ( a, b ) => _hotPathSortAscending ? a.PeakBytes.CompareTo( b.PeakBytes ) : b.PeakBytes.CompareTo( a.PeakBytes ) );
+                    _hotPathsSorted.Sort( ( a, b ) => _hotPathSortAscending ? a.PeakNetwork.CompareTo( b.PeakNetwork ) : b.PeakNetwork.CompareTo( a.PeakNetwork ) );
                     break;
                 case 7:
-                    _hotPathsSorted.Sort( ( a, b ) => _hotPathSortAscending ? a.TotalBytes.CompareTo( b.TotalBytes ) : b.TotalBytes.CompareTo( a.TotalBytes ) );
+                    _hotPathsSorted.Sort( ( a, b ) => _hotPathSortAscending ? a.TotalNetwork.CompareTo( b.TotalNetwork ) : b.TotalNetwork.CompareTo( a.TotalNetwork ) );
                     break;
             }
         }
