@@ -1,6 +1,7 @@
 ﻿using ONI_MP.Menus;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.Core
 {
@@ -18,6 +19,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.IsHost)
 				return;
 
@@ -33,6 +36,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public static void Sync()
 		{
+			Profiler.Active.Scope();
+
 			GameClient.IsHardSyncInProgress = true;
 			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.SYNC.HARDSYNC_INPROGRESS);
 

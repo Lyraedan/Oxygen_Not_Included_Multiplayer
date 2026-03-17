@@ -6,6 +6,7 @@ using Steamworks;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Core
@@ -22,6 +23,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(SteamID.m_SteamID);
 			writer.Write(Position.x);
 			writer.Write(Position.y);
@@ -39,6 +42,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			SteamID = new CSteamID(reader.ReadUInt64());
 			float x = reader.ReadSingle();
 			float y = reader.ReadSingle();
@@ -58,6 +63,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.TryGetCursorObject(SteamID, out var cursorGO))
 			{
 				var cursorComponent = cursorGO.GetComponent<PlayerCursor>();
@@ -99,6 +106,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		private IEnumerator InterpolateCursorPosition(Transform target, Vector3 targetPos)
 		{
+			Profiler.Active.Scope();
+
 			Vector3 start = target.position;
 			float duration = CursorManager.SendInterval;
 			float elapsed = 0f;

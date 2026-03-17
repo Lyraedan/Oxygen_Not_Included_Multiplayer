@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
+using ONI_MP.Profiling;
 using Steamworks;
 using TMPro;
 using UnityEngine;
@@ -18,6 +19,8 @@ namespace ONI_MP.Patches.Events
         {
             public static void Postfix(TextLinkHandler __instance, UnityEngine.EventSystems.PointerEventData eventData)
             {
+                Profiler.Active.Scope();
+
                 if (eventData.button != PointerEventData.InputButton.Left || !__instance.text.AllowLinks)
                     return;
                 int intersectingLink = TMP_TextUtilities.FindIntersectingLink((TMP_Text)__instance.text, KInputManager.GetMousePos(), (Camera)null);

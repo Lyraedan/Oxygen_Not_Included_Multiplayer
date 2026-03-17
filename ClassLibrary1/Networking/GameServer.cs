@@ -21,6 +21,8 @@ namespace ONI_MP.Networking
 
 		private static void SetState(ServerState newState)
 		{
+			Profiler.Active.Scope();
+
 			if (_state != newState)
 			{
 				_state = newState;
@@ -31,6 +33,8 @@ namespace ONI_MP.Networking
 
 		public static void Start()
 		{
+			Profiler.Active.Scope();
+
 			SetState(ServerState.Preparing);
 
 			if (!SteamManager.Initialized)
@@ -80,6 +84,8 @@ namespace ONI_MP.Networking
 
 		public static void Shutdown()
 		{
+			Profiler.Active.Scope();
+
 			SetState(ServerState.Stopped);
 
 			// Close all client connections and clean up
@@ -105,6 +111,8 @@ namespace ONI_MP.Networking
 
 		public static void Update()
 		{
+			Profiler.Active.Scope();
+
 			switch (State)
 			{
 				case ServerState.Started:
@@ -128,6 +136,8 @@ namespace ONI_MP.Networking
 
 		private static void OnConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t data)
 		{
+			Profiler.Active.Scope();
+
 			var conn = data.m_hConn;
 			var clientId = data.m_info.m_identityRemote.GetSteamID();
 			var state = data.m_info.m_eState;
@@ -153,6 +163,8 @@ namespace ONI_MP.Networking
 
 		private static void TryAcceptConnection(HSteamNetConnection conn, CSteamID clientId)
 		{
+			Profiler.Active.Scope();
+
 			// Get connection info to check actual state
 			SteamNetConnectionInfo_t info = default;
 			if (!SteamNetworkingSockets.GetConnectionInfo(conn, out info))
@@ -193,12 +205,16 @@ namespace ONI_MP.Networking
 
 		private static void RejectConnection(HSteamNetConnection conn, CSteamID clientId, string reason)
 		{
+			Profiler.Active.Scope();
+
 			DebugConsole.LogError($"[GameServer] Rejecting connection from {clientId}: {reason}", false);
 			SteamNetworkingSockets.CloseConnection(conn, 0, reason, false);
 		}
 
 		private static void OnClientConnected(HSteamNetConnection conn, CSteamID clientId)
 		{
+			Profiler.Active.Scope();
+
 			MultiplayerPlayer player;
 			if (!MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out player))
 			{
@@ -216,6 +232,8 @@ namespace ONI_MP.Networking
 
 		private static void OnClientClosed(HSteamNetConnection conn, CSteamID clientId)
 		{
+			Profiler.Active.Scope();
+
 			SteamNetworkingSockets.CloseConnection(conn, 0, null, false);
 
 			if (MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out var playerToRemove))
@@ -236,6 +254,8 @@ namespace ONI_MP.Networking
 
 		private static void ReceiveMessages()
 		{
+			Profiler.Active.Scope();
+
             using var scope = Profiler.Server.Scope();
             int totalBytes = 0;
 

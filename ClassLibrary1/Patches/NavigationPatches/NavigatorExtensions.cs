@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches.Navigation
 {
@@ -18,12 +19,16 @@ namespace ONI_MP.Patches.Navigation
 
 		public static bool GetCanAdvance(this Navigator navigator)
 		{
+			Profiler.Active.Scope();
+
 			bool value;
 			return canAdvanceMap.TryGetValue(navigator, out value) && value;
 		}
 
 		public static void SetCanAdvance(this Navigator navigator, bool value)
 		{
+			Profiler.Active.Scope();
+
 			if (value)
 				canAdvanceMap[navigator] = true;
 			else
@@ -36,6 +41,8 @@ namespace ONI_MP.Patches.Navigation
 		/// </summary>
 		public static bool ClientGoTo(this Navigator navigator, KMonoBehaviour target, CellOffset[] offsets, NavTactic tactic = null)
 		{
+			Profiler.Active.Scope();
+
 			if (navigator == null || target == null || navigator.smi == null || navigator.smi.sm == null)
 				return false;
 

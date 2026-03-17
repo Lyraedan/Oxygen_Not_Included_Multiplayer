@@ -2,6 +2,7 @@
 using ONI_MP.Networking.Packets.Architecture;
 using Steamworks;
 using System.IO;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.Tools.Move
 {
@@ -12,18 +13,24 @@ namespace ONI_MP.Networking.Packets.Tools.Move
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(Cell);
 			writer.Write(TargetNetId);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			Cell = reader.ReadInt32();
 			TargetNetId = reader.ReadInt32();
 		}
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.IsHost)
 				return;
 

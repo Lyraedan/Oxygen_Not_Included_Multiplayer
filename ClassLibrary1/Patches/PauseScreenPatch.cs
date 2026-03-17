@@ -6,6 +6,7 @@ using Steamworks;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
+using ONI_MP.Profiling;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -20,6 +21,8 @@ namespace ONI_MP.Patches
 		[UsedImplicitly]
 		public static void OnQuitConfirm_Prefix(bool saveFirst)
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.InSession)
 			{
 				SteamLobby.LeaveLobby();
@@ -47,6 +50,8 @@ namespace ONI_MP.Patches
 		{
 			public static void Postfix(PauseScreen __instance)
 			{
+				Profiler.Active.Scope();
+
 				var buttonInfos = __instance.buttons;
 
                 // Only in multiplayer
@@ -136,6 +141,8 @@ namespace ONI_MP.Patches
 		{
             static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> insts)
 			{
+				Profiler.Active.Scope();
+
                 var pauseTarget = AccessTools.Method(
 					typeof(SpeedControlScreen),
 					nameof(SpeedControlScreen.Pause),
@@ -173,6 +180,8 @@ namespace ONI_MP.Patches
 
 			static void ConditionalPause(SpeedControlScreen inst, bool playSound, bool isCrash)
 			{
+				Profiler.Active.Scope();
+
 				// Only pause if we arent in a multiplayer session
 				if (MultiplayerSession.InSession) return;
 				
@@ -181,6 +190,8 @@ namespace ONI_MP.Patches
 
             static void ConditionalUnpause(SpeedControlScreen inst, bool playSound)
             {
+	            Profiler.Active.Scope();
+
 				// Only unpause if we arent in a multiplayer session
 				if (MultiplayerSession.InSession) return;
 
@@ -190,6 +201,8 @@ namespace ONI_MP.Patches
 
 		private static void AddButton(PauseScreen __instance, string label, System.Action onClicked, string placeAfter = "Resume")
 		{
+			Profiler.Active.Scope();
+
 			var buttonInfos = __instance.buttons.ToList();
             if (buttonInfos.Any(b => b.text == label))
                 return; // Ignore duplicates

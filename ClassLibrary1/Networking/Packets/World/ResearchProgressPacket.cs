@@ -2,6 +2,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.World
@@ -18,18 +19,24 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(TechId ?? string.Empty);
 			writer.Write(Progress);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			TechId = reader.ReadString();
 			Progress = reader.ReadSingle();
 		}
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.IsHost) return;
 			if (Research.Instance == null) return;
 			if (string.IsNullOrEmpty(TechId)) return;

@@ -3,6 +3,7 @@ using ONI_MP.Networking.Packets.World;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Components
@@ -21,11 +22,15 @@ namespace ONI_MP.Networking.Components
 
 		private void Awake()
 		{
+			Profiler.Active.Scope();
+
 			Instance = this;
 		}
 
 		private void Update()
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
 				return;
 
@@ -53,6 +58,8 @@ namespace ONI_MP.Networking.Components
 
 		private void SendSyncPacket()
 		{
+			Profiler.Active.Scope();
+
 			var buildings = global::Components.BuildingCompletes.Items;
 			var stateList = new List<BuildingState>(buildings.Count);
 
@@ -85,6 +92,8 @@ namespace ONI_MP.Networking.Components
 
 		public void OnPacketReceived(BuildingStatePacket packet)
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.IsHost) return;
 			if (Grid.WidthInCells == 0) return; // World not loaded yet
 
@@ -94,6 +103,8 @@ namespace ONI_MP.Networking.Components
 
 		private IEnumerator Reconcile(List<BuildingState> remoteBuildings)
 		{
+			Profiler.Active.Scope();
+
 			// Create a lookup for remote buildings: Cell -> List of PrefabNames
 			var remoteSet = new HashSet<(int, string)>();
 			foreach (var b in remoteBuildings)
@@ -154,6 +165,8 @@ namespace ONI_MP.Networking.Components
 
 		private void SpawnBuilding(int cell, string prefabName)
 		{
+			Profiler.Active.Scope();
+
 			if (Grid.WidthInCells == 0) return;
 			if (string.IsNullOrEmpty(prefabName)) return;
 

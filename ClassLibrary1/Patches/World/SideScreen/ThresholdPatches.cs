@@ -1,6 +1,7 @@
 using HarmonyLib;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World.SideScreen
@@ -17,6 +18,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(ThresholdSwitchSideScreen __instance, float newValue)
 		{
+			Profiler.Active.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (__instance.target == null) return;
 
@@ -32,6 +35,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(ThresholdSwitchSideScreen __instance, bool activate_above_threshold)
 		{
+			Profiler.Active.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (__instance.target == null) return;
 
@@ -47,6 +52,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(ThresholdSwitchSideScreen __instance, GameObject new_target)
 		{
+			Profiler.Active.Scope();
+
 			if (new_target == null) return;
 			var identity = new_target.AddOrGet<NetworkIdentity>();
 			identity.RegisterIdentity();

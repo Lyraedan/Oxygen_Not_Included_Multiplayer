@@ -3,6 +3,7 @@ using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Patches;
 using System;
 using System.IO;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -23,21 +24,29 @@ namespace ONI_MP.Networking.Packets.World
 
 		public SpeedChangePacket(SpeedState speed)
 		{
+			Profiler.Active.Scope();
+
 			Speed = speed;
 		}
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write((int)Speed);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			Speed = (SpeedState)reader.ReadInt32();
 		}
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (SpeedControlScreen.Instance == null)
 				return;
 

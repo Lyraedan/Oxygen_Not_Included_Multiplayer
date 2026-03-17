@@ -2,6 +2,7 @@
 using ONI_MP.Networking.Components;
 using System;
 using System.Collections.Generic;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking
@@ -13,6 +14,8 @@ namespace ONI_MP.Networking
 
 		public static int Register(NetworkIdentity entity)
 		{
+			Profiler.Active.Scope();
+
 			int id, attempt = 0;
 			do
 			{
@@ -25,12 +28,16 @@ namespace ONI_MP.Networking
 
 		public static void Unregister(int netId)
 		{
+			Profiler.Active.Scope();
+
 			identities.Remove(netId);
 		}
 
 
 		public static void RegisterExisting(NetworkIdentity entity, int netId)
 		{
+			Profiler.Active.Scope();
+
 			if (!identities.ContainsKey(netId))
 			{
 				identities[netId] = entity;
@@ -44,6 +51,8 @@ namespace ONI_MP.Networking
 
 		public static void RegisterOverride(NetworkIdentity entity, int netId)
 		{
+			Profiler.Active.Scope();
+
 			if (identities.ContainsKey(netId))
 			{
 				DebugConsole.LogWarning($"[NetEntityRegistry] Overwriting existing entity for NetId {netId}");
@@ -61,6 +70,8 @@ namespace ONI_MP.Networking
 
 		public static bool TryGet(int netId, out NetworkIdentity entity)
 		{
+			Profiler.Active.Scope();
+
 			bool found = identities.TryGetValue(netId, out entity);
 			if (!found)
 			{
@@ -71,6 +82,8 @@ namespace ONI_MP.Networking
 
 		public static bool TryGetComponent<T>(int netId, out T component)
 		{
+			Profiler.Active.Scope();
+
 			component = default(T);
 			if (!TryGet(netId, out var ni))
 				return false;
@@ -80,6 +93,8 @@ namespace ONI_MP.Networking
 		}
 		public static bool TryGetComponent<T>(NetworkIdentity ni, out T component)
 		{
+			Profiler.Active.Scope();
+
 			component = default(T);
 			if (ni.IsNullOrDestroyed() || ni.gameObject.IsNullOrDestroyed())
 				return false;
@@ -88,6 +103,8 @@ namespace ONI_MP.Networking
 
 		public static void Clear()
 		{
+			Profiler.Active.Scope();
+
 			identities.Clear();
 		}
 

@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.DuplicantActions
 {
@@ -27,12 +28,16 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 		public ToggleEffectPacket() { }
 		public ToggleEffectPacket(Effects instance, HashedString toRemove) 
 		{
+			Profiler.Active.Scope();
+
 			MinionNetId = instance.gameObject.AddOrGet<NetworkIdentity>().NetId;
 			IsAdding = false;
 			EffectId = toRemove.ToString();
 		}
 		public ToggleEffectPacket(Effects instance, Effect toAdd, bool shouldSave)
 		{
+			Profiler.Active.Scope();
+
 			MinionNetId = instance.gameObject.AddOrGet<NetworkIdentity>().NetId;
 			IsAdding = true;
 			EffectId = toAdd.Id;
@@ -41,6 +46,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			MinionNetId = reader.ReadInt32();
 			EffectId = reader.ReadString();
 			IsAdding = reader.ReadBoolean();
@@ -48,6 +55,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 		}
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(MinionNetId);
 			writer.Write(EffectId ?? string.Empty);
 			writer.Write(IsAdding);
@@ -56,6 +65,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.IsHost)
 				return;
 

@@ -3,6 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World.SideScreen
@@ -17,6 +18,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(ComplexFabricator __instance, ComplexRecipe recipe)
 		{
+			Profiler.Active.Scope();
+
 			ComplexFabricatorSyncHelper.SyncRecipe(__instance, recipe, "IncrementRecipeQueueCount");
 		}
 	}
@@ -26,6 +29,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(ComplexFabricator __instance, ComplexRecipe recipe)
 		{
+			Profiler.Active.Scope();
+
 			ComplexFabricatorSyncHelper.SyncRecipe(__instance, recipe, "DecrementRecipeQueueCount");
 		}
 	}
@@ -37,6 +42,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(ComplexFabricator __instance, ComplexRecipe recipe, int count)
 		{
+			Profiler.Active.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 
@@ -70,6 +77,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void SyncRecipe(ComplexFabricator fabricator, ComplexRecipe recipe, string methodName)
 		{
+			Profiler.Active.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 

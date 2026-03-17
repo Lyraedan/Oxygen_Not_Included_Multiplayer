@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ONI_MP.Profiling;
 using static ColonyDiagnostic;
 
 namespace ONI_MP.Networking.Packets.World
@@ -14,6 +15,8 @@ namespace ONI_MP.Networking.Packets.World
 		static Dictionary<string, DiagnosticResult> CachedResults = [];
 		internal static void OnPacketReceived(DiagnosticPacket diagnosticPacket)
 		{
+			Profiler.Active.Scope();
+
 			CachedResults[diagnosticPacket.DiagnosticType] = diagnosticPacket.ToResult();
 		}
 
@@ -22,6 +25,8 @@ namespace ONI_MP.Networking.Packets.World
 		{
 			public static bool Prefix(ColonyDiagnostic __instance, ref DiagnosticResult __result)
 			{
+				Profiler.Active.Scope();
+
 				if (!MultiplayerSession.IsClient)
 					return true;
 				var typeName = __instance.GetType().Name;
@@ -33,6 +38,8 @@ namespace ONI_MP.Networking.Packets.World
 			}
 			public static void Postfix(ColonyDiagnostic __instance, DiagnosticResult __result)
 			{
+				Profiler.Active.Scope();
+
 				if (MultiplayerSession.IsHostInSession)
 				{
 					var typeName = __instance.GetType().Name;

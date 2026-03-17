@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -17,16 +18,22 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(Requester.m_SteamID);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			Requester = new CSteamID(reader.ReadUInt64());
 		}
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.IsHost)
 				return;
 
@@ -37,6 +44,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public static void SendSaveFile(CSteamID requester)
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.IsHost)
 				return;
 
@@ -57,6 +66,8 @@ namespace ONI_MP.Networking.Packets.World
 
         public static void SendSaveFileToAll()
         {
+	        Profiler.Active.Scope();
+
             if (!MultiplayerSession.IsHost)
                 return;
 
@@ -71,6 +82,8 @@ namespace ONI_MP.Networking.Packets.World
 
         private static IEnumerator StreamChunks(byte[] data, string fileName, CSteamID steamID)
 		{
+			Profiler.Active.Scope();
+
 			int chunkSize = SaveHelper.SAVEFILE_CHUNKSIZE_KB * 1024;
 			int totalChunks = (int)Math.Ceiling((double)data.Length / chunkSize);
 

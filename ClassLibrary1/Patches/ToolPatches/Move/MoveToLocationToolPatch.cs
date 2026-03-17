@@ -3,6 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Tools.Move;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches.ToolPatches.Move
 {
@@ -11,6 +12,8 @@ namespace ONI_MP.Patches.ToolPatches.Move
 	{
 		public static bool Prefix(MoveToLocationTool __instance, int target_cell)
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.InSession || MultiplayerSession.IsHost) return true; // Run like normal
 
 			var nav = __instance.targetNavigator;

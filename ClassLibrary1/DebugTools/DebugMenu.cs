@@ -2,6 +2,7 @@
 using ONI_MP.Networking.States;
 using Steamworks;
 using System;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.DebugTools
@@ -21,6 +22,8 @@ namespace ONI_MP.DebugTools
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
 		public static void Init()
 		{
+			Profiler.Active.Scope();
+
 			if (_instance != null) return;
 
 			GameObject go = new GameObject("ONI_MP_DebugMenu");
@@ -30,6 +33,8 @@ namespace ONI_MP.DebugTools
 
 		private void Awake()
 		{
+			Profiler.Active.Scope();
+
 			hierarchyViewer = gameObject.AddComponent<HierarchyViewer>();
 			//debugConsole = gameObject.AddComponent<DebugConsole>();
 		}
@@ -44,6 +49,8 @@ namespace ONI_MP.DebugTools
 
 		private void OnGUI()
 		{
+			Profiler.Active.Scope();
+
 			if (!showMenu) return;
 
 			GUIStyle windowStyle = new GUIStyle(GUI.skin.window) { padding = new RectOffset(10, 10, 20, 20) };
@@ -52,6 +59,8 @@ namespace ONI_MP.DebugTools
 
 		private void DrawMenuContents(int windowID)
 		{
+			Profiler.Active.Scope();
+
 			scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.Width(windowRect.width - 20), GUILayout.Height(windowRect.height - 40));
 
 			if (GUILayout.Button("Toggle Hierarchy Viewer"))
@@ -70,6 +79,8 @@ namespace ONI_MP.DebugTools
 
 		private void DrawPlayerList()
 		{
+			Profiler.Active.Scope();
+
 			GUILayout.Label("Players in Lobby:", UnityEngine.GUI.skin.label);
 
 			var players = SteamLobby.GetAllLobbyMembers();

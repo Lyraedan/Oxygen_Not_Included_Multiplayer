@@ -3,6 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World.SideScreen
@@ -16,6 +17,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(EggIncubator __instance)
 		{
+			Profiler.Active.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 
@@ -41,6 +44,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(IncubatorSideScreen __instance, GameObject target)
 		{
+			Profiler.Active.Scope();
+
 			if (target == null) return;
 
 			var incubator = target.GetComponent<EggIncubator>();

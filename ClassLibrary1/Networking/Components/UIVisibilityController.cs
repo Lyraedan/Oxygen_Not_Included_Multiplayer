@@ -1,6 +1,7 @@
 ﻿using ONI_MP.Menus;
 using ONI_MP.Networking;
 using System.Reflection;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Components
@@ -20,12 +21,16 @@ namespace ONI_MP.Components
 
 		private void Update()
 		{
+			Profiler.Active.Scope();
+
 			//UpdatePauseButton();
 			NetworkIndicatorsScreen.Update();
 		}
 
 		void UpdatePauseButton()
 		{
+			Profiler.Active.Scope();
+
 			if (SpeedControlScreen.Instance == null)
 				return;
 

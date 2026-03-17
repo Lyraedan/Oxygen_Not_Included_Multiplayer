@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -22,23 +23,31 @@ namespace ONI_MP.Networking.Packets.World
 		public MinionIdentitySetNamePacket() { }
 		public MinionIdentitySetNamePacket(int netId, string newName)
 		{
+			Profiler.Active.Scope();
+
 			NetId = netId;
 			NewName = newName;
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			NetId = reader.ReadInt32();
 			NewName = reader.ReadString();
 		}
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(NetId);
 			writer.Write(NewName);
 		}
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (!NetworkIdentityRegistry.TryGetComponent<MinionIdentity>(NetId, out var identity))
 			{
 				DebugConsole.LogWarning("Could not find MinionIdentity with net id " + NetId);

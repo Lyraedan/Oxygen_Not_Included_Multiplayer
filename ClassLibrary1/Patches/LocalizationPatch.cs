@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches
 {
@@ -18,6 +19,8 @@ namespace ONI_MP.Patches
         {
 			public static void Postfix()
             {
+	            Profiler.Active.Scope();
+
 				Translate(typeof(STRINGS), true);
             }
 
@@ -25,6 +28,8 @@ namespace ONI_MP.Patches
 
 			public static void Translate(Type root, bool generateTemplate = false)
 			{
+				Profiler.Active.Scope();
+
 				Localization.RegisterForTranslation(root);
 				OverLoadStrings();
 				LocString.CreateLocStringKeys(root, null);
@@ -40,6 +45,8 @@ namespace ONI_MP.Patches
 			// Loads user created translations
 			private static void OverLoadStrings()
 			{
+				Profiler.Active.Scope();
+
 				string code = Localization.GetLocale()?.Code;
 
 				if (code.IsNullOrWhiteSpace()) return;

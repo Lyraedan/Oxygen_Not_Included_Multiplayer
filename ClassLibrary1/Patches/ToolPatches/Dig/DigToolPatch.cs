@@ -2,6 +2,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Tools.Dig;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches.ToolPatches.Dig
 {
@@ -10,6 +11,8 @@ namespace ONI_MP.Patches.ToolPatches.Dig
     {
         public static void Postfix(int cell, int animationDelay)
         {
+            Profiler.Active.Scope();
+
             if (!MultiplayerSession.InSession)
             {
                 DebugConsole.LogWarning("[PlaceDig Patch] Skipped: MultiplayerSession.InSession is false");

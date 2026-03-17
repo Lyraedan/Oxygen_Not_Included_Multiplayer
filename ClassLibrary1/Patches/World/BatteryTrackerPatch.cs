@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using ONI_MP.Networking;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -8,6 +9,8 @@ namespace ONI_MP.Patches.World
 	{
 		public static bool Prefix(BatteryTracker __instance)
 		{
+			Profiler.Active.Scope();
+
 			// Singleplayer
 			if (!MultiplayerSession.InSession)
 			{

@@ -2,6 +2,7 @@ using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.World;
 using System.Collections.Generic;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -10,6 +11,8 @@ namespace ONI_MP.Patches.World
 	{
 		public static void Postfix(Research __instance, Tech tech, bool clearQueue)
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.IsHost) return;
 			
 			// Don't send packets if we're applying state from a received packet (prevents loop)

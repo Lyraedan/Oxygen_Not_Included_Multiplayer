@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Tools.Harvest;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches.ToolPatches.Harvest;
 
@@ -9,6 +10,8 @@ public class HarvestToolPatch
 {
     private static void Postfix(int cell, int distFromOrigin)
     {
+        Profiler.Active.Scope();
+
         if (!MultiplayerSession.InSession)
             return;
 

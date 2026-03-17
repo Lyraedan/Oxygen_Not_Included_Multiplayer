@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.States;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches
 {
@@ -11,6 +12,8 @@ namespace ONI_MP.Patches
 		[HarmonyPatch(typeof(PlayerController), "ActivateTool")]
 		public static void ActivateTool_Postfix(InterfaceTool tool)
 		{
+			Profiler.Active.Scope();
+
 			if (tool == null)
 			{
 				CursorManager.Instance.cursorState = CursorState.NONE;
@@ -91,6 +94,8 @@ namespace ONI_MP.Patches
 		[HarmonyPatch(typeof(PlayerController), "DeactivateTool")]
 		public static void DeactivateTool_Postfix()
 		{
+			Profiler.Active.Scope();
+
 			CursorManager.Instance.cursorState = CursorState.NONE;
 		}
 	}

@@ -42,6 +42,8 @@ namespace ONI_MP.Networking
 
 			public CachedConnectionInfo(CSteamID id)
 			{
+				Profiler.Active.Scope();
+
 				HostSteamID = id;
 			}
 		}
@@ -52,6 +54,8 @@ namespace ONI_MP.Networking
 		/// </summary>
 		public static bool HasCachedConnection()
 		{
+			Profiler.Active.Scope();
+
 			return _cachedConnectionInfo.HasValue;
 		}
 
@@ -60,11 +64,15 @@ namespace ONI_MP.Networking
 		/// </summary>
 		public static void ClearCachedConnection()
 		{
+			Profiler.Active.Scope();
+
 			_cachedConnectionInfo = null;
 		}
 
 		public static void SetState(ClientState newState)
 		{
+			Profiler.Active.Scope();
+
 			if (_state != newState)
 			{
 				_state = newState;
@@ -74,6 +82,8 @@ namespace ONI_MP.Networking
 
 		public static void Init()
 		{
+			Profiler.Active.Scope();
+
 			if (_connectionStatusChangedCallback == null)
 			{
 				_connectionStatusChangedCallback = Callback<SteamNetConnectionStatusChangedCallback_t>.Create(OnConnectionStatusChanged);
@@ -83,6 +93,8 @@ namespace ONI_MP.Networking
 
 		public static void ConnectToHost(CSteamID hostSteamId, bool showLoadingScreen = true)
 		{
+			Profiler.Active.Scope();
+
 			// Reset mod verification for new connection attempts
 			_modVerificationSent = false;
 
@@ -103,6 +115,8 @@ namespace ONI_MP.Networking
 
 		public static void Disconnect()
 		{
+			Profiler.Active.Scope();
+
 			if (Connection.HasValue)
 			{
 				DebugConsole.Log("[GameClient] Disconnecting from host...");
@@ -128,6 +142,8 @@ namespace ONI_MP.Networking
 
 		public static void ReconnectToSession()
 		{
+			Profiler.Active.Scope();
+
 			if (Connection.HasValue || State == ClientState.Connected || State == ClientState.Connecting)
 			{
 				DebugConsole.Log("[GameClient] Reconnecting: First disconnecting existing connection.");
@@ -148,6 +164,8 @@ namespace ONI_MP.Networking
 
 		public static void Poll()
 		{
+			Profiler.Active.Scope();
+
 			if (_pollingPaused)
 				return;
 
@@ -173,6 +191,8 @@ namespace ONI_MP.Networking
 
 		private static void ProcessIncomingMessages(HSteamNetConnection conn)
 		{
+			Profiler.Active.Scope();
+
             using var scope = Profiler.Client.Scope();
             int totalBytes = 0;
 
@@ -209,6 +229,8 @@ namespace ONI_MP.Networking
 
 		private static void OnConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t data)
 		{
+			Profiler.Active.Scope();
+
 			var state = data.m_info.m_eState;
 			var remote = data.m_info.m_identityRemote.GetSteamID();
 
@@ -233,6 +255,8 @@ namespace ONI_MP.Networking
 
 		public static void OnHostResponseReceived(GameStateRequestPacket packet)
 		{
+			Profiler.Active.Scope();
+
 			DebugConsole.Log("Gamestate packet received");
 			MP_Timer.Instance.Abort();
 			if (!SaveHelper.SavegameDlcListValid(packet.ActiveDlcIds, out var errorMsg))
@@ -268,6 +292,8 @@ namespace ONI_MP.Networking
 		}
 		static void BackToMainMenu()
 		{
+			Profiler.Active.Scope();
+
 			MultiplayerOverlay.Close();
 			NetworkIdentityRegistry.Clear();
 			SteamLobby.LeaveLobby();
@@ -276,6 +302,8 @@ namespace ONI_MP.Networking
 
 		private static void OnConnected()
 		{
+			Profiler.Active.Scope();
+
 			//MultiplayerOverlay.Close();
 
 			// We've reconnected in game
@@ -316,6 +344,8 @@ namespace ONI_MP.Networking
 
         private static void ContinueConnectionFlow()
 		{
+			Profiler.Active.Scope();
+
 			// CRITICAL: Only execute on client, never on server
 			if (MultiplayerSession.IsHost)
 			{
@@ -391,6 +421,8 @@ namespace ONI_MP.Networking
 
 		private static void OnDisconnected(string reason, CSteamID remote, ESteamNetworkingConnectionState state)
 		{
+			Profiler.Active.Scope();
+
 			DebugConsole.LogWarning($"[GameClient] Connection closed or failed ({state}) for {remote}. Reason: {reason}");
 
 			// If we're intentionally disconnecting for world loading, don't show error or return to title
@@ -419,6 +451,8 @@ namespace ONI_MP.Networking
 
 		private static IEnumerator ShowMessageAndReturnToTitle()
 		{
+			Profiler.Active.Scope();
+
 			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.CLIENT.LOST_CONNECTION);
 			//SaveHelper.CaptureWorldSnapshot();
 			yield return new WaitForSeconds(3f);
@@ -437,6 +471,8 @@ namespace ONI_MP.Networking
 		#region Connection Health
 		public static SteamNetConnectionRealTimeStatus_t? QueryConnectionHealth()
 		{
+			Profiler.Active.Scope();
+
 			if (Connection.HasValue)
 			{
 				SteamNetConnectionRealTimeStatus_t status = default;
@@ -459,16 +495,22 @@ namespace ONI_MP.Networking
 
 		public static void EvaluateConnectionHealth()
 		{
+			Profiler.Active.Scope();
+
 			connectionHealth = QueryConnectionHealth();
 		}
 
 		public static SteamNetConnectionRealTimeStatus_t? GetConnectionHealth()
 		{
+			Profiler.Active.Scope();
+
 			return connectionHealth;
 		}
 
 		public static float GetLocalPacketQuality()
 		{
+			Profiler.Active.Scope();
+
 			if (!connectionHealth.HasValue)
 				return 0f;
 
@@ -477,6 +519,8 @@ namespace ONI_MP.Networking
 
 		public static float GetRemotePacketQuality()
 		{
+			Profiler.Active.Scope();
+
 			if (!connectionHealth.HasValue)
 				return 0f;
 
@@ -485,6 +529,8 @@ namespace ONI_MP.Networking
 
 		public static int GetPingToHost()
 		{
+			Profiler.Active.Scope();
+
 			if (!connectionHealth.HasValue)
 				return -1;
 
@@ -493,6 +539,8 @@ namespace ONI_MP.Networking
 
 		public static int GetUnackedReliable()
 		{
+			Profiler.Active.Scope();
+
 			if (!connectionHealth.HasValue)
 				return -1;
 
@@ -501,6 +549,8 @@ namespace ONI_MP.Networking
 
 		public static int GetPendingUnreliable()
 		{
+			Profiler.Active.Scope();
+
 			if (!connectionHealth.HasValue)
 				return -1;
 
@@ -509,6 +559,8 @@ namespace ONI_MP.Networking
 
 		public static long GetUsecQueueTime()
 		{
+			Profiler.Active.Scope();
+
 			if (!connectionHealth.HasValue)
 				return -1;
 
@@ -517,6 +569,8 @@ namespace ONI_MP.Networking
 		#endregion
 		public static void CacheCurrentServer()
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.HostSteamID != CSteamID.Nil)
 			{
 				_cachedConnectionInfo = new CachedConnectionInfo(
@@ -532,6 +586,8 @@ namespace ONI_MP.Networking
 
 		public static void ReconnectFromCache()
 		{
+			Profiler.Active.Scope();
+
 			if (_cachedConnectionInfo.HasValue)
 			{
 				DebugConsole.Log($"[GameClient] Reconnecting to cached server: {_cachedConnectionInfo.Value.HostSteamID}");
@@ -549,18 +605,24 @@ namespace ONI_MP.Networking
 
 		public static void PauseNetworkingCallbacks()
 		{
+			Profiler.Active.Scope();
+
 			_pollingPaused = true;
 			DebugConsole.Log("[GameClient] Networking callbacks paused.");
 		}
 
 		public static void ResumeNetworkingCallbacks()
 		{
+			Profiler.Active.Scope();
+
 			_pollingPaused = false;
 			DebugConsole.Log("[GameClient] Networking callbacks resumed.");
 		}
 
 		public static void OnModVerificationApproved()
 		{
+			Profiler.Active.Scope();
+
 			DebugConsole.Log("[GameClient] Mod verification approved by host!");
 
 			// DO NOT close overlay here - let connection flow manage it
@@ -572,6 +634,8 @@ namespace ONI_MP.Networking
 
 		public static void DisableMessageHandlers()
 		{
+			Profiler.Active.Scope();
+
 			if (_connectionStatusChangedCallback != null)
 			{
 				_connectionStatusChangedCallback.Unregister();
@@ -582,6 +646,8 @@ namespace ONI_MP.Networking
 
 		public static void EnableMessageHandlers()
 		{
+			Profiler.Active.Scope();
+
 			if (_connectionStatusChangedCallback == null)
 			{
 				_connectionStatusChangedCallback = Callback<SteamNetConnectionStatusChangedCallback_t>.Create(OnConnectionStatusChanged);

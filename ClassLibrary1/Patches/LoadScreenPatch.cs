@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using ONI_MP.DebugTools;
 using System.Reflection;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches
 {
@@ -11,6 +12,8 @@ namespace ONI_MP.Patches
 		[HarmonyTargetMethod]
 		public static MethodBase TargetMethod()
 		{
+			Profiler.Active.Scope();
+
 			return typeof(LoadScreen).GetMethod(
 					"DoLoad",
 					BindingFlags.Static | BindingFlags.Public,
@@ -24,12 +27,16 @@ namespace ONI_MP.Patches
 		[HarmonyPrefix]
 		public static void Prefix_DoLoad(string filename)
 		{
+			Profiler.Active.Scope();
+
 			DebugConsole.Log($"Loading {filename}");
 		}
 
 		[HarmonyPostfix]
 		public static void Postfix_DoLoad(string filename)
 		{
+			Profiler.Active.Scope();
+
 			DebugConsole.Log($"Loaded {filename}");
 		}
 	}

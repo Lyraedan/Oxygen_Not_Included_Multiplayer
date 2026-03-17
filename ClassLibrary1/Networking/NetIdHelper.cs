@@ -1,4 +1,5 @@
 using ONI_MP.DebugTools;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking
@@ -11,6 +12,8 @@ namespace ONI_MP.Networking
 		/// </summary>
 		public static int GetDeterministicBuildingId(GameObject go)
 		{
+			Profiler.Active.Scope();
+
 			if (go == null) return 0;
 
 			int cell = Grid.PosToCell(go);
@@ -23,6 +26,8 @@ namespace ONI_MP.Networking
 		}
 		public static int GetDeterministicWorkableId(GameObject go)
 		{
+			Profiler.Active.Scope();
+
 			if (go == null) return 0;
 
 			int cell = Grid.PosToCell(go);
@@ -46,6 +51,8 @@ namespace ONI_MP.Networking
 
 		public static int GetDeterministicEntityId(GameObject go, bool useBreakOff = true, bool useCell = true)
 		{
+			Profiler.Active.Scope();
+
 			if (go == null || !go.TryGetComponent<PrimaryElement>(out var primaryElement))
 				return 0;
 

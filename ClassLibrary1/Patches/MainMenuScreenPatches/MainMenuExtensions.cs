@@ -1,4 +1,5 @@
 ﻿using ONI_MP.DebugTools;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.MainMenuScreen
@@ -7,6 +8,8 @@ namespace ONI_MP.Patches.MainMenuScreen
 	{
 		public static void AddClonedButton(this MainMenu menu, string text, string small_text, bool highlight, System.Action action)
 		{
+			Profiler.Active.Scope();
+
 			var sourceButton = menu.Button_NewGame;
 			if (sourceButton == null)
 			{

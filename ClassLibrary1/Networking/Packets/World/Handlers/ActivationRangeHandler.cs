@@ -1,6 +1,7 @@
 using UnityEngine;
 using HarmonyLib;
 using ONI_MP.DebugTools;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.World.Handlers
 {
@@ -23,6 +24,8 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 
 		public bool TryApplyConfig(GameObject go, BuildingConfigPacket packet)
 		{
+			Profiler.Active.Scope();
+
 			var activationRange = go.GetComponent<IActivationRangeTarget>();
 			if (activationRange == null) return false;
 

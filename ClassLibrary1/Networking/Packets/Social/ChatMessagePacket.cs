@@ -5,6 +5,7 @@ using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Social
@@ -23,6 +24,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public ChatMessagePacket(string message)
 		{
+			Profiler.Active.Scope();
+
 			SenderId = MultiplayerSession.LocalSteamID;
             SenderName = SteamFriends.GetPersonaName();
             Message = message;
@@ -32,6 +35,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(SenderId.m_SteamID);
 			writer.Write(SenderName);
 			writer.Write(Message);
@@ -44,6 +49,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			SenderId = new CSteamID(reader.ReadUInt64());
 			SenderName = reader.ReadString();
 			Message = reader.ReadString();
@@ -57,6 +64,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			bool isFriends = SteamFriends.HasFriend(SenderId, EFriendFlags.k_EFriendFlagImmediate);
             string senderName = SenderName;
             if (isFriends)

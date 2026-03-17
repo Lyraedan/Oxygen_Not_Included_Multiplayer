@@ -5,6 +5,7 @@ using ONI_MP.DebugTools;
 using System.IO;
 using UnityEngine;
 using HarmonyLib;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -31,6 +32,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(NetId);
 			writer.Write(Cell);
 			writer.Write(ConfigHash);
@@ -42,6 +45,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			NetId = reader.ReadInt32();
 			Cell = reader.ReadInt32();
 			ConfigHash = reader.ReadInt32();
@@ -53,6 +58,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			DebugConsole.Log($"[BuildingConfigPacket] Received a config update packet. NetId={NetId}, Cell={Cell}");
 
 			if (!NetworkIdentityRegistry.TryGet(NetId, out var identity) || identity == null)
@@ -118,6 +125,8 @@ namespace ONI_MP.Networking.Packets.World
 		/// </summary>
 		private void RefreshSideScreenIfOpen(GameObject go)
 		{
+			Profiler.Active.Scope();
+
 			if (go == null) return;
 			
 			try
@@ -149,6 +158,8 @@ namespace ONI_MP.Networking.Packets.World
 		/// </summary>
 		private void ApplyConfig(GameObject go)
 		{
+			Profiler.Active.Scope();
+
 			if (go == null) return;
 
 			// All handlers are now in the registry

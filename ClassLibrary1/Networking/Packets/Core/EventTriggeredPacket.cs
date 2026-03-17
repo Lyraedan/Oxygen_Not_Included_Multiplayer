@@ -2,6 +2,7 @@
 using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.Events
 {
@@ -16,6 +17,8 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public EventTriggeredPacket(int netId, int eventHash, object data = null)
 		{
+			Profiler.Active.Scope();
+
 			NetId = netId;
 			EventHash = eventHash;
 
@@ -28,6 +31,8 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(NetId);
 			writer.Write(EventHash);
 			writer.Write(SerializedData ?? string.Empty);
@@ -36,6 +41,8 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			NetId = reader.ReadInt32();
 			EventHash = reader.ReadInt32();
 			SerializedData = reader.ReadString();
@@ -44,6 +51,8 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (!NetworkIdentityRegistry.TryGet(NetId, out var go))
 			{
 				DebugConsole.LogWarning($"[EventTriggeredPacket] Could not find entity with NetId {NetId} for event {EventHash}");

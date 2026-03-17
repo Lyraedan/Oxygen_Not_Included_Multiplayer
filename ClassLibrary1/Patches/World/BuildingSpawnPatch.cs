@@ -1,6 +1,7 @@
 using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -11,6 +12,8 @@ namespace ONI_MP.Patches.World
 	{
 		public static void Postfix(Building __instance)
 		{
+			Profiler.Active.Scope();
+
 			var go = __instance.gameObject;
 			
 			// We skip construction for configuration sync usually, 

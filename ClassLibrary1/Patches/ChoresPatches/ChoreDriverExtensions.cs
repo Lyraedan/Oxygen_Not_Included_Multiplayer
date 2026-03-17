@@ -1,5 +1,6 @@
 ﻿using ONI_MP.DebugTools;
 using System;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.Chores
@@ -8,6 +9,8 @@ namespace ONI_MP.Patches.Chores
 	{
 		public static void AssignChoreToDuplicant(this Chore newChore, GameObject dupeGO)
 		{
+			Profiler.Active.Scope();
+
 			try
 			{
 				if (newChore == null || dupeGO == null || !newChore.IsValid())

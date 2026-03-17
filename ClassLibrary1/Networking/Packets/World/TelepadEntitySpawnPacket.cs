@@ -5,6 +5,7 @@ using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Social;
 using System.Collections.Generic;
 using System.IO;
+using ONI_MP.Profiling;
 using UnityEngine;
 using static STRINGS.UI.CLUSTERMAP;
 
@@ -24,6 +25,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(NetId);
 			EntityData.Serialize(writer);
 			writer.Write(Pos);
@@ -31,6 +34,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			NetId = reader.ReadInt32();
 			EntityData = ImmigrantOptionEntry.Deserialize(reader);
 			Pos = reader.ReadVector3();
@@ -38,6 +43,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			DebugConsole.Log($"[EntitySpawnPacket] OnDispatched called - NetId {NetId}, IsDuplicant={EntityData.IsDuplicant}, IsHost={MultiplayerSession.IsHost}");
 
 			// Only clients should process this

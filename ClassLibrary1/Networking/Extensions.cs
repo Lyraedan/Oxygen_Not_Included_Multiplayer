@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 
@@ -13,6 +14,8 @@ namespace ONI_MP.Networking
 	{
 		public static NetworkIdentity GetNetIdentity(this MonoBehaviour behaviour)
 		{
+			Profiler.Active.Scope();
+
 			if (behaviour.IsNullOrDestroyed() || behaviour.gameObject.IsNullOrDestroyed())
 			{
 				return null;
@@ -21,6 +24,8 @@ namespace ONI_MP.Networking
 		}
 		public static NetworkIdentity GetNetIdentity(this GameObject go)
 		{
+			Profiler.Active.Scope();
+
 			if (go.IsNullOrDestroyed())
 			{
 				return null;
@@ -33,6 +38,8 @@ namespace ONI_MP.Networking
 		}
 		public static int GetNetId(this MonoBehaviour behaviour)
 		{
+			Profiler.Active.Scope();
+
 			var identity = GetNetIdentity(behaviour);
 			if (identity == null)
 				return 0;

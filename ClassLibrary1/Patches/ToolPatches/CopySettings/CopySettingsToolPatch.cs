@@ -2,6 +2,7 @@
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Tools.CopySettingsTool;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.ToolPatches.CopySettings;
@@ -11,6 +12,8 @@ public class CopySettingsToolPatch
 {
     private static void Postfix(int cell, int distFromOrigin, CopySettingsTool __instance)
     {
+        Profiler.Active.Scope();
+
         if (!MultiplayerSession.InSession)
             return;
 

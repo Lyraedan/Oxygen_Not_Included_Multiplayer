@@ -1,5 +1,6 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.World;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Components
@@ -24,6 +25,8 @@ namespace ONI_MP.Networking.Components
 
 		public override void OnSpawn()
 		{
+			Profiler.Active.Scope();
+
 			base.OnSpawn();
 
 			if (!MultiplayerSession.InSession)
@@ -46,6 +49,8 @@ namespace ONI_MP.Networking.Components
 
 		private void Update()
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.IsHost)
 			{
 				// Skip if no clients connected
@@ -69,6 +74,8 @@ namespace ONI_MP.Networking.Components
 
 		private void HostUpdate()
 		{
+			Profiler.Active.Scope();
+
 			try
 			{
 				timer += Time.unscaledDeltaTime;
@@ -115,6 +122,8 @@ namespace ONI_MP.Networking.Components
 		// Static handler for client-side reception
 		public static void HandlePacket(StructureStatePacket packet)
 		{
+			Profiler.Active.Scope();
+
 			if (!Grid.IsValidCell(packet.Cell)) return;
 
 			GameObject go = Grid.Objects[packet.Cell, (int)Grid.SceneLayer.Building];

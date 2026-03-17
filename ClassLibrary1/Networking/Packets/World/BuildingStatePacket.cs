@@ -1,6 +1,7 @@
 using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -16,6 +17,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(Buildings.Count);
 			foreach (var b in Buildings)
 			{
@@ -26,6 +29,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			int count = reader.ReadInt32();
 			Buildings = new List<BuildingState>(count);
 			for (int i = 0; i < count; i++)
@@ -40,6 +45,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.IsHost)
 				return;
 

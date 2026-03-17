@@ -2,6 +2,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.World;
 using ONI_MP.Networking.Trackers;
 using System.Collections.Generic;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Components
@@ -36,17 +37,23 @@ namespace ONI_MP.Networking.Components
 
 		private void Awake()
 		{
+			Profiler.Active.Scope();
+
 			Instance = this;
 		}
 
 		public void UpdateClientView(Steamworks.CSteamID steamId, int minX, int minY, int maxX, int maxY)
 		{
+			Profiler.Active.Scope();
+
 			// Update or add
 			_clientViewports[steamId] = new RectInt(minX, minY, maxX - minX, maxY - minY);
 		}
 
 		private void Update()
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
 				return;
 
@@ -109,6 +116,8 @@ namespace ONI_MP.Networking.Components
 
 			private void SyncDigging()
 		{
+			Profiler.Active.Scope();
+
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			var digPacket = new DiggingStatePacket();
 
@@ -137,6 +146,8 @@ namespace ONI_MP.Networking.Components
 
 		public void OnDiggingStateReceived(DiggingStatePacket packet)
 		{
+			Profiler.Active.Scope();
+
 			// Reconcile
 			// 1. Get all local diggables
 			// 2. Remove extra
@@ -197,6 +208,8 @@ namespace ONI_MP.Networking.Components
 
 		private void SyncChores()
 		{
+			Profiler.Active.Scope();
+
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			var chorePacket = new ChoreStatePacket();
 
@@ -226,6 +239,8 @@ namespace ONI_MP.Networking.Components
 
 		public void OnChoreStateReceived(ChoreStatePacket packet)
 		{
+			Profiler.Active.Scope();
+
 			try
 			{
 				// Reconcile Mops
@@ -301,6 +316,8 @@ namespace ONI_MP.Networking.Components
 		// --- Research Logic ---
 		private void SyncResearch()
 		{
+			Profiler.Active.Scope();
+
 			if (Db.Get().Techs == null || Research.Instance == null) return;
 
 			try
@@ -356,6 +373,8 @@ namespace ONI_MP.Networking.Components
 		// --- Research Progress Logic ---
 		private void SyncResearchProgress()
 		{
+			Profiler.Active.Scope();
+
 			if (Research.Instance == null) return;
 
 			var sw = System.Diagnostics.Stopwatch.StartNew();
@@ -404,6 +423,8 @@ namespace ONI_MP.Networking.Components
 		// --- Priorities Logic (NOT USED - synced via event-driven patches) ---
 		private void SyncPriorities()
 		{
+			Profiler.Active.Scope();
+
 			try
 			{
 				var packet = new PrioritizeStatePacket();
@@ -440,6 +461,8 @@ namespace ONI_MP.Networking.Components
 	// --- Disinfect Logic (NOT USED - synced via event-driven patches) ---
 		private void SyncDisinfectImpl()
 		{
+			Profiler.Active.Scope();
+
 			try
 			{
 				// Use our tracker
@@ -477,6 +500,8 @@ namespace ONI_MP.Networking.Components
 
 		public void OnDisinfectStateReceived(DisinfectStatePacket packet)
 		{
+			Profiler.Active.Scope();
+
 			try
 			{
 				lock (DisinfectTracker.Disinfectables)
@@ -521,6 +546,8 @@ namespace ONI_MP.Networking.Components
 		// --- Gas and Liquid Logic ---
 		private void SyncGasLiquid()
 		{
+			Profiler.Active.Scope();
+
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			int cellsScanned = 0;
 			
@@ -583,6 +610,8 @@ namespace ONI_MP.Networking.Components
 
 		private void ScanArea(int x1, int y1, int x2, int y2)
 		{
+			Profiler.Active.Scope();
+
 			for (int y = y1; y < y2; y++)
 			{
 				for (int x = x1; x < x2; x++)

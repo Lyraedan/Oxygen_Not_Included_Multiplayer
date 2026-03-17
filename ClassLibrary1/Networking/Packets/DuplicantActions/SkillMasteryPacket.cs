@@ -1,6 +1,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.DuplicantActions
@@ -12,18 +13,24 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(NetId);
 			writer.Write(SkillId ?? string.Empty);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			NetId = reader.ReadInt32();
 			SkillId = reader.ReadString();
 		}
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.IsHost)
 			{
 				Apply();
@@ -37,6 +44,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		private void Apply()
 		{
+			Profiler.Active.Scope();
+
 			if (!NetworkIdentityRegistry.TryGet(NetId, out var identity) || identity == null)
 			{
 				DebugConsole.LogWarning($"[SkillMasteryPacket] NetId {NetId} not found.");

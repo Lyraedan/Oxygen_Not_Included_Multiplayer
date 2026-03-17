@@ -3,6 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World.SideScreen
@@ -16,6 +17,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(LimitValve __instance)
 		{
+			Profiler.Active.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 
@@ -41,6 +44,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(LimitValveSideScreen __instance)
 		{
+			Profiler.Active.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 			if (__instance.targetLimitValve == null) return;
@@ -69,6 +74,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(LimitValveSideScreen __instance, float input)
 		{
+			Profiler.Active.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 			if (__instance.targetLimitValve == null) return;
@@ -97,6 +104,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(LimitValveSideScreen __instance, GameObject target)
 		{
+			Profiler.Active.Scope();
+
 			if (__instance.targetLimitValve == null) return;
 			
 			float currentLimit = __instance.targetLimitValve.Limit;

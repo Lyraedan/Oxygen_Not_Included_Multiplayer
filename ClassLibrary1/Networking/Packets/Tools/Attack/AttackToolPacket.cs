@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using HarmonyLib;
 using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Profiling;
 using Steamworks;
 using UnityEngine;
 
@@ -19,12 +20,16 @@ public class AttackToolPacket : IPacket
 
     public AttackToolPacket(Vector2 min, Vector2 max)
     {
+        Profiler.Active.Scope();
+
         Min = min;
         Max = max;
     }
 
     public void Serialize(BinaryWriter writer)
     {
+        Profiler.Active.Scope();
+
         writer.Write(SenderId.m_SteamID);
         writer.Write(Min);
         writer.Write(Max);
@@ -34,6 +39,8 @@ public class AttackToolPacket : IPacket
 
     public void Deserialize(BinaryReader reader)
     {
+        Profiler.Active.Scope();
+
         SenderId = new CSteamID(reader.ReadUInt64());
         Min      = reader.ReadVector2();
         Max      = reader.ReadVector2();
@@ -42,6 +49,8 @@ public class AttackToolPacket : IPacket
 
     public void OnDispatched()
     {
+        Profiler.Active.Scope();
+
         Traverse        lastSelectedPriority = Traverse.Create(ToolMenu.Instance.PriorityScreen).Field("lastSelectedPriority");
         PrioritySetting prioritySetting      = lastSelectedPriority.GetValue<PrioritySetting>();
 

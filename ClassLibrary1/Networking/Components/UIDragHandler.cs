@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using ONI_MP.Profiling;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class UIDragHandler : MonoBehaviour, IPointerDownHandler, IDragHandler
@@ -9,12 +10,16 @@ public class UIDragHandler : MonoBehaviour, IPointerDownHandler, IDragHandler
 
     private void Awake()
     {
+        Profiler.Active.Scope();
+
         if (target == null)
             target = GetComponent<RectTransform>();
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        Profiler.Active.Scope();
+
         RectTransform parent = target.parent as RectTransform;
 
         RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, eventData.position, eventData.pressEventCamera, out Vector2 localMousePosition);
@@ -23,6 +28,8 @@ public class UIDragHandler : MonoBehaviour, IPointerDownHandler, IDragHandler
 
     public void OnDrag(PointerEventData eventData)
     {
+        Profiler.Active.Scope();
+
         if (target == null)
             return;
 

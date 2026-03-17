@@ -3,6 +3,7 @@ using ONI_MP.Menus;
 using ONI_MP.Networking.Packets.Core;
 using ONI_MP.Networking.Packets.World;
 using System.Collections;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking
@@ -28,6 +29,8 @@ namespace ONI_MP.Networking
 
 		public static void PerformHardSync()
 		{
+			Profiler.Active.Scope();
+
 			if (hardSyncInProgress)
 			{
 				DebugConsole.Log("[HardSync] A hard sync is already in progress.");
@@ -53,6 +56,8 @@ namespace ONI_MP.Networking
 
 		private static IEnumerator HardSyncCoroutine()
 		{
+			Profiler.Active.Scope();
+
 			hardSyncInProgress = true;
 
             ReadyManager.MarkAllAsUnready();

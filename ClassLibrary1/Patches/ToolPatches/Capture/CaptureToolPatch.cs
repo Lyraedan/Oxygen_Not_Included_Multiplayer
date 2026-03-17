@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Tools.Capture;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.ToolPatches.Capture;
@@ -10,6 +11,8 @@ public class CaptureToolPatch
 {
     private static void Postfix(Vector3 downPos, Vector3 upPos, CaptureTool __instance)
     {
+        Profiler.Active.Scope();
+
         if (!MultiplayerSession.InSession)
             return;
 

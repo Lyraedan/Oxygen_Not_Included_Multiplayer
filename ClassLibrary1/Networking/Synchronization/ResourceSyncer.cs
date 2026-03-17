@@ -1,6 +1,7 @@
 using HarmonyLib;
 using ONI_MP.Networking.Packets.World;
 using System.Collections.Generic;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Synchronization
@@ -29,6 +30,8 @@ namespace ONI_MP.Networking.Synchronization
 
 		private void HostUpdate()
 		{
+			Profiler.Active.Scope();
+
 			if (Time.time - _lastSendTime < SYNC_INTERVAL) return;
 
 			var world = ClusterManager.Instance.activeWorld;
@@ -83,6 +86,8 @@ namespace ONI_MP.Networking.Synchronization
 	{
 		public static bool Prefix(Tag tag, bool includeRelatedWorlds, ref float __result)
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.InSession || MultiplayerSession.IsHost) return true;
 
 			if (ResourceSyncer.ClientResources.TryGetValue(tag.Name, out float val))

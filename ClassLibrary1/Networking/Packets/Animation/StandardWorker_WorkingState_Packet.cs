@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ONI_MP.Profiling;
 using UnityEngine;
 using static RancherChore;
 
@@ -18,6 +19,8 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public StandardWorker_WorkingState_Packet(StandardWorker worker, Workable workable, bool startedWorking)
 		{
+			Profiler.Active.Scope();
+
 			WorkerNetId = worker.GetNetId();
 			StartingToWork = startedWorking;
 			if (startedWorking)
@@ -33,6 +36,8 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(WorkerNetId);
 			writer.Write(StartingToWork);
 			if (StartingToWork)
@@ -43,6 +48,8 @@ namespace ONI_MP.Networking.Packets.Animation
 		}
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			WorkerNetId = reader.ReadInt32();
 			StartingToWork = reader.ReadBoolean();
 			if (StartingToWork)
@@ -54,6 +61,8 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.IsHost)
 				return;
 

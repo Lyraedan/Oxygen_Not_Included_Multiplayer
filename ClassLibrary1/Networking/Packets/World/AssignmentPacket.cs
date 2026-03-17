@@ -2,6 +2,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.World
@@ -21,6 +22,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(BuildingNetId);
 			writer.Write(Cell);
 			writer.Write(AssigneeNetId);
@@ -29,6 +32,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			BuildingNetId = reader.ReadInt32();
 			Cell = reader.ReadInt32();
 			AssigneeNetId = reader.ReadInt32();
@@ -37,6 +42,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			DebugConsole.Log($"[AssignmentPacket] Received: BuildingNetId={BuildingNetId}, Cell={Cell}, AssigneeNetId={AssigneeNetId}, GroupId={GroupId}");
 
 			NetworkIdentity buildingIdentity = null;
@@ -91,6 +98,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		private void ApplyAssignment(Assignable assignable)
 		{
+			Profiler.Active.Scope();
+
 			// Unassign case
 			if (AssigneeNetId == -1 && string.IsNullOrEmpty(GroupId))
 			{

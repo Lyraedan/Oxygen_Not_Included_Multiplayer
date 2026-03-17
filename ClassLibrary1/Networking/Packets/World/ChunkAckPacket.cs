@@ -3,6 +3,7 @@ using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Architecture;
 using Steamworks;
 using System.IO;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -18,6 +19,8 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Serialize(BinaryWriter writer)
         {
+            Profiler.Active.Scope();
+
             writer.Write(SequenceNumber);
             writer.Write(TransferId);
             writer.Write(ClientSteamID.m_SteamID);
@@ -25,6 +28,8 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Deserialize(BinaryReader reader)
         {
+            Profiler.Active.Scope();
+
             SequenceNumber = reader.ReadInt32();
             TransferId = reader.ReadString();
             ClientSteamID = new CSteamID(reader.ReadUInt64());
@@ -32,6 +37,8 @@ namespace ONI_MP.Networking.Packets.World
 
         public void OnDispatched()
         {
+            Profiler.Active.Scope();
+
             // Only server processes ACKs
             if (!MultiplayerSession.IsHost)
                 return;

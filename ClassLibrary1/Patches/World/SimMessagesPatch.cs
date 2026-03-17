@@ -2,6 +2,7 @@
 using ONI_MP.Misc.World;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.World;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -21,6 +22,8 @@ namespace ONI_MP.Patches.World
 				int callbackIdx
 		)
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.IsHost || !Grid.IsValidCell(gameCell)) return;
 
 			// Enqueue update to batcher

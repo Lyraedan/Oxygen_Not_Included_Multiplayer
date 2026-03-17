@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.Social
 {
@@ -49,6 +50,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(EntryType);
 			if (EntryType == 0)
 			{
@@ -108,6 +111,8 @@ namespace ONI_MP.Networking.Packets.Social
 		}
 		public static ImmigrantOptionEntry Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			var opt = new ImmigrantOptionEntry();
 			opt.EntryType = reader.ReadInt32();
 			if (opt.EntryType == 0)
@@ -162,6 +167,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public static ImmigrantOptionEntry FromGameDeliverable(ITelepadDeliverable deliverable)
 		{
+			Profiler.Active.Scope();
+
 			DebugConsole.Log("FromGameDeliverable type: " + (deliverable.GetType()));
 
 			if (deliverable is CarePackageInfo ci)
@@ -204,6 +211,8 @@ namespace ONI_MP.Networking.Packets.Social
 		}
 		public static void ListAllFieldValues(object s)
 		{
+			Profiler.Active.Scope();
+
 			Console.WriteLine("Listing all fields of: " + s.ToString());
 
 			foreach (var p in s.GetType().GetFields())
@@ -213,6 +222,8 @@ namespace ONI_MP.Networking.Packets.Social
 		}
 		public ITelepadDeliverable ToGameDeliverable()
 		{
+			Profiler.Active.Scope();
+
 			//Console.WriteLine("ToDeliverable: " + EntryType);
 			//ListAllFieldValues(this);
 			if (EntryType < 0)
@@ -261,6 +272,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		internal string GetId()
 		{
+			Profiler.Active.Scope();
+
 			if(EntryType == 0)
 			{
 				return PersonalityId;

@@ -1,6 +1,7 @@
 using HarmonyLib;
 using ONI_MP.Networking.Components;
 using System.Collections;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World.SideScreen
@@ -14,6 +15,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(SingleSliderSideScreen __instance, GameObject new_target)
 		{
+			Profiler.Active.Scope();
+
 			if (new_target == null) return;
 			
 			var identity = new_target.AddOrGet<NetworkIdentity>();
@@ -45,6 +48,8 @@ namespace ONI_MP.Patches.World.SideScreen
 
 		private static void OnSliderReleased(GameObject target, KSlider slider, int index)
 		{
+			Profiler.Active.Scope();
+
 			float value = slider.value;
 			// Rounding for generators that use integer percentages
 			if (ShouldRoundValue(target)) value = Mathf.Round(value);
@@ -53,6 +58,8 @@ namespace ONI_MP.Patches.World.SideScreen
 
 		private static void OnInputEndEdit(GameObject target, KNumberInputField input, int index)
 		{
+			Profiler.Active.Scope();
+
 			float value = input.currentValue;
 			if (ShouldRoundValue(target)) value = Mathf.Round(value);
 			Send(target, value, index);
@@ -60,6 +67,8 @@ namespace ONI_MP.Patches.World.SideScreen
 
 		private static bool ShouldRoundValue(GameObject target)
 		{
+			Profiler.Active.Scope();
+
 			// ManualGenerator, EnergyGenerator (Coal), WoodGasGenerator, SpaceHeater all need rounding
 			return target.GetComponent<ManualGenerator>() != null ||
 			       target.GetComponent<EnergyGenerator>() != null ||
@@ -68,6 +77,8 @@ namespace ONI_MP.Patches.World.SideScreen
 
 		private static void Send(GameObject target, float value, int index)
 		{
+			Profiler.Active.Scope();
+
 			var comp = target.GetComponent<ISliderControl>() as Component;
 			if (comp == null) comp = target.GetComponent<ISingleSliderControl>() as Component;
 			if (comp != null) SideScreenSyncHelper.SyncSliderChange(comp, value, index);
@@ -79,6 +90,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(IntSliderSideScreen __instance, GameObject new_target)
 		{
+			Profiler.Active.Scope();
+
 			if (new_target == null) return;
 			
 			var identity = new_target.AddOrGet<NetworkIdentity>();
@@ -110,16 +123,22 @@ namespace ONI_MP.Patches.World.SideScreen
 
 		private static void OnSliderReleased(GameObject target, KSlider slider, int index)
 		{
+			Profiler.Active.Scope();
+
 			Send(target, Mathf.Round(slider.value), index);
 		}
 
 		private static void OnInputEndEdit(GameObject target, KNumberInputField input, int index)
 		{
+			Profiler.Active.Scope();
+
 			Send(target, Mathf.Round(input.currentValue), index);
 		}
 
 		private static void Send(GameObject target, float value, int index)
 		{
+			Profiler.Active.Scope();
+
 			var comp = target.GetComponent<ISliderControl>() as Component;
 			if (comp == null) comp = target.GetComponent<ISingleSliderControl>() as Component;
 			if (comp != null) SideScreenSyncHelper.SyncSliderChange(comp, value, index);
@@ -131,6 +150,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(SingleCheckboxSideScreen __instance, GameObject target)
 		{
+			Profiler.Active.Scope();
+
 			if (target == null) return;
 
 			var identity = target.AddOrGet<NetworkIdentity>();
@@ -146,6 +167,8 @@ namespace ONI_MP.Patches.World.SideScreen
 
 		private static void OnCheckboxClicked(GameObject target, bool value)
 		{
+			Profiler.Active.Scope();
+
 			SideScreenSyncHelper.SyncCheckboxChange(target, value);
 		}
 	}

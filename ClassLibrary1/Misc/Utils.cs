@@ -5,6 +5,7 @@ using ONI_MP.Networking;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using ONI_MP.Profiling;
 using TMPro;
 using UnityEngine;
 
@@ -24,12 +25,16 @@ namespace ONI_MP.Misc
 		/// </summary>
 		public static void ForceQuitGame()
 		{
+			Profiler.Active.Scope();
+
             Game.Instance.SetIsLoading();
             Grid.CellCount = 0;
             Sim.Shutdown();
         }
 		public static void LogHierarchy(Transform root, string prefix = "")
 		{
+			Profiler.Active.Scope();
+
 			if (root == null)
 			{
 				DebugConsole.LogWarning("LogHierarchy called with null root.");
@@ -46,12 +51,16 @@ namespace ONI_MP.Misc
 
         public static GameObject FindChild(this GameObject root, string path)
         {
+	        Profiler.Active.Scope();
+
             var t = root.transform.Find(path);
             return t != null ? t.gameObject : null;
         }
 
         public static string NetworkStateToString(NetworkIndicatorsScreen.NetworkState state)
         {
+	        Profiler.Active.Scope();
+
             switch (state)
             {
                 case NetworkIndicatorsScreen.NetworkState.GOOD:
@@ -67,6 +76,8 @@ namespace ONI_MP.Misc
 
         public static void Inject<T>(GameObject prefab) where T : KMonoBehaviour
 		{
+			Profiler.Active.Scope();
+
 			if (prefab.GetComponent<T>() == null)
 			{
 				DebugConsole.Log($"Added {typeof(T).Name} to {prefab.name}");
@@ -76,6 +87,8 @@ namespace ONI_MP.Misc
 
 		public static void InjectAll(GameObject prefab, params Type[] types)
 		{
+			Profiler.Active.Scope();
+
 			foreach (var type in types)
 			{
 				if (!typeof(KMonoBehaviour).IsAssignableFrom(type)) continue;
@@ -89,6 +102,8 @@ namespace ONI_MP.Misc
 
 		public static void ListAllTMPFonts()
 		{
+			Profiler.Active.Scope();
+
 			var fonts = Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
 			DebugConsole.Log($"Found {fonts.Length} TMP_FontAsset(s):");
 
@@ -105,20 +120,28 @@ namespace ONI_MP.Misc
 
 		public static TMP_FontAsset GetDefaultTMPFont()
 		{
+			Profiler.Active.Scope();
+
 			return Localization.FontAsset;
 		}
 
 		public static string ColorText(string text, Color color)
 		{
+			Profiler.Active.Scope();
+
 			return ColorText(text, Util.ToHexString(color));
 		}
 		public static string ColorText(string text, string hex)
 		{
+			Profiler.Active.Scope();
+
 			hex = hex.Replace("#", string.Empty);
 			return "<color=#" + hex + ">" + text + "</color>";
 		}
 		public static List<ChunkData> CollectChunks(int startX, int startY, int chunkSize, int numChunksX, int numChunksY)
 		{
+			Profiler.Active.Scope();
+
 			var chunks = new List<ChunkData>();
 			for (int cx = 0; cx < numChunksX; cx++)
 				for (int cy = 0; cy < numChunksY; cy++)
@@ -136,6 +159,8 @@ namespace ONI_MP.Misc
 		/// <returns></returns>
 		public static bool IsHostMinion(MonoBehaviour behavior)
 		{
+			Profiler.Active.Scope();
+
 			if (!IsHostEntity(behavior))
 				return false;
 			if(!behavior.TryGetComponent<KPrefabID>(out var kprefab) ||  !kprefab.HasTag(GameTags.BaseMinion))
@@ -144,6 +169,8 @@ namespace ONI_MP.Misc
 		}
 		public static bool IsHostEntity(MonoBehaviour behavior)
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
 				return false;
 			if (behavior.IsNullOrDestroyed() || behavior.gameObject.IsNullOrDestroyed())
@@ -152,6 +179,8 @@ namespace ONI_MP.Misc
 		}
 		public static void RefreshIfSelected(MonoBehaviour behavior)
 		{
+			Profiler.Active.Scope();
+
 			if (behavior.IsNullOrDestroyed() || !behavior.TryGetComponent<KSelectable>(out var selectable))
 				return;
 
@@ -164,6 +193,8 @@ namespace ONI_MP.Misc
 
 		private static ChunkData CreateChunk(int x0, int y0, int width, int height)
 		{
+			Profiler.Active.Scope();
+
 			var chunk = new ChunkData
 			{
 				TileX = x0,
@@ -199,6 +230,8 @@ namespace ONI_MP.Misc
 		[Obsolete("Use new FormatBytes instead!")]
 		public static string FormatBytesOld(long bytes)
 		{
+			Profiler.Active.Scope();
+
 			if (bytes < 1024) return $"{bytes} B";
 			if (bytes < 1024 * 1024) return $"{bytes / 1024f:F1} KB";
 			return $"{bytes / 1024f / 1024f:F2} MB";
@@ -206,6 +239,8 @@ namespace ONI_MP.Misc
 
 		public static string FormatBytes(long bytes)
 		{
+			Profiler.Active.Scope();
+
 			string[] sizes = { "B", "KB", "MB", "GB", "TB" };
 			double len = bytes;
 			int order = 0;
@@ -223,6 +258,8 @@ namespace ONI_MP.Misc
 		/// </summary>
 		public static string FormatTime(double seconds)
 		{
+			Profiler.Active.Scope();
+
 			var ts = TimeSpan.FromSeconds(seconds);
 
 			string result = "";
@@ -240,16 +277,22 @@ namespace ONI_MP.Misc
 
 		public static bool IsInMenu()
 		{
+			Profiler.Active.Scope();
+
 			return App.GetCurrentSceneName() == "frontend";
 		}
 
 		public static bool IsInGame()
 		{
+			Profiler.Active.Scope();
+
 			return App.GetCurrentSceneName() == "backend";
 		}
 
 		public static GameObject FindNearbyWorkable(Vector3 position, float radius, Predicate<GameObject> predicate)
 		{
+			Profiler.Active.Scope();
+
 			foreach (Workable workable in UnityEngine.Object.FindObjectsOfType<Workable>())
 			{
 				if (workable == null) continue;
@@ -266,6 +309,8 @@ namespace ONI_MP.Misc
 
 		public static GameObject FindClosestGameObjectWithTag(Vector3 position, Tag tag, float radius)
 		{
+			Profiler.Active.Scope();
+
 			GameObject closest = null;
 			float closestDistSq = radius * radius;
 
@@ -287,6 +332,8 @@ namespace ONI_MP.Misc
 
 		public static GameObject FindEntityInRadius(Vector3 origin, float radius, Predicate<GameObject> predicate)
 		{
+			Profiler.Active.Scope();
+
 			foreach (var go in GameObject.FindObjectsOfType<GameObject>())
 			{
 				if (go == null) continue;
@@ -301,6 +348,8 @@ namespace ONI_MP.Misc
 
         public static string TrucateName(string name, int len = 24)
         {
+	        Profiler.Active.Scope();
+
             if (name.Length > len)
             {
                 return name.Substring(0, len) + "...";
@@ -317,6 +366,8 @@ namespace ONI_MP.Misc
 
 		public static void TryDeclareOptionalComponent<T>(this SaveLoadRoot root) where T : KMonoBehaviour
 		{
+			Profiler.Active.Scope();
+
 			if (optionalComponentListField?.GetValue(root) is List<string> list)
 			{
 				string typeName = typeof(T).ToString();
@@ -336,6 +387,8 @@ namespace ONI_MP.Misc
 		#region KBatchedAnimEventToggler Extensions
 		public static void Trigger(this KBatchedAnimEventToggler toggler, int eventHash, bool enable)
 		{
+			Profiler.Active.Scope();
+
 			if (enable)
 				toggler.SendMessage("Enable", null, SendMessageOptions.DontRequireReceiver);
 			else
@@ -346,6 +399,8 @@ namespace ONI_MP.Misc
 		#region Grid Extensions
 		public static bool IsWalkableCell(int cell)
 		{
+			Profiler.Active.Scope();
+
 			return Grid.IsValidCell(cell)
 					&& !Grid.Solid[cell]
 					&& !Grid.DupeImpassable[cell]
@@ -356,6 +411,8 @@ namespace ONI_MP.Misc
 		#region Schedule Extensions
 		public static int GetScheduleIndex(this Schedule schedule)
 		{
+			Profiler.Active.Scope();
+
             var schedules = ScheduleManager.Instance.schedules;
             if (schedules == null) return -1;
 

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Social
@@ -34,6 +35,8 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void Serialize(BinaryWriter writer)
         {
+            Profiler.Active.Scope();
+
             writer.Write(ScheduleIndex);
             writer.Write((int)Action);
             writer.Write(TimetableToIndex);
@@ -52,6 +55,8 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void Deserialize(BinaryReader reader)
         {
+            Profiler.Active.Scope();
+
             ScheduleIndex = reader.ReadInt32();
             Action = (RowAction)reader.ReadInt32();
             TimetableToIndex = reader.ReadInt32();
@@ -73,6 +78,8 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void OnDispatched()
         {
+            Profiler.Active.Scope();
+
             if (IsApplying)
                 return;
 
@@ -88,6 +95,8 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void Apply()
         {
+            Profiler.Active.Scope();
+
             var schedules = ScheduleManager.Instance.schedules;
             if (schedules == null)
                 return;
@@ -123,26 +132,36 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void ShiftUp(Schedule schedule)
         {
+            Profiler.Active.Scope();
+
             schedule.ShiftTimetable(true, TimetableToIndex);
         }
 
         public void ShiftDown(Schedule schedule)
         {
+            Profiler.Active.Scope();
+
             schedule.ShiftTimetable(false, TimetableToIndex);
         }
 
         public void RotateLeft(Schedule schedule)
         {
+            Profiler.Active.Scope();
+
             schedule.RotateBlocks(true, TimetableToIndex);
         }
 
         public void RotateRight(Schedule schedule)
         {
+            Profiler.Active.Scope();
+
             schedule.RotateBlocks(false, TimetableToIndex);
         }
 
         public void DuplicateRow(Schedule schedule)
         {
+            Profiler.Active.Scope();
+
             // Schedule screen hasn't been opened so we can't update UI
             if(ScheduleScreen.Instance == null)
             {
@@ -170,6 +189,8 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void DeleteRow(Schedule schedule)
         {
+            Profiler.Active.Scope();
+
             if(ScheduleScreen.Instance == null)
             {
                 int index = TimetableToIndex * 24;

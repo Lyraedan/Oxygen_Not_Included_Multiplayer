@@ -5,6 +5,7 @@ using ONI_MP.Networking.Packets.Architecture;
 using Shared.Interfaces.Networking;
 using System;
 using System.IO;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 public class EntityPositionPacket : IPacket
@@ -20,6 +21,8 @@ public class EntityPositionPacket : IPacket
 
     public void Serialize(BinaryWriter writer)
 	{
+		Profiler.Active.Scope();
+
 		writer.Write(NetId);
 		writer.Write(Position);
 		writer.Write(Velocity);
@@ -32,6 +35,8 @@ public class EntityPositionPacket : IPacket
 
 	public void Deserialize(BinaryReader reader)
 	{
+		Profiler.Active.Scope();
+
 		NetId = reader.ReadInt32();
 		Position = reader.ReadVector3();
 		Velocity = reader.ReadVector3();
@@ -44,6 +49,8 @@ public class EntityPositionPacket : IPacket
 
 	public void OnDispatched()
 	{
+		Profiler.Active.Scope();
+
 		if (MultiplayerSession.IsHost) return;
 
 		if (NetworkIdentityRegistry.TryGet(NetId, out var entity))

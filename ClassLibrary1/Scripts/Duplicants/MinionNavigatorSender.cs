@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Scripts.Duplicants
 {
@@ -14,6 +15,8 @@ namespace ONI_MP.Scripts.Duplicants
 		[MyCmpGet] Navigator navigator;
 		public override void OnSpawn()
 		{
+			Profiler.Active.Scope();
+
 			base.OnSpawn();
 
 			//Subscribe((int)GameHashes.ObjectMovementStateChanged,);
@@ -23,6 +26,8 @@ namespace ONI_MP.Scripts.Duplicants
 		}
 		void OnPathChanged(object _)
 		{
+			Profiler.Active.Scope();
+
 			if(MultiplayerSession.InSession && MultiplayerSession.IsHost)
 			{
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.Social
 {
@@ -17,6 +18,8 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void Serialize(BinaryWriter writer)
         {
+            Profiler.Active.Scope();
+
             writer.Write(Name);
             writer.Write(Blocks.Count);
             foreach (ScheduleBlock block in Blocks)
@@ -30,6 +33,8 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void Deserialize(BinaryReader reader)
         {
+            Profiler.Active.Scope();
+
             Name = reader.ReadString();
             Blocks.Clear();
             int blocks_count = reader.ReadInt32();
@@ -46,6 +51,8 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void OnDispatched()
         {
+            Profiler.Active.Scope();
+
             if (IsApplying)
                 return;
 
@@ -54,6 +61,8 @@ namespace ONI_MP.Networking.Packets.Social
 
         private void Apply()
         {
+            Profiler.Active.Scope();
+
             try
             {
                 IsApplying = true;
@@ -73,11 +82,15 @@ namespace ONI_MP.Networking.Packets.Social
 
         private void AddNewSchedule()
         {
+            Profiler.Active.Scope();
+
             ScheduleManager.Instance.AddSchedule(Db.Get().ScheduleGroups.allGroups, Name, AlarmActivated);
         }
 
         private void DuplicateSchedule()
         {
+            Profiler.Active.Scope();
+
             Schedule source = new Schedule(Name, Blocks, AlarmActivated);
             ScheduleManager.Instance.DuplicateSchedule(source);
         }

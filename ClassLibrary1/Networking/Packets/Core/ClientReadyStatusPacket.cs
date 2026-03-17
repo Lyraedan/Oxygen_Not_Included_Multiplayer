@@ -5,6 +5,7 @@ using ONI_MP.Networking.Packets.World;
 using ONI_MP.Networking.States;
 using Steamworks;
 using System.IO;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.Core
 {
@@ -17,24 +18,32 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public ClientReadyStatusPacket(CSteamID senderId, ClientReadyState status)
 		{
+			Profiler.Active.Scope();
+
 			SenderId = senderId;
 			Status = status;
 		}
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write((int)Status);
 			writer.Write(SenderId.m_SteamID);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			Status = (ClientReadyState)reader.ReadInt32();
 			SenderId = new CSteamID(reader.ReadUInt64());
 		}
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.IsHost)
 			{
 				DebugConsole.LogWarning("[ClientReadyStatusPacket] Received on client — ignoring.");

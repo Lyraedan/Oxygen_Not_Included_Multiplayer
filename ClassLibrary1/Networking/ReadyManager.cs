@@ -6,6 +6,7 @@ using ONI_MP.Networking.States;
 using Steamworks;
 using System;
 using System.Collections.Generic;
+using ONI_MP.Profiling;
 using static STRINGS.BUILDINGS.PREFABS.DOOR.CONTROL_STATE;
 
 namespace ONI_MP.Networking
@@ -15,11 +16,15 @@ namespace ONI_MP.Networking
 
 		public static void SetupListeners()
 		{
+			Profiler.Active.Scope();
+
 			SteamLobby.OnLobbyMembersRefreshed += UpdateReadyStateTracking;
 		}
 
 		public static void SendAllReadyPacket()
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.IsHost)
 				return;
 
@@ -30,6 +35,8 @@ namespace ONI_MP.Networking
 
 		public static void SendStatusUpdatePacketToClients()
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.IsHost)
 				return;
 
@@ -43,6 +50,8 @@ namespace ONI_MP.Networking
 
 		public static void SendReadyStatusPacket(ClientReadyState state)
 		{
+			Profiler.Active.Scope();
+
 			// Host is always considered ready so it doesn't send these
 			if (MultiplayerSession.IsHost)
 				return;
@@ -57,6 +66,8 @@ namespace ONI_MP.Networking
 
 		public static void MarkAllAsUnready()
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.IsHost)
 				return;
 
@@ -76,6 +87,8 @@ namespace ONI_MP.Networking
 
 		public static void SetPlayerReadyState(MultiplayerPlayer player, ClientReadyState state)
 		{
+			Profiler.Active.Scope();
+
 			if (player.SteamID == MultiplayerSession.HostSteamID)
 				return;
 
@@ -84,6 +97,8 @@ namespace ONI_MP.Networking
 
 		public static void RefreshScreen()
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.InSession)
 				return;
 
@@ -93,6 +108,8 @@ namespace ONI_MP.Networking
 
 		private static string GetScreenText()
 		{
+			Profiler.Active.Scope();
+
 			int readyCount = GetReadyCount();
 			int maxPlayers = MultiplayerSession.ConnectedPlayers.Values.Count;
 			string message = string.Format(STRINGS.UI.MP_OVERLAY.SYNC.WAITING_FOR_PLAYERS_SYNC, readyCount, maxPlayers);
@@ -105,6 +122,8 @@ namespace ONI_MP.Networking
 
 		private static int GetReadyCount()
 		{
+			Profiler.Active.Scope();
+
 			int count = 0;
 			foreach (MultiplayerPlayer player in MultiplayerSession.ConnectedPlayers.Values)
 			{
@@ -118,6 +137,8 @@ namespace ONI_MP.Networking
 
 		private static string GetReadyText(ClientReadyState readyState)
 		{
+			Profiler.Active.Scope();
+
 			switch (readyState)
 			{
 				case ClientReadyState.Ready:
@@ -130,6 +151,8 @@ namespace ONI_MP.Networking
 
 		private static void UpdateReadyStateTracking(CSteamID id)
 		{
+			Profiler.Active.Scope();
+
 			DebugConsole.LogAssert($"Update ready state tracking for {id}");
 			if (!MultiplayerSession.IsHost)
 				return;
@@ -143,6 +166,8 @@ namespace ONI_MP.Networking
 		/// <returns></returns>
 		public static bool IsEveryoneReady()
 		{
+			Profiler.Active.Scope();
+
 			bool result = true;
 			foreach (MultiplayerPlayer player in MultiplayerSession.ConnectedPlayers.Values)
 			{
@@ -158,6 +183,8 @@ namespace ONI_MP.Networking
 
 		internal static void RefreshReadyState()
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.InSession)
 				return;
 

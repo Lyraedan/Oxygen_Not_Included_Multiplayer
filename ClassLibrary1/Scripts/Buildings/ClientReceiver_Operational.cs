@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Scripts.Buildings
 {
@@ -16,6 +17,8 @@ namespace ONI_MP.Scripts.Buildings
 
 		public override void OnSpawn()
 		{
+			Profiler.Active.Scope();
+
 			base.OnSpawn();
 			if (MultiplayerSession.IsClient)
 				PacketSender.SendToHost(new RequestOperationalStatePacket(this));

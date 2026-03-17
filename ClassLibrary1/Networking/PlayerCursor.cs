@@ -3,6 +3,7 @@ using ONI_MP.Misc;
 using ONI_MP.Networking.States;
 using Steamworks;
 using System.Collections.Generic;
+using ONI_MP.Profiling;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -58,16 +59,22 @@ namespace ONI_MP.Networking
 
 		public override void OnSpawn()
 		{
+			Profiler.Active.Scope();
+
 			base.OnSpawn();
 		}
 
 		public void AssignPlayer(CSteamID steamId)
 		{
+			Profiler.Active.Scope();
+
 			this.assignedPlayer = steamId;
 		}
 
 		public void Init()
 		{
+			Profiler.Active.Scope();
+
 			camera = GameScreenManager.Instance.GetCamera(GameScreenManager.UIRenderTarget.ScreenSpaceCamera);
 
 			cursorTexture = Assets.GetTexture("cursor_arrow");
@@ -108,6 +115,8 @@ namespace ONI_MP.Networking
 
 		private void UpdateActionImage()
 		{
+			Profiler.Active.Scope();
+
 			string icon = GetCursorActionIcon(cursorState);
 
 			if (string.IsNullOrEmpty(icon))
@@ -122,6 +131,8 @@ namespace ONI_MP.Networking
 
 		private Image CreateCursorImage(GameObject parent, Texture2D cursorTexture)
 		{
+			Profiler.Active.Scope();
+
 			var imageGameObject = new GameObject(name) { transform = { parent = parent.transform } };
 			var rectTransform = imageGameObject.AddComponent<RectTransform>();
 			rectTransform.sizeDelta = new Vector2(cursorTexture.width, cursorTexture.height);
@@ -139,6 +150,8 @@ namespace ONI_MP.Networking
 
 		private TextMeshProUGUI CreateCursorText(GameObject parent, Vector3 offset)
 		{
+			Profiler.Active.Scope();
+
 			var textGameObject = new GameObject($"{name}_Name") { transform = { parent = parent.transform } };
 
 			var rectTransform = textGameObject.AddComponent<RectTransform>();
@@ -158,6 +171,8 @@ namespace ONI_MP.Networking
 
 		public void SetColor(Color col)
 		{
+			Profiler.Active.Scope();
+
 			playerColor = col;
 			if (cursorImage != null)
 				cursorImage.color = playerColor;
@@ -174,6 +189,8 @@ namespace ONI_MP.Networking
 		// Using the color make it fully transparent instead of deactivating the object
 		public void SetVisibility(bool visible)
 		{
+			Profiler.Active.Scope();
+
 			if (cursorImage != null)
 			{
 				var color = cursorImage.color;
@@ -191,6 +208,8 @@ namespace ONI_MP.Networking
 
 		public void SetState(CursorState state)
 		{
+			Profiler.Active.Scope();
+
 			if (this.cursorState != state)
 			{
 				this.cursorState = state;
@@ -200,6 +219,8 @@ namespace ONI_MP.Networking
 
 		public static string GetCursorActionIcon(CursorState state)
 		{
+			Profiler.Active.Scope();
+
 			switch (state)
 			{
 				case CursorState.NONE: return string.Empty;
@@ -227,6 +248,8 @@ namespace ONI_MP.Networking
 
 		public void RestoreCursor()
 		{
+			Profiler.Active.Scope();
+
 			if (cursorImage != null && cursorTexture != null)
 			{
 				cursorImage.sprite = Sprite.Create(
@@ -242,6 +265,8 @@ namespace ONI_MP.Networking
 
 		private void UpdateCursor(string icon, float size_multiplier_x, float size_multiplier_y)
 		{
+			Profiler.Active.Scope();
+
 			var sprite = Assets.GetSprite(icon);
 			if (sprite != null && playerCursorMaterial != null)
 			{

@@ -3,6 +3,7 @@ using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
 using HarmonyLib;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.DuplicantActions
 {
@@ -14,6 +15,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(NetId);
 			writer.Write(ChoreGroupId ?? string.Empty);
 			writer.Write(Priority);
@@ -21,6 +24,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			NetId = reader.ReadInt32();
 			ChoreGroupId = reader.ReadString();
 			Priority = reader.ReadInt32();
@@ -28,6 +33,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.IsHost)
 			{
 				// Host receives from client, apply and broadcast
@@ -45,6 +52,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		private void Apply()
 		{
+			Profiler.Active.Scope();
+
 			// First try normal registry lookup
 			if (!NetworkIdentityRegistry.TryGet(NetId, out var identity) || identity == null)
 			{
@@ -101,6 +110,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 		/// </summary>
 		private static NetworkIdentity TryFindAndRegisterIdentity(int netId)
 		{
+			Profiler.Active.Scope();
+
 			// Search all live duplicants
 			foreach (var minionIdentity in global::Components.LiveMinionIdentities.Items)
 			{

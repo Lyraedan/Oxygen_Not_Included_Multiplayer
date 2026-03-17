@@ -3,6 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.Social
 {
@@ -12,16 +13,22 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(ScheduleIndex);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			ScheduleIndex = reader.ReadInt32();
 		}
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (IsApplying)
 				return;
 
@@ -30,6 +37,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		private void Apply()
 		{
+			Profiler.Active.Scope();
+
 			if (ScheduleManager.Instance == null) return;
 
 			var schedules = Traverse.Create(ScheduleManager.Instance).Field("schedules").GetValue<List<Schedule>>();

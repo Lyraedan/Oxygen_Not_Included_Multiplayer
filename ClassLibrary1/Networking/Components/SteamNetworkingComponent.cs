@@ -1,5 +1,6 @@
 ﻿using ONI_MP.Misc;
 using ONI_MP.Networking.States;
+using ONI_MP.Profiling;
 using Steamworks;
 using UnityEngine;
 
@@ -11,6 +12,8 @@ namespace ONI_MP.Networking.Components
 
 		private void Start()
 		{
+			Profiler.Active.Scope();
+
 			SteamNetworkingUtils.InitRelayNetworkAccess();
 			GameClient.Init();
 
@@ -21,6 +24,8 @@ namespace ONI_MP.Networking.Components
 
 		private void Update()
 		{
+			Profiler.Active.Scope();
+
 			scheduler.Tick();
 
 			if (!SteamManager.Initialized)
@@ -44,6 +49,8 @@ namespace ONI_MP.Networking.Components
 
 		private void OnApplicationQuit()
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.InSession)
 				return;
 

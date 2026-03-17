@@ -3,6 +3,7 @@ using Steamworks;
 using System;
 using System.Numerics;
 using System.Text;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking
 {
@@ -20,6 +21,8 @@ namespace ONI_MP.Networking
         /// </summary>
         public static string GenerateCode(CSteamID lobbyId)
         {
+            Profiler.Active.Scope();
+
             if (!lobbyId.IsValid())
             {
                 DebugConsole.LogWarning("[LobbyCodeHelper] Cannot generate code for invalid lobby ID");
@@ -43,6 +46,8 @@ namespace ONI_MP.Networking
         /// </summary>
         public static bool TryParseCode(string code, out CSteamID lobbyId)
         {
+            Profiler.Active.Scope();
+
             lobbyId = CSteamID.Nil;
 
             if (string.IsNullOrWhiteSpace(code))
@@ -70,6 +75,8 @@ namespace ONI_MP.Networking
         /// </summary>
         public static bool IsValidCodeFormat(string code)
         {
+            Profiler.Active.Scope();
+
             if (string.IsNullOrWhiteSpace(code))
                 return false;
 
@@ -89,6 +96,8 @@ namespace ONI_MP.Networking
         /// </summary>
         public static string FormatCodeForDisplay(string code)
         {
+            Profiler.Active.Scope();
+
             return code;
 
 			if (string.IsNullOrEmpty(code) || code.Length <= 4)
@@ -110,6 +119,8 @@ namespace ONI_MP.Networking
         /// </summary>
         public static string CleanCode(string code)
         {
+            Profiler.Active.Scope();
+
             if (string.IsNullOrEmpty(code))
                 return string.Empty;
 
@@ -118,6 +129,8 @@ namespace ONI_MP.Networking
 
         private static string EncodeBase36(ulong value)
         {
+            Profiler.Active.Scope();
+
             if (value == 0)
                 return "0";
 
@@ -140,6 +153,8 @@ namespace ONI_MP.Networking
 
         private static ulong DecodeBase36(string encoded)
         {
+            Profiler.Active.Scope();
+
             encoded = CleanCode(encoded);
             ulong result = 0;
 

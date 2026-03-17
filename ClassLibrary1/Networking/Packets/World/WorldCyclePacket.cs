@@ -2,6 +2,7 @@
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Patches.GamePatches;
 using System.IO;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -12,18 +13,24 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(Cycle);
 			writer.Write(CycleTime);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			Cycle = reader.ReadInt32();
 			CycleTime = reader.ReadSingle();
 		}
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.IsHost)
 				return;
 

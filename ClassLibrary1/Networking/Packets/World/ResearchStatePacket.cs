@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -18,6 +19,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(UnlockedTechIds.Count);
 			foreach (var id in UnlockedTechIds)
 			{
@@ -35,6 +38,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			int count = reader.ReadInt32();
 			UnlockedTechIds = new List<string>(count);
 			for (int i = 0; i < count; i++)
@@ -54,6 +59,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.IsHost) return;
 
 			// Set flag to prevent ResearchPatch from sending packets while we apply state
@@ -70,9 +77,11 @@ namespace ONI_MP.Networking.Packets.World
 
 		private void ProcessResearchState(List<string> unlockedIds, List<string> queuedIds, string activeTechId)
 		{
-				if (Research.Instance == null) return;
+			Profiler.Active.Scope();
 
-				try
+			if (Research.Instance == null) return;
+
+			try
 			{
 				// Get the ResearchScreen for visual updates (use Traverse since field is not public)
 				object researchScreen = null;

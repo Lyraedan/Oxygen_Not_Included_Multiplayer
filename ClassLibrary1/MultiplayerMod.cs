@@ -10,6 +10,7 @@ using Shared.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP
@@ -28,6 +29,8 @@ namespace ONI_MP
 
         public override void OnLoad(Harmony harmony)
 		{
+			Profiler.Active.Scope();
+
 			Harmony = harmony;
 			base.OnLoad(harmony);
 
@@ -93,6 +96,8 @@ namespace ONI_MP
 
 		void LoadAssetBundles()
 		{
+			Profiler.Active.Scope();
+
 			// Load custom asset bundles
 			string cursor_bundle = GetBundleBasedOnPlatform("ONI_MP.Assets.bundles.playercursor_win.bundle",
 															"ONI_MP.Assets.bundles.playercursor_mac.bundle",
@@ -107,6 +112,8 @@ namespace ONI_MP
 
 		private void SetupListeners()
 		{
+			Profiler.Active.Scope();
+
 			App.OnPostLoadScene += () =>
 			{
 				OnPostSceneLoaded?.Invoke();
@@ -116,6 +123,8 @@ namespace ONI_MP
 		}
 		public static AssetBundle LoadAssetBundle(string bundleKey, string resourceName)
 		{
+			Profiler.Active.Scope();
+
 			if (LoadedBundles.TryGetValue(bundleKey, out var bundle))
 			{
 				DebugConsole.Log($"LoadAssetBundle: Reusing cached AssetBundle '{bundleKey}'.");
@@ -155,6 +164,8 @@ namespace ONI_MP
 
 		public string GetBundleBasedOnPlatform(string windows_bundle, string mac_bundle, string linux_bundle)
 		{
+			Profiler.Active.Scope();
+
 			switch (Application.platform)
 			{
 				case RuntimePlatform.OSXPlayer:
@@ -168,6 +179,8 @@ namespace ONI_MP
 
 		private static void RegisterDevTools()
 		{
+			Profiler.Active.Scope();
+
 #if DEBUG // DevTool is not accessible on mac.
 			var baseMethod = AccessTools.Method(typeof(DevToolManager), "RegisterDevTool");
 			var twitchDevToolRegister = baseMethod.MakeGenericMethod(typeof(DevToolMultiplayer));
@@ -178,6 +191,8 @@ namespace ONI_MP
 
         public override void OnAllModsLoaded(Harmony harmony, IReadOnlyList<Mod> mods)
         {
+	        Profiler.Active.Scope();
+
             base.OnAllModsLoaded(harmony, mods);
 			ModUpdater.Updater.CheckForUpdate();
         }

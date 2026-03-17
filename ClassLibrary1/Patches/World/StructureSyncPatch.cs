@@ -1,6 +1,7 @@
 using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -9,6 +10,8 @@ namespace ONI_MP.Patches.World
 	{
 		public static void Postfix(Battery __instance)
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.InSession)
 			{
 				__instance.gameObject.AddOrGet<StructureStateSyncer>();
@@ -21,6 +24,8 @@ namespace ONI_MP.Patches.World
 	{
 		public static void Postfix(Generator __instance)
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.InSession)
 			{
 				__instance.gameObject.AddOrGet<StructureStateSyncer>();

@@ -2,6 +2,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.World;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches
 {
@@ -14,6 +15,8 @@ namespace ONI_MP.Patches
 		[HarmonyPostfix]
 		public static void SetSpeed_Postfix(int Speed)
 		{
+			Profiler.Active.Scope();
+
 			if (IsSyncing) return;
 
 			var packet = new SpeedChangePacket((SpeedChangePacket.SpeedState)Speed);
@@ -26,6 +29,8 @@ namespace ONI_MP.Patches
 		[HarmonyPostfix]
 		public static void TogglePause_Postfix(SpeedControlScreen __instance)
 		{
+			Profiler.Active.Scope();
+
 			if (IsSyncing) return;
 
 			var speedState = __instance.IsPaused

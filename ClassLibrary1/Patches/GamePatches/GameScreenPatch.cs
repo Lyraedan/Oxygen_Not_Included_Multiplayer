@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
+using ONI_MP.Profiling;
 using ONI_MP.UI;
 using UnityEngine;
 
@@ -11,6 +12,8 @@ namespace ONI_MP.Patches.GamePatches
 	{
 		static void Postfix(GameScreenManager __instance)
 		{
+			Profiler.Active.Scope();
+
 			// Setup indicators
 			NetworkIndicatorsScreen.Show();
 

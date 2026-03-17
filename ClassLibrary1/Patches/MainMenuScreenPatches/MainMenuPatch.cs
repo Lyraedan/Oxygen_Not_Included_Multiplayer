@@ -8,6 +8,7 @@ using Steamworks;
 using System;
 using System.Linq;
 using System.Reflection;
+using ONI_MP.Profiling;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,6 +19,8 @@ internal static class MainMenuPatch
 
 	public static void Postfix(MainMenu __instance)
 	{
+		Profiler.Active.Scope();
+
 		int normalFontSize = 20;
 		var normalStyle = __instance.normalButtonStyle;
 
@@ -57,6 +60,8 @@ internal static class MainMenuPatch
 	// Reflection utility to build ButtonInfo struct
 	private static object CreateButtonInfo(string text, System.Action action, int fontSize, ColorStyleSetting style, Type buttonInfoType)
 	{
+		Profiler.Active.Scope();
+
 		var buttonInfo = Activator.CreateInstance(buttonInfoType);
 		buttonInfoType.GetField("text").SetValue(buttonInfo, new LocString(text));
 		buttonInfoType.GetField("action").SetValue(buttonInfo, action);
@@ -67,6 +72,8 @@ internal static class MainMenuPatch
 
 	private static void UpdatePlacements(MainMenu __instance)
 	{
+		Profiler.Active.Scope();
+
 		var buttonParent = __instance.buttonParent;
 		if (buttonParent != null)
 		{
@@ -82,6 +89,8 @@ internal static class MainMenuPatch
 
 	private static void UpdateLogo()
 	{
+		Profiler.Active.Scope();
+
 		// Attempt to find and replace the logo
 		GameObject logoObj = GameObject.Find("Logo");
 		if (logoObj != null)
@@ -105,6 +114,8 @@ internal static class MainMenuPatch
 	}
 	private static void UpdatePromos()
 	{
+		Profiler.Active.Scope();
+
 		GameObject uiGroup = GameObject.Find("UI Group");
 		if (uiGroup == null)
 			return;
@@ -147,6 +158,8 @@ internal static class MainMenuPatch
 
 	private static void UpdateDLC()
 	{
+		Profiler.Active.Scope();
+
 		Transform dlcLogos = GameObject.Find("DLCLogos (1)")?.transform;
 		Transform topLeft = GameObject.Find("TopLeftColumns")?.transform;
 
@@ -167,6 +180,8 @@ internal static class MainMenuPatch
 
 	private static void UpdateBuildNumber()
 	{
+		Profiler.Active.Scope();
+
 		GameObject promoContainer = GameObject.Find("ONI_MP_PromoContainer");
 		GameObject watermark = GameObject.Find("BuildWatermark");
 
@@ -193,6 +208,8 @@ internal static class MainMenuPatch
 
 	private static void AddSocials(MainMenu menu)
 	{
+		Profiler.Active.Scope();
+
 		var promoContainer = GameObject.Find("ONI_MP_PromoContainer");
 		if (promoContainer == null)
 		{
@@ -249,6 +266,8 @@ internal static class MainMenuPatch
 
 	private static void AddSocialButton(Transform parent, string tooltip, string url, Texture2D spriteSheet)
 	{
+		Profiler.Active.Scope();
+
 		if (spriteSheet == null)
 			return;
 

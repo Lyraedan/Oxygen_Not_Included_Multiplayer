@@ -3,6 +3,7 @@ using ONI_MP.Networking.Packets.Architecture;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -12,16 +13,22 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(TechId ?? string.Empty);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			TechId = reader.ReadString();
 		}
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.IsHost) return;
 
 			// Host received request from client

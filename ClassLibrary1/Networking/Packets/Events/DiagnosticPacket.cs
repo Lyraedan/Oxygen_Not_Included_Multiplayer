@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ONI_MP.Profiling;
 using static ColonyDiagnostic;
 using static ColonyDiagnostic.DiagnosticResult;
 
@@ -23,6 +24,8 @@ namespace ONI_MP.Networking.Packets.Events
 		public string DiagnosticMsg;
 		public DiagnosticPacket(string diagnosticTypeName, DiagnosticResult diagnosticResult) 
 		{
+			Profiler.Active.Scope();
+
 			DiagnosticType = diagnosticTypeName;
 			DiagnosticOpinion = diagnosticResult.opinion;
 			DiagnosticMsg = diagnosticResult.Message;
@@ -31,6 +34,8 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			DiagnosticType = reader.ReadString();
 			DiagnosticOpinion = (Opinion)reader.ReadInt32();
 			DiagnosticMsg = reader.ReadString();
@@ -39,12 +44,16 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(DiagnosticType);
 			writer.Write((int) DiagnosticOpinion);
 			writer.Write(DiagnosticMsg);
 		}
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.IsClient)
 				return;
 
@@ -52,6 +61,8 @@ namespace ONI_MP.Networking.Packets.Events
 		}
 		public DiagnosticResult ToResult()
 		{
+			Profiler.Active.Scope();
+
 			return new DiagnosticResult(DiagnosticOpinion, DiagnosticMsg);
 		}
 	}

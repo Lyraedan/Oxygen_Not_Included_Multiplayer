@@ -1,6 +1,7 @@
 using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -10,6 +11,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(DisinfectCells.Count);
 			foreach (var cell in DisinfectCells)
 			{
@@ -19,6 +22,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			int count = reader.ReadInt32();
 			DisinfectCells = new List<int>(count);
 			for (int i = 0; i < count; i++)
@@ -29,6 +34,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.IsHost) return;
 			ONI_MP.Networking.Components.WorldStateSyncer.Instance?.OnDisinfectStateReceived(this);
 		}

@@ -3,6 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World.SideScreen
@@ -17,6 +18,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(FlatTagFilterable __instance, Tag tag)
 		{
+			Profiler.Active.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 

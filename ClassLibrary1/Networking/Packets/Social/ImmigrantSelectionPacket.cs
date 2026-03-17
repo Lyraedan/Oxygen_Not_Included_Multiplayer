@@ -3,6 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.Social
 {
@@ -13,18 +14,24 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(PrintingPodWorldIndex);
 			selectedOption.Serialize(writer);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			PrintingPodWorldIndex = reader.ReadInt32();
 			selectedOption = ImmigrantOptionEntry.Deserialize(reader);
 		}
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.InSession) return;
 
 			DebugConsole.Log($"[ImmigrantSelectionPacket] Received selection: world index {PrintingPodWorldIndex}, IsHost: {MultiplayerSession.IsHost} with id: {selectedOption.GetId()}");

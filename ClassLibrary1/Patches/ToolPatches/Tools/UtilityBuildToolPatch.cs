@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches.ToolPatches.Build
 {
@@ -17,6 +18,8 @@ namespace ONI_MP.Patches.ToolPatches.Build
 	{
 		public static void Prefix(BaseUtilityBuildTool __instance)
 		{
+			Profiler.Active.Scope();
+
 			//DebugConsole.Log($"[UtilityBuildToolPatch] Prefix called! Tool type: {__instance.GetType().Name}");
 			if (!MultiplayerSession.InSession)
 			{

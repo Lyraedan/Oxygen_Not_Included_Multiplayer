@@ -2,6 +2,7 @@
 using Shared;
 using Steamworks;
 using System.Collections.Generic;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking
@@ -34,6 +35,8 @@ namespace ONI_MP.Networking
 		
 		public static void Clear()
 		{
+			Profiler.Active.Scope();
+
 			ConnectedPlayers.Clear();
 			HostSteamID = CSteamID.Nil;
 			DebugConsole.Log("[MultiplayerSession] Session cleared.");
@@ -41,12 +44,16 @@ namespace ONI_MP.Networking
 
 		public static void SetHost(CSteamID host)
 		{
+			Profiler.Active.Scope();
+
 			HostSteamID = host;
 			DebugConsole.Log($"[MultiplayerSession] Host set to: {host}");
 		}
 
 		public static MultiplayerPlayer GetPlayer(CSteamID id)
 		{
+			Profiler.Active.Scope();
+
 			return ConnectedPlayers.TryGetValue(id, out var player) ? player : null;
 		}
 
@@ -56,6 +63,8 @@ namespace ONI_MP.Networking
 
 		public static void CreateNewPlayerCursor(CSteamID steamID)
 		{
+			Profiler.Active.Scope();
+
 			if (PlayerCursors.ContainsKey(steamID))
 				return;
 
@@ -81,6 +90,8 @@ namespace ONI_MP.Networking
 
 		public static void CreateConnectedPlayerCursors()
 		{
+			Profiler.Active.Scope();
+
 			var members = SteamLobby.GetAllLobbyMembers();
 			foreach (var playerId in members)
 			{
@@ -93,6 +104,8 @@ namespace ONI_MP.Networking
 
 		public static void RemovePlayerCursor(CSteamID steamID)
 		{
+			Profiler.Active.Scope();
+
 			if (!PlayerCursors.TryGetValue(steamID, out var cursor))
 				return;
 
@@ -108,6 +121,8 @@ namespace ONI_MP.Networking
 
 		public static void RemoveAllPlayerCursors()
 		{
+			Profiler.Active.Scope();
+
 			foreach (var kvp in PlayerCursors)
 			{
 				var cursor = kvp.Value;
@@ -124,6 +139,8 @@ namespace ONI_MP.Networking
 
 		public static bool TryGetCursorObject(CSteamID steamID, out GameObject cursorGO)
 		{
+			Profiler.Active.Scope();
+
 			if (PlayerCursors.TryGetValue(steamID, out var cursor) && cursor != null)
 			{
 				cursorGO = cursor.gameObject;

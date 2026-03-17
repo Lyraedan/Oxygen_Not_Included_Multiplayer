@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
+using ONI_MP.Profiling;
 using UnityEngine;
 using static STRINGS.INPUT_BINDINGS;
 
@@ -38,6 +39,8 @@ namespace ONI_MP.Networking.Packets.Tools
 
 		public virtual void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			if(ToolInstance is FilteredDragTool filteredToolInstance)
 				StoreFilterData(filteredToolInstance);
 
@@ -68,6 +71,8 @@ namespace ONI_MP.Networking.Packets.Tools
 
 		public virtual void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			if (ToolInstance is FilteredDragTool)
 			{
 				var count = reader.ReadInt32();
@@ -95,6 +100,8 @@ namespace ONI_MP.Networking.Packets.Tools
 
 		public virtual void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (ToolInstance == null)
 			{
 				DebugConsole.LogWarning("[FilteredDragToolPacket] ToolInstance is null in OnDispatched");
@@ -141,6 +148,8 @@ namespace ONI_MP.Networking.Packets.Tools
 		}
 		public void ApplyFilterData(FilteredDragTool tool, HashSet<string> targets)
 		{
+			Profiler.Active.Scope();
+
 			var currentFilterKeys = tool.currentFilterTargets.Keys.ToList();
 
 			foreach (var target in currentFilterKeys)
@@ -155,6 +164,8 @@ namespace ONI_MP.Networking.Packets.Tools
 
 		public void StoreFilterData(FilteredDragTool tool)
 		{
+			Profiler.Active.Scope();
+
 			foreach (var target in tool.currentFilterTargets)
 			{
 				if (target.Value == ToolParameterMenu.ToggleState.On)

@@ -1,5 +1,6 @@
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.World
@@ -16,6 +17,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(Cell);
 			writer.Write(ElementIndex);
 			writer.Write(Mass);
@@ -27,6 +30,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			Cell = reader.ReadInt32();
 			ElementIndex = reader.ReadUInt16();
 			Mass = reader.ReadSingle();
@@ -38,6 +43,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.IsHost)
 			{
 				// Host logic (send to others)
@@ -52,6 +59,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		private void Apply()
 		{
+			Profiler.Active.Scope();
+
 			IsApplying = true;
 			try
 			{

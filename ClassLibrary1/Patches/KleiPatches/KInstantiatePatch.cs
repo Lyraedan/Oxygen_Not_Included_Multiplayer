@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using ONI_MP.Networking;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 [HarmonyPatch(typeof(Util), nameof(Util.KInstantiate),
@@ -16,6 +17,8 @@ public static class KInstantiatePatch
 {
 	public static bool Prefix(GameObject original, Vector3 position, Quaternion rotation, GameObject parent, string name, bool initialize_id, int gameLayer)
 	{
+		Profiler.Active.Scope();
+
 		if (MultiplayerSession.IsClient)
 		{
 			//DebugConsole.Log($"[MP] Blocked KInstantiate on client for prefab '{original?.name}'");
@@ -28,6 +31,8 @@ public static class KInstantiatePatch
 	// Queue instantiation into batcher on host
 	public static void Postfix(GameObject __result, GameObject original, Vector3 position, Quaternion rotation, GameObject parent, string name, bool initialize_id, int gameLayer)
 	{
+		Profiler.Active.Scope();
+
 		if (__result == null || original == null)
 			return;
 

@@ -2,6 +2,7 @@
 using HarmonyLib;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -13,6 +14,8 @@ namespace ONI_MP.Patches.World
 		[HarmonyPatch(typeof(SaveLoader), nameof(SaveLoader.LoadFromWorldGen))]
 		public static void Postfix_LoadFromWorldGen(bool __result)
 		{
+			Profiler.Active.Scope();
+
 			if (__result)
 				TryCreateLobbyAfterLoad("[Multiplayer] Lobby created after new world gen.");
 
@@ -24,6 +27,8 @@ namespace ONI_MP.Patches.World
 					  new Type[] { typeof(IReader) })]
         public static void Postfix(IReader reader, ref bool __result)
         {
+	        Profiler.Active.Scope();
+
             // __result == true means the save loaded successfully
             if (!__result)
                 return;
@@ -33,6 +38,8 @@ namespace ONI_MP.Patches.World
 
         private static void OnSaveLoaded()
         {
+	        Profiler.Active.Scope();
+
             // Your logic here
             TryCreateLobbyAfterLoad("[Multiplayer] Lobby created after world load.");
             if (MultiplayerSession.InSession)
@@ -44,6 +51,8 @@ namespace ONI_MP.Patches.World
 
         private static void TryCreateLobbyAfterLoad(string logMessage)
 		{
+			Profiler.Active.Scope();
+
 			if (MultiplayerSession.ShouldHostAfterLoad)
 			{
 				MultiplayerSession.ShouldHostAfterLoad = false;

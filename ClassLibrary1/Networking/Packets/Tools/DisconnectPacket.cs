@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Tools
@@ -17,6 +18,8 @@ namespace ONI_MP.Networking.Packets.Tools
 	{
 		public DisconnectPacket() : base() 
 		{
+			Profiler.Active.Scope();
+
 			ToolInstance = DisconnectTool.Instance;
 			ToolMode = DragToolMode.OnDragComplete;
 		}

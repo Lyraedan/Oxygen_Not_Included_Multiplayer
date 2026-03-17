@@ -1,6 +1,7 @@
 using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.World;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -13,6 +14,8 @@ namespace ONI_MP.Patches.World
 	{
 		public static void Postfix(TechInstance __instance)
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.IsHost) return;
 			if (__instance?.tech == null) return;
 			

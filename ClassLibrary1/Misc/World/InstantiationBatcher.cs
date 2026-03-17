@@ -1,6 +1,7 @@
 ﻿using ONI_MP.Networking;
 using ONI_MP.Networking.Packets;
 using System.Collections.Generic;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Misc.World
@@ -13,11 +14,15 @@ namespace ONI_MP.Misc.World
 
 		public static void Queue(InstantiationsPacket.InstantiationEntry entry)
 		{
+			Profiler.Active.Scope();
+
 			queue.Add(entry);
 		}
 
 		public static void Update()
 		{
+			Profiler.Active.Scope();
+
 			timeSinceLastFlush += Time.unscaledDeltaTime;
 
 			if (timeSinceLastFlush >= FlushInterval)
@@ -29,6 +34,8 @@ namespace ONI_MP.Misc.World
 
 		public static void Flush()
 		{
+			Profiler.Active.Scope();
+
 			if (queue.Count == 0)
 				return;
 

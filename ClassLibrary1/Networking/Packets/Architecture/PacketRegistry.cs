@@ -23,6 +23,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Networking.Packets.Architecture
 {
@@ -32,15 +33,21 @@ namespace ONI_MP.Networking.Packets.Architecture
 
         public static bool HasRegisteredPacket(int type)
         {
+	        Profiler.Active.Scope();
+
             return _PacketTypes.ContainsKey(type);
         }
 		public static bool HasRegisteredPacket(Type type)
 		{
+			Profiler.Active.Scope();
+
 			return _PacketTypes.ContainsKey(API_Helper.GetHashCode(type));
 		}
 
 		private static void Register(Type packageType)
         {
+	        Profiler.Active.Scope();
+
             int id = API_Helper.GetHashCode(packageType);
 			var IPacketType = typeof(IPacket);
             if(IPacketType.IsAssignableFrom(packageType))
@@ -74,6 +81,8 @@ namespace ONI_MP.Networking.Packets.Architecture
         }
         public static IPacket Create(int type)
 		{
+			Profiler.Active.Scope();
+
 			return _PacketTypes.TryGetValue(type, out var packetType)
 					? (IPacket)Activator.CreateInstance(packetType)
 					: throw new InvalidOperationException($"No packet registered for type {type}");
@@ -81,6 +90,8 @@ namespace ONI_MP.Networking.Packets.Architecture
 
         public static int GetPacketId(IPacket packet)
         {
+	        Profiler.Active.Scope();
+
             var type = packet.GetType();
             int id = API_Helper.GetHashCode(type);
 
@@ -92,12 +103,16 @@ namespace ONI_MP.Networking.Packets.Architecture
 
 		public static void RegisterDefaults()
 		{
+			Profiler.Active.Scope();
+
            Shared.Helpers.PacketRegistrationHelper.AutoRegisterPackets(Assembly.GetExecutingAssembly(), (t=>TryRegister(t)), out int count, out var duration);
 			DebugConsole.LogSuccess($"[PacketRegistry] Auto-registering {count} packets took {duration.TotalMilliseconds} ms");
 		}
 
         public static void TryRegister(Type packetType, string nameOverride = "")
         {
+	        Profiler.Active.Scope();
+
             try
             {
                 Register(packetType);

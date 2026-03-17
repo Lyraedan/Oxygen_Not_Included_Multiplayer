@@ -6,6 +6,7 @@ using ONI_MP.Networking.Packets.Social;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.GamePatches
@@ -26,6 +27,8 @@ namespace ONI_MP.Patches.GamePatches
 		// Clear the lock when the screen closes or duplicant is printed
 		public static void ClearOptionsLock()
 		{
+			Profiler.Active.Scope();
+
 			OptionsLocked = false;
 			ContainersCreatedByPatch = false;
 			AvailableOptions = null;
@@ -44,6 +47,8 @@ namespace ONI_MP.Patches.GamePatches
 		}
 		static IEnumerator SetMinionDelayed(CharacterContainer container, MinionStartingStats stats)
 		{
+			Profiler.Active.Scope();
+
 			// Wait for end of frame to ensure proper initialization
 			yield return SequenceUtil.WaitForNextFrame;
 			container.SetMinion(stats);
@@ -51,6 +56,8 @@ namespace ONI_MP.Patches.GamePatches
 		}
 		static IEnumerator SetCarePackageInfoDelayed(CarePackageContainer carePackageContainer, CarePackageInfo pkg)
 		{
+			Profiler.Active.Scope();
+
 			// Wait for end of frame to ensure proper initialization
 			yield return SequenceUtil.WaitForNextFrame;
 			carePackageContainer.info = pkg;
@@ -78,6 +85,8 @@ namespace ONI_MP.Patches.GamePatches
 
 		public static void ApplyOptionsToScreen(ImmigrantScreen instance)
 		{
+			Profiler.Active.Scope();
+
 			if (AvailableOptions == null || AvailableOptions.Count == 0 || instance == null)
 			{
 				DebugConsole.LogWarning($"[ImmigrantScreen] ApplyOptionsToScreen: Cannot apply - Options:{AvailableOptions?.Count ?? 0}, Screen:{(instance != null ? "valid" : "null")}");
@@ -136,6 +145,8 @@ namespace ONI_MP.Patches.GamePatches
 	{
 		public static void Postfix(ImmigrantScreen __instance)
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.InSession) return;
 
 			DebugConsole.Log("[ImmigrantScreen] Initialize postfix triggered");
@@ -156,6 +167,8 @@ namespace ONI_MP.Patches.GamePatches
 
 		private static System.Collections.IEnumerator DelayedCaptureAndBroadcast(ImmigrantScreen screen)
 		{
+			Profiler.Active.Scope();
+
 			// Wait for end of frame (let containers populate their data)
 			yield return null;
 			
@@ -175,6 +188,8 @@ namespace ONI_MP.Patches.GamePatches
 
 		private static void CaptureAndBroadcastOptions(ImmigrantScreen __instance)
 		{
+			Profiler.Active.Scope();
+
 			string role = MultiplayerSession.IsHost ? "Host" : "Client";
 			DebugConsole.Log($"[ImmigrantScreen] {role}: Capturing options from containers...");
 
@@ -232,6 +247,8 @@ namespace ONI_MP.Patches.GamePatches
 	{
 		public static bool Prefix(ImmigrantScreen __instance)
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.InSession) return true;
 
 			if (MultiplayerSession.IsHost)
@@ -257,6 +274,8 @@ namespace ONI_MP.Patches.GamePatches
 
 		public static void Postfix()
 		{
+			Profiler.Active.Scope();
+
 			// Host: Clear the lock after printing and notify clients
 			if (MultiplayerSession.IsHost)
 			{
@@ -279,6 +298,8 @@ namespace ONI_MP.Patches.GamePatches
 	{
 		public static bool Prefix(ImmigrantScreen __instance)
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.InSession) return true;
 			
 			DebugConsole.Log("[ImmigrantScreen] Reject All clicked");
@@ -306,6 +327,8 @@ namespace ONI_MP.Patches.GamePatches
 		
 		public static void Postfix()
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.InSession) return;
 			
 			if (MultiplayerSession.IsHost)

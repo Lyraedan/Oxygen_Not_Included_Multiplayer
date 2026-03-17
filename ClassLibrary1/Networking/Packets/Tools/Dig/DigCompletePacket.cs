@@ -1,6 +1,7 @@
 ﻿using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 public class DigCompletePacket : IPacket
@@ -14,6 +15,8 @@ public class DigCompletePacket : IPacket
 
 	public void Serialize(BinaryWriter writer)
 	{
+		Profiler.Active.Scope();
+
 		writer.Write(Cell);
 		writer.Write(Mass);
 		writer.Write(Temperature);
@@ -24,6 +27,8 @@ public class DigCompletePacket : IPacket
 
 	public void Deserialize(BinaryReader reader)
 	{
+		Profiler.Active.Scope();
+
 		Cell = reader.ReadInt32();
 		Mass = reader.ReadSingle();
 		Temperature = reader.ReadSingle();
@@ -34,6 +39,8 @@ public class DigCompletePacket : IPacket
 
 	public void OnDispatched()
 	{
+		Profiler.Active.Scope();
+
 		if (MultiplayerSession.IsHost)
 			return;
 

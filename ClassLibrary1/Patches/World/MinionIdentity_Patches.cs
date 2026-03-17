@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -15,6 +16,8 @@ namespace ONI_MP.Patches.World
 		static bool ApplyingPacket = false;
 		public static void ApplyPacketName(MinionIdentity nameable, string name)
 		{
+			Profiler.Active.Scope();
+
 			ApplyingPacket = true;
 			nameable.SetName(name);
 			ApplyingPacket = false;
@@ -25,6 +28,8 @@ namespace ONI_MP.Patches.World
 		{
 			public static void Postfix(MinionIdentity __instance, string name)
 			{
+				Profiler.Active.Scope();
+
 				if (MultiplayerSession.NotInSession)
 					return;
 

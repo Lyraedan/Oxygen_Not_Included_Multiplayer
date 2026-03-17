@@ -1,6 +1,7 @@
 using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.World;
+using ONI_MP.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -9,6 +10,8 @@ namespace ONI_MP.Patches.World
 	{
 		public static bool Prefix(ResearchEntry __instance)
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.InSession) return true; // Offline, operate normally
 			if (MultiplayerSession.IsHost) return true; // Host operates normally
 

@@ -5,6 +5,7 @@ using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Social;
 using ONI_MP.Networking.Packets.World;
 using System.Collections.Generic;
+using ONI_MP.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.GamePatches
@@ -18,6 +19,8 @@ namespace ONI_MP.Patches.GamePatches
 	{
 		public static void Postfix(MinionStartingStats __instance, Vector3 location, ref GameObject __result)
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.InSession) return;
 			if (!MultiplayerSession.IsHost) return;
 			if (__result == null) return;
@@ -60,6 +63,8 @@ namespace ONI_MP.Patches.GamePatches
 	{
 		public static void Postfix(CarePackageInfo __instance, Vector3 location, ref GameObject __result)
 		{
+			Profiler.Active.Scope();
+
 			if (!MultiplayerSession.InSession) return;
 			if (!MultiplayerSession.IsHost) return;
 			if (__result == null) return;

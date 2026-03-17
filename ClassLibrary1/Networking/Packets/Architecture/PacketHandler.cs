@@ -13,6 +13,8 @@ namespace ONI_MP.Networking.Packets.Architecture
 
 		public static void HandleIncoming(byte[] data)
 		{
+			Profiler.Active.Scope();
+
 			if (!readyToProcess)
 			{
 				return;
@@ -48,6 +50,8 @@ namespace ONI_MP.Networking.Packets.Architecture
 
 		private static void Dispatch(IPacket packet)
 		{
+			Profiler.Active.Scope();
+
 			packet.OnDispatched();
 		}
 	}

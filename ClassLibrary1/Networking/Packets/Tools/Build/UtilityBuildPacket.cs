@@ -5,6 +5,7 @@ using Steamworks;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using ONI_MP.Profiling;
 using UnityEngine;
 using static TUNING.BUILDINGS.UPGRADES;
 
@@ -25,11 +26,15 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
 		static void SerializePathNode(ref BinaryWriter writer, ref BaseUtilityBuildTool.PathNode node)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(node.cell);
 			writer.Write(node.valid);
 		}
 		void DeserializePathNode(ref BinaryReader reader, ref List<BaseUtilityBuildTool.PathNode> toAdd)
 		{
+			Profiler.Active.Scope();
+
 			var node = new BaseUtilityBuildTool.PathNode
 			{
 				cell = reader.ReadInt32(),
@@ -42,6 +47,8 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
 		public UtilityBuildPacket(string prefabId, List<BaseUtilityBuildTool.PathNode> nodes, List<string> mats, string skin)
 		{
+			Profiler.Active.Scope();
+
 			PrefabID = prefabId ?? string.Empty;
 			path = nodes ?? [];
 			MaterialTags = mats ?? [];
@@ -52,6 +59,8 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 		}
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Active.Scope();
+
 			writer.Write(PrefabID);
 			writer.Write(FacadeID);
 			writer.Write(path.Count);
@@ -78,6 +87,8 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Active.Scope();
+
 			//DebugConsole.Log("[UtilityBuildPacket] Deserializing UtilityBuildPacket");
 			//DebugConsole.Log("[UtilityBuildPacket] Reading PrefabID...");
 			PrefabID = reader.ReadString();
@@ -115,6 +126,8 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
 		public void OnDispatched()
 		{
+			Profiler.Active.Scope();
+
 			DebugConsole.Log("[UtilityBuildPacket] OnDispatched");
 			if (path.Count == 0)
 			{
