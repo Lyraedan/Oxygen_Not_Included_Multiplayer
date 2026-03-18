@@ -143,6 +143,7 @@ namespace ONI_MP.DebugTools
 
             if (GUILayout.Button("Join Server"))
             {
+                NetworkConfig.UpdateTransport(NetworkConfig.NetworkTransport.RIPTIDE); // Force into riptide (Testing)
                 DebugConsole.Log($"[LAN] Joining {lanJoinAddress}");
 
                 string[] address = lanJoinAddress.Split(':');

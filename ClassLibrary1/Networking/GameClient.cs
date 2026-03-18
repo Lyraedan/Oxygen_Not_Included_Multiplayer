@@ -92,12 +92,12 @@ namespace ONI_MP.Networking
 
 			if (showLoadingScreen)
 			{
-				string hostName = string.Empty;
+				string hostName = "uknown host";
 				if (NetworkConfig.IsSteamConfig())
 				{
 					hostName = SteamFriends.GetFriendPersonaName(MultiplayerSession.HostUserID.AsCSteamID());
                 }
-				else
+				else if (NetworkConfig.IsLanConfig())
 				{
 					hostName = $"{ip}:{port}";
                 }
