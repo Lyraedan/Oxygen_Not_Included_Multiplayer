@@ -76,7 +76,6 @@ namespace ONI_MP.DebugTools
             GUILayout.Label("Hosting", GUI.skin.box);
             GUILayout.Label("Transport:");
             selectedHostTransport = GUILayout.Toolbar(selectedHostTransport, hostTransportOptions);
-            DebugConsole.Log($"Selected Host Transport: {hostTransportOptions[selectedHostTransport]} : {selectedHostTransport}");
 
             GUILayout.Space(5);
 

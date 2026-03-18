@@ -123,7 +123,7 @@ namespace ONI_MP.Networking.Transport.Lan
                 packetType = BitConverter.ToInt32(rawData, 0);
 
             DebugConsole.Log(
-                $"[RiptideSmokeTest] Server received packet from {clientId}, " +
+                $"[Riptide] Server received packet from {clientId}, " +
                 $"PacketType={packetType}, Size={size} bytes"
             );
 
@@ -186,7 +186,6 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Update()
         {
-            DebugConsole.Log("[RiptideServer] Update tick");
             _server?.Update();
             _client?.Update();
         }
