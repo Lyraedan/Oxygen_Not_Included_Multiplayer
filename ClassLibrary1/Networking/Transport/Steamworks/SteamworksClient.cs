@@ -38,7 +38,8 @@ namespace ONI_MP.Networking.Transport.Steam
             }
         }
 
-        public override void ConnectToHost()
+        // Connects to the host using Steam P2P networking. IP and port are ignored since Steamworks uses host steam id to connect.
+        public override void ConnectToHost(string ip, int port)
         {
             ulong hostSteamId = MultiplayerSession.HostUserID;
             DebugConsole.Log($"[GameClient] Attempting ConnectP2P to host {hostSteamId}...");
@@ -88,7 +89,7 @@ namespace ONI_MP.Networking.Transport.Steam
             {
                 DebugConsole.Log("[GameClient] Attempting to reconnect to host...");
                 //ConnectToHost(MultiplayerSession.HostSteamID);
-                ConnectToHost();
+                ConnectToHost(string.Empty, 7777);
             }
             else
             {

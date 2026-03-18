@@ -34,7 +34,7 @@ namespace ONI_MP.Networking.Transport
 
         public abstract void Prepare();
 
-        public abstract void ConnectToHost();
+        public abstract void ConnectToHost(string ip, int port);
 
         public abstract void Disconnect();
 

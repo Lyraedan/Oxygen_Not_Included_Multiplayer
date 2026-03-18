@@ -34,12 +34,15 @@ namespace ONI_MP.Networking.Transport.Lan
         public List<ulong> ClientList { get; private set; } = new();
         public static ulong CLIENT_ID { get; private set; }
 
+        private string host_ip = string.Empty;
+        private int host_port = 7777;
+
         public override void Prepare()
         {
             RiptideLogger.Initialize(DebugConsole.Log, false);
         }
 
-        public override void ConnectToHost()
+        public override void ConnectToHost(string ip, int port)
         {
             if (_client != null)
             {
@@ -47,8 +50,8 @@ namespace ONI_MP.Networking.Transport.Lan
                     return;
             }
 
-            string ip = Configuration.Instance.Client.LanSettings.Ip;
-            int port = Configuration.Instance.Client.LanSettings.Port;
+            host_ip = ip;
+            host_port = port;
             _client = new Client("RiptideClient");
             _client.Connected += OnConnectedToServer;
             _client.Disconnected += OnDisconnectedFromServer;
@@ -144,8 +147,10 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void ReconnectToSession()
         {
+            string ip = host_ip;
+            int port = host_port;
             Disconnect();
-            ConnectToHost();
+            ConnectToHost(ip, port);
         }
 
         public override void Update()
@@ -334,6 +339,9 @@ namespace ONI_MP.Networking.Transport.Lan
                     _client.MessageReceived -= OnMessageRecievedFromServer;
                     _client.ClientConnected -= OnOtherClientConnected;
                     _client.ClientDisconnected -= OnOtherClientDisconnected;
+
+                    host_ip = string.Empty;
+                    host_port = 7777;
                 }
                 catch (Exception ex)
                 {

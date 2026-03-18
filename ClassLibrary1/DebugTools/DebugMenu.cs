@@ -158,7 +158,7 @@ namespace ONI_MP.DebugTools
                     Configuration.Instance.Client.LanSettings.Port = port;
                     Configuration.Instance.Save();
 
-                    Join();
+                    Join(address[0], port);
                 }
             }
 
@@ -198,9 +198,9 @@ namespace ONI_MP.DebugTools
             SelectToolPatch.UpdateColor();
         }
 
-        void Join()
+        void Join(string ip, int port)
         {
-            GameClient.ConnectToHost();
+            GameClient.ConnectToHost(ip: ip, port: port);
         }
 	}
 }

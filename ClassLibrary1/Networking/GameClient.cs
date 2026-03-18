@@ -85,7 +85,7 @@ namespace ONI_MP.Networking
             NetworkConfig.TransportClient.Prepare();
 		}
 
-		public static void ConnectToHost(bool showLoadingScreen = true)
+		public static void ConnectToHost(bool showLoadingScreen = true, string ip = "", int port = 7777)
 		{
 			// Reset mod verification for new connection attempts
 			_modVerificationSent = false;
@@ -99,15 +99,13 @@ namespace ONI_MP.Networking
                 }
 				else
 				{
-					string ip = Configuration.Instance.Client.LanSettings.Ip;
-					string port = Configuration.Instance.Client.LanSettings.Port.ToString();
 					hostName = $"{ip}:{port}";
                 }
 					MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTING_TO_HOST, hostName));
 			}
 
 			SetState(ClientState.Connecting);
-			NetworkConfig.TransportClient.ConnectToHost();
+			NetworkConfig.TransportClient.ConnectToHost(ip, port);
 		}
 
 		public static void Disconnect()

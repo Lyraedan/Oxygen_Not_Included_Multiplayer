@@ -8,6 +8,12 @@ using ONI_MP.Misc;
 using System.Net;
 using ONI_MP.Menus;
 
+/*
+ 
+    This implementation is unfinished and currently not used, but it serves as a reference for how to implement a LAN client using LiteNetLib.
+    LAN Implementation finished via Riptide
+ 
+ */
 namespace ONI_MP.Networking.Transport.Lan
 {
     public class LiteNetLibClient : TransportClient, INetEventListener
@@ -22,6 +28,9 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public static ulong MY_CLIENT_ID = 0;
         public static bool ConnectFromConfig = false;
+
+        private string host_ip = string.Empty;
+        private int host_port = 7777;
 
         public override void Prepare()
         {
@@ -45,7 +54,7 @@ namespace ONI_MP.Networking.Transport.Lan
             }
         }
 
-        public override void ConnectToHost()
+        public override void ConnectToHost(string ip, int port)
         {
             if (connected)
                 return;
@@ -80,8 +89,10 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void ReconnectToSession()
         {
+            string ip = host_ip;
+            int port = host_port;
             Disconnect();
-            ConnectToHost();
+            ConnectToHost(ip, port);
         }
 
         public override void OnMessageRecieved()
@@ -104,11 +115,16 @@ namespace ONI_MP.Networking.Transport.Lan
         {
             DebugConsole.Log($"[LanClient] Disconnected from server ({disconnectInfo.Reason})");
             connected = false;
+            host_ip = string.Empty;
+            host_port = 7777;
         }
 
         public void OnNetworkError(System.Net.IPEndPoint endPoint, System.Net.Sockets.SocketError socketError)
         {
             DebugConsole.LogError($"[LanClient] Network error: {socketError} from {endPoint}", false);
+            connected = false;
+            host_ip = string.Empty;
+            host_port = 7777;
         }
 
         public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
