@@ -53,13 +53,16 @@ namespace ONI_MP.Networking.Transport.Lan
             host_ip = ip;
             host_port = port;
             _client = new Client("RiptideClient");
+            int timeout = 10;
+            _client.TimeoutTime = timeout;
+
             _client.Connected += OnConnectedToServer;
             _client.Disconnected += OnDisconnectedFromServer;
             _client.MessageReceived += OnMessageRecievedFromServer;
             _client.ClientConnected += OnOtherClientConnected;
             _client.ClientDisconnected += OnOtherClientDisconnected;
             DebugConsole.Log($"Connecting to {ip}:{port}");
-            CoroutineRunner.RunOne(WaitForConnectionSuccess());
+            CoroutineRunner.RunOne(WaitForConnectionSuccess(timeout));
             _client.Connect($"{ip}:{port}", useMessageHandlers: false);
         }
 
@@ -155,7 +158,9 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Update()
         {
-            _client?.Update();
+            DebugConsole.Log($"Riptide Client: {_client.IsConnected}");
+            if(_client != null)
+                _client.Update();
         }
 
         private ulong GetClientID()
@@ -292,17 +297,19 @@ namespace ONI_MP.Networking.Transport.Lan
             return NetworkIndicatorsScreen.NetworkState.GOOD;
         }
 
-        IEnumerator WaitForConnectionSuccess()
+        IEnumerator WaitForConnectionSuccess(int timeout)
         {
-            const float timeout = 10f;
             float timer = 0f;
 
+            bool wasSuccessful = false;
             while (timer < timeout)
             {
+                _client?.Update();
                 if (_client != null && _client.IsConnected)
                 {
                     DebugConsole.Log("[LanClient] Connection successful");
                     MultiplayerOverlay.Close();
+                    wasSuccessful = true;
                     yield break;
                 }
 
@@ -310,11 +317,17 @@ namespace ONI_MP.Networking.Transport.Lan
                 yield return null;
             }
 
-            CleanupRiptide();
+            if (!wasSuccessful)
+            {
+                CleanupRiptide();
 
-            MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTION_FAILED);
-            yield return new WaitForSeconds(3f);
-            MultiplayerOverlay.Close();
+                MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTION_FAILED);
+                yield return new WaitForSeconds(3f);
+                MultiplayerOverlay.Close();
+            } else
+            {
+                yield return null;
+            }
         }
 
         void CleanupRiptide()
