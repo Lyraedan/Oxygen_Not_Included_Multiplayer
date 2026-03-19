@@ -306,10 +306,6 @@ namespace ONI_MP.Networking.Transport.Lan
                     yield break;
                 }
 
-                // If connection attempt was cancelled externally
-                if (_client == null || _client.IsNotConnected)
-                    yield break;
-
                 timer += Time.deltaTime;
                 yield return null;
             }
@@ -317,9 +313,7 @@ namespace ONI_MP.Networking.Transport.Lan
             CleanupRiptide();
 
             MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTION_FAILED);
-
             yield return new WaitForSeconds(3f);
-
             MultiplayerOverlay.Close();
         }
 
