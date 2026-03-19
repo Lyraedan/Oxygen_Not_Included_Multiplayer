@@ -149,7 +149,7 @@ namespace ONI_MP.DebugTools
                 string[] address = lanJoinAddress.Split(':');
                 if(address.Length != 2)
                 {
-                    DebugConsole.LogError("Invalid address format! Use IP:Port");
+                    DebugConsole.LogError("Invalid address format! Use IP:Port", false);
                     return;
                 }
 

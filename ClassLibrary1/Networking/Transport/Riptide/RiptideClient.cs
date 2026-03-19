@@ -11,6 +11,8 @@ using ONI_MP.Menus;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
+using static STRINGS.UI.DEVELOPMENTBUILDS.ALPHA;
+using ONI_MP.Tests;
 
 namespace ONI_MP.Networking.Transport.Lan
 {
@@ -90,8 +92,10 @@ namespace ONI_MP.Networking.Transport.Lan
             OnClientConnected.Invoke();
             MultiplayerSession.SetHost(1); // Host's client is always 1
             MultiplayerSession.InSession = true;
-
             PacketHandler.readyToProcess = true;
+            DebugConsole.Log($"[Riptide] Connected to server with Client ID: {CLIENT_ID}");
+
+            CoroutineRunner.RunOne(Handshake());
 
             if (Utils.IsInGame())
             {
@@ -101,14 +105,14 @@ namespace ONI_MP.Networking.Transport.Lan
             {
                 NetworkConfig.TransportClient.OnRequestStateOrReturn.Invoke();
             }
-
         }
+
         private void OnDisconnectedFromServer(object sender, DisconnectedEventArgs e)
         {
             RemoveClientFromList(CLIENT_ID);
             CLIENT_ID = Utils.NilUlong();
 
-            OnClientDisconnected.Invoke();
+            OnClientDisconnected?.Invoke();
             CleanupRiptide();
         }
 
@@ -158,9 +162,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Update()
         {
-            DebugConsole.Log($"Riptide Client: {_client.IsConnected}");
-            if(_client != null)
-                _client.Update();
+            DebugConsole.Log($"[Riptide] Update! Connected: {_client.IsConnected}");
+            _client?.Update();
         }
 
         private ulong GetClientID()
@@ -304,7 +307,7 @@ namespace ONI_MP.Networking.Transport.Lan
             bool wasSuccessful = false;
             while (timer < timeout)
             {
-                _client?.Update();
+                _client?.Update(); // Update needs to happen during this process so that the client can acknowledge the connection and trigger the Connected event
                 if (_client != null && _client.IsConnected)
                 {
                     DebugConsole.Log("[LanClient] Connection successful");
@@ -360,6 +363,33 @@ namespace ONI_MP.Networking.Transport.Lan
 
             MultiplayerSession.HostUserID = Utils.NilUlong();
             MultiplayerSession.InSession = false;
+        }
+
+        IEnumerator Handshake()
+        {
+            // Recycle the handshake packet
+            HandshakePacket handshake = new HandshakePacket();
+            while (_client != null && _client.IsConnected)
+            {
+                if (_client.Connection == null)
+                {
+                    Debug.Log("[Handshake] Connection is null, waiting...");
+                    yield return null;
+                    continue;
+                }
+
+                Debug.Log("[Handshake] Sending handshake packet...");
+                NetworkConfig.TransportPacketSender.SendToConnection(_client.Connection, handshake, SteamNetworkingSend.Reliable);
+
+                yield return new WaitForSeconds(1f);
+
+                if (_client.IsNotConnected)
+                {
+                    Debug.Log("[Handshake] Client disconnected, stopping handshake coroutine.");
+                    break;
+                }
+            }
+            yield return null;
         }
     }
 }

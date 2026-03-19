@@ -78,7 +78,7 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void ReconnectToSession()
         {
-            if (Connection.HasValue || GameClient.State == ClientState.Connected || GameClient.State == ClientState.Connecting) // TODO FIX
+            if (Connection.HasValue || GameClient.State == ClientState.Connected || GameClient.State == ClientState.Connecting) // TODO FIX, f*ck me why didn't I put what was wrong with it
             {
                 DebugConsole.Log("[GameClient] Reconnecting: First disconnecting existing connection.");
                 Disconnect();

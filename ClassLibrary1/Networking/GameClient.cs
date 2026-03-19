@@ -87,8 +87,10 @@ namespace ONI_MP.Networking
 
 		public static void ConnectToHost(bool showLoadingScreen = true, string ip = "", int port = 7777)
 		{
-			// Reset mod verification for new connection attempts
-			_modVerificationSent = false;
+            Init();
+
+            // Reset mod verification for new connection attempts
+            _modVerificationSent = false;
 
 			if (showLoadingScreen)
 			{
