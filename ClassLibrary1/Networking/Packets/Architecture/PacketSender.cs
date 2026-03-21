@@ -55,7 +55,6 @@ namespace ONI_MP.Networking
 
 		public static int MAX_PACKET_SIZE_RELIABLE = 512;
 		public static int MAX_PACKET_SIZE_UNRELIABLE = 1024;
-		public static TransportPacketSender relaySender = new SteamworksPacketSender();
 
 		public static byte[] SerializePacketForSending(IPacket packet)
 		{

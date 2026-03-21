@@ -7,6 +7,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Profiling;
+using System.Collections.Concurrent;
 
 namespace ONI_MP.Networking.Transport.Lan
 {
@@ -26,7 +27,8 @@ namespace ONI_MP.Networking.Transport.Lan
         private int port;
         public static ulong MY_CLIENT_ID = 0;
 
-        // Anything to init before start
+        private readonly ConcurrentQueue<(NetPeer peer, byte[] data)> incomingPackets = new();
+
         public override void Prepare()
         {
             writer = new NetDataWriter();
@@ -66,6 +68,9 @@ namespace ONI_MP.Networking.Transport.Lan
             MY_CLIENT_ID = Utils.GetClientId(new IPEndPoint(IPAddress.Parse(ip), port));
             DebugConsole.Log($"[LanServer] MY_CLIENT_ID = {MY_CLIENT_ID} ({ip}:{port})");
             DebugConsole.Log($"[LanServer] LiteNetLib LAN server started on {ip}:{port}");
+
+            // Connect locally to the server for the host player
+            NetworkConfig.TransportClient.ConnectToHost("127.0.0.1", port);
         }
 
         public override void Stop()
@@ -85,20 +90,44 @@ namespace ONI_MP.Networking.Transport.Lan
         public override void Update()
         {
             netManager?.PollEvents();
-            DebugConsole.Log("[LanServer] Polling events");
         }
 
         public override void CloseConnections()
         {
-            foreach (MultiplayerPlayer player in MultiplayerSession.AllPlayers)
-                player.Connection = null;
+            if (netManager == null)
+                return;
+
+            foreach (var peer in netManager.ConnectedPeerList)
+            {
+                DebugConsole.Log($"Client {Utils.GetClientId(peer)} disconnected by server shutdown.");
+                peer.Disconnect();
+            }
 
             MultiplayerSession.ConnectedPlayers.Clear();
         }
 
         public override void OnMessageRecieved()
         {
-            // LiteNetLib uses its own internal functions
+            while (incomingPackets.TryDequeue(out var packet))
+            {
+                var (peer, data) = packet;
+
+                ulong clientId = Utils.GetClientId(peer);
+                int size = data.Length;
+
+                long t0 = GameServerProfiler.Begin();
+
+                try
+                {
+                    PacketHandler.HandleIncoming(data);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"[LanServer] Failed to handle packet from {clientId}: {ex}");
+                }
+
+                GameServerProfiler.End(t0, 1, size);
+            }
         }
 
         public void OnPeerConnected(NetPeer peer)
@@ -121,9 +150,10 @@ namespace ONI_MP.Networking.Transport.Lan
             ulong clientId = Utils.GetClientId(peer);
 
             if (MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out var player))
+            {
                 player.Connection = null;
-
-            MultiplayerSession.ConnectedPlayers.Remove(clientId);
+                MultiplayerSession.ConnectedPlayers.Remove(clientId);
+            }
 
             DebugConsole.Log($"[LanServer] Client disconnected: {clientId} ({disconnectInfo.Reason})");
         }
@@ -152,22 +182,9 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
         {
-            int size = reader.AvailableBytes;
             byte[] data = reader.GetRemainingBytes();
+            incomingPackets.Enqueue((peer, data));
 
-            ulong clientId = Utils.GetClientId(peer);
-            long t0 = GameServerProfiler.Begin();
-
-            try
-            {
-                PacketHandler.HandleIncoming(data);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"[LanServer] Failed to handle packet from {clientId}: {ex}");
-            }
-
-            GameServerProfiler.End(t0, 1, size);
             reader.Recycle();
         }
 

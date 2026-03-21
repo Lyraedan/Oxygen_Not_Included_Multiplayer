@@ -202,6 +202,7 @@ namespace ONI_MP.DebugTools
                     if (ImGui.Button("Leave Lobby"))
                         SteamLobby.LeaveLobby();
                     break;
+                case NetworkConfig.NetworkTransport.LITENETLIB:
                 case NetworkConfig.NetworkTransport.RIPTIDE:
                     if (ImGui.Button("Start Lan"))
                     {
