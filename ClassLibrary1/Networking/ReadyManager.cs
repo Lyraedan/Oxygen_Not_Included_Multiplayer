@@ -67,7 +67,7 @@ namespace ONI_MP.Networking
 
 			foreach (MultiplayerPlayer player in MultiplayerSession.ConnectedPlayers.Values)
 			{
-				if (player.SteamID == MultiplayerSession.HostUserID)
+				if (player.PlayerId == MultiplayerSession.HostUserID)
 					continue;
 
 				player.readyState = ClientReadyState.Unready;
@@ -77,7 +77,7 @@ namespace ONI_MP.Networking
 
 		public static void SetPlayerReadyState(MultiplayerPlayer player, ClientReadyState state)
 		{
-			if (player.SteamID == MultiplayerSession.HostUserID)
+			if (player.PlayerId == MultiplayerSession.HostUserID)
 				return;
 
 			player.readyState = state;
@@ -99,7 +99,7 @@ namespace ONI_MP.Networking
 			string message = string.Format(STRINGS.UI.MP_OVERLAY.SYNC.WAITING_FOR_PLAYERS_SYNC, readyCount, maxPlayers);
 			foreach (MultiplayerPlayer player in MultiplayerSession.ConnectedPlayers.Values)
 			{
-				message += $"{player.SteamName}: {GetReadyText(player.readyState)}\n";
+				message += $"{player.PlayerName}: {GetReadyText(player.readyState)}\n";
 			}
 			return message;
 		}

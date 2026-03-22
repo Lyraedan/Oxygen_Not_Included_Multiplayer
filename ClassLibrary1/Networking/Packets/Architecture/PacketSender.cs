@@ -197,7 +197,7 @@ namespace ONI_MP.Networking
 		{
 			foreach (var player in MultiplayerSession.ConnectedPlayers.Values)
 			{
-				if (exclude.HasValue && player.SteamID == exclude.Value)
+				if (exclude.HasValue && player.PlayerId == exclude.Value)
 					continue;
 
 				if (player.Connection != null)
@@ -219,7 +219,7 @@ namespace ONI_MP.Networking
 		{
 			foreach (var player in MultiplayerSession.ConnectedPlayers.Values)
 			{
-				if (excludedIds != null && excludedIds.Contains(player.SteamID))
+				if (excludedIds != null && excludedIds.Contains(player.PlayerId))
 					continue;
 
 				if (player.Connection != null)

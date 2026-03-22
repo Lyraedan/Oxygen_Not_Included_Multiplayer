@@ -5,9 +5,9 @@ using Steamworks;
 
 public class MultiplayerPlayer
 {
-	public ulong SteamID { get; private set; }
-	public string SteamName { get; private set; }
-	public bool IsLocal => SteamID == NetworkConfig.GetLocalID();
+	public ulong PlayerId { get; private set; }
+	public string PlayerName { get; private set; }
+	public bool IsLocal => PlayerId == NetworkConfig.GetLocalID();
 
 	public int AvatarImageId { get; private set; } = -1;
 	//public HSteamNetConnection? Connection { get; set; } = null;
@@ -16,15 +16,21 @@ public class MultiplayerPlayer
 
 	public ClientReadyState readyState = ClientReadyState.Ready;
 
-    public MultiplayerPlayer(ulong steamID)
+    public MultiplayerPlayer(ulong playerId)
 	{
-		SteamID = steamID;
-		SteamName = Utils.TrucateName(SteamFriends.GetFriendPersonaName(steamID.AsCSteamID()));
-		AvatarImageId = SteamFriends.GetLargeFriendAvatar(steamID.AsCSteamID());
+		PlayerId = playerId;
+		if(NetworkConfig.IsLanConfig())
+		{
+            PlayerName = $"Player {playerId}";
+            return;
+        }
+
+		PlayerName = Utils.TrucateName(SteamFriends.GetFriendPersonaName(playerId.AsCSteamID()));
+		AvatarImageId = SteamFriends.GetLargeFriendAvatar(playerId.AsCSteamID());
 	}
 
 	public override string ToString()
 	{
-		return $"{SteamName} ({SteamID})";
+		return $"{PlayerName} ({PlayerId})";
 	}
 }
