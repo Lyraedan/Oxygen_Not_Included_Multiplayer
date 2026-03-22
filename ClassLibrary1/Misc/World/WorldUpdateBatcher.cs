@@ -42,44 +42,72 @@ namespace ONI_MP.Misc.World
 			}
 		}
 
-		public static int Flush()
-		{
-			if (MultiplayerSession.IsClient)
-			{
-				return 0;
-			}
+        public static int Flush()
+        {
+            if (MultiplayerSession.IsClient)
+            {
+                return 0;
+            }
+
+            bool isLan = NetworkConfig.IsLanConfig();
+            bool isSteam = NetworkConfig.IsSteamConfig();
+
+            // Max packet sizes (bytes)
+            float maxPacketSize =
+                isLan ? PacketSender.MAX_PACKET_SIZE_LAN * 1024 :
+                isSteam ? PacketSender.MAX_PACKET_SIZE_UNRELIABLE :
+                1024; // fallback
+
+            const int PacketHeaderSize = 4;
+            const float BytesPerUpdate = 5.38f; // Measured compressed size, this is a rough estimate
 
             lock (pendingUpdates)
-			{
-				if (pendingUpdates.Count == 0)
-					return 0;
-
-				if(MultiplayerSession.IsClient)
-				{
-					// This should never happen, but its better to be safe then sorry
-                    pendingUpdates.Clear();
+            {
+                if (pendingUpdates.Count == 0)
                     return 0;
-				}
 
-				int totalUpdates = pendingUpdates.Count;
-				
-				// Each cell update is roughly 5.38 bytes after compression (1KB / 5.38 = 188)
-				const int MaxUpdatesPerPacket = 180; // Keep packet size under ~1KB
+                int totalUpdates = pendingUpdates.Count;
 
-				for (int i = 0; i < pendingUpdates.Count; i += MaxUpdatesPerPacket)
-				{
-					var chunk = pendingUpdates.GetRange(i, Math.Min(MaxUpdatesPerPacket, pendingUpdates.Count - i));
-					var packet = new WorldUpdatePacket();
-					packet.Updates.AddRange(chunk);
-					PacketSender.SendToAllClients(packet, sendType: SteamNetworkingSend.Unreliable); // max packet size 1200 bytes (typically 1170–1200 bytes)
+                List<WorldUpdatePacket.CellUpdate> currentBatch = new List<WorldUpdatePacket.CellUpdate>();
+                float currentSize = PacketHeaderSize;
+
+                for (int i = 0; i < pendingUpdates.Count; i++)
+                {
+                    var update = pendingUpdates[i];
+
+                    // If adding this update would exceed packet size -> flush current batch
+                    if (currentSize + BytesPerUpdate > maxPacketSize)
+                    {
+                        if (currentBatch.Count > 0)
+                        {
+                            var packet = new WorldUpdatePacket();
+                            packet.Updates.AddRange(currentBatch);
+
+                            PacketSender.SendToAllClients(packet, sendType: SteamNetworkingSend.Unreliable);
+
+                            currentBatch.Clear();
+                            currentSize = PacketHeaderSize;
+                        }
+                    }
+
+                    currentBatch.Add(update);
+                    currentSize += BytesPerUpdate;
                 }
 
-				pendingUpdates.Clear();
-				
-				// Return estimated packet size (5.38 bytes per update)
-				return (int)(totalUpdates * 5.38f);
-			}
-		}
+                // Flush remaining
+                if (currentBatch.Count > 0)
+                {
+                    var packet = new WorldUpdatePacket();
+                    packet.Updates.AddRange(currentBatch);
 
-	}
+                    PacketSender.SendToAllClients(packet, sendType: SteamNetworkingSend.Unreliable);
+                }
+
+                pendingUpdates.Clear();
+
+                return (int)(totalUpdates * BytesPerUpdate);
+            }
+        }
+
+    }
 }
