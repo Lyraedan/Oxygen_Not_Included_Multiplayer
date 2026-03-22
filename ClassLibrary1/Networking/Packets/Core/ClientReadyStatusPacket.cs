@@ -46,7 +46,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 			if (player == null)
 			{
-				DebugConsole.LogError("Tried to update ready state for a null player");
+				DebugConsole.LogError("Tried to update ready state for a null player", false);
 				return;
 			}
 
