@@ -52,7 +52,7 @@ namespace ONI_MP.Networking.Transport.Lan
             MultiplayerSession.ServerIp = ip;
             MultiplayerSession.ServerPort = port;
             _client = new Client("RiptideClient");
-            _client.TimeoutTime = 10000;
+            _client.TimeoutTime = 30000;
 
             int timeout = 10;
             _client.Connected += OnConnectedToServer;
