@@ -55,9 +55,9 @@ namespace ONI_MP.Networking.Transport.Lan
             host_ip = ip;
             host_port = port;
             _client = new Client("RiptideClient");
-            int timeout = 10;
-            _client.TimeoutTime = timeout;
+            _client.TimeoutTime = 10000;
 
+            int timeout = 10;
             _client.Connected += OnConnectedToServer;
             _client.Disconnected += OnDisconnectedFromServer;
             _client.MessageReceived += OnMessageRecievedFromServer;

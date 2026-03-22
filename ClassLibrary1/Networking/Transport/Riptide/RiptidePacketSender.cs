@@ -7,12 +7,11 @@ namespace ONI_MP.Networking.Transport.Lan
 {
     public class RiptidePacketSender : TransportPacketSender
     {
-        public override bool SendToConnection(object conn,IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
+        public override bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
         {
-            if (conn is not Connection)
+            if (conn is not Connection connection)
                 return false;
 
-            Connection connection = conn as Connection;
             if (!connection.IsConnected)
                 return false;
 
@@ -22,28 +21,29 @@ namespace ONI_MP.Networking.Transport.Lan
             Riptide.Message msg = Riptide.Message.Create(sendMode, 1); // dummy ID
             msg.AddBytes(bytes);
 
-            ushort sent = 0;
-            if(MultiplayerSession.IsHost)
+            if (MultiplayerSession.IsHost)
             {
-                sent = RiptideServer.Client.Send(msg);
-            } 
-            else
-            {
-                sent = RiptideClient.Client.Send(msg);
-            }
-            if (sent != 0)
-            {
-                PacketTracker.TrackSent(new PacketTracker.PacketTrackData
-                {
-                    packet = packet,
-                    size = bytes.Length
-                });
-                return true;
+                var server = RiptideServer.ServerInstance;
+                if (server == null)
+                    return false;
+
+                server.Send(msg, connection);
             }
             else
             {
-                return false;
+                var client = RiptideClient.Client;
+                if (client == null)
+                    return false;
+
+                client.Send(msg);
             }
+
+            PacketTracker.TrackSent(new PacketTracker.PacketTrackData
+            {
+                packet = packet,
+                size = bytes.Length
+            });
+            return true;
         }
 
         private static MessageSendMode ConvertSendType(SteamNetworkingSend sendType)
