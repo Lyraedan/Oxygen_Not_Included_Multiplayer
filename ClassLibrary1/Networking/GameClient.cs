@@ -321,7 +321,7 @@ namespace ONI_MP.Networking
                     ConnectToHost(false);
                 } else if(NetworkConfig.IsLanConfig())
 				{
-                    DebugConsole.Log($"[GameClient] Reconnecting to cached server: {_cachedConnectionInfo.Value.ip}:{_cachedConnectionInfo.Value.port}");
+                    DebugConsole.Log($"[GameClient] Reconnecting to cached server: {_cachedConnectionInfo.Value.ServerPort}:{_cachedConnectionInfo.Value.ServerPort}");
                     var ip = _cachedConnectionInfo.Value.ServerIp;
                     var port = _cachedConnectionInfo.Value.ServerPort;
                     _cachedConnectionInfo = null; // Clear cache to prevent re-triggering
