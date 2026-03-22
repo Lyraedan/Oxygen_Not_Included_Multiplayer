@@ -57,6 +57,9 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void OnDispatched()
 		{
+			if (SenderId == MultiplayerSession.LocalUserID)
+				return;
+
 			bool isFriends = SteamFriends.HasFriend(SenderId.AsCSteamID(), EFriendFlags.k_EFriendFlagImmediate);
             string senderName = SenderName;
             if (isFriends)
