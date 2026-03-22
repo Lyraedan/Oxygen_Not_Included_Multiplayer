@@ -16,6 +16,11 @@ namespace ONI_MP.Networking.Transport.Lan
         private static Server _server;
         private static Client _client; // Server client (Other users will use GameClient)
 
+        public static Server ServerInstance
+        {
+            get { return _server; }
+        }
+
         public static Client Client
         {
             get { return _client; }
