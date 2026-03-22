@@ -46,6 +46,9 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void OnDispatched()
 		{
+			if (PlayerID == MultiplayerSession.LocalUserID)
+				return;
+
 			if (MultiplayerSession.TryGetCursorObject(PlayerID, out PlayerCursor cursor))
 			{
 				if (cursor != null)

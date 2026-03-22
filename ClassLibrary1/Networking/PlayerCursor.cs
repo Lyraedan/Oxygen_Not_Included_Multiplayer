@@ -86,7 +86,9 @@ namespace ONI_MP.Networking
 			cursor.transform.SetParent(transform, false);
 			gameObject.SetLayerRecursively(LayerMask.NameToLayer("UI"));
 
-			playerName = SteamFriends.GetFriendPersonaName(assignedPlayer.AsCSteamID());
+			playerName = NetworkConfig.IsLanConfig()
+				? $"Player {assignedPlayer}"
+				: SteamFriends.GetFriendPersonaName(assignedPlayer.AsCSteamID());
 			cursorText.text = $"{playerName}";
 
 			OnCursorStateChanged += () => UpdateActionImage();
