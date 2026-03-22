@@ -92,6 +92,12 @@ namespace ONI_MP.Networking.Transport.Lan
             MultiplayerSession.SetHost(1); // Host's client is always 1
             MultiplayerSession.InSession = true;
             PacketHandler.readyToProcess = true;
+
+            // The clients MultiplayerSession.ConnectedPlayers should only ever contain the host
+            MultiplayerPlayer host = new MultiplayerPlayer(1);
+            host.Connection = _client.Connection;
+            MultiplayerSession.ConnectedPlayers.Add(1, host);
+
             DebugConsole.Log($"[Riptide] Connected to server with Client ID: {CLIENT_ID}");
 
             //CoroutineRunner.RunOne(Handshake());
@@ -161,7 +167,6 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Update()
         {
-            DebugConsole.Log($"[Riptide] Update! Connected: {_client.IsConnected}");
             _client?.Update();
         }
 
