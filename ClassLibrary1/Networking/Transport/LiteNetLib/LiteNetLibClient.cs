@@ -8,7 +8,7 @@ using ONI_MP.Misc;
 using System.Net;
 using ONI_MP.Menus;
 using UnityEngine;
-using ONI_MP.Tests;
+//using ONI_MP.Tests;
 using System.Collections.Generic;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -289,7 +289,7 @@ namespace ONI_MP.Networking.Transport.Lan
                     MultiplayerSession.InSession = true;
                     PacketHandler.readyToProcess = true;
 
-                    CoroutineRunner.RunOne(Handshake());
+                    //CoroutineRunner.RunOne(Handshake());
 
                     if (Utils.IsInGame())
                         NetworkConfig.TransportClient.OnContinueConnectionFlow.Invoke();
@@ -312,19 +312,19 @@ namespace ONI_MP.Networking.Transport.Lan
             MultiplayerOverlay.Close();
         }
 
-        IEnumerator Handshake()
-        {
-            HandshakePacket handshake = new HandshakePacket();
+        //IEnumerator Handshake()
+        //{
+        //    HandshakePacket handshake = new HandshakePacket();
 
-            while (connected && serverPeer != null)
-            {
-                NetDataWriter writer = new NetDataWriter();
-                writer.Put(handshake.SerializeToByteArray()); // or your serialization
+        //    while (connected && serverPeer != null)
+        //    {
+        //        NetDataWriter writer = new NetDataWriter();
+        //        writer.Put(handshake.SerializeToByteArray()); // or your serialization
 
-                serverPeer.Send(writer, DeliveryMethod.ReliableOrdered);
+        //        serverPeer.Send(writer, DeliveryMethod.ReliableOrdered);
 
-                yield return new WaitForSeconds(1f);
-            }
-        }
+        //        yield return new WaitForSeconds(1f);
+        //    }
+        //}
     }
 }

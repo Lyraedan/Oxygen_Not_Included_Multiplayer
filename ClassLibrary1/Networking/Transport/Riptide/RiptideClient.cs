@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
 using static STRINGS.UI.DEVELOPMENTBUILDS.ALPHA;
-using ONI_MP.Tests;
 
 namespace ONI_MP.Networking.Transport.Lan
 {
@@ -95,7 +94,7 @@ namespace ONI_MP.Networking.Transport.Lan
             PacketHandler.readyToProcess = true;
             DebugConsole.Log($"[Riptide] Connected to server with Client ID: {CLIENT_ID}");
 
-            CoroutineRunner.RunOne(Handshake());
+            //CoroutineRunner.RunOne(Handshake());
 
             if (Utils.IsInGame())
             {
@@ -365,7 +364,7 @@ namespace ONI_MP.Networking.Transport.Lan
             MultiplayerSession.InSession = false;
         }
 
-        IEnumerator Handshake()
+        /*IEnumerator Handshake()
         {
             // Recycle the handshake packet
             HandshakePacket handshake = new HandshakePacket();
@@ -390,6 +389,6 @@ namespace ONI_MP.Networking.Transport.Lan
                 }
             }
             yield return null;
-        }
+        }*/
     }
 }
