@@ -1,0 +1,56 @@
+using System.IO;
+using ONI_MP.DebugTools;
+using ONI_MP.Menus;
+using ONI_MP.Misc.World;
+using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Networking.Transfer;
+
+namespace ONI_MP.Networking.Packets.World
+{
+	public class TcpTransferStartPacket : IPacket
+	{
+		public int TcpPort;
+		public string FileName;
+		public int FileSize;
+
+		public void Serialize(BinaryWriter writer)
+		{
+			writer.Write(TcpPort);
+			writer.Write(FileName);
+			writer.Write(FileSize);
+		}
+
+		public void Deserialize(BinaryReader reader)
+		{
+			TcpPort = reader.ReadInt32();
+			FileName = reader.ReadString();
+			FileSize = reader.ReadInt32();
+		}
+
+		public void OnDispatched()
+		{
+			if (MultiplayerSession.IsHost)
+				return;
+
+			string hostIp = Configuration.Instance.Client.LanSettings.Ip;
+			ulong clientId = NetworkConfig.GetLocalID();
+
+			DebugConsole.Log($"[TcpTransferStart] Starting TCP download from {hostIp}:{TcpPort}, file '{FileName}' ({FileSize} bytes)");
+
+			MultiplayerOverlay.Show("Connecting for save download...");
+
+			TcpFileTransferClient.Download(hostIp, TcpPort, clientId,
+				(fileName, data) =>
+				{
+					DebugConsole.Log($"[TcpTransferStart] TCP download complete: '{fileName}' ({data.Length} bytes)");
+					var worldSave = new WorldSave(fileName, data);
+					SaveHelper.RequestWorldLoad(worldSave);
+				},
+				(error) =>
+				{
+					DebugConsole.LogError($"[TcpTransferStart] TCP download failed: {error}");
+					MultiplayerOverlay.Show("Save download failed.");
+				});
+		}
+	}
+}
