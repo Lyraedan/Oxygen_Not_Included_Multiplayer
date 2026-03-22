@@ -37,12 +37,21 @@ namespace ONI_MP.Networking
 		private struct CachedConnectionInfo
 		{
 			public ulong HostSteamID;
+			public string ServerIp;
+			public int ServerPort;
 
 			public CachedConnectionInfo(ulong id)
 			{
 				HostSteamID = id;
 			}
-		}
+
+			public CachedConnectionInfo(string ip, int port)
+            {
+                ServerIp = ip;
+                ServerPort = port;
+            }
+
+        }
 
 		/// <summary>
 		/// Returns true if we have cached connection info from a previous session
@@ -273,37 +282,51 @@ namespace ONI_MP.Networking
 
 			MultiplayerOverlay.Close();
 			NetworkIdentityRegistry.Clear();
-			SteamLobby.LeaveLobby();
+			if (NetworkConfig.IsSteamConfig())
+			{
+				SteamLobby.LeaveLobby();
+			}
 		}
 
 		public static void CacheCurrentServer()
 		{
-			if (MultiplayerSession.HostUserID != Utils.NilUlong())
+			if(NetworkConfig.IsSteamConfig())
+			{
+                if (MultiplayerSession.HostUserID != Utils.NilUlong())
+                {
+                    _cachedConnectionInfo = new CachedConnectionInfo(
+                            MultiplayerSession.HostUserID
+                    );
+                }
+            } 
+			else if(NetworkConfig.IsLanConfig())
 			{
 				_cachedConnectionInfo = new CachedConnectionInfo(
-						MultiplayerSession.HostUserID
-				);
-				DebugConsole.Log($"[GameClient] Cached server: {_cachedConnectionInfo.Value.HostSteamID}");
-			}
-			else
-			{
-				DebugConsole.LogWarning("[GameClient] Tried to cache, but HostSteamID is Nil.");
-			}
+                    MultiplayerSession.ServerIp,
+                    MultiplayerSession.ServerPort
+                );
+            }
 		}
 
 		public static void ReconnectFromCache()
 		{
 			if (_cachedConnectionInfo.HasValue)
 			{
-				DebugConsole.Log($"[GameClient] Reconnecting to cached server: {_cachedConnectionInfo.Value.HostSteamID}");
-				var hostId = _cachedConnectionInfo.Value.HostSteamID;
-				_cachedConnectionInfo = null; // Clear cache to prevent re-triggering
-				MultiplayerSession.HostUserID = hostId;
-				ConnectToHost(false);
-			}
-			else
-			{
-				DebugConsole.LogWarning("[GameClient] No cached server info available to reconnect.");
+				if(NetworkConfig.IsSteamConfig())
+				{
+                    DebugConsole.Log($"[GameClient] Reconnecting to cached server: {_cachedConnectionInfo.Value.HostSteamID}");
+                    var hostId = _cachedConnectionInfo.Value.HostSteamID;
+                    _cachedConnectionInfo = null; // Clear cache to prevent re-triggering
+                    MultiplayerSession.HostUserID = hostId;
+                    ConnectToHost(false);
+                } else if(NetworkConfig.IsLanConfig())
+				{
+                    DebugConsole.Log($"[GameClient] Reconnecting to cached server: {_cachedConnectionInfo.Value.ip}:{_cachedConnectionInfo.Value.port}");
+                    var ip = _cachedConnectionInfo.Value.ServerIp;
+                    var port = _cachedConnectionInfo.Value.ServerPort;
+                    _cachedConnectionInfo = null; // Clear cache to prevent re-triggering
+                    ConnectToHost(false, ip, port);
+                }
 			}
 		}
 	}

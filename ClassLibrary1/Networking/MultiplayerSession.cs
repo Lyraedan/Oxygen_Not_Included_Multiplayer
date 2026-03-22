@@ -22,6 +22,9 @@ namespace ONI_MP.Networking
 
 		public static ulong HostUserID { get; set; } = Utils.NilUlong();
 
+		public static string ServerIp { get; set; } = "127.0.0.1";
+		public static int ServerPort { get; set; } = 7777;
+
 		public static bool InSession = false;
 		public static bool SessionHasPlayers => InSession && ConnectedPlayers.Count > 1;
 		public static bool NotInSession => !InSession;

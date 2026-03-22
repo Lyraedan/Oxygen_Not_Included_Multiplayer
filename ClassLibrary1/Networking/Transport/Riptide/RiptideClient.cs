@@ -36,9 +36,6 @@ namespace ONI_MP.Networking.Transport.Lan
         public List<ulong> ClientList { get; private set; } = new();
         public static ulong CLIENT_ID { get; private set; }
 
-        private string host_ip = string.Empty;
-        private int host_port = 7777;
-
         public override void Prepare()
         {
             RiptideLogger.Initialize(DebugConsole.Log, false);
@@ -52,8 +49,8 @@ namespace ONI_MP.Networking.Transport.Lan
                     return;
             }
 
-            host_ip = ip;
-            host_port = port;
+            MultiplayerSession.ServerIp = ip;
+            MultiplayerSession.ServerPort = port;
             _client = new Client("RiptideClient");
             _client.TimeoutTime = 10000;
 
@@ -160,8 +157,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void ReconnectToSession()
         {
-            string ip = host_ip;
-            int port = host_port;
+            string ip = MultiplayerSession.ServerIp;
+            int port = MultiplayerSession.ServerPort;
             Disconnect();
             ConnectToHost(ip, port);
         }
@@ -363,8 +360,8 @@ namespace ONI_MP.Networking.Transport.Lan
                     _client.ClientConnected -= OnOtherClientConnected;
                     _client.ClientDisconnected -= OnOtherClientDisconnected;
 
-                    host_ip = string.Empty;
-                    host_port = 7777;
+                    MultiplayerSession.ServerIp = "127.0.0.1";
+                    MultiplayerSession.ServerPort = 7777;
                 }
                 catch (Exception ex)
                 {
