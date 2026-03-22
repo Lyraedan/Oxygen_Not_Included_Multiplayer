@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
 using static STRINGS.UI.DEVELOPMENTBUILDS.ALPHA;
+using ONI_MP.UI;
 
 namespace ONI_MP.Networking.Transport.Lan
 {
@@ -184,6 +185,10 @@ namespace ONI_MP.Networking.Transport.Lan
                 return;
 
             ClientList.Add(id);
+
+            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, $"Player {id}"));
+            ChatScreen.QueueMessage(pending);
+            Game.Instance?.Trigger(MP_HASHES.OnPlayerJoined);
         }
 
         public void RemoveClientFromList(ulong id)
@@ -192,6 +197,10 @@ namespace ONI_MP.Networking.Transport.Lan
                 return;
 
             ClientList.Remove(id);
+
+            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, $"Player {id}"));
+            ChatScreen.QueueMessage(pending);
+            Game.Instance?.Trigger(MP_HASHES.OnPlayerLeft);
         }
 
         public override NetworkIndicatorsScreen.NetworkState GetJitterState()

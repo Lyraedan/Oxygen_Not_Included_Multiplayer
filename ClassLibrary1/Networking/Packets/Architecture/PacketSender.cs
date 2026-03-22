@@ -126,7 +126,7 @@ namespace ONI_MP.Networking
 			{
 				int maxSize = MAX_PACKET_SIZE_LAN * 1024;
                 int totalSize = pendingPackets.Sum(p => p.Length) + 4; // +4 for the packetId int
-                if (totalSize >= MAX_PACKET_SIZE_LAN)
+                if (totalSize >= maxSize)
                 {
                     atCapacity = true;
                 }
