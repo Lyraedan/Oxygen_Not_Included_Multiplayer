@@ -1,11 +1,11 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Networking.Transport.Lan;
 using ONI_MP.Networking.Transport.Steamworks;
 using Steamworks;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 
 namespace ONI_MP.Networking.Packets.World
@@ -47,8 +47,24 @@ namespace ONI_MP.Networking.Packets.World
 				byte[] data = SaveHelper.GetWorldSave();
 				string fileName = name + ".sav";
 
-				// Start the streaming coroutine
-				CoroutineRunner.RunOne(StreamChunks(data, fileName, requester));
+				if (NetworkConfig.IsLanConfig() && NetworkConfig.TransportServer is RiptideServer riptideServer && riptideServer.TcpTransfer != null)
+				{
+					int tcpPort = Configuration.Instance.Host.LanSettings.Port + 1;
+					riptideServer.TcpTransfer.QueueTransfer(requester, fileName, data);
+
+					var startPacket = new TcpTransferStartPacket
+					{
+						TcpPort = tcpPort,
+						FileName = fileName,
+						FileSize = data.Length
+					};
+					PacketSender.SendToPlayer(requester, startPacket);
+					DebugConsole.Log($"[SaveFileRequest] Initiated TCP transfer for '{fileName}' to {requester}");
+				}
+				else
+				{
+					CoroutineRunner.RunOne(StreamChunks(data, fileName, requester));
+				}
 			}
 			catch (Exception ex)
 			{

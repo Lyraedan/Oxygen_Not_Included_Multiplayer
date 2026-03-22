@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Net;
 using Riptide;
 using Riptide.Utils;
 using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Profiling;
-using UnityEngine.Sprites;
+using ONI_MP.Networking.Transfer;
 using System.Collections.Generic;
 
 namespace ONI_MP.Networking.Transport.Lan
@@ -15,6 +14,9 @@ namespace ONI_MP.Networking.Transport.Lan
     {
         private static Server _server;
         private static Client _client; // Server client (Other users will use GameClient)
+        private TcpFileTransferServer _tcpTransfer;
+
+        public TcpFileTransferServer TcpTransfer => _tcpTransfer;
 
         public static Server ServerInstance
         {
@@ -51,6 +53,9 @@ namespace ONI_MP.Networking.Transport.Lan
             _server.ClientDisconnected += ServerOnClientDisconnected;
             _server.Start((ushort)port, (ushort)maxClients, useMessageHandlers: false);
             DebugConsole.Log("[RiptideServer] Riptide server started!");
+
+            _tcpTransfer = new TcpFileTransferServer();
+            _tcpTransfer.Start(port);
 
             _client = new Client("Lan/Riptide/HostClient");
             _client.Connected += OnLocalClientConnected;
@@ -159,6 +164,9 @@ namespace ONI_MP.Networking.Transport.Lan
                 _client.Disconnect();
                 _client = null;
             }
+
+            _tcpTransfer?.Stop();
+            _tcpTransfer = null;
 
             _server.Stop();
             _server = null;
