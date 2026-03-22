@@ -53,7 +53,7 @@ namespace ONI_MP.Networking
 		}
 
 		// Kilobytes
-        public static int MAX_PACKET_SIZE_LAN = 1;
+        public static float MAX_PACKET_SIZE_LAN = 0.5f; // 512 bytes (is multipled by 1024)
         public static int MAX_PACKET_SIZE_RELIABLE = 512;
 		public static int MAX_PACKET_SIZE_UNRELIABLE = 1024;
 
@@ -124,7 +124,7 @@ namespace ONI_MP.Networking
 			bool atCapacity = false;
 			if (NetworkConfig.IsLanConfig())
 			{
-				int maxSize = MAX_PACKET_SIZE_LAN * 1024;
+				float maxSize = MAX_PACKET_SIZE_LAN * 1024f;
                 int totalSize = pendingPackets.Sum(p => p.Length) + 4; // +4 for the packetId int
                 if (totalSize >= maxSize)
                 {

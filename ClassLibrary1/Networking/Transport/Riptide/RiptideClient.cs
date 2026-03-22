@@ -116,6 +116,8 @@ namespace ONI_MP.Networking.Transport.Lan
             CLIENT_ID = Utils.NilUlong();
 
             OnClientDisconnected?.Invoke();
+            MultiplayerSession.ConnectedPlayers.Clear();
+
             CleanupRiptide();
         }
 

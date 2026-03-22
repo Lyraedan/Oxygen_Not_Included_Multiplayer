@@ -319,7 +319,8 @@ namespace ONI_MP.Networking
                     _cachedConnectionInfo = null; // Clear cache to prevent re-triggering
                     MultiplayerSession.HostUserID = hostId;
                     ConnectToHost(false);
-                } else if(NetworkConfig.IsLanConfig())
+                } 
+				else if(NetworkConfig.IsLanConfig())
 				{
                     DebugConsole.Log($"[GameClient] Reconnecting to cached server: {_cachedConnectionInfo.Value.ServerPort}:{_cachedConnectionInfo.Value.ServerPort}");
                     var ip = _cachedConnectionInfo.Value.ServerIp;
