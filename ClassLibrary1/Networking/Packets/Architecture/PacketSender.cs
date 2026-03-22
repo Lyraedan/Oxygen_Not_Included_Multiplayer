@@ -52,8 +52,9 @@ namespace ONI_MP.Networking
 			}
 		}
 
-
-		public static int MAX_PACKET_SIZE_RELIABLE = 512;
+		// Kilobytes
+        public static int MAX_PACKET_SIZE_LAN = 1;
+        public static int MAX_PACKET_SIZE_RELIABLE = 512;
 		public static int MAX_PACKET_SIZE_UNRELIABLE = 1024;
 
 		public static byte[] SerializePacketForSending(IPacket packet)
@@ -119,7 +120,19 @@ namespace ONI_MP.Networking
 				pendingPackets = bulkPacketWaitingData[packetId];
 			}
 			pendingPackets.Add(packet.SerializeToByteArray());
-			if (pendingPackets.Count >= maxPacketNumberPerPacket)
+
+			bool atCapacity = false;
+			if (NetworkConfig.IsLanConfig())
+			{
+				int maxSize = MAX_PACKET_SIZE_LAN * 1024;
+                int totalSize = pendingPackets.Sum(p => p.Length) + 4; // +4 for the packetId int
+                if (totalSize >= MAX_PACKET_SIZE_LAN)
+                {
+                    atCapacity = true;
+                }
+            }
+
+			if (pendingPackets.Count >= maxPacketNumberPerPacket || atCapacity)
 			{
 				DispatchPendingBulkPacketOfType(conn, packetId);
 			}
