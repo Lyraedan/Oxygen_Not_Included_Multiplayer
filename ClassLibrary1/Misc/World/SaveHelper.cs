@@ -27,7 +27,8 @@ public static class SaveHelper
 	{
 		get
 		{
-			return Math.Max(64, Configuration.GetHostProperty<int>("SaveFileTransferChunkKB"));
+			int minChunkKB = NetworkConfig.IsLanConfig() ? 1 : 64;
+			return Math.Max(minChunkKB, Configuration.GetHostProperty<int>("SaveFileTransferChunkKB"));
 		}
 	}
 	public static void RequestWorldLoad(WorldSave world)
@@ -44,15 +45,7 @@ public static class SaveHelper
 
 		Directory.CreateDirectory(Path.GetDirectoryName(path));
 
-		// Write save data safely
-		using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
-		{
-			using (var writer = new BinaryWriter(fs))
-			{
-				writer.Write(data);
-				writer.Flush();
-			}
-		}
+		File.WriteAllBytes(path, data);
 
 		if (!SavegameDlcListValid(data, out string errorMsg))
 		{
