@@ -58,6 +58,7 @@ public static class SaveHelper
 		GameClient.Disconnect();
 		GameClient.SetState(ClientState.LoadingWorld);
 		PacketHandler.readyToProcess = false;
+		NetworkIdentityRegistry.Clear();
 		MultiplayerOverlay.Show(global::STRINGS.UI.FRONTEND.LOADING);
 
 		LoadScreen.DoLoad(path);

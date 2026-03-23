@@ -32,8 +32,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
-			// Why does commenting this out make it CRASH! Anomaly!
-			if (Utils.IsInGame())
+			if (Utils.IsInGame() && !GameClient.IsHardSyncInProgress)
 			{
 				return;
 			}

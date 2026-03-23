@@ -1,4 +1,5 @@
-﻿using ONI_MP.Menus;
+﻿using ONI_MP.DebugTools;
+using ONI_MP.Menus;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
 
@@ -35,16 +36,7 @@ namespace ONI_MP.Networking.Packets.Core
 		{
 			GameClient.IsHardSyncInProgress = true;
 			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.SYNC.HARDSYNC_INPROGRESS);
-
-			// This is incredibly stupid...
-			GameClient.CacheCurrentServer();
-			GameClient.Disconnect();
-
-			PauseScreen.TriggerQuitGame(); // Force exit to frontend
-
-			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.SYNC.HARDSYNC_INPROGRESS);
-			NetworkIdentityRegistry.Clear();
-			GameClient.ReconnectFromCache();
+			DebugConsole.Log("[HardSync] Client entering in-place sync, staying connected for save transfer");
 		}
 	}
 }
