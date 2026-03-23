@@ -352,6 +352,12 @@ namespace ONI_MP.Networking.Transport.Lan
             {
                 DebugConsole.LogWarning("[LanClient] Connection timed out");
 
+                if (MultiplayerSession.IsClient)
+                {
+                    // Display lost connection to host and return to the main menu
+                    NetworkConfig.TransportClient.OnReturnToMenu.Invoke();
+                }
+
                 try
                 {
                     _client.Disconnect();
