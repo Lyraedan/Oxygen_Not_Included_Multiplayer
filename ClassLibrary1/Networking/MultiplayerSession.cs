@@ -1,8 +1,5 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Misc;
-using ONI_MP.Networking.Transport.Steamworks;
-using Shared;
-using Steamworks;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -41,6 +38,7 @@ namespace ONI_MP.Networking
 		{
 			ConnectedPlayers.Clear();
 			HostUserID = Utils.NilUlong();
+			WorkProgressPatch.ClearTracking();
 			DebugConsole.Log("[MultiplayerSession] Session cleared.");
 		}
 
