@@ -1,4 +1,5 @@
-﻿using ONI_MP.DebugTools;
+﻿#if STEAM_WORKSHOP_VERSION
+using ONI_MP.DebugTools;
 using Steamworks;
 
 namespace ONI_MP.Networking.Transport.Steamworks
@@ -42,3 +43,4 @@ namespace ONI_MP.Networking.Transport.Steamworks
 		}
 	}
 }
+#endif

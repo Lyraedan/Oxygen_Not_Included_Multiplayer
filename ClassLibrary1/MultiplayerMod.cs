@@ -32,7 +32,7 @@ namespace ONI_MP
 			Harmony = harmony;
 			base.OnLoad(harmony);
 
-			ModAssets.LoadAssetBundles();
+            ModAssets.LoadAssetBundles();
 
             string logPath = System.IO.Path.Combine(Application.dataPath, "../ONI_MP_Log.txt");
 
@@ -49,9 +49,11 @@ namespace ONI_MP
 				DebugMenu.Init();
 				NetworkStatisticsMenu.Init();
 
-				// CHECKPOINT 2
-				System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 2: Pre-SteamLobby\n");
+                // CHECKPOINT 2
+#if STEAM_WORKSHOP_VERSION
+                System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 2: Pre-SteamLobby\n");
 				SteamLobby.Initialize();
+#endif
 
 				// CHECKPOINT 3
 				System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 3: Pre-GameObjects\n");
@@ -92,9 +94,9 @@ namespace ONI_MP
 
 			RegisterDevTools();
 			LoadNetworkRelay();
-		}
+        }
 
-		void LoadNetworkRelay()
+        void LoadNetworkRelay()
 		{
 			int relay = Configuration.Instance.Host.NetworkTransport;
 			NetworkConfig.UpdateTransport((NetworkConfig.NetworkTransport)relay);

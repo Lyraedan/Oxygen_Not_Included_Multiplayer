@@ -40,6 +40,10 @@
 	<PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
 		<DefineConstants>OS_MAC</DefineConstants>
 	</PropertyGroup>
+	
+	<PropertyGroup>
+		<DefineConstants>STEAM_WORKSHOP_VERSION</DefineConstants> <!-- Comment this out to disable Steam interaction -->
+	</PropertyGroup>
 
 	<ItemGroup>
 		<EmbeddedResource Include="Assets\oni_together_logo.png" />

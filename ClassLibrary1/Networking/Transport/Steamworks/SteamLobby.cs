@@ -1,4 +1,5 @@
-﻿using ONI_MP.DebugTools;
+﻿#if STEAM_WORKSHOP_VERSION
+using ONI_MP.DebugTools;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Components;
@@ -335,7 +336,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 			}
 		}
 
-		#region Lobby Code & Password
+        #region Lobby Code & Password
 
 		/// <summary>
 		/// Join a lobby by its lobby code.
@@ -503,9 +504,9 @@ namespace ONI_MP.Networking.Transport.Steamworks
 			}
 		}
 
-		#endregion
+        #endregion
 
-		#region Lobby Browser
+        #region Lobby Browser
 
 		/// <summary>
 		/// Request a list of public lobbies for the browser.
@@ -645,7 +646,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 			return "Unknown Host";
 		}
 
-		#endregion
+        #endregion
 	}
 }
-
+#endif
