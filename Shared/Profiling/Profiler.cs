@@ -1,3 +1,6 @@
+using System;
+using System.Runtime.CompilerServices;
+
 #if DEBUG
 using System;
 using System.Collections.Generic;
@@ -15,7 +18,7 @@ namespace Shared.Profiling
 
         private const int HistorySize = 300;
 
-        private static readonly float[] _cpuHistory     = new float[HistorySize];
+        private static readonly float[] _cpuHistory = new float[HistorySize];
         private static readonly float[] _networkHistory = new float[HistorySize];
         private static readonly float[] _messageHistory = new float[HistorySize];
         private static          int     _historyIndex;
@@ -36,14 +39,14 @@ namespace Shared.Profiling
 
         private static int TotalPolls;
 
-        private static float _cpuGraphMax     = 1f;
+        private static float _cpuGraphMax = 1f;
         private static float _networkGraphMax = 1024f;
         private static float _messageGraphMax = 10f;
 
         private class HotPathEntry
         {
-            public string Key        = string.Empty;
-            public string FilePath   = string.Empty;
+            public string Key = string.Empty;
+            public string FilePath = string.Empty;
             public string MemberName = string.Empty;
             public int    LineNumber;
 
@@ -74,8 +77,8 @@ namespace Shared.Profiling
 
             public void RecordBytes( int bytes )
             {
-                HasNetworkData =  true;
-                TotalNetwork   += bytes;
+                HasNetworkData = true;
+                TotalNetwork += bytes;
                 if( bytes > PeakNetwork )
                     PeakNetwork = bytes;
 
@@ -97,7 +100,7 @@ namespace Shared.Profiling
         private static bool _poppedOut;
         private static bool _showGraphs = true;
 
-        private static bool   _showHotPaths      = true;
+        private static bool   _showHotPaths = true;
         private static int    _hotPathSortColumn = 2;
         private static bool   _hotPathSortAscending;
         private static string _hotPathFilter = string.Empty;
@@ -113,9 +116,9 @@ namespace Shared.Profiling
             [MethodImpl( MethodImplOptions.AggressiveInlining )]
             internal ProfileScope( string? key, string memberName, string filePath, int lineNumber )
             {
-                _key        = key;
+                _key = key;
                 _memberName = memberName;
-                _filePath   = filePath;
+                _filePath = filePath;
                 _lineNumber = lineNumber;
                 _startTicks = Stopwatch.GetTimestamp();
             }
@@ -127,7 +130,7 @@ namespace Shared.Profiling
                     return;
 
                 long   ticks = Stopwatch.GetTimestamp() - _startTicks;
-                double ms    = ticks * 1000.0 / Stopwatch.Frequency;
+                double ms = ticks * 1000.0 / Stopwatch.Frequency;
 
                 string key = ResolveKey();
                 RecordHotPath( key, ms, _memberName, _filePath, _lineNumber );
@@ -149,7 +152,7 @@ namespace Shared.Profiling
                     return;
 
                 long   ticks = Stopwatch.GetTimestamp() - _startTicks;
-                double ms    = ticks * 1000.0 / Stopwatch.Frequency;
+                double ms = ticks * 1000.0 / Stopwatch.Frequency;
 
                 string resolvedKey = ResolveKey( key );
                 RecordHotPath( resolvedKey, ms, _memberName, _filePath, _lineNumber );
@@ -164,7 +167,7 @@ namespace Shared.Profiling
                     return;
 
                 long   ticks = Stopwatch.GetTimestamp() - _startTicks;
-                double ms    = ticks * 1000.0 / Stopwatch.Frequency;
+                double ms = ticks * 1000.0 / Stopwatch.Frequency;
 
                 string resolvedKey = ResolveKey( key );
                 RecordHotPath( resolvedKey, ms, bytes, _memberName, _filePath, _lineNumber );
@@ -182,7 +185,7 @@ namespace Shared.Profiling
                     return;
 
                 long   ticks = Stopwatch.GetTimestamp() - _startTicks;
-                double ms    = ticks * 1000.0 / Stopwatch.Frequency;
+                double ms = ticks * 1000.0 / Stopwatch.Frequency;
 
                 string resolvedKey = ResolveKey( key );
                 RecordHotPath( resolvedKey, ms, _memberName, _filePath, _lineNumber );
@@ -216,12 +219,12 @@ namespace Shared.Profiling
             {
                 entry = new HotPathEntry
                 {
-                    Key        = key,
-                    FilePath   = filePath,
+                    Key = key,
+                    FilePath = filePath,
                     MemberName = memberName,
                     LineNumber = lineNumber
                 };
-                _hotPaths[ key ]  = entry;
+                _hotPaths[ key ] = entry;
                 _hotPathSortDirty = 1;
             }
 
@@ -238,12 +241,12 @@ namespace Shared.Profiling
             {
                 entry = new HotPathEntry
                 {
-                    Key        = key,
-                    FilePath   = filePath,
+                    Key = key,
+                    FilePath = filePath,
                     MemberName = memberName,
                     LineNumber = lineNumber
                 };
-                _hotPaths[ key ]  = entry;
+                _hotPaths[ key ] = entry;
                 _hotPathSortDirty = 1;
             }
 
@@ -264,39 +267,39 @@ namespace Shared.Profiling
 
             LastMessage = messageCount;
             LastNetwork = bytes;
-            LastCpu     = ticks;
+            LastCpu = ticks;
 
             PeakMessages = Math.Max( PeakMessages, messageCount );
-            PeakNetwork  = Math.Max( PeakNetwork,  bytes );
-            PeakCpu      = Math.Max( PeakCpu,      ticks );
+            PeakNetwork = Math.Max( PeakNetwork,  bytes );
+            PeakCpu = Math.Max( PeakCpu,      ticks );
 
             TotalPolls++;
 
             if( TotalPolls == 1 )
             {
-                AvgCpu     = ms;
+                AvgCpu = ms;
                 AvgNetwork = bytes;
                 AvgMessage = messageCount;
             }
             else
             {
-                AvgCpu     += Alpha * ( ms           - AvgCpu );
+                AvgCpu += Alpha * ( ms           - AvgCpu );
                 AvgNetwork += Alpha * ( bytes        - AvgNetwork );
                 AvgMessage += Alpha * ( messageCount - AvgMessage );
             }
 
-            _cpuHistory[ _historyIndex ]     = ( float )ms;
+            _cpuHistory[ _historyIndex ] = ( float )ms;
             _networkHistory[ _historyIndex ] = bytes;
             _messageHistory[ _historyIndex ] = messageCount;
-            _historyIndex                    = ( _historyIndex + 1 ) % HistorySize;
+            _historyIndex = ( _historyIndex + 1 ) % HistorySize;
             if( _historyCount < HistorySize )
                 _historyCount++;
 
-            _cpuGraphMax     = Math.Max( ( float )ms,  _cpuGraphMax     * 0.998f );
+            _cpuGraphMax = Math.Max( ( float )ms,  _cpuGraphMax     * 0.998f );
             _networkGraphMax = Math.Max( bytes,        _networkGraphMax * 0.998f );
             _messageGraphMax = Math.Max( messageCount, _messageGraphMax * 0.998f );
 
-            _cpuGraphMax     = Math.Max( _cpuGraphMax,     0.1f );
+            _cpuGraphMax = Math.Max( _cpuGraphMax,     0.1f );
             _networkGraphMax = Math.Max( _networkGraphMax, 64f );
             _messageGraphMax = Math.Max( _messageGraphMax, 1f );
         }
@@ -305,13 +308,13 @@ namespace Shared.Profiling
         {
             LastMessage = 0;
             LastNetwork = 0;
-            LastCpu     = 0;
+            LastCpu = 0;
 
             PeakMessages = 0;
-            PeakNetwork  = 0;
-            PeakCpu      = 0;
+            PeakNetwork = 0;
+            PeakCpu = 0;
 
-            AvgCpu     = 0;
+            AvgCpu = 0;
             AvgNetwork = 0;
             AvgMessage = 0;
 
@@ -323,7 +326,7 @@ namespace Shared.Profiling
             Array.Clear( _networkHistory, 0, HistorySize );
             Array.Clear( _messageHistory, 0, HistorySize );
 
-            _cpuGraphMax     = 1f;
+            _cpuGraphMax = 1f;
             _networkGraphMax = 1024f;
             _messageGraphMax = 10f;
 
@@ -345,7 +348,7 @@ namespace Shared.Profiling
             else
             {
                 int start = _historyIndex;
-                int tail  = HistorySize - start;
+                int tail = HistorySize - start;
                 Array.Copy( ring, start, ordered, 0,    tail );
                 Array.Copy( ring, 0,     ordered, tail, start );
             }
@@ -403,7 +406,7 @@ namespace Shared.Profiling
         private static void DrawContent()
         {
             bool  hasNetwork = TotalPolls > 0;
-            float pollMs     = ( float )LastMs;
+            float pollMs = ( float )LastMs;
 
             if( hasNetwork )
             {
@@ -424,7 +427,7 @@ namespace Shared.Profiling
                         ImGui.TextDisabled( "No data yet..." );
                     else
                     {
-                        float       graphWidth  = ImGui.GetContentRegionAvail().x;
+                        float       graphWidth = ImGui.GetContentRegionAvail().x;
                         const float graphHeight = 60f;
 
                         float[] msData = GetOrderedHistory( _cpuHistory );
@@ -462,12 +465,12 @@ namespace Shared.Profiling
             if( _hotPathSortDirty != 0 || _hotPathFrameAccum >= HotPathSortInterval )
             {
                 _hotPathFrameAccum = 0;
-                _hotPathSortDirty  = 0;
+                _hotPathSortDirty = 0;
                 RebuildSortedHotPaths();
             }
 
             bool showBytesCols = HasAnyBytesData();
-            int  colCount      = showBytesCols ? 8 : 5;
+            int  colCount = showBytesCols ? 8 : 5;
 
             const ImGuiTableFlags tableFlags =
                 ImGuiTableFlags.Borders        |
@@ -504,11 +507,11 @@ namespace Shared.Profiling
                 if( sortSpecs.SpecsCount > 0 )
                 {
                     var spec = sortSpecs.Specs[ 0 ];
-                    _hotPathSortColumn    = ( int )spec.ColumnUserID;
+                    _hotPathSortColumn = ( int )spec.ColumnUserID;
                     _hotPathSortAscending = spec.SortDirection == ImGuiSortDirection.Ascending;
                 }
 
-                _hotPathSortDirty    = 1;
+                _hotPathSortDirty = 1;
                 sortSpecs.SpecsDirty = false;
             }
 
@@ -518,7 +521,7 @@ namespace Shared.Profiling
             {
                 if( hasFilter )
                 {
-                    bool matchesKey  = entry.Key.IndexOf( _hotPathFilter, StringComparison.OrdinalIgnoreCase )      >= 0;
+                    bool matchesKey = entry.Key.IndexOf( _hotPathFilter, StringComparison.OrdinalIgnoreCase )      >= 0;
                     bool matchesFile = entry.FilePath.IndexOf( _hotPathFilter, StringComparison.OrdinalIgnoreCase ) >= 0;
                     if( !matchesKey && !matchesFile )
                         continue;
@@ -527,8 +530,8 @@ namespace Shared.Profiling
                 ImGui.TableNextRow();
 
                 ImGui.TableSetColumnIndex( 0 );
-                string? shortFile  = string.IsNullOrEmpty( entry.FilePath ) ? null : Path.GetFileName( entry.FilePath );
-                string? location   = shortFile != null && entry.LineNumber > 0 ? $"{shortFile}:{entry.LineNumber}" : shortFile;
+                string? shortFile = string.IsNullOrEmpty( entry.FilePath ) ? null : Path.GetFileName( entry.FilePath );
+                string? location = shortFile != null && entry.LineNumber > 0 ? $"{shortFile}:{entry.LineNumber}" : shortFile;
                 string  displayKey = entry.Key;
                 if( entry.LineNumber > 0 )
                     displayKey = displayKey.Replace( $":{entry.LineNumber}", "" );
@@ -618,7 +621,7 @@ namespace Shared.Profiling
         private static string FormatBytes( long bytes )
         {
             string[] sizes = { "B", "KB", "MB", "GB", "TB" };
-            double   len   = bytes;
+            double   len = bytes;
             int      order = 0;
             while( len >= 1024 && order < sizes.Length - 1 )
             {
@@ -631,14 +634,14 @@ namespace Shared.Profiling
     }
 }
 #else
-namespace ONI_MP.Profiling
+namespace Shared.Profiling
 {
-    public class Profiler
+    public static class Profiler
     {
         public struct ProfileScope : IDisposable
         {
             [MethodImpl( MethodImplOptions.AggressiveInlining )]
-            internal ProfileScope( Profiler profiler, string key, string memberName, string filePath, int lineNumber )
+            internal ProfileScope( string? key, string memberName, string filePath, int lineNumber )
             {
             }
 
@@ -648,7 +651,7 @@ namespace ONI_MP.Profiling
             }
 
             [MethodImpl( MethodImplOptions.AggressiveInlining )]
-            private string ResolveKey( string extra = null ) => "";
+            private string ResolveKey( string? extra = null ) => "";
 
             [MethodImpl( MethodImplOptions.AggressiveInlining )]
             public void End( string key )
@@ -664,7 +667,7 @@ namespace ONI_MP.Profiling
             public void End( int messageCount, int bytes ) => End( null, messageCount, bytes );
 
             [MethodImpl( MethodImplOptions.AggressiveInlining )]
-            public void End( string key, int messageCount, int bytes )
+            public void End( string? key, int messageCount, int bytes )
             {
             }
 
@@ -673,15 +676,10 @@ namespace ONI_MP.Profiling
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public ProfileScope Scope( [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0 ) => default;
+        public static ProfileScope Scope( [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0 ) => default;
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public ProfileScope Scope( string key, [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0 ) => default;
-
-        public static readonly Profiler Client = new();
-        public static readonly Profiler Server = new();
-
-        public static Profiler Active => MultiplayerSession.IsHost ? Server : Client;
+        public static ProfileScope Scope( string key, [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0 ) => default;
     }
 }
 #endif
