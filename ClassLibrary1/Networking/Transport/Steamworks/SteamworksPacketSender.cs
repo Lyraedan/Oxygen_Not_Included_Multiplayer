@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if STEAM_WORKSHOP_VERSION
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -54,3 +55,4 @@ namespace ONI_MP.Networking.Transport.Steam
         }
     }
 }
+#endif

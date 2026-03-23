@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ONI_MP.Networking.Packets.Architecture;
-using Steamworks;
+﻿using ONI_MP.Networking.Packets.Architecture;
 
 namespace ONI_MP.Networking.Transport
 {
