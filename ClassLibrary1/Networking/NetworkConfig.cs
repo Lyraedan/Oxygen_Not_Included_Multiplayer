@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Transport;
 using ONI_MP.Networking.Transport.Lan;
+#if STEAM_WORKSHOP_VERSION
 using ONI_MP.Networking.Transport.Steam;
 using Steamworks;
 using SteamServer = ONI_MP.Networking.Transport.Steam.SteamworksServer;
 using SteamClient = ONI_MP.Networking.Transport.Steam.SteamworksClient;
-using ONI_MP.DebugTools;
 using ONI_MP.Networking.Transport.Steamworks;
+#endif
+using ONI_MP.DebugTools;
 
 namespace ONI_MP.Networking
 {
@@ -25,9 +27,9 @@ namespace ONI_MP.Networking
         }
         public static NetworkTransport transport { get; private set; } = NetworkTransport.STEAMWORKS;
 
-        public static TransportServer TransportServer { get; set; } = new SteamServer();
-        public static TransportClient TransportClient { get; set; } = new SteamClient();
-        public static TransportPacketSender TransportPacketSender { get; set; } = new SteamworksPacketSender();
+        public static TransportServer TransportServer { get; set; } = new RiptideServer();
+        public static TransportClient TransportClient { get; set; } = new RiptideClient();
+        public static TransportPacketSender TransportPacketSender { get; set; } = new RiptidePacketSender();
 
         public static void UpdateTransport(NetworkTransport newTransport)
         {
@@ -141,6 +143,7 @@ namespace ONI_MP.Networking
             List<ulong> clients = new List<ulong>();
             switch(transport)
             {
+#if STEAM_WORKSHOP_VERSION
                 case NetworkTransport.STEAMWORKS:
                     List<CSteamID> members = SteamLobby.GetAllLobbyMembers();
                     foreach(CSteamID member in members)
@@ -148,6 +151,7 @@ namespace ONI_MP.Networking
                         clients.Add(member.m_SteamID);
                     }
                     break;
+#endif
                 case NetworkTransport.RIPTIDE:
                     if (MultiplayerSession.IsClient)
                     {
@@ -159,7 +163,6 @@ namespace ONI_MP.Networking
                         RiptideServer server = TransportServer as RiptideServer;
                         return server.ClientList;
                     }
-                    break;
                 case NetworkTransport.LITENETLIB:
                     break;
             }

@@ -192,6 +192,6 @@ namespace ONI_MP
 #if STEAM_WORKSHOP_VERSION
 			ModUpdater.Updater.CheckForUpdate();
 #endif
-		}
+        }
     }
 }

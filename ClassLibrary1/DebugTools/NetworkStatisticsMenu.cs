@@ -2,10 +2,13 @@
 using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.Networking.States;
+using ONI_MP.Networking.Transport.Lan;
 using Steamworks;
 using System;
 using UnityEngine;
+#if STEAM_WORKSHOP_VERSION
 using SteamworksClient = ONI_MP.Networking.Transport.Steam.SteamworksClient;
+#endif
 
 namespace ONI_MP.DebugTools
 {
@@ -54,8 +57,34 @@ namespace ONI_MP.DebugTools
 		{
 			scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.Width(windowRect.width - 20), GUILayout.Height(windowRect.height - 40));
 
-			GUILayout.Label($"Ping: {SteamworksClient.GetPingToHost()}");
-            GUILayout.Label($"Quality(L/R): {SteamworksClient.GetLocalPacketQuality():0.00} / {SteamworksClient.GetRemotePacketQuality():0.00}");
+			int ping = -1;
+			float qualityL = -1;
+            float qualityR = -1;
+
+			switch (NetworkConfig.transport)
+			{
+#if STEAM_WORKSHOP_VERSION
+				case NetworkConfig.NetworkTransport.STEAMWORKS:
+					ping = SteamworksClient.GetPingToHost();
+					qualityL = SteamworksClient.GetLocalPacketQuality();
+					qualityR = SteamworksClient.GetRemotePacketQuality();
+					break;
+#endif
+				case NetworkConfig.NetworkTransport.RIPTIDE:
+					var metrics = RiptideClient.Client?.Connection?.Metrics;
+
+                    float lossRate = metrics.RollingNotifyLossRate; // 0–1
+                    float quality = 1f - lossRate;
+                    float remoteQuality = 1f - lossRate;
+
+                    ping = RiptideClient.Client.SmoothRTT;
+                    qualityL = quality;
+                    qualityR = remoteQuality;
+                    break;
+			}
+
+			GUILayout.Label($"Ping: {ping}");
+            GUILayout.Label($"Quality(L/R): {qualityL:0.00} / {qualityR:0.00}");
 			GUILayout.Space(10);
             GUILayout.Label($"Latency: {Utils.NetworkStateToString(NetworkIndicatorsScreen.latencyState)}");
             GUILayout.Label($"Jitter: {Utils.NetworkStateToString(NetworkIndicatorsScreen.jitterState)}");

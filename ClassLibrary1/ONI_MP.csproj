@@ -42,7 +42,7 @@
 	</PropertyGroup>
 	
 	<PropertyGroup>
-		<DefineConstants>STEAM_WORKSHOP_VERSION</DefineConstants> <!-- Comment this out to disable Steam interaction -->
+		<DefineConstants>STEAM_WORKSHOP_VERSION</DefineConstants> <!--Comment this out to disable Steam interaction -->
 	</PropertyGroup>
 
 	<ItemGroup>

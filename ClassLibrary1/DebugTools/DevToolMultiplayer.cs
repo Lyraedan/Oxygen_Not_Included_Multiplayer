@@ -18,7 +18,9 @@ using ONI_MP.Networking.Profiling;
 using System.Text;
 using ONI_MP.Patches.ToolPatches;
 using ONI_MP.Tests;
+#if STEAM_WORKSHOP_VERSION
 using ONI_MP.Networking.Transport.Steamworks;
+#endif
 
 namespace ONI_MP.DebugTools
 {
