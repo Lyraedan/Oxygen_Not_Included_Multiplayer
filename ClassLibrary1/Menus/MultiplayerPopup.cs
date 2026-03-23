@@ -2,7 +2,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Menus;
 using ONI_MP.Networking;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using Steamworks;
 using UnityEngine;
 
@@ -12,7 +12,7 @@ public static class MultiplayerPopup
 
 	public static void Show(Transform parent)
 	{
-		Profiler.Active.Scope();
+		Profiler.Scope();
 
 		if (currentPopup != null)
 		{
@@ -70,7 +70,7 @@ public static class MultiplayerPopup
 
 	private static void Close()
 	{
-		Profiler.Active.Scope();
+		Profiler.Scope();
 
 		if (currentPopup != null)
 		{
@@ -81,7 +81,7 @@ public static class MultiplayerPopup
 
 	private static void HostLastSave()
 	{
-		Profiler.Active.Scope();
+		Profiler.Scope();
 
 		MultiplayerOverlay.Show(ONI_MP.STRINGS.UI.MP_OVERLAY.HOST.STARTINGHOSTING);
 		string text;
@@ -106,7 +106,7 @@ public static class MultiplayerPopup
 
 	private static void AddPopupButton(Transform parent, string text, Vector2 position, System.Action onClick)
 	{
-		Profiler.Active.Scope();
+		Profiler.Scope();
 
 		var template = UnityEngine.Object.FindObjectOfType<MainMenu>()?.Button_ResumeGame;
 		if (template == null)

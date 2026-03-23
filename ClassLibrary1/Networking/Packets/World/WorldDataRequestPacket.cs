@@ -2,7 +2,7 @@
 using ONI_MP.Networking.Packets.Architecture;
 using Steamworks;
 using System.IO;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using Utils = ONI_MP.Misc.Utils;
 
 namespace ONI_MP.Networking.Packets.World
@@ -13,21 +13,21 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			writer.Write(SenderId.m_SteamID);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			SenderId = new CSteamID(reader.ReadUInt64());
 		}
 
 		public void OnDispatched()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!MultiplayerSession.IsHost)
 				return;
@@ -38,7 +38,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		private void SendWorldData(CSteamID target)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			DebugConsole.Log($"[WorldDataRequestPacket] Sending world data to {target}");
 

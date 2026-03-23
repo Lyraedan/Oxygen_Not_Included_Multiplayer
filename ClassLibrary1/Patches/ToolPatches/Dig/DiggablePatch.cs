@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.ToolPatches.Dig
 {
@@ -10,7 +10,7 @@ namespace ONI_MP.Patches.ToolPatches.Dig
 	{
 		public static void Prefix(Diggable __instance)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!MultiplayerSession.IsHost || !MultiplayerSession.InSession)
 				return;

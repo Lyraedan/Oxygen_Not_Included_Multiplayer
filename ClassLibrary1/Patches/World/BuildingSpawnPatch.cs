@@ -1,7 +1,7 @@
 using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -12,7 +12,7 @@ namespace ONI_MP.Patches.World
 	{
 		public static void Postfix(Building __instance)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			var go = __instance.gameObject;
 			

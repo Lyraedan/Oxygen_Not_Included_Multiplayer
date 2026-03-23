@@ -1,13 +1,13 @@
 ﻿using HarmonyLib;
-using ONI_MP.Profiling;
 using ONI_MP.UI;
+using Shared.Profiling;
 
 [HarmonyPatch(typeof(CameraController), nameof(CameraController.OnKeyDown))]
 public static class CameraControllerPatch
 {
 	static bool Prefix(KButtonEvent e)
 	{
-		Profiler.Active.Scope();
+		Profiler.Scope();
 
 		// Block camera zoom if mouse is over chat panel
 		if (ChatScreen.IsMouseOverChatPanel())

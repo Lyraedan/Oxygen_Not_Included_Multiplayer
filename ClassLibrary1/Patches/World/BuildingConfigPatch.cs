@@ -3,7 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World
@@ -20,7 +20,7 @@ namespace ONI_MP.Patches.World
 		{
 			public static void Postfix(LogicSwitch __instance)
 			{
-				Profiler.Active.Scope();
+				Profiler.Scope();
 
 				try
 				{
@@ -74,7 +74,7 @@ namespace ONI_MP.Patches.World
 		{
 			public static void Postfix(Valve __instance, float amount)
 			{
-				Profiler.Active.Scope();
+				Profiler.Scope();
 
 				if (IgnoreEvents) return;
 				SyncBuildingConfig(__instance, "Rate", amount);
@@ -96,7 +96,7 @@ namespace ONI_MP.Patches.World
 		// Helper
 		private static void SyncBuildingConfig(Component component, string configId, float value)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (component == null) return;
 			if (!MultiplayerSession.InSession) return;

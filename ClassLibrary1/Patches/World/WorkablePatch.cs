@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -17,7 +17,7 @@ namespace ONI_MP.Patches.World
 		{
 			public static void Postfix(Workable __instance)
 			{
-				Profiler.Active.Scope();
+				Profiler.Scope();
 
 				//if (__instance.multitoolContext.IsValid && __instance.multitoolHitEffectTag.IsValid)
 				__instance.gameObject.AddOrGet<NetworkIdentity>();

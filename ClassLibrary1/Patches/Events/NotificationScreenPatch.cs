@@ -1,7 +1,7 @@
 using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Events;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.Events
 {
@@ -10,7 +10,7 @@ namespace ONI_MP.Patches.Events
 	{
 		public static void Postfix(Notification notification)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!MultiplayerSession.IsHost) return;
 			if (notification == null) return;

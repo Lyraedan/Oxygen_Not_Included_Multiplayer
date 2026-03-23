@@ -14,7 +14,7 @@ using static STRINGS.UI;
 using Steamworks;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.DebugTools
 {
@@ -41,7 +41,7 @@ namespace ONI_MP.DebugTools
 
         public DevToolMultiplayer()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             Name = "Multiplayer";
             RequiresGameRunning = false;
@@ -74,7 +74,7 @@ namespace ONI_MP.DebugTools
 
         public override void RenderTo(DevPanel panel)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             ImGui.BeginChild("ScrollRegion", new Vector2(0, 0), true);
 
@@ -124,12 +124,12 @@ namespace ONI_MP.DebugTools
             console?.ShowWindow();
             packetTracker?.ShowWindow();
 
-            Profiler.Active.DrawImGuiPopout();
+            Profiler.DrawImGuiPopout();
         }
 
         private void DrawGeneralTab()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (ImGui.Button("Open Mod Directory"))
             {
@@ -161,7 +161,7 @@ namespace ONI_MP.DebugTools
 
         private void DrawSessionTab()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if(MultiplayerSession.InSession)
                 ImGui.TextColored(new Vector4(0.3f, 1f, 0.3f, 1f), "Multiplayer Active");
@@ -204,7 +204,7 @@ namespace ONI_MP.DebugTools
 
         private void DrawNetworkTab()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (!MultiplayerSession.InSession)
             {
@@ -233,7 +233,7 @@ namespace ONI_MP.DebugTools
 
         private void DrawProfilerTab()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (!MultiplayerSession.InSession)
             {
@@ -241,32 +241,25 @@ namespace ONI_MP.DebugTools
                 return;
             }
 
-            // Show which role is active
-            var profiler = Profiler.Active;
-
-            ImGui.TextColored(
-                MultiplayerSession.IsHost ? new Vector4(1f, 0.8f, 0.3f, 1f) : new Vector4(0.3f, 0.8f, 1f, 1f),
-                $"Role: {profiler.Name}");
-
             ImGui.SameLine();
             if (ImGui.Button("Reset"))
-                profiler.Reset();
+                Profiler.Reset();
 
             ImGui.Separator();
 
-            profiler.DrawImGuiInline();
+            Profiler.DrawImGuiInline();
         }
 
         private void DrawDebugTab()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             DisplayNetIdHolders();
         }
 
         private void DrawConsoleTab()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (ImGui.Button("Popout"))
                 console?.Toggle();
@@ -276,7 +269,7 @@ namespace ONI_MP.DebugTools
 
         public void DisplaySessionDetails()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             ImGui.Text("Session details:");
             ImGui.Text($"Connected clients: {(MultiplayerSession.InSession ? (MultiplayerSession.PlayerCursors.Count + 1) : 0)}");
@@ -289,7 +282,7 @@ namespace ONI_MP.DebugTools
 
         private void DrawPlayerList()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var players = SteamLobby.GetAllLobbyMembers();
 
@@ -340,7 +333,7 @@ namespace ONI_MP.DebugTools
 
         public void DisplayNetworkStatistics()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if(!MultiplayerSession.InSession)
                 return;
@@ -382,11 +375,11 @@ namespace ONI_MP.DebugTools
                 }
             }
         }
-		
+
         private string netIdFilter = string.Empty;
 		public void DisplayNetIdHolders()
 		{
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
 			if (ImGui.CollapsingHeader("Net Id Holders"))
 			{

@@ -1,7 +1,7 @@
 using Klei.AI;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.DuplicantActions;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 using static STRINGS.DUPLICANTS.STATS;
 
@@ -19,7 +19,7 @@ namespace ONI_MP.Networking.Synchronization
 
 		public override void OnSpawn()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			base.OnSpawn();
 			_amounts = gameObject.GetAmounts();
@@ -27,7 +27,7 @@ namespace ONI_MP.Networking.Synchronization
 
 		public void Sim1000ms(float dt)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!MultiplayerSession.IsHostInSession) return;
 

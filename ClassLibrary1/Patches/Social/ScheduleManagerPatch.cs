@@ -5,7 +5,7 @@ using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Social;
 using System.Collections.Generic;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.Social
@@ -19,7 +19,7 @@ namespace ONI_MP.Patches.Social
 		{
 			public static void Postfix(Schedule __instance, int idx, ScheduleGroup group)
 			{
-				Profiler.Active.Scope();
+				Profiler.Scope();
 
 				if (!MultiplayerSession.InSession) return;
 				if (ScheduleBlockUpdatePacket.IsApplying) return;
@@ -44,7 +44,7 @@ namespace ONI_MP.Patches.Social
 		{
 			public static void Postfix(Schedule __result)
 			{
-				Profiler.Active.Scope();
+				Profiler.Scope();
 
 				if (!MultiplayerSession.InSession) return;
 				if (ScheduleAddPacket.IsApplying) return;
@@ -66,7 +66,7 @@ namespace ONI_MP.Patches.Social
         {
             public static void Postfix(Schedule __result)
             {
-	            Profiler.Active.Scope();
+	            Profiler.Scope();
 
                 if (!MultiplayerSession.InSession) return;
 				if (ScheduleAddPacket.IsApplying) return;
@@ -88,7 +88,7 @@ namespace ONI_MP.Patches.Social
 		{
 			public static void Prefix(ScheduleManager __instance, Schedule schedule)
 			{
-				Profiler.Active.Scope();
+				Profiler.Scope();
 
 				if (!MultiplayerSession.InSession) return;
 				if (ScheduleDeletePacket.IsApplying) return;

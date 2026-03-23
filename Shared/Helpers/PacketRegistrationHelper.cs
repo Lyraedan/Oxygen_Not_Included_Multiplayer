@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace Shared.Helpers
 {
@@ -12,6 +13,8 @@ namespace Shared.Helpers
 	{
 		public static void AutoRegisterPackets(Assembly asm, Action<Type> registerPacketAction, out int count, out TimeSpan duration)
 		{
+			Profiler.Scope();
+
 			var startTime = System.DateTime.Now;
 
 			var PacketsToRegister = asm.GetTypes().Where(p =>

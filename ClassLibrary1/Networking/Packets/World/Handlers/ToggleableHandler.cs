@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.World.Handlers
@@ -27,7 +27,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 
         public bool TryApplyConfig(GameObject go, BuildingConfigPacket packet)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (go == null)
             {

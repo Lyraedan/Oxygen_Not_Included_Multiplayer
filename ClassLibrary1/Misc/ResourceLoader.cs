@@ -1,7 +1,7 @@
 ﻿using ONI_MP.DebugTools;
 using System.IO;
 using System.Reflection;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Misc
@@ -10,7 +10,7 @@ namespace ONI_MP.Misc
 	{
 		public static Texture2D LoadEmbeddedTexture(string resourceName)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			var assembly = Assembly.GetExecutingAssembly();
 			using (Stream stream = assembly.GetManifestResourceStream(resourceName))
@@ -34,7 +34,7 @@ namespace ONI_MP.Misc
 
 		public static AssetBundle LoadEmbeddedAssetBundle(string resourceName)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			var assembly = Assembly.GetExecutingAssembly();
 			using (Stream stream = assembly.GetManifestResourceStream(resourceName))
@@ -59,7 +59,7 @@ namespace ONI_MP.Misc
 
 		public static T LoadFromBundle<T>(string bundleKey, string resourceName) where T : UnityEngine.Object
         {
-	        Profiler.Active.Scope();
+	        Profiler.Scope();
 
 			if(!MultiplayerMod.LoadedBundles.TryGetValue(bundleKey, out var bundle))
 			{
@@ -81,7 +81,7 @@ namespace ONI_MP.Misc
 
         public static GameObject InstantiateGameObjectFromBundle(string bundleKey, string prefabName, Transform parent = null, Vector3? position = null, Quaternion? rotation = null, Vector3? scale = null)
         {
-	        Profiler.Active.Scope();
+	        Profiler.Scope();
 
             GameObject prefab = LoadFromBundle<GameObject>(bundleKey, prefabName);
             if (prefab == null)

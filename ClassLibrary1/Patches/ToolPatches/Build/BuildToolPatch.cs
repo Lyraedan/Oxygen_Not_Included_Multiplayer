@@ -3,7 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Tools.Build;
 using System.Collections.Generic;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.ToolPatches.Build
@@ -13,7 +13,7 @@ namespace ONI_MP.Patches.ToolPatches.Build
     {
         static void Prefix(BuildTool __instance, int cell)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var def = AccessTools.Field(typeof(BuildTool), "def").GetValue(__instance) as BuildingDef;
             if (def != null)
@@ -24,7 +24,7 @@ namespace ONI_MP.Patches.ToolPatches.Build
 
         static void Postfix(BuildTool __instance, int cell)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (!MultiplayerSession.InSession || __instance == null)
                 return;

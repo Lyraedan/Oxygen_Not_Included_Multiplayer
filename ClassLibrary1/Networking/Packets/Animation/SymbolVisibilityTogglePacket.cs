@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Animation
@@ -19,7 +19,7 @@ namespace ONI_MP.Networking.Packets.Animation
 		public SymbolVisibilityTogglePacket() { }
 		public SymbolVisibilityTogglePacket(KAnimControllerBase kbac, KAnimHashedString symbol, bool is_visible)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			NetId = kbac.GetNetId();
 			Symbol = symbol;
@@ -28,7 +28,7 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			NetId = reader.ReadInt32();
 			Symbol = new KAnimHashedString(reader.ReadInt32());
@@ -39,7 +39,7 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			writer.Write(NetId);
 			writer.Write(Symbol.hash);
@@ -47,7 +47,7 @@ namespace ONI_MP.Networking.Packets.Animation
 		}
 		public void OnDispatched()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (MultiplayerSession.IsHost)
 				return;

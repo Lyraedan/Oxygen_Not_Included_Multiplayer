@@ -1,54 +1,50 @@
-using System;
-using System.Runtime.CompilerServices;
-using ONI_MP.Networking;
-
 #if DEBUG
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using ONI_MP.Misc;
+using System.Runtime.CompilerServices;
 using ImGuiNET;
 
-namespace ONI_MP.Profiling
+namespace Shared.Profiling
 {
-    public class Profiler
+    public static class Profiler
     {
-        public readonly string Name;
-        private         bool   Enabled = true;
+        private static bool Enabled = true;
 
         private const int HistorySize = 300;
 
-        private readonly float[] _cpuHistory     = new float[HistorySize];
-        private readonly float[] _networkHistory = new float[HistorySize];
-        private readonly float[] _messageHistory = new float[HistorySize];
-        private          int     _historyIndex;
-        private          int     _historyCount;
+        private static readonly float[] _cpuHistory     = new float[HistorySize];
+        private static readonly float[] _networkHistory = new float[HistorySize];
+        private static readonly float[] _messageHistory = new float[HistorySize];
+        private static          int     _historyIndex;
+        private static          int     _historyCount;
 
-        private long LastCpu;
-        private int  LastNetwork;
-        private int  LastMessage;
+        private static long LastCpu;
+        private static int  LastNetwork;
+        private static int  LastMessage;
 
-        private long PeakCpu;
-        private int  PeakNetwork;
-        private int  PeakMessages;
+        private static long PeakCpu;
+        private static int  PeakNetwork;
+        private static int  PeakMessages;
 
-        private const double Alpha = 0.05;
-        private       double AvgCpu;
-        private       double AvgNetwork;
-        private       double AvgMessage;
+        private const  double Alpha = 0.05;
+        private static double AvgCpu;
+        private static double AvgNetwork;
+        private static double AvgMessage;
 
-        private int TotalPolls;
+        private static int TotalPolls;
 
-        private float _cpuGraphMax     = 1f;
-        private float _networkGraphMax = 1024f;
-        private float _messageGraphMax = 10f;
+        private static float _cpuGraphMax     = 1f;
+        private static float _networkGraphMax = 1024f;
+        private static float _messageGraphMax = 10f;
 
         private class HotPathEntry
         {
-            public string Key;
-            public string FilePath;
-            public string MemberName;
+            public string Key        = string.Empty;
+            public string FilePath   = string.Empty;
+            public string MemberName = string.Empty;
             public int    LineNumber;
 
             public long   Calls;
@@ -90,61 +86,57 @@ namespace ONI_MP.Profiling
             }
         }
 
-        private readonly Dictionary< string, HotPathEntry > _hotPaths = new( 64 );
+        private static readonly Dictionary< string, HotPathEntry > _hotPaths = new( 64 );
 
-        private List< HotPathEntry > _hotPathsSorted = new();
+        private static List< HotPathEntry > _hotPathsSorted = new();
 
-        private       int _hotPathSortDirty = 1;
-        private       int _hotPathFrameAccum;
-        private const int HotPathSortInterval = 30;
+        private static int _hotPathSortDirty = 1;
+        private static int _hotPathFrameAccum;
+        private const  int HotPathSortInterval = 30;
 
-        private bool _poppedOut;
-        private bool _showGraphs = true;
+        private static bool _poppedOut;
+        private static bool _showGraphs = true;
 
-        private bool   _showHotPaths      = true;
-        private int    _hotPathSortColumn = 2;
-        private bool   _hotPathSortAscending;
-        private string _hotPathFilter = string.Empty;
-
-        public Profiler( string name ) => Name = name;
+        private static bool   _showHotPaths      = true;
+        private static int    _hotPathSortColumn = 2;
+        private static bool   _hotPathSortAscending;
+        private static string _hotPathFilter = string.Empty;
 
         public struct ProfileScope : IDisposable
         {
-            private readonly Profiler _profiler;
-            private readonly string   _key;
-            private readonly string   _memberName;
-            private readonly string   _filePath;
-            private readonly int      _lineNumber;
-            private          long     _startTicks;
+            private readonly string? _key;
+            private readonly string  _memberName;
+            private readonly string  _filePath;
+            private readonly int     _lineNumber;
+            private          long    _startTicks;
 
             [MethodImpl( MethodImplOptions.AggressiveInlining )]
-            internal ProfileScope( Profiler profiler, string key, string memberName, string filePath, int lineNumber )
+            internal ProfileScope( string? key, string memberName, string filePath, int lineNumber )
             {
-                _profiler   = profiler;
                 _key        = key;
                 _memberName = memberName;
                 _filePath   = filePath;
                 _lineNumber = lineNumber;
-                _startTicks = profiler != null ? Stopwatch.GetTimestamp() : 0;
+                _startTicks = Stopwatch.GetTimestamp();
             }
 
             [MethodImpl( MethodImplOptions.AggressiveInlining )]
             private void End()
             {
-                if( _startTicks == 0 || _profiler == null )
+                if( _startTicks == 0 )
                     return;
 
                 long   ticks = Stopwatch.GetTimestamp() - _startTicks;
                 double ms    = ticks * 1000.0 / Stopwatch.Frequency;
 
                 string key = ResolveKey();
-                _profiler.RecordHotPath( key, ms, _memberName, _filePath, _lineNumber );
+                RecordHotPath( key, ms, _memberName, _filePath, _lineNumber );
 
                 _startTicks = 0;
             }
 
             [MethodImpl( MethodImplOptions.AggressiveInlining )]
-            private string ResolveKey( string extra = null )
+            private string ResolveKey( string? extra = null )
             {
                 string baseKey = _key ?? $"{Path.GetFileNameWithoutExtension( _filePath )}.{_memberName}:{_lineNumber}";
                 return extra != null ? $"{baseKey}-{extra}" : baseKey;
@@ -153,14 +145,14 @@ namespace ONI_MP.Profiling
             [MethodImpl( MethodImplOptions.AggressiveInlining )]
             public void End( string key )
             {
-                if( _startTicks == 0 || _profiler == null )
+                if( _startTicks == 0 )
                     return;
 
                 long   ticks = Stopwatch.GetTimestamp() - _startTicks;
                 double ms    = ticks * 1000.0 / Stopwatch.Frequency;
 
                 string resolvedKey = ResolveKey( key );
-                _profiler.RecordHotPath( resolvedKey, ms, _memberName, _filePath, _lineNumber );
+                RecordHotPath( resolvedKey, ms, _memberName, _filePath, _lineNumber );
 
                 _startTicks = 0;
             }
@@ -168,14 +160,14 @@ namespace ONI_MP.Profiling
             [MethodImpl( MethodImplOptions.AggressiveInlining )]
             public void End( string key, int bytes )
             {
-                if( _startTicks == 0 || _profiler == null )
+                if( _startTicks == 0 )
                     return;
 
                 long   ticks = Stopwatch.GetTimestamp() - _startTicks;
                 double ms    = ticks * 1000.0 / Stopwatch.Frequency;
 
                 string resolvedKey = ResolveKey( key );
-                _profiler.RecordHotPath( resolvedKey, ms, bytes, _memberName, _filePath, _lineNumber );
+                RecordHotPath( resolvedKey, ms, bytes, _memberName, _filePath, _lineNumber );
 
                 _startTicks = 0;
             }
@@ -184,17 +176,17 @@ namespace ONI_MP.Profiling
             public void End( int messageCount, int bytes ) => End( null, messageCount, bytes );
 
             [MethodImpl( MethodImplOptions.AggressiveInlining )]
-            public void End( string key, int messageCount, int bytes )
+            public void End( string? key, int messageCount, int bytes )
             {
-                if( _startTicks == 0 || _profiler == null )
+                if( _startTicks == 0 )
                     return;
 
                 long   ticks = Stopwatch.GetTimestamp() - _startTicks;
                 double ms    = ticks * 1000.0 / Stopwatch.Frequency;
 
                 string resolvedKey = ResolveKey( key );
-                _profiler.RecordHotPath( resolvedKey, ms, _memberName, _filePath, _lineNumber );
-                _profiler.RecordNetworkStats( resolvedKey, ticks, messageCount, bytes );
+                RecordHotPath( resolvedKey, ms, _memberName, _filePath, _lineNumber );
+                RecordNetworkStats( resolvedKey, ticks, messageCount, bytes );
 
                 _startTicks = 0;
             }
@@ -204,18 +196,18 @@ namespace ONI_MP.Profiling
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public ProfileScope Scope( [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0 )
+        public static ProfileScope Scope( [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0 )
         {
-            return Enabled ? new ProfileScope( this, null, memberName, filePath, lineNumber ) : default;
+            return Enabled ? new ProfileScope( null, memberName, filePath, lineNumber ) : default;
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public ProfileScope Scope( string key, [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0 )
+        public static ProfileScope Scope( string key, [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0 )
         {
-            return Enabled ? new ProfileScope( this, key, memberName, filePath, lineNumber ) : default;
+            return Enabled ? new ProfileScope( key, memberName, filePath, lineNumber ) : default;
         }
 
-        private void RecordHotPath( string key, double ms, string memberName, string filePath, int lineNumber )
+        private static void RecordHotPath( string key, double ms, string memberName, string filePath, int lineNumber )
         {
             if( !Enabled )
                 return;
@@ -237,7 +229,7 @@ namespace ONI_MP.Profiling
             _hotPathSortDirty = 1;
         }
 
-        private void RecordHotPath( string key, double ms, int bytes, string memberName, string filePath, int lineNumber )
+        private static void RecordHotPath( string key, double ms, int bytes, string memberName, string filePath, int lineNumber )
         {
             if( !Enabled )
                 return;
@@ -260,7 +252,7 @@ namespace ONI_MP.Profiling
             _hotPathSortDirty = 1;
         }
 
-        internal void RecordNetworkStats( string key, long ticks, int messageCount, int bytes )
+        internal static void RecordNetworkStats( string key, long ticks, int messageCount, int bytes )
         {
             if( !Enabled )
                 return;
@@ -309,7 +301,7 @@ namespace ONI_MP.Profiling
             _messageGraphMax = Math.Max( _messageGraphMax, 1f );
         }
 
-        public void Reset()
+        public static void Reset()
         {
             LastMessage = 0;
             LastNetwork = 0;
@@ -338,14 +330,14 @@ namespace ONI_MP.Profiling
             ResetHotPaths();
         }
 
-        public void ResetHotPaths()
+        public static void ResetHotPaths()
         {
             _hotPaths.Clear();
             _hotPathsSorted.Clear();
             _hotPathSortDirty = 1;
         }
 
-        private float[] GetOrderedHistory( float[] ring )
+        private static float[] GetOrderedHistory( float[] ring )
         {
             float[] ordered = new float[_historyCount];
             if( _historyCount < HistorySize )
@@ -361,17 +353,17 @@ namespace ONI_MP.Profiling
             return ordered;
         }
 
-        private double LastMs => LastCpu * 1000.0 / Stopwatch.Frequency;
-        private double PeakMs => PeakCpu * 1000.0 / Stopwatch.Frequency;
+        private static double LastMs => LastCpu * 1000.0 / Stopwatch.Frequency;
+        private static double PeakMs => PeakCpu * 1000.0 / Stopwatch.Frequency;
 
-        private bool HasAnyBytesData() => _hotPaths.Values.Any( entry => entry.HasNetworkData );
+        private static bool HasAnyBytesData() => _hotPaths.Values.Any( entry => entry.HasNetworkData );
 
-        public void DrawImGuiPopout()
+        public static void DrawImGuiPopout()
         {
             if( !_poppedOut )
                 return;
 
-            if( !ImGui.Begin( $"{Name} Profiler", ref _poppedOut ) )
+            if( !ImGui.Begin( "Profiler", ref _poppedOut ) )
             {
                 ImGui.End();
                 return;
@@ -384,31 +376,31 @@ namespace ONI_MP.Profiling
             ImGui.End();
         }
 
-        public void DrawImGuiInline()
+        public static void DrawImGuiInline()
         {
             DrawControls();
             ImGui.Separator();
             DrawContent();
         }
 
-        private void DrawControls()
+        private static void DrawControls()
         {
-            ImGui.Checkbox( $"Enabled##{Name}", ref Enabled );
+            ImGui.Checkbox( "Enabled##Profiler", ref Enabled );
 
             ImGui.SameLine();
-            if( ImGui.Button( $"Reset##{Name}" ) )
+            if( ImGui.Button( "Reset##Profiler" ) )
                 Reset();
 
             ImGui.SameLine();
-            if( ImGui.Button( $"Reset Hot Paths##{Name}" ) )
+            if( ImGui.Button( "Reset Hot Paths##Profiler" ) )
                 ResetHotPaths();
 
             ImGui.SameLine();
-            if( ImGui.Button( _poppedOut ? $"Dock##{Name}" : $"Pop Out##{Name}" ) )
+            if( ImGui.Button( _poppedOut ? "Dock##Profiler" : "Pop Out##Profiler" ) )
                 _poppedOut = !_poppedOut;
         }
 
-        private void DrawContent()
+        private static void DrawContent()
         {
             bool  hasNetwork = TotalPolls > 0;
             float pollMs     = ( float )LastMs;
@@ -419,14 +411,14 @@ namespace ONI_MP.Profiling
                     pollMs > 2.0f ? new UnityEngine.Vector4( 1f,   0.3f, 0.3f, 1f ) :
                     pollMs > 0.5f ? new UnityEngine.Vector4( 1f,   1f,   0.3f, 1f ) :
                                     new UnityEngine.Vector4( 0.3f, 1f,   0.3f, 1f ),
-                    $"{Name}:  {pollMs:F3}ms  |  {LastMessage} msgs  |  {Utils.FormatBytes( LastNetwork )}" );
+                    $"{pollMs:F3}ms  |  {LastMessage} msgs  |  {FormatBytes( LastNetwork )}" );
             }
             else
-                ImGui.TextColored( new UnityEngine.Vector4( 0.3f, 1f, 0.3f, 1f ), $"{Name} Profiler" );
+                ImGui.TextColored( new UnityEngine.Vector4( 0.3f, 1f, 0.3f, 1f ), "Profiler" );
 
             if( hasNetwork )
             {
-                if( ImGui.CollapsingHeader( $"Graphs##{Name}", ref _showGraphs, ImGuiTreeNodeFlags.DefaultOpen ) )
+                if( ImGui.CollapsingHeader( $"Graphs##Profiler", ref _showGraphs, ImGuiTreeNodeFlags.DefaultOpen ) )
                 {
                     if( _historyCount == 0 )
                         ImGui.TextDisabled( "No data yet..." );
@@ -437,15 +429,15 @@ namespace ONI_MP.Profiling
 
                         float[] msData = GetOrderedHistory( _cpuHistory );
                         ImGui.Text( $"Processing Time (ms)  [avg: {AvgCpu:F3}ms  peak: {PeakMs:F3}ms]" );
-                        ImGui.PlotLines( $"##ms_{Name}", ref msData[ 0 ], msData.Length, 0, null, 0f, _cpuGraphMax * 1.2f, new UnityEngine.Vector2( graphWidth, graphHeight ) );
+                        ImGui.PlotLines( $"##ms_Profiler", ref msData[ 0 ], msData.Length, 0, null, 0f, _cpuGraphMax * 1.2f, new UnityEngine.Vector2( graphWidth, graphHeight ) );
 
                         float[] bytesData = GetOrderedHistory( _networkHistory );
-                        ImGui.Text( $"Bytes/Poll  [avg: {Utils.FormatBytes( ( long )AvgNetwork )}  peak: {Utils.FormatBytes( PeakNetwork )}]" );
-                        ImGui.PlotLines( $"##bytes_{Name}", ref bytesData[ 0 ], bytesData.Length, 0, null, 0f, _networkGraphMax * 1.2f, new UnityEngine.Vector2( graphWidth, graphHeight ) );
+                        ImGui.Text( $"Bytes/Poll  [avg: {FormatBytes( ( long )AvgNetwork )}  peak: {FormatBytes( PeakNetwork )}]" );
+                        ImGui.PlotLines( $"##bytes_Profiler", ref bytesData[ 0 ], bytesData.Length, 0, null, 0f, _networkGraphMax * 1.2f, new UnityEngine.Vector2( graphWidth, graphHeight ) );
 
                         float[] msgData = GetOrderedHistory( _messageHistory );
                         ImGui.Text( $"Messages/Poll  [avg: {AvgMessage:F1}  peak: {PeakMessages}]" );
-                        ImGui.PlotHistogram( $"##msgs_{Name}", ref msgData[ 0 ], msgData.Length, 0, null, 0f, _messageGraphMax * 1.2f, new UnityEngine.Vector2( graphWidth, graphHeight ) );
+                        ImGui.PlotHistogram( $"##msgs_Profiler", ref msgData[ 0 ], msgData.Length, 0, null, 0f, _messageGraphMax * 1.2f, new UnityEngine.Vector2( graphWidth, graphHeight ) );
                     }
                 }
             }
@@ -453,9 +445,9 @@ namespace ONI_MP.Profiling
             DrawHotPathsSection();
         }
 
-        private void DrawHotPathsSection()
+        private static void DrawHotPathsSection()
         {
-            if( !ImGui.CollapsingHeader( $"Hot Paths##{Name}", ref _showHotPaths, ImGuiTreeNodeFlags.DefaultOpen ) )
+            if( !ImGui.CollapsingHeader( $"Hot Paths##Profiler", ref _showHotPaths, ImGuiTreeNodeFlags.DefaultOpen ) )
                 return;
 
             if( _hotPaths.Count == 0 )
@@ -464,7 +456,7 @@ namespace ONI_MP.Profiling
                 return;
             }
 
-            ImGui.InputText( $"Filter##{Name}_hp", ref _hotPathFilter, 128 );
+            ImGui.InputText( $"Filter##Profiler_hp", ref _hotPathFilter, 128 );
 
             _hotPathFrameAccum++;
             if( _hotPathSortDirty != 0 || _hotPathFrameAccum >= HotPathSortInterval )
@@ -487,7 +479,7 @@ namespace ONI_MP.Profiling
 
             float tableHeight = Math.Min( 400f, 24f + _hotPathsSorted.Count * 22f );
 
-            if( !ImGui.BeginTable( $"hotpaths_{Name}", colCount, tableFlags, new UnityEngine.Vector2( 0, tableHeight ) ) )
+            if( !ImGui.BeginTable( $"hotpaths_Profiler", colCount, tableFlags, new UnityEngine.Vector2( 0, tableHeight ) ) )
                 return;
 
             ImGui.TableSetupColumn( "Callsite",   ImGuiTableColumnFlags.DefaultSort          | ImGuiTableColumnFlags.WidthStretch,                                   0f, 0 );
@@ -526,8 +518,8 @@ namespace ONI_MP.Profiling
             {
                 if( hasFilter )
                 {
-                    bool matchesKey  = entry.Key.IndexOf( _hotPathFilter, StringComparison.OrdinalIgnoreCase ) >= 0;
-                    bool matchesFile = entry.FilePath != null && entry.FilePath.IndexOf( _hotPathFilter, StringComparison.OrdinalIgnoreCase ) >= 0;
+                    bool matchesKey  = entry.Key.IndexOf( _hotPathFilter, StringComparison.OrdinalIgnoreCase )      >= 0;
+                    bool matchesFile = entry.FilePath.IndexOf( _hotPathFilter, StringComparison.OrdinalIgnoreCase ) >= 0;
                     if( !matchesKey && !matchesFile )
                         continue;
                 }
@@ -535,9 +527,9 @@ namespace ONI_MP.Profiling
                 ImGui.TableNextRow();
 
                 ImGui.TableSetColumnIndex( 0 );
-                string shortFile  = string.IsNullOrEmpty( entry.FilePath ) ? null : Path.GetFileName( entry.FilePath );
-                string location   = shortFile != null && entry.LineNumber > 0 ? $"{shortFile}:{entry.LineNumber}" : shortFile;
-                string displayKey = entry.Key;
+                string? shortFile  = string.IsNullOrEmpty( entry.FilePath ) ? null : Path.GetFileName( entry.FilePath );
+                string? location   = shortFile != null && entry.LineNumber > 0 ? $"{shortFile}:{entry.LineNumber}" : shortFile;
+                string  displayKey = entry.Key;
                 if( entry.LineNumber > 0 )
                     displayKey = displayKey.Replace( $":{entry.LineNumber}", "" );
 
@@ -557,7 +549,7 @@ namespace ONI_MP.Profiling
                     ImGui.Text( $"{entry.MemberName}() : line {entry.LineNumber}" );
                     ImGui.Text( $"Avg: {entry.AvgCpu:F4}ms  Peak: {entry.PeakCpu:F4}ms  Calls: {entry.Calls:N0}" );
                     if( entry.HasNetworkData )
-                        ImGui.Text( $"Avg Bytes: {Utils.FormatBytes( ( long )entry.AvgNetwork )}  Peak: {Utils.FormatBytes( entry.PeakNetwork )}  Total: {Utils.FormatBytes( entry.TotalNetwork )}" );
+                        ImGui.Text( $"Avg Bytes: {FormatBytes( ( long )entry.AvgNetwork )}  Peak: {FormatBytes( entry.PeakNetwork )}  Total: {FormatBytes( entry.TotalNetwork )}" );
                     ImGui.EndTooltip();
                 }
 
@@ -577,19 +569,19 @@ namespace ONI_MP.Profiling
                     continue;
 
                 ImGui.TableSetColumnIndex( 5 );
-                ImGui.Text( entry.HasNetworkData ? Utils.FormatBytes( ( long )entry.AvgNetwork ) : "-" );
+                ImGui.Text( entry.HasNetworkData ? FormatBytes( ( long )entry.AvgNetwork ) : "-" );
 
                 ImGui.TableSetColumnIndex( 6 );
-                ImGui.Text( entry.HasNetworkData ? Utils.FormatBytes( entry.PeakNetwork ) : "-" );
+                ImGui.Text( entry.HasNetworkData ? FormatBytes( entry.PeakNetwork ) : "-" );
 
                 ImGui.TableSetColumnIndex( 7 );
-                ImGui.Text( entry.HasNetworkData ? Utils.FormatBytes( entry.TotalNetwork ) : "-" );
+                ImGui.Text( entry.HasNetworkData ? FormatBytes( entry.TotalNetwork ) : "-" );
             }
 
             ImGui.EndTable();
         }
 
-        private void RebuildSortedHotPaths()
+        private static void RebuildSortedHotPaths()
         {
             _hotPathsSorted = new List< HotPathEntry >( _hotPaths.Values );
 
@@ -623,10 +615,19 @@ namespace ONI_MP.Profiling
             }
         }
 
-        public static readonly Profiler Client = new( "Client" );
-        public static readonly Profiler Server = new( "Server" );
+        private static string FormatBytes( long bytes )
+        {
+            string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+            double   len   = bytes;
+            int      order = 0;
+            while( len >= 1024 && order < sizes.Length - 1 )
+            {
+                order++;
+                len /= 1024;
+            }
 
-        public static Profiler Active => MultiplayerSession.IsHost ? Server : Client;
+            return $"{len:0.##} {sizes[ order ]}";
+        }
     }
 }
 #else

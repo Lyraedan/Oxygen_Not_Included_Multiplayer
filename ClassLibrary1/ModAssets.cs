@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UI.lib;
 using UnityEngine;
 
@@ -19,7 +19,7 @@ namespace ONI_MP
 
 		public static void LoadAssetBundles()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			var bundle = AssetUtils.LoadAssetBundle("oni_mp_ui_assets", platformSpecific: true);
 			MP_ScreenPrefab = bundle.LoadAsset<GameObject>("Assets/UIs/mp_screen.prefab");

@@ -1,4 +1,4 @@
-﻿using ONI_MP.Profiling;
+﻿using Shared.Profiling;
 
 namespace ONI_MP.Networking.Components
 {
@@ -16,7 +16,7 @@ namespace ONI_MP.Networking.Components
 
 		private void Awake()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (dispatcher == null)
 				dispatcher = this;
@@ -26,7 +26,7 @@ namespace ONI_MP.Networking.Components
 
 		private void Start()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			StartCoroutine(Execute());
 		}
@@ -37,7 +37,7 @@ namespace ONI_MP.Networking.Components
 
 		IEnumerator WaitAndExecute(bool condition, Action action)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			// Wait for condition to be true
 			yield return new WaitUntil(() => condition);
@@ -47,7 +47,7 @@ namespace ONI_MP.Networking.Components
 		// I know that this is terrible... Too bad
 		IEnumerator Execute()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			yield return new WaitUntil(() => events.Count > 0);
 			events[0]?.Invoke();

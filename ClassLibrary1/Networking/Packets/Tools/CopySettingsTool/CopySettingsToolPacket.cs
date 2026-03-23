@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Tools.CopySettingsTool;
 
@@ -16,7 +16,7 @@ public class CopySettingsToolPacket : IPacket
 
     public CopySettingsToolPacket(int netID, int cell)
     {
-        Profiler.Active.Scope();
+        Profiler.Scope();
 
         NetID = netID;
         Cell  = cell;
@@ -24,7 +24,7 @@ public class CopySettingsToolPacket : IPacket
 
     public void Serialize(BinaryWriter writer)
     {
-        Profiler.Active.Scope();
+        Profiler.Scope();
 
         writer.Write(NetID);
         writer.Write(Cell);
@@ -32,7 +32,7 @@ public class CopySettingsToolPacket : IPacket
 
     public void Deserialize(BinaryReader reader)
     {
-        Profiler.Active.Scope();
+        Profiler.Scope();
 
         NetID = reader.ReadInt32();
         Cell  = reader.ReadInt32();
@@ -40,7 +40,7 @@ public class CopySettingsToolPacket : IPacket
 
     public void OnDispatched()
     {
-        Profiler.Active.Scope();
+        Profiler.Scope();
 
         NetworkIdentity identity;
         if (!NetworkIdentityRegistry.TryGet(NetID, out identity))

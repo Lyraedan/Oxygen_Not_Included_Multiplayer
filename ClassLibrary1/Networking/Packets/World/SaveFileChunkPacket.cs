@@ -2,7 +2,7 @@
 using ONI_MP.Misc.World;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -15,7 +15,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			writer.Write(FileName);
 			writer.Write(Offset);
@@ -26,7 +26,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			FileName = reader.ReadString();
 			Offset = reader.ReadInt32();
@@ -37,7 +37,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			// Why does commenting this out make it CRASH! Anomaly!
 			if (Utils.IsInGame())

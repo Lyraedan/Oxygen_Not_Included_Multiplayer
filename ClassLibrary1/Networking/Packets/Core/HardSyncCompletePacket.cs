@@ -1,7 +1,7 @@
 ﻿using ONI_MP.Menus;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Core
 {
@@ -19,7 +19,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void OnDispatched()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (MultiplayerSession.IsHost)
 				return;

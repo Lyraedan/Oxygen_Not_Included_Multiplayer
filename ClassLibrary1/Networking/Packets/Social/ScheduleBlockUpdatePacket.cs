@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Social
 {
@@ -20,7 +20,7 @@ namespace ONI_MP.Networking.Packets.Social
                 
         public void Serialize(BinaryWriter writer)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             writer.Write(ScheduleIndex);
             writer.Write(BlockIndex);
@@ -29,7 +29,7 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void Deserialize(BinaryReader reader)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             ScheduleIndex = reader.ReadInt32();
             BlockIndex = reader.ReadInt32();
@@ -38,7 +38,7 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void OnDispatched()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (IsApplying)
                 return;
@@ -48,7 +48,7 @@ namespace ONI_MP.Networking.Packets.Social
 
         private void Apply()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             List<Schedule> schedules = ScheduleManager.Instance.schedules;
             if (schedules == null) return;

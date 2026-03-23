@@ -1,6 +1,6 @@
 ﻿using ONI_MP.Misc;
 using ONI_MP.Networking.States;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using Steamworks;
 using UnityEngine;
 
@@ -12,7 +12,7 @@ namespace ONI_MP.Networking.Components
 
 		private void Start()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			SteamNetworkingUtils.InitRelayNetworkAccess();
 			GameClient.Init();
@@ -24,7 +24,7 @@ namespace ONI_MP.Networking.Components
 
 		private void Update()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			scheduler.Tick();
 
@@ -49,7 +49,7 @@ namespace ONI_MP.Networking.Components
 
 		private void OnApplicationQuit()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!MultiplayerSession.InSession)
 				return;

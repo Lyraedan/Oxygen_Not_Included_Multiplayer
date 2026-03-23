@@ -5,7 +5,7 @@ using ONI_MP.DebugTools;
 using System.IO;
 using UnityEngine;
 using HarmonyLib;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -32,7 +32,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			writer.Write(NetId);
 			writer.Write(Cell);
@@ -45,7 +45,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			NetId = reader.ReadInt32();
 			Cell = reader.ReadInt32();
@@ -58,7 +58,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			DebugConsole.Log($"[BuildingConfigPacket] Received a config update packet. NetId={NetId}, Cell={Cell}");
 
@@ -125,7 +125,7 @@ namespace ONI_MP.Networking.Packets.World
 		/// </summary>
 		private void RefreshSideScreenIfOpen(GameObject go)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (go == null) return;
 			
@@ -158,7 +158,7 @@ namespace ONI_MP.Networking.Packets.World
 		/// </summary>
 		private void ApplyConfig(GameObject go)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (go == null) return;
 

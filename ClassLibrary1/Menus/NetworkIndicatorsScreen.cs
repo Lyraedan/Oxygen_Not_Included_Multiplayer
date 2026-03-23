@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using Steamworks;
 using UnityEngine;
 using UnityEngine.UI;
@@ -46,7 +46,7 @@ namespace ONI_MP.Menus
 
         public static void Show()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var parent = GameScreenManager.Instance.ssOverlayCanvas.transform;
             indicators = ResourceLoader.InstantiateGameObjectFromBundle("networkindicators", "assets/networkindicators/prefabs/network indicators.prefab",
@@ -107,7 +107,7 @@ namespace ONI_MP.Menus
 
         private static void AddTooltipTo(GameObject go, string message)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var tooltip = go.AddOrGet<ToolTip>();
             tooltip.ClearMultiStringTooltip();
@@ -116,7 +116,7 @@ namespace ONI_MP.Menus
 
         public static void Update()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (!MultiplayerSession.InSession)
                 return;
@@ -137,7 +137,7 @@ namespace ONI_MP.Menus
 
         private static void UpdateIndicatorIconState(NetworkState state, GameObject okObject, GameObject badObject)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             switch(state)
             {
@@ -162,7 +162,7 @@ namespace ONI_MP.Menus
 
         public static NetworkState GetJitterState()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (!MultiplayerSession.InSession)
                 return NetworkState.GOOD;
@@ -214,7 +214,7 @@ namespace ONI_MP.Menus
 
         public static NetworkState GetLatencyState()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (!MultiplayerSession.InSession)
                 return NetworkState.GOOD;
@@ -243,7 +243,7 @@ namespace ONI_MP.Menus
 
         public static NetworkState GetPacketlossState()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (!MultiplayerSession.InSession)
                 return NetworkState.GOOD;
@@ -268,7 +268,7 @@ namespace ONI_MP.Menus
 
         public static NetworkState GetServerPerformanceState()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (!MultiplayerSession.InSession)
                 return NetworkState.GOOD;

@@ -8,7 +8,7 @@ using ImGuiNET;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using Steamworks;
 
 namespace ONI_MP.DebugTools
@@ -34,7 +34,7 @@ namespace ONI_MP.DebugTools
 
         public static PacketTracker Init()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (_instance != null)
                 return _instance;
@@ -45,7 +45,7 @@ namespace ONI_MP.DebugTools
 
         public static void TrackSent(PacketTrackData data)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             _instance.outgoing_tracked.Add(data);
 
@@ -58,7 +58,7 @@ namespace ONI_MP.DebugTools
 
         public static void TrackIncoming(PacketTrackData data)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             _instance.incoming_tracked.Add(data);
 
@@ -71,7 +71,7 @@ namespace ONI_MP.DebugTools
 
         public void Clear()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             _instance.outgoing_tracked.Clear();
             _instance.incoming_tracked.Clear();
@@ -79,14 +79,14 @@ namespace ONI_MP.DebugTools
 
         public void Toggle()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             showWindow = !showWindow;
         }
 
         public void ShowWindow()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (!showWindow)
                 return;
@@ -125,7 +125,7 @@ namespace ONI_MP.DebugTools
 
         public void ShowInTab()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (!MultiplayerSession.InSession)
             {
@@ -165,7 +165,7 @@ namespace ONI_MP.DebugTools
 
         private void AddTable(string str_id, List<PacketTrackData> dataset, string filter)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (ImGui.BeginTable(str_id, 3,
                         ImGuiTableFlags.Borders |

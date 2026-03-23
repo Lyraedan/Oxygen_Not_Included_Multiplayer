@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UI.lib.UIcmp;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,7 +28,7 @@ namespace ONI_MP.UI
 	{
 		public static void OnSceneChanged()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (Instance != null)
 			{
@@ -52,7 +52,7 @@ namespace ONI_MP.UI
 
 		public void Init()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (init) { return; }
 
@@ -76,7 +76,7 @@ namespace ONI_MP.UI
 		}
 		void VerifyPasswordInput()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			string password = PasswortInput.Text;
 			if (SteamLobby.ValidateLobbyPassword(LobbyId, password))
@@ -98,7 +98,7 @@ namespace ONI_MP.UI
 
 		public static void ShowPasswordDialogueFor(CSteamID lobby)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			ShowWindow();
 			Instance.PasswortInput.Text = string.Empty;
@@ -110,7 +110,7 @@ namespace ONI_MP.UI
 
 		static void ShowWindow()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			string currentScene = App.GetCurrentSceneName();
 			if (currentScene != lastScene)

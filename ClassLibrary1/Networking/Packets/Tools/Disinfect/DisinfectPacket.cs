@@ -1,4 +1,4 @@
-﻿using ONI_MP.Profiling;
+﻿using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Tools.Disinfect
 {
@@ -6,7 +6,7 @@ namespace ONI_MP.Networking.Packets.Tools.Disinfect
     {
         public DisinfectPacket()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             ToolInstance = DisinfectTool.Instance;
             ToolMode     = DragToolMode.OnDragTool;

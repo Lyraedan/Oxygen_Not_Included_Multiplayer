@@ -1,4 +1,4 @@
-﻿using ONI_MP.Profiling;
+﻿using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Tools.Mop
 {
@@ -6,7 +6,7 @@ namespace ONI_MP.Networking.Packets.Tools.Mop
 	{
 		public MopToolPacket()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			ToolInstance = MopTool.Instance;
 			ToolMode     = DragToolMode.OnDragTool;

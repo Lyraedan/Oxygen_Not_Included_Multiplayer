@@ -3,7 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World
@@ -14,7 +14,7 @@ namespace ONI_MP.Patches.World
 		[HarmonyPrefix]
 		public static bool Prefix(int cell, float mass, float temperature, ushort element_idx, byte disease_idx, int disease_count)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			OnDigCompletedUpdated(cell, mass, temperature, element_idx, disease_idx, disease_count);
 			return false;
@@ -22,7 +22,7 @@ namespace ONI_MP.Patches.World
 
 		private static void OnDigCompletedUpdated(int cell, float mass, float temperature, ushort element_idx, byte disease_idx, int disease_count)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			Vector3 vector = Grid.CellToPos(cell, CellAlignment.RandomInternal, Grid.SceneLayer.Ore);
 			Element element = ElementLoader.elements[element_idx];
@@ -64,7 +64,7 @@ namespace ONI_MP.Patches.World
 
 		private static void InvokePlaySoundForSubstance(Element element, Vector3 position)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			var method = typeof(WorldDamage).GetMethod("PlaySoundForSubstance", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 

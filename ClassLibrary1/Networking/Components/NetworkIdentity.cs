@@ -1,7 +1,7 @@
 ﻿using KSerialization;
 using ONI_MP.DebugTools;
 using System.IO;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Components
 {
@@ -16,7 +16,7 @@ namespace ONI_MP.Networking.Components
 
 		public override void OnSpawn()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			base.OnSpawn();
 			RegisterIdentity();
@@ -24,7 +24,7 @@ namespace ONI_MP.Networking.Components
 
 		public void RegisterIdentity()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (IsRegistered)
 				return;
@@ -86,7 +86,7 @@ namespace ONI_MP.Networking.Components
 		/// <param name="netIdOverride"></param>
 		public void OverrideNetId(int netIdOverride)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			// Unregister old NetId
 			NetworkIdentityRegistry.Unregister(NetId);
@@ -103,7 +103,7 @@ namespace ONI_MP.Networking.Components
 
 		public override void OnCleanUp()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			NetworkIdentityRegistry.Unregister(NetId);
 			DebugConsole.Log($"[NetworkIdentity] Unregistered NetId {NetId} for {gameObject.name}");

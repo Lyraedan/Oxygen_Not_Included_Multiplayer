@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World.Buildings
@@ -18,7 +18,7 @@ namespace ONI_MP.Patches.World.Buildings
 		static bool ApplyingPacket = false;
 		public static void ApplyPacketName(UserNameable nameable, string name)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			ApplyingPacket = true;
 			nameable.SetName(name);
@@ -30,7 +30,7 @@ namespace ONI_MP.Patches.World.Buildings
 		{
 			public static void Postfix(UserNameable __instance, string name)
 			{
-				Profiler.Active.Scope();
+				Profiler.Scope();
 
 				if (MultiplayerSession.NotInSession)
 					return;

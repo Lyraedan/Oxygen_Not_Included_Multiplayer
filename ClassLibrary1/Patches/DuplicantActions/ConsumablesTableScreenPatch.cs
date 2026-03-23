@@ -2,7 +2,7 @@ using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.DuplicantActions;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.DuplicantActions
@@ -12,7 +12,7 @@ namespace ONI_MP.Patches.DuplicantActions
     {
         public static void Postfix(GameObject widget_go, TableScreen.ResultValues new_value, ConsumablesTableScreen __instance)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (!MultiplayerSession.InSession)
                 return;

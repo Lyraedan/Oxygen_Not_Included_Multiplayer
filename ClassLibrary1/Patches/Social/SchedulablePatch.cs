@@ -6,7 +6,7 @@ using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Social;
 using System.Collections.Generic;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.Social
 {
@@ -16,7 +16,7 @@ namespace ONI_MP.Patches.Social
 	{
 		public static void Postfix(Schedule __instance, Schedulable schedulable)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!MultiplayerSession.InSession) return;
 			if (ScheduleAssignmentPacket.IsApplying) return;
@@ -44,7 +44,7 @@ namespace ONI_MP.Patches.Social
 	{
 		static void Postfix(Schedule __instance, bool up, int timetableToShiftIdx, bool __result)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!__result)
 				return;
@@ -74,7 +74,7 @@ namespace ONI_MP.Patches.Social
     {
         static void Postfix(Schedule __instance, bool directionLeft, int timetableToRotateIdx)
         {
-	        Profiler.Active.Scope();
+	        Profiler.Scope();
 
             if (!MultiplayerSession.InSession)
                 return;

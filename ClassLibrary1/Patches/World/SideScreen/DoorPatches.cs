@@ -1,6 +1,6 @@
 using HarmonyLib;
 using ONI_MP.Networking.Packets.World;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World.SideScreen
 {
@@ -20,14 +20,14 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(Door __instance, Door.ControlState nextState)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			SideScreenSyncHelper.SyncDoorState(__instance.gameObject, nextState);
 		}
 		public static void ExecutePatch()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			var m_TargetMethod = AccessTools.Method("Door, Assembly-CSharp:QueueStateChange");
 			var m_Postfix = AccessTools.Method(typeof(Door_QueueStateChange_Patch), "Postfix");

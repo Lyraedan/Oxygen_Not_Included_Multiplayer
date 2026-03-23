@@ -3,7 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.World;
 using System.Collections;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.GamePatches
@@ -21,7 +21,7 @@ namespace ONI_MP.Patches.GamePatches
 		[HarmonyPrefix]
 		public static bool AddTime_Prefix()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!MultiplayerSession.InSession)
 				return true;
@@ -37,7 +37,7 @@ namespace ONI_MP.Patches.GamePatches
 		[HarmonyPostfix]
 		public static void AddTime_Postfix(GameClock __instance)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
 				return;
@@ -73,7 +73,7 @@ namespace ONI_MP.Patches.GamePatches
 
 		private static IEnumerator DelayedHardSync()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			yield return new WaitForSeconds(5f); // wait to ensure ONI's autosave completes (generous wait time)
 			GameServerHardSync.PerformHardSync();

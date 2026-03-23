@@ -1,7 +1,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.DuplicantActions;
 using System.Collections.Generic;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Components
@@ -54,7 +54,7 @@ namespace ONI_MP.Networking.Components
 
 		public override void OnSpawn()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			base.OnSpawn();
 
@@ -82,7 +82,7 @@ namespace ONI_MP.Networking.Components
 
 		private void Update()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!MultiplayerSession.InSession || MultiplayerSession.IsHost)
 				return;
@@ -93,7 +93,7 @@ namespace ONI_MP.Networking.Components
 
 		private void LateUpdate()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			// Process any queued animations
 			ProcessAnimationQueue();
@@ -104,7 +104,7 @@ namespace ONI_MP.Networking.Components
 		/// </summary>
 		public void OnPositionReceived(Vector3 newPosition, Vector3 newVelocity, bool newFacingLeft, NavType navType)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			float timeSinceLastUpdate = Time.time - lastUpdateTime;
 			lastUpdateTime = Time.time;
@@ -156,7 +156,7 @@ namespace ONI_MP.Networking.Components
 		/// </summary>
 		public void OnAnimationReceived(HashedString animHash, KAnim.PlayMode mode, float speed, bool isQueue)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			var cmd = new AnimCommand
 			{
@@ -185,7 +185,7 @@ namespace ONI_MP.Networking.Components
 		/// </summary>
 		public void OnAnimationsReceived(HashedString[] animHashes, KAnim.PlayMode mode)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			return;
 
@@ -201,7 +201,7 @@ namespace ONI_MP.Networking.Components
 
 		private void UpdatePosition()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!hasReceivedFirstPosition)
 				return;
@@ -252,7 +252,7 @@ namespace ONI_MP.Networking.Components
 
 		private void UpdateAnimation()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			return;
 			if (animController == null)
@@ -268,7 +268,7 @@ namespace ONI_MP.Networking.Components
 
 		private void ProcessAnimationQueue()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			return;
 			if (animController == null)
@@ -284,7 +284,7 @@ namespace ONI_MP.Networking.Components
 
 		private void ApplyMovementAnimation()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			return;
 			if (animController == null)
@@ -306,7 +306,7 @@ namespace ONI_MP.Networking.Components
 
 		private HashedString GetNavTypeAnim(NavType navType)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (navType == NavType.Ladder)
 				return new HashedString("climb_loop");
@@ -325,7 +325,7 @@ namespace ONI_MP.Networking.Components
 
 		private void ForceAnimControllerUpdate()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (animController is KBatchedAnimController kbac)
 			{
@@ -350,7 +350,7 @@ namespace ONI_MP.Networking.Components
 		/// </summary>
 		public void OnStateReceived(DuplicantActionState state, int targetCell, string animName, float animElapsedTime, bool isWorking, string heldSymbol)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			currentActionState = state;
 			currentTargetCell = targetCell;
@@ -403,7 +403,7 @@ namespace ONI_MP.Networking.Components
 		private bool hasEquippedGun = false;
 		private void EquipGun()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 
 
@@ -431,7 +431,7 @@ namespace ONI_MP.Networking.Components
 
 		private void UnequipGun()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!hasEquippedGun) return;
 			hasEquippedGun = false;
@@ -445,7 +445,7 @@ namespace ONI_MP.Networking.Components
 
 		private void SnapToWorkable(int cell)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!Grid.IsValidCell(cell)) return;
 
@@ -506,7 +506,7 @@ namespace ONI_MP.Networking.Components
 
 		private void ApplyActionAnimation(DuplicantActionState state)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (animController == null)
 				return;
@@ -522,7 +522,7 @@ namespace ONI_MP.Networking.Components
 
 		private HashedString GetActionStateAnim(DuplicantActionState state)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (state == DuplicantActionState.Building)
 				return new HashedString("build_loop");

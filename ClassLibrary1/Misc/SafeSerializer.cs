@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using ONI_MP.DebugTools;
 using System;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Misc
 {
@@ -21,7 +21,7 @@ namespace ONI_MP.Misc
 		/// </summary>
 		public static string ToJson(object obj)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			try
 			{
@@ -39,7 +39,7 @@ namespace ONI_MP.Misc
 		/// </summary>
 		public static object FromJson(string json, Type type)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			try
 			{
@@ -57,7 +57,7 @@ namespace ONI_MP.Misc
 		/// </summary>
 		public static T FromJson<T>(string json)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			try
 			{

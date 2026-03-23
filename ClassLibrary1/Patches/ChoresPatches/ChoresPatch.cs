@@ -2,7 +2,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.Chores
@@ -11,7 +11,7 @@ namespace ONI_MP.Patches.Chores
 	{
 		public static void SendAssignmentPacket(Chore __instance)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			// Only the host/server sends assignment packets
 			if (MultiplayerSession.IsClient || !MultiplayerSession.InSession)
@@ -62,7 +62,7 @@ namespace ONI_MP.Patches.Chores
 	{
 		public static void Postfix(Chore __instance)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			return; // Disabled for now
 			ChoresPatch.SendAssignmentPacket(__instance);

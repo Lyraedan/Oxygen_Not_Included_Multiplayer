@@ -3,7 +3,7 @@ using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
 using System.Linq;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 public class ToggleMinionKanimEffectPacket : IPacket
 {
@@ -14,7 +14,7 @@ public class ToggleMinionKanimEffectPacket : IPacket
 
 	public void Serialize(BinaryWriter writer)
 	{
-		Profiler.Active.Scope();
+		Profiler.Scope();
 
 		writer.Write(NetId);
 		writer.Write(Enable);
@@ -24,7 +24,7 @@ public class ToggleMinionKanimEffectPacket : IPacket
 
 	public void Deserialize(BinaryReader reader)
 	{
-		Profiler.Active.Scope();
+		Profiler.Scope();
 
 		NetId = reader.ReadInt32();
 		Enable = reader.ReadBoolean();
@@ -34,7 +34,7 @@ public class ToggleMinionKanimEffectPacket : IPacket
 
 	public void OnDispatched()
 	{
-		Profiler.Active.Scope();
+		Profiler.Scope();
 
 		if (!NetworkIdentityRegistry.TryGet(NetId, out var go)) return;
 

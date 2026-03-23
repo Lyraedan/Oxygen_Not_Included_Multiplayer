@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World.Buildings
 {
@@ -21,7 +21,7 @@ namespace ONI_MP.Patches.World.Buildings
 		{
 			public static void Postfix(Operational __instance)
 			{
-				Profiler.Active.Scope();
+				Profiler.Scope();
 
 				if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
 					return;
@@ -33,7 +33,7 @@ namespace ONI_MP.Patches.World.Buildings
 		{
 			public static void Postfix(Operational __instance)
 			{
-				Profiler.Active.Scope();
+				Profiler.Scope();
 
 				if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
 					return;
@@ -45,7 +45,7 @@ namespace ONI_MP.Patches.World.Buildings
 		{
 			public static void Postfix(Operational __instance)
 			{
-				Profiler.Active.Scope();
+				Profiler.Scope();
 
 				if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
 					return;
@@ -65,7 +65,7 @@ namespace ONI_MP.Patches.World.Buildings
         {
             public static bool Prefix(Operational __instance, ref bool __result)
             {
-	            Profiler.Active.Scope();
+	            Profiler.Scope();
 
                 if (!MultiplayerSession.IsClient)
                     return true;
@@ -85,7 +85,7 @@ namespace ONI_MP.Patches.World.Buildings
         {
 			public static bool Prefix(Operational __instance, ref bool __result)
 			{
-				Profiler.Active.Scope();
+				Profiler.Scope();
 
 				if (!MultiplayerSession.IsClient)
 					return true;
@@ -103,7 +103,7 @@ namespace ONI_MP.Patches.World.Buildings
 		{
 			public static bool Prefix(Operational __instance, ref bool __result)
 			{
-				Profiler.Active.Scope();
+				Profiler.Scope();
 
 				if (!MultiplayerSession.IsClient)
 					return true;

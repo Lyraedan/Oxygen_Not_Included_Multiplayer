@@ -2,7 +2,7 @@
 using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Events
 {
@@ -17,7 +17,7 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public EventTriggeredPacket(int netId, int eventHash, object data = null)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			NetId = netId;
 			EventHash = eventHash;
@@ -31,7 +31,7 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			writer.Write(NetId);
 			writer.Write(EventHash);
@@ -41,7 +41,7 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			NetId = reader.ReadInt32();
 			EventHash = reader.ReadInt32();
@@ -51,7 +51,7 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void OnDispatched()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!NetworkIdentityRegistry.TryGet(NetId, out var go))
 			{

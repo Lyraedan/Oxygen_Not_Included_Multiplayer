@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Misc.World
 {
@@ -10,7 +10,7 @@ namespace ONI_MP.Misc.World
 
 		public WorldSave(string name, byte[] data)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			Name = name;
 			Data = data;
@@ -18,7 +18,7 @@ namespace ONI_MP.Misc.World
 
 		public static WorldSave FromFile(string filePath)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!File.Exists(filePath))
 				throw new FileNotFoundException($"Save file not found: {filePath}");

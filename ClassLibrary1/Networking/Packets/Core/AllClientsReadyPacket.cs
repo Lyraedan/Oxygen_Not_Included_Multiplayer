@@ -3,7 +3,7 @@ using ONI_MP.Menus;
 using ONI_MP.Networking.Packets.Architecture;
 using System.Collections;
 using System.IO;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Core
@@ -23,7 +23,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void OnDispatched()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			DebugConsole.Log("[AllClientsReadyPacket] All players are ready! Closing overlay");
 			ProcessAllReady();
@@ -31,7 +31,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public static void ProcessAllReady()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			//CoroutineRunner.RunOne(CloseOverlayAfterDelay());
 			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.SYNC.FINALIZING_SYNC);
@@ -41,7 +41,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		private static IEnumerator CloseOverlayAfterDelay()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.SYNC.FINALIZING_SYNC);
 			yield return new WaitForSeconds(1f);

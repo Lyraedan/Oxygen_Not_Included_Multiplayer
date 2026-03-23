@@ -3,7 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 using static STRINGS.UI.OUTFITS;
 
@@ -20,7 +20,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 		public VitalStatsPacket() { }
 		public VitalStatsPacket(int netId, Amounts amounts, PrimaryElement element)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			NetId = netId;
 			TargetDiseaseIdx = element.DiseaseIdx;
@@ -35,7 +35,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			writer.Write(NetId);
 			writer.Write(TargetDiseaseIdx);
@@ -51,7 +51,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			NetId = reader.ReadInt32();
 			TargetDiseaseIdx = reader.ReadByte();
@@ -68,7 +68,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void OnDispatched()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			// Only Clients apply this
 			if (MultiplayerSession.IsHost) return;
@@ -77,7 +77,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		private void Apply()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!NetworkIdentityRegistry.TryGet(NetId, out var identity))
 			{

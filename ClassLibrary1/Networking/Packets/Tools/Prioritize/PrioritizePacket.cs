@@ -1,4 +1,4 @@
-﻿using ONI_MP.Profiling;
+﻿using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Tools.Prioritize
 {
@@ -6,7 +6,7 @@ namespace ONI_MP.Networking.Packets.Tools.Prioritize
     {
         public PrioritizePacket()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             ToolInstance = PrioritizeTool.Instance;
             ToolMode     = DragToolMode.OnDragTool;

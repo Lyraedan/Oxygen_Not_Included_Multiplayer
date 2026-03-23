@@ -1,12 +1,12 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Handshake;
-using ONI_MP.Profiling;
 using ONI_MP.Networking.States;
 using Shared;
 using Steamworks;
 using System;
 using System.Runtime.InteropServices;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking
 {
@@ -21,7 +21,7 @@ namespace ONI_MP.Networking
 
 		private static void SetState(ServerState newState)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (_state != newState)
 			{
@@ -33,7 +33,7 @@ namespace ONI_MP.Networking
 
 		public static void Start()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			SetState(ServerState.Preparing);
 
@@ -84,7 +84,7 @@ namespace ONI_MP.Networking
 
 		public static void Shutdown()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			SetState(ServerState.Stopped);
 
@@ -111,7 +111,7 @@ namespace ONI_MP.Networking
 
 		public static void Update()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			switch (State)
 			{
@@ -136,7 +136,7 @@ namespace ONI_MP.Networking
 
 		private static void OnConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t data)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			var conn = data.m_hConn;
 			var clientId = data.m_info.m_identityRemote.GetSteamID();
@@ -163,7 +163,7 @@ namespace ONI_MP.Networking
 
 		private static void TryAcceptConnection(HSteamNetConnection conn, CSteamID clientId)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			// Get connection info to check actual state
 			SteamNetConnectionInfo_t info = default;
@@ -205,7 +205,7 @@ namespace ONI_MP.Networking
 
 		private static void RejectConnection(HSteamNetConnection conn, CSteamID clientId, string reason)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			DebugConsole.LogError($"[GameServer] Rejecting connection from {clientId}: {reason}", false);
 			SteamNetworkingSockets.CloseConnection(conn, 0, reason, false);
@@ -213,7 +213,7 @@ namespace ONI_MP.Networking
 
 		private static void OnClientConnected(HSteamNetConnection conn, CSteamID clientId)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			MultiplayerPlayer player;
 			if (!MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out player))
@@ -232,7 +232,7 @@ namespace ONI_MP.Networking
 
 		private static void OnClientClosed(HSteamNetConnection conn, CSteamID clientId)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			SteamNetworkingSockets.CloseConnection(conn, 0, null, false);
 
@@ -254,10 +254,10 @@ namespace ONI_MP.Networking
 
 		private static void ReceiveMessages()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
-            using var scope = Profiler.Server.Scope();
-            int totalBytes = 0;
+            using var scope      = Profiler.Scope();
+            int       totalBytes = 0;
 
             int maxMessagesPerPoll = Configuration.GetHostProperty<int>("MaxMessagesPerPoll");
 			var messages = new IntPtr[maxMessagesPerPoll];

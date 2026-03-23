@@ -3,7 +3,7 @@ using Steamworks;
 using System;
 using System.Numerics;
 using System.Text;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking
 {
@@ -21,7 +21,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static string GenerateCode(CSteamID lobbyId)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (!lobbyId.IsValid())
             {
@@ -46,7 +46,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static bool TryParseCode(string code, out CSteamID lobbyId)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             lobbyId = CSteamID.Nil;
 
@@ -75,7 +75,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static bool IsValidCodeFormat(string code)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (string.IsNullOrWhiteSpace(code))
                 return false;
@@ -96,7 +96,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static string FormatCodeForDisplay(string code)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             return code;
 
@@ -119,7 +119,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static string CleanCode(string code)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (string.IsNullOrEmpty(code))
                 return string.Empty;
@@ -129,7 +129,7 @@ namespace ONI_MP.Networking
 
         private static string EncodeBase36(ulong value)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (value == 0)
                 return "0";
@@ -153,7 +153,7 @@ namespace ONI_MP.Networking
 
         private static ulong DecodeBase36(string encoded)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             encoded = CleanCode(encoded);
             ulong result = 0;

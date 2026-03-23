@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Misc
 {
@@ -7,7 +7,7 @@ namespace ONI_MP.Misc
 	{
 		public static string Combine(string root, params string[] paths)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			var absoluteRoot = Path.GetFullPath(root);
 			var relativePath = Path.Combine(absoluteRoot, Path.Combine(paths));

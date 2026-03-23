@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace ONI_MP_API
 {
@@ -14,6 +15,8 @@ namespace ONI_MP_API
 	{
 		static bool Init()
 		{
+			Profiler.Scope();
+
 			if (typesInitialized)
 				return true;
 

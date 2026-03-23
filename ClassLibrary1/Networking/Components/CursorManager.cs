@@ -1,7 +1,7 @@
 ﻿using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Core;
 using ONI_MP.Networking.States;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Components
@@ -20,7 +20,7 @@ namespace ONI_MP.Networking.Components
 
 		private void Awake()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (Instance != null)
 			{
@@ -34,21 +34,21 @@ namespace ONI_MP.Networking.Components
 
 		private void Start()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			AssignColor();
         }
 
 		public void ResetColor()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			color = Color.white;
 		}
 
 		public void AssignColor()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
             bool useRandom = Configuration.GetClientProperty<bool>("UseRandomPlayerColor");
             if (useRandom)
@@ -62,7 +62,7 @@ namespace ONI_MP.Networking.Components
 
 		private void Update()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!Utils.IsInGame())
 				return;
@@ -79,7 +79,7 @@ namespace ONI_MP.Networking.Components
 		}
 		private void SendCursorPosition()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			Vector3 cursorWorldPos = GetCursorWorldPosition();
 
@@ -130,7 +130,7 @@ namespace ONI_MP.Networking.Components
 
 		private Vector3 GetCursorWorldPosition()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			var camera = GameScreenManager.Instance.GetCamera(GameScreenManager.UIRenderTarget.ScreenSpaceCamera);
 			if (camera == null) return Vector3.zero;

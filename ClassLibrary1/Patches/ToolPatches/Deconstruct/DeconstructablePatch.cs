@@ -2,7 +2,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Tools.Deconstruct;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.ToolPatches.Deconstruct
 {
@@ -11,7 +11,7 @@ namespace ONI_MP.Patches.ToolPatches.Deconstruct
 	{
 		public static void Prefix(Deconstructable __instance)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!MultiplayerSession.IsHost || !MultiplayerSession.InSession)
 				return;

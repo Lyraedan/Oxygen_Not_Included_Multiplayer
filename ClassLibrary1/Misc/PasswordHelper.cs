@@ -1,7 +1,7 @@
 using System;
 using System.Security.Cryptography;
 using System.Text;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Misc
 {
@@ -16,7 +16,7 @@ namespace ONI_MP.Misc
         /// </summary>
         public static string HashPassword(string password)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (string.IsNullOrEmpty(password))
                 return string.Empty;
@@ -34,7 +34,7 @@ namespace ONI_MP.Misc
         /// </summary>
         public static bool VerifyPassword(string password, string storedHash)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (string.IsNullOrEmpty(password) && string.IsNullOrEmpty(storedHash))
                 return true;
@@ -51,7 +51,7 @@ namespace ONI_MP.Misc
         /// </summary>
         public static bool IsValidPassword(string password)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             // Allow empty passwords (no password protection)
             if (string.IsNullOrEmpty(password))
@@ -66,7 +66,7 @@ namespace ONI_MP.Misc
         /// </summary>
         public static bool HasPassword(string hash)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             return !string.IsNullOrEmpty(hash);
         }

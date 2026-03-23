@@ -4,7 +4,7 @@ using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -14,7 +14,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			// First write all chunk data into a compressed memory stream
 			using (var memoryStream = new MemoryStream())
@@ -44,7 +44,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			int compressedLength = reader.ReadInt32();
 			byte[] compressedData = reader.ReadBytes(compressedLength);
@@ -73,7 +73,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (MultiplayerSession.IsHost) return;
 

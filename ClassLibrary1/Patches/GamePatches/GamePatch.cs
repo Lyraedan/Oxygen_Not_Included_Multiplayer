@@ -4,7 +4,7 @@ using ONI_MP.Menus;
 using ONI_MP.Misc.World;
 using ONI_MP.Networking;
 using ONI_MP.Networking.States;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.GamePatches
 {
@@ -16,7 +16,7 @@ namespace ONI_MP.Patches.GamePatches
   {
     public static void Postfix()
     {
-      Profiler.Active.Scope();
+      Profiler.Scope();
 
       if (MultiplayerSession.IsHost)
       {
@@ -34,7 +34,7 @@ namespace ONI_MP.Patches.GamePatches
   {
     public static void Postfix()
     {
-      Profiler.Active.Scope();
+      Profiler.Scope();
 
       DebugConsole.Log($"[GamePatch] Game.OnSpawn fired. ClientState={GameClient.State}, HasCachedConnection={GameClient.HasCachedConnection()}, IsHost={MultiplayerSession.IsHost}");
 

@@ -1,6 +1,6 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using Steamworks;
 using TMPro;
 using UnityEngine;
@@ -19,7 +19,7 @@ namespace ONI_MP.Menus
 
         public static void Show(Transform parent)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (_instance != null)
             {
@@ -34,7 +34,7 @@ namespace ONI_MP.Menus
 
         public static void Close()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (_screenGO != null)
             {
@@ -46,7 +46,7 @@ namespace ONI_MP.Menus
 
         private static GameObject CreateScreen(Transform parent)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             // Create full-screen overlay
             GameObject screen = new GameObject("MultiplayerScreen", typeof(RectTransform), typeof(CanvasGroup), typeof(Image));
@@ -70,7 +70,7 @@ namespace ONI_MP.Menus
 
         private void Initialize()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             // Create content container
             var contentGO = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup));
@@ -140,7 +140,7 @@ namespace ONI_MP.Menus
 
         private void CreateMenuButton(Transform parent, string title, string subtitle, System.Action onClick)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             // Try to clone from MainMenu button
             var mainMenu = FindObjectOfType<MainMenu>();
@@ -173,7 +173,7 @@ namespace ONI_MP.Menus
 
         private void CreateBackButton(Transform parent)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var mainMenu = FindObjectOfType<MainMenu>();
             var templateButton = mainMenu?.Button_NewGame;
@@ -204,7 +204,7 @@ namespace ONI_MP.Menus
 
         private void CreateFallbackButton(Transform parent, string text, System.Action onClick)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var buttonGO = new GameObject($"Button_{text}", typeof(RectTransform), typeof(Image), typeof(Button));
             buttonGO.transform.SetParent(parent, false);
@@ -235,7 +235,7 @@ namespace ONI_MP.Menus
 
         private void CreateTMPLabel(Transform parent, string text, int fontSize, TextAlignmentOptions alignment, float height)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var labelGO = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
             labelGO.transform.SetParent(parent, false);
@@ -253,7 +253,7 @@ namespace ONI_MP.Menus
 
         private void CreateDivider(Transform parent)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var dividerGO = new GameObject("Divider", typeof(RectTransform), typeof(Image));
             dividerGO.transform.SetParent(parent, false);

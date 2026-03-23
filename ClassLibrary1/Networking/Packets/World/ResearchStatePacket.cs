@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -19,7 +19,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			writer.Write(UnlockedTechIds.Count);
 			foreach (var id in UnlockedTechIds)
@@ -38,7 +38,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			int count = reader.ReadInt32();
 			UnlockedTechIds = new List<string>(count);
@@ -59,7 +59,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (MultiplayerSession.IsHost) return;
 
@@ -77,7 +77,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		private void ProcessResearchState(List<string> unlockedIds, List<string> queuedIds, string activeTechId)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (Research.Instance == null) return;
 

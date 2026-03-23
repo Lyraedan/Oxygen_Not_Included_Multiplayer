@@ -9,7 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using static RancherChore;
 using static WorkerBase;
 
@@ -29,7 +29,7 @@ namespace ONI_MP.Patches.DuplicantActions
 
 			public static void Postfix(StandardWorker __instance, StartWorkInfo start_work_info)
 			{
-				Profiler.Active.Scope();
+				Profiler.Scope();
 
 				if (__instance.IsNullOrDestroyed()) 
 					return;
@@ -60,7 +60,7 @@ namespace ONI_MP.Patches.DuplicantActions
 		{
 			public static void Postfix(StandardWorker __instance)
 			{
-				Profiler.Active.Scope();
+				Profiler.Scope();
 
 				if (__instance.IsNullOrDestroyed()) 
 					return;

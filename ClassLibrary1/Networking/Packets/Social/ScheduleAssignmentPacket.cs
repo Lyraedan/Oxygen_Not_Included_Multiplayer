@@ -2,7 +2,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Social
 {
@@ -13,7 +13,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			writer.Write(NetId);
 			writer.Write(ScheduleIndex);
@@ -21,7 +21,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			NetId = reader.ReadInt32();
 			ScheduleIndex = reader.ReadInt32();
@@ -29,7 +29,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void OnDispatched()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (IsApplying)
 				return;
@@ -39,7 +39,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		private void Apply()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!NetworkIdentityRegistry.TryGet(NetId, out var identity) || identity == null)
 			{

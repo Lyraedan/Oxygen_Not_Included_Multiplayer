@@ -1,7 +1,7 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Tools.Deconstruct
@@ -12,7 +12,7 @@ namespace ONI_MP.Networking.Packets.Tools.Deconstruct
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			writer.Write(Cell);
 			writer.Write(ObjectLayer);
@@ -20,7 +20,7 @@ namespace ONI_MP.Networking.Packets.Tools.Deconstruct
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			Cell = reader.ReadInt32();
 			ObjectLayer = reader.ReadInt32();
@@ -28,7 +28,7 @@ namespace ONI_MP.Networking.Packets.Tools.Deconstruct
 
 		public void OnDispatched()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!Grid.IsValidCell(Cell))
 				return;

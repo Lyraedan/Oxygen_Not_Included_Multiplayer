@@ -1,4 +1,4 @@
-﻿using ONI_MP.Profiling;
+﻿using Shared.Profiling;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,14 +11,14 @@ namespace ONI_MP.DebugTools
 
 		public void Toggle()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			showWindow = !showWindow;
 		}
 
 		void OnGUI()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!showWindow) return;
 
@@ -53,7 +53,7 @@ namespace ONI_MP.DebugTools
 
 		private void DrawGameObjectRecursive(GameObject obj, int indent)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			Component[] components = obj.GetComponents<Component>();
 			string typeInfo = "GameObject";
@@ -101,7 +101,7 @@ namespace ONI_MP.DebugTools
 
 		private string BuildHierarchyStringRecursive(GameObject obj, int indent)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			string indentStr = new string(' ', indent * 2);
 			string typeInfo = "GameObject";

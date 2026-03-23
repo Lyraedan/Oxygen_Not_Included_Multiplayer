@@ -3,7 +3,7 @@ using ONI_MP.Misc.World;
 using ONI_MP.Networking.Packets.Architecture;
 using System;
 using System.IO;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -19,7 +19,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Serialize(BinaryWriter writer)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             writer.Write(SequenceNumber);
             writer.Write(TransferId);
@@ -29,7 +29,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Deserialize(BinaryReader reader)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             SequenceNumber = reader.ReadInt32();
             TransferId = reader.ReadString();
@@ -39,7 +39,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void OnDispatched()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             try
             {
@@ -71,7 +71,7 @@ namespace ONI_MP.Networking.Packets.World
         /// </summary>
         private SaveFileChunkPacket DeserializeSaveFileChunk(byte[] bytes)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             using (var ms = new MemoryStream(bytes))
             using (var reader = new BinaryReader(ms))
@@ -100,7 +100,7 @@ namespace ONI_MP.Networking.Packets.World
         /// </summary>
         public static byte[] SerializeSaveFileChunk(SaveFileChunkPacket packet)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             using (var ms = new MemoryStream())
             using (var writer = new BinaryWriter(ms))
@@ -119,7 +119,7 @@ namespace ONI_MP.Networking.Packets.World
         /// </summary>
         private void RequestPacketResend(int sequenceNumber, string transferId)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             // TODO: Implement packet resend request
             // For now, request full file resend (existing behavior)
@@ -138,7 +138,7 @@ namespace ONI_MP.Networking.Packets.World
         /// </summary>
         private void SendChunkAck(int sequenceNumber, string transferId)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var ackPacket = new ChunkAckPacket
             {

@@ -1,4 +1,4 @@
-﻿using ONI_MP.Profiling;
+﻿using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Tools.Clear
 {
@@ -6,7 +6,7 @@ namespace ONI_MP.Networking.Packets.Tools.Clear
 	{
 		public ClearPacket()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			ToolInstance = ClearTool.Instance;
 			ToolMode     = DragToolMode.OnDragTool;

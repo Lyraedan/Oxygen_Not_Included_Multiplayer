@@ -3,7 +3,7 @@ using ONI_MP.Networking.Packets.Architecture;
 using Steamworks;
 using System.Collections.Generic;
 using System.IO;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Tools.Deconstruct
@@ -12,7 +12,7 @@ namespace ONI_MP.Networking.Packets.Tools.Deconstruct
 	{
 		public DeconstructPacket() : base()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			ToolInstance = DeconstructTool.Instance;
 			ToolMode = DragToolMode.OnDragTool;

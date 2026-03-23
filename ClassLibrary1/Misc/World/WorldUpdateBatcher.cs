@@ -3,7 +3,7 @@ using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.World;
 using System;
 using System.Collections.Generic;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Misc.World
@@ -16,7 +16,7 @@ namespace ONI_MP.Misc.World
 
 		public static void Queue(WorldUpdatePacket.CellUpdate update)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if(MultiplayerSession.IsClient)
 			{
@@ -32,7 +32,7 @@ namespace ONI_MP.Misc.World
 
 		public static void Update()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (MultiplayerSession.IsClient)
 			{
@@ -49,7 +49,7 @@ namespace ONI_MP.Misc.World
 
 		public static int Flush()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (MultiplayerSession.IsClient)
 			{

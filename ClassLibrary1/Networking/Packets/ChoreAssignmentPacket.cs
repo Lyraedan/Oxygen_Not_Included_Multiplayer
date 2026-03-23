@@ -3,7 +3,7 @@ using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Patches.Chores;
 using System.IO;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 public class ChoreAssignmentPacket : IPacket
@@ -17,7 +17,7 @@ public class ChoreAssignmentPacket : IPacket
 
 	public void Serialize(BinaryWriter writer)
 	{
-		Profiler.Active.Scope();
+		Profiler.Scope();
 
 		writer.Write(NetId);
 		writer.Write(ChoreTypeId ?? string.Empty);
@@ -30,7 +30,7 @@ public class ChoreAssignmentPacket : IPacket
 
 	public void Deserialize(BinaryReader reader)
 	{
-		Profiler.Active.Scope();
+		Profiler.Scope();
 
 		NetId = reader.ReadInt32();
 		ChoreTypeId = reader.ReadString();
@@ -41,7 +41,7 @@ public class ChoreAssignmentPacket : IPacket
 
 	public void OnDispatched()
 	{
-		Profiler.Active.Scope();
+		Profiler.Scope();
 
 		// Disabled for now
 		return;

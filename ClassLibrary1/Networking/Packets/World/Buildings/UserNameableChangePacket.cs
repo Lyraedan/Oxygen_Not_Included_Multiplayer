@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World.Buildings
 {
@@ -20,7 +20,7 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 		public UserNameableChangePacket() { }
 		public UserNameableChangePacket(int netId, string newName)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			NetId = netId;
 			NewName = newName;
@@ -28,14 +28,14 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			NetId = reader.ReadInt32();
 			NewName = reader.ReadString();
 		}
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			writer.Write(NetId);
 			writer.Write(NewName);
@@ -43,7 +43,7 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 
 		public void OnDispatched()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!NetworkIdentityRegistry.TryGetComponent<UserNameable>(NetId, out var nameable))
 			{

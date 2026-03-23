@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.ToolPatches
@@ -20,7 +20,7 @@ namespace ONI_MP.Patches.ToolPatches
         {
             public static void Prefix(DisconnectTool __instance, Vector3 downPos, Vector3 upPos)
             {
-	            Profiler.Active.Scope();
+	            Profiler.Scope();
 
                 if (!MultiplayerSession.InSession)
                     return;

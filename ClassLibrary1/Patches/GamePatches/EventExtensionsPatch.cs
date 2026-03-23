@@ -4,7 +4,7 @@ using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Events;
 using System;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.GamePatches
@@ -20,7 +20,7 @@ namespace ONI_MP.Patches.GamePatches
 		[HarmonyPatch(nameof(EventExtensions.Trigger), new Type[] { typeof(GameObject), typeof(int), typeof(object) })]
 		public static void Postfix(GameObject go, int hash, object data)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			// Prevent recursive sync that could cause infinite loops
 			if (isSyncing) return;

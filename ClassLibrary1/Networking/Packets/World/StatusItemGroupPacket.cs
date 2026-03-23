@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Profiling;
 using Shared.Interfaces.Networking;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -32,7 +32,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Serialize(BinaryWriter writer)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             writer.Write(NetId);
             writer.Write((int)Action);
@@ -47,7 +47,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Deserialize(BinaryReader reader)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             NetId = reader.ReadInt32();
             Action = (ItemGroupPacketAction)reader.ReadInt32();
@@ -62,7 +62,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void OnDispatched()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (!NetworkIdentityRegistry.TryGet(NetId, out NetworkIdentity identity))
             {

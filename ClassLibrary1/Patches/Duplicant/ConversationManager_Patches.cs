@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.Duplicant
 {
@@ -17,7 +17,7 @@ namespace ONI_MP.Patches.Duplicant
         {
             public static bool Prefix(ConversationManager __instance)
             {
-                Profiler.Active.Scope();
+                Profiler.Scope();
 
                 return !MultiplayerSession.IsClient;
             }

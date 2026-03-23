@@ -1,6 +1,6 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,7 +19,7 @@ namespace ONI_MP.Menus
 
         public static void Show(Transform parent)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (_instance != null)
             {
@@ -34,7 +34,7 @@ namespace ONI_MP.Menus
 
         public static void Close()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (_screenGO != null)
             {
@@ -47,7 +47,7 @@ namespace ONI_MP.Menus
 
         private static GameObject CreateScreen(Transform parent)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             // Find the root canvas for true fullscreen overlay
             Canvas rootCanvas = null;
@@ -101,7 +101,7 @@ namespace ONI_MP.Menus
 
         private static void CreateCloseXButton(Transform panelTransform)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var btnGO = new GameObject("CloseXButton", typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
             btnGO.transform.SetParent(panelTransform, false);
@@ -140,7 +140,7 @@ namespace ONI_MP.Menus
 
         private void Initialize()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             // Main layout on the panel
             var layout = _panelGO.AddComponent<VerticalLayoutGroup>();
@@ -174,7 +174,7 @@ namespace ONI_MP.Menus
 
         private void CreateLobbyCodeSection()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var container = new GameObject("CodeSection", typeof(RectTransform), typeof(HorizontalLayoutGroup));
             container.transform.SetParent(_panelGO.transform, false);
@@ -226,7 +226,7 @@ namespace ONI_MP.Menus
 
         private void CreateCopyButton(Transform parent, string textToCopy)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var btnGO = new GameObject("CopyButton", typeof(RectTransform), typeof(Image), typeof(Button));
             btnGO.transform.SetParent(parent, false);
@@ -261,7 +261,7 @@ namespace ONI_MP.Menus
 
         private System.Collections.IEnumerator ResetCopyButtonText(TextMeshProUGUI tmp)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             yield return new WaitForSeconds(1.5f);
             if (tmp != null)
@@ -270,7 +270,7 @@ namespace ONI_MP.Menus
 
         private void CreatePlayersSection()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var container = new GameObject("PlayersSection", typeof(RectTransform));
             container.transform.SetParent(_panelGO.transform, false);
@@ -294,7 +294,7 @@ namespace ONI_MP.Menus
 
         private void CreateActionButtons()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var container = new GameObject("ActionButtons", typeof(RectTransform), typeof(VerticalLayoutGroup));
             container.transform.SetParent(_panelGO.transform, false);
@@ -358,7 +358,7 @@ namespace ONI_MP.Menus
 
         private void CreateActionButton(Transform parent, string text, System.Action onClick, bool disabled = false, Color? bgColor = null)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var btnGO = new GameObject($"Btn_{text}", typeof(RectTransform), typeof(Image), typeof(Button));
             btnGO.transform.SetParent(parent, false);
@@ -390,7 +390,7 @@ namespace ONI_MP.Menus
 
         private void CreateLabel(string text, int fontSize, FontStyles style, float height)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var labelGO = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
             labelGO.transform.SetParent(_panelGO.transform, false);
@@ -408,7 +408,7 @@ namespace ONI_MP.Menus
 
         private void CreateDivider()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var dividerGO = new GameObject("Divider", typeof(RectTransform), typeof(Image));
             dividerGO.transform.SetParent(_panelGO.transform, false);

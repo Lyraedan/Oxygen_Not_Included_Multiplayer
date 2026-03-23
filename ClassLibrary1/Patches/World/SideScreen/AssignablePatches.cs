@@ -3,7 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World.SideScreen
 {
@@ -15,7 +15,7 @@ namespace ONI_MP.Patches.World.SideScreen
     {
         public static void Postfix(Assignable __instance)
         {
-	        Profiler.Active.Scope();
+	        Profiler.Scope();
 
             var buildingIdentity = __instance.gameObject.AddOrGet<NetworkIdentity>();
             buildingIdentity.RegisterIdentity();
@@ -27,7 +27,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(Assignable __instance, IAssignableIdentity new_assignee)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (AssignmentPacket.IsApplying) return;
 			if (!MultiplayerSession.InSession) return;
@@ -89,7 +89,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(Assignable __instance)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (AssignmentPacket.IsApplying) return;
 			if (!MultiplayerSession.InSession) return;

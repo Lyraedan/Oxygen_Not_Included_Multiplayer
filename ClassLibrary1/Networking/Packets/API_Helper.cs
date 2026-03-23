@@ -8,7 +8,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets
 {
@@ -16,7 +16,7 @@ namespace ONI_MP.Networking.Packets
 	{
 		public static Type CreateModApiPacketType(Type modPacketType)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			var genericType = typeof(ModApiPacket<>);
 			var constructedType = genericType.MakeGenericType(modPacketType);
@@ -25,7 +25,7 @@ namespace ONI_MP.Networking.Packets
 
 		public static int GetHashCode(Type type)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			var identity = type.FullName!;
 			using var sha256 = SHA256.Create();
@@ -35,7 +35,7 @@ namespace ONI_MP.Networking.Packets
 
 		public static bool WrapApiPacket(object packet, out IPacket wrap)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			wrap = null;
 
@@ -54,7 +54,7 @@ namespace ONI_MP.Networking.Packets
 
 		public static bool ValidAsModApiPacket(Type potentialPacketType)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			///Ducktyping check if it has the required methods from IPacket interface
 			var t = Traverse.Create(potentialPacketType);

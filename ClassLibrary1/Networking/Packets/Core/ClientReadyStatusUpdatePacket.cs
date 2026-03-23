@@ -2,7 +2,7 @@
 using ONI_MP.Misc.World;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Core
 {
@@ -14,28 +14,28 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public ClientReadyStatusUpdatePacket(string message)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			Message = message;
 		}
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			writer.Write(Message);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			Message = reader.ReadString();
 		}
 
 		public void OnDispatched()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			// Host updates theirs on each ready status packet so we dont do anything here
 			if (MultiplayerSession.IsHost)

@@ -2,7 +2,7 @@ using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -11,7 +11,7 @@ namespace ONI_MP.Patches.World
 	{
 		public static void Postfix(Prioritizable __instance, PrioritySetting priority)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (PrioritizeStatePacket.IsApplying) return;
 			if (!MultiplayerSession.InSession) return;

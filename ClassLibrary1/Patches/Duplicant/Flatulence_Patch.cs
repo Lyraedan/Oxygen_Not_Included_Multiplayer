@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.Duplicant
@@ -23,7 +23,7 @@ namespace ONI_MP.Patches.Duplicant
 			/// <returns></returns>
 			public static bool Prefix(Flatulence __instance)
 			{
-				Profiler.Active.Scope();
+				Profiler.Scope();
 
 				if(__instance.IsNullOrDestroyed() || __instance.gameObject.IsNullOrDestroyed())
 					return false;

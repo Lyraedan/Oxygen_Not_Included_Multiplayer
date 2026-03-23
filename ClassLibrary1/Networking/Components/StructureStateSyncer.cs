@@ -1,6 +1,6 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.World;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Components
@@ -25,7 +25,7 @@ namespace ONI_MP.Networking.Components
 
 		public override void OnSpawn()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			base.OnSpawn();
 
@@ -49,7 +49,7 @@ namespace ONI_MP.Networking.Components
 
 		private void Update()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (MultiplayerSession.IsHost)
 			{
@@ -74,7 +74,7 @@ namespace ONI_MP.Networking.Components
 
 		private void HostUpdate()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			try
 			{
@@ -122,7 +122,7 @@ namespace ONI_MP.Networking.Components
 		// Static handler for client-side reception
 		public static void HandlePacket(StructureStatePacket packet)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!Grid.IsValidCell(packet.Cell)) return;
 

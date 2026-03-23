@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UI.lib.UIcmp;
 using UnityEngine;
 
@@ -21,7 +21,7 @@ namespace ONI_MP.UI.Components
 
 		public override void OnPrefabInit()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			base.OnPrefabInit();
 			Init();
@@ -29,7 +29,7 @@ namespace ONI_MP.UI.Components
 		bool init;
 		void Init()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (init)
 				return;
@@ -47,7 +47,7 @@ namespace ONI_MP.UI.Components
 
 		void JoinLobbyClicked()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (OnJoinClicked != null && Lobby != null)
 				OnJoinClicked(Lobby);
@@ -55,7 +55,7 @@ namespace ONI_MP.UI.Components
 
 		public void SetLobby(LobbyListEntry _lobby)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			Lobby = _lobby;
 			RefreshDisplayedInfo();
@@ -64,7 +64,7 @@ namespace ONI_MP.UI.Components
 
 		public void RefreshDisplayedInfo()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			Init();
 			if (Lobby == null)
@@ -81,13 +81,13 @@ namespace ONI_MP.UI.Components
 
 		public void Hide()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			gameObject.SetActive(false);
 		}
 		public void Show()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			gameObject.SetActive(false);
 		}

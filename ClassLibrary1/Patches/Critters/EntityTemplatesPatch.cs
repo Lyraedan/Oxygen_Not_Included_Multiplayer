@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using HarmonyLib;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Components;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.Critters
@@ -18,7 +18,7 @@ namespace ONI_MP.Patches.Critters
         {
             public static void Postfix(GameObject __result)
             {
-                Profiler.Active.Scope();
+                Profiler.Scope();
 
                 if (__result == null)
                     return;

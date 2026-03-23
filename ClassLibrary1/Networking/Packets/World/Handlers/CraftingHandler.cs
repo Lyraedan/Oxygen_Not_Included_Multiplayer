@@ -1,6 +1,6 @@
 using UnityEngine;
 using ONI_MP.DebugTools;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World.Handlers
 {
@@ -18,7 +18,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 
 		public bool TryApplyConfig(GameObject go, BuildingConfigPacket packet)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			// Only handle RecipeQueue config type
 			if (packet.ConfigType != BuildingConfigType.RecipeQueue)

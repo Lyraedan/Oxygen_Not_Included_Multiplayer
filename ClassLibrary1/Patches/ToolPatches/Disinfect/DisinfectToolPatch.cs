@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Tools.Disinfect;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 [HarmonyPatch(typeof(DisinfectTool), "OnDragTool")]
 public class DisinfectToolPatch
@@ -9,7 +9,7 @@ public class DisinfectToolPatch
     [HarmonyPrefix]
     public static void Prefix(int cell, int distFromOrigin)
     {
-        Profiler.Active.Scope();
+        Profiler.Scope();
 
         if (!MultiplayerSession.InSession)
             return;

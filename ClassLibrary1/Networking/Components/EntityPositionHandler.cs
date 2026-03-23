@@ -1,6 +1,6 @@
 ﻿using System;
 using ONI_MP.DebugTools;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using TMPro;
 using UnityEngine;
 
@@ -61,7 +61,7 @@ namespace ONI_MP.Networking.Components
 
         public override void OnSpawn()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			base.OnSpawn();
 
@@ -73,7 +73,7 @@ namespace ONI_MP.Networking.Components
 
 		private void Update()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (this.GetNetId() == 0)
 				return;
@@ -97,7 +97,7 @@ namespace ONI_MP.Networking.Components
         // Ported this from my own Godot game, its not perfect. But it feels better
         private void UpdatePosition()
         {
-	        Profiler.Active.Scope();
+	        Profiler.Scope();
 
             if (serverTimestamp == 0)
                 return;
@@ -136,7 +136,7 @@ namespace ONI_MP.Networking.Components
 
         private void SendPositionPacket()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			try
 			{

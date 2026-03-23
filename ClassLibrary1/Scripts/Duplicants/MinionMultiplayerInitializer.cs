@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Scripts.Duplicants
 {
@@ -20,7 +20,7 @@ namespace ONI_MP.Scripts.Duplicants
 
 		public override void OnSpawn()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			base.OnSpawn();
 
@@ -33,14 +33,14 @@ namespace ONI_MP.Scripts.Duplicants
 
 		void InitializeMP(object _ = null)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			StartCoroutine(DelayedInit());
 		}
 
 		IEnumerator DelayedInit()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			yield return null;
 			FinalizeInit();
@@ -48,7 +48,7 @@ namespace ONI_MP.Scripts.Duplicants
 
 		void FinalizeInit()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			var go = gameObject;
 			if (MultiplayerSession.NotInSession) return;

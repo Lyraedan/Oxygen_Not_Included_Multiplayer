@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Misc
 {
@@ -24,7 +24,7 @@ namespace ONI_MP.Misc
 
 		public void Tick()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			var length = CreateSnapshot();
 			for (var i = 0; i < length; ++i)
@@ -47,7 +47,7 @@ namespace ONI_MP.Misc
 
 		private int CreateSnapshot()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			var length = 0;
 			while (length < snapshot.Length && tasks.TryDequeue(out var task))

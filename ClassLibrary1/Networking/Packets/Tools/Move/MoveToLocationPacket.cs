@@ -2,7 +2,7 @@
 using ONI_MP.Networking.Packets.Architecture;
 using Steamworks;
 using System.IO;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Tools.Move
 {
@@ -13,7 +13,7 @@ namespace ONI_MP.Networking.Packets.Tools.Move
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			writer.Write(Cell);
 			writer.Write(TargetNetId);
@@ -21,7 +21,7 @@ namespace ONI_MP.Networking.Packets.Tools.Move
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			Cell = reader.ReadInt32();
 			TargetNetId = reader.ReadInt32();
@@ -29,7 +29,7 @@ namespace ONI_MP.Networking.Packets.Tools.Move
 
 		public void OnDispatched()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!MultiplayerSession.IsHost)
 				return;

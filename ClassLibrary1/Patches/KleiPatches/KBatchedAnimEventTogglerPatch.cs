@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 [HarmonyPatch]
 public static class KBatchedAnimEventTogglerPatch
@@ -10,7 +10,7 @@ public static class KBatchedAnimEventTogglerPatch
 	[HarmonyPrefix]
 	private static void Prefix_Enable(KBatchedAnimEventToggler __instance, object data)
 	{
-		Profiler.Active.Scope();
+		Profiler.Scope();
 
 		TrySendEffectPacket(__instance, true);
 	}
@@ -19,14 +19,14 @@ public static class KBatchedAnimEventTogglerPatch
 	[HarmonyPrefix]
 	private static void Prefix_Disable(KBatchedAnimEventToggler __instance, object data)
 	{
-		Profiler.Active.Scope();
+		Profiler.Scope();
 
 		TrySendEffectPacket(__instance, false);
 	}
 
 	private static void TrySendEffectPacket(KBatchedAnimEventToggler toggler, bool enable)
 	{
-		Profiler.Active.Scope();
+		Profiler.Scope();
 
 		if (!toggler.isActiveAndEnabled || toggler.eventSource == null)
 			return;

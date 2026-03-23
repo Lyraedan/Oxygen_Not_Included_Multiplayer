@@ -4,7 +4,7 @@ using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking
 {
@@ -32,7 +32,7 @@ namespace ONI_MP.Networking
 
             public ClientTransfer(CSteamID clientID, string transferId, string fileName, byte[] data, int chunkSize)
             {
-                Profiler.Active.Scope();
+                Profiler.Scope();
 
                 ClientID = clientID;
                 TransferId = transferId;
@@ -51,7 +51,7 @@ namespace ONI_MP.Networking
 
         private static string GetTransferKey(CSteamID clientID, string transferId)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             return $"{clientID}_{transferId}";
         }
@@ -61,7 +61,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static void StartTransfer(CSteamID clientID, string transferId, string fileName, byte[] data, int chunkSize)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             string key = GetTransferKey(clientID, transferId);
             var transfer = new ClientTransfer(clientID, transferId, fileName, data, chunkSize);
@@ -75,7 +75,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static void MarkChunkSent(CSteamID clientID, string transferId, int chunkIndex)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             string key = GetTransferKey(clientID, transferId);
             if (ActiveTransfers.TryGetValue(key, out var transfer))
@@ -91,7 +91,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static void HandleChunkAck(CSteamID clientID, string transferId, int chunkIndex)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             string key = GetTransferKey(clientID, transferId);
             if (!ActiveTransfers.TryGetValue(key, out var transfer))
@@ -131,7 +131,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static void CheckForLostChunks()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var now = System.DateTime.Now;
 
@@ -162,7 +162,7 @@ namespace ONI_MP.Networking
         /// </summary>
         private static void ResendSpecificChunk(ClientTransfer transfer, int chunkIndex)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             try
             {

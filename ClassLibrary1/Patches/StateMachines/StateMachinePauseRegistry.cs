@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.StateMachines
 {
@@ -21,7 +21,7 @@ namespace ONI_MP.Patches.StateMachines
 
         public static void SetPaused(StateMachine.Instance smi, bool paused)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             var data = table.GetOrCreateValue(smi);
             data.Paused = paused;
@@ -29,21 +29,21 @@ namespace ONI_MP.Patches.StateMachines
 
         public static void PauseSMI(this StateMachine.Instance smi)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             SetPaused(smi, true);
         }
 
         public static void ResumeSMI(this StateMachine.Instance smi)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             SetPaused(smi, false);
         }
 
         public static bool IsSMIPaused(this StateMachine.Instance smi)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             return IsPaused(smi);
         }

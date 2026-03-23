@@ -3,7 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World.SideScreen
@@ -20,7 +20,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(SmartReservoir __instance)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -67,7 +67,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(ActiveRangeSideScreen __instance, GameObject new_target)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			DebugConsole.Log($"[ActiveRangeSideScreen_SetTarget] Called for {new_target?.name ?? "null"}");
 			
@@ -101,7 +101,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(MassageTable __instance)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -145,7 +145,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(MassageTable __instance, float value)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -175,7 +175,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(MassageTable __instance, float value)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -207,7 +207,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(BatterySmart __instance, float value)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -237,7 +237,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(BatterySmart __instance, float value)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -271,7 +271,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(SmartReservoir __instance, float value)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -301,7 +301,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(SmartReservoir __instance, float value)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;

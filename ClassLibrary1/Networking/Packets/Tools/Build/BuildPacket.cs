@@ -4,7 +4,7 @@ using Steamworks;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Tools.Build
@@ -23,7 +23,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
         public BuildPacket(string prefabID, int cell, Orientation orientation, IEnumerable<Tag> materials)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             PrefabID     = prefabID;
             Cell         = cell;
@@ -36,7 +36,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
         public void Serialize(BinaryWriter writer)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             writer.Write(PrefabID);
             writer.Write(Cell);
@@ -51,7 +51,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
         public void Deserialize(BinaryReader reader)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             PrefabID    = reader.ReadString();
             Cell        = reader.ReadInt32();
@@ -66,7 +66,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
         public void OnDispatched()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             if (!Grid.IsValidCell(Cell))
             {

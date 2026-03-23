@@ -1,6 +1,6 @@
 ﻿using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Tools.Dig
@@ -23,7 +23,7 @@ namespace ONI_MP.Networking.Packets.Tools.Dig
 
         public DiggablePacket(int cell, int animationDelay)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             Cell           = cell;
             AnimationDelay = animationDelay;
@@ -31,7 +31,7 @@ namespace ONI_MP.Networking.Packets.Tools.Dig
 
         public void Serialize(BinaryWriter writer)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             writer.Write(Cell);
             writer.Write(AnimationDelay);
@@ -41,7 +41,7 @@ namespace ONI_MP.Networking.Packets.Tools.Dig
 
         public void Deserialize(BinaryReader reader)
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             Cell           = reader.ReadInt32();
             AnimationDelay = reader.ReadInt32();
@@ -50,7 +50,7 @@ namespace ONI_MP.Networking.Packets.Tools.Dig
 
         public void OnDispatched()
         {
-            Profiler.Active.Scope();
+            Profiler.Scope();
 
             ProcessingIncoming = true;
             GameObject game_object = DigTool.PlaceDig(Cell, AnimationDelay);

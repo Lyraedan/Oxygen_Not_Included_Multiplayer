@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using ONI_MP.DebugTools;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World.Handlers
 {
@@ -21,7 +21,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 		/// </summary>
 		public static void Initialize()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (_initialized) return;
 			_initialized = true;
@@ -54,7 +54,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 		/// </summary>
 		public static void RegisterHandler(IBuildingConfigHandler handler)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			_allHandlers.Add(handler);
 
@@ -76,7 +76,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 		/// <returns>True if the configuration was handled by a registered handler</returns>
 		public static bool TryHandle(GameObject go, BuildingConfigPacket packet)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!_initialized) Initialize();
 
@@ -106,7 +106,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 		/// </summary>
 		public static void Clear()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			_handlersByHash.Clear();
 			_allHandlers.Clear();

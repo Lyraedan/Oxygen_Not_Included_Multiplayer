@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace ONI_MP_API.Networking
 {
@@ -14,6 +15,8 @@ namespace ONI_MP_API.Networking
 	{
 		static bool Init()
 		{
+			Profiler.Scope();
+
 			if (typesInitialized)
 				return true;
 						
@@ -35,6 +38,8 @@ namespace ONI_MP_API.Networking
 		/// <param name="packetType"></param>
 		public static void TryRegister(Type packetType, string nameOverride = null)
 		{
+			Profiler.Scope();
+
 			if (!Init())
 				return;
 			_TryRegister(packetType, nameOverride);
@@ -46,6 +51,8 @@ namespace ONI_MP_API.Networking
 		/// <param name="assembly"></param>
 		public static void AutoRegisterAll(Assembly? assembly = null)
 		{
+			Profiler.Scope();
+
 			if(assembly == null)
 				assembly = Assembly.GetExecutingAssembly();
 

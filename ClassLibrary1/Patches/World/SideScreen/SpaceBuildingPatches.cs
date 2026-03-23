@@ -3,7 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World.SideScreen
@@ -17,7 +17,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(GeoTuner.Instance __instance, Geyser newFutureGeyser)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -48,7 +48,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(GeoTunerSideScreen __instance, GameObject target)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (__instance.targetGeotuner == null) return;
 			__instance.RefreshOptions();
@@ -60,7 +60,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(MissileLauncher.Instance __instance, Tag tag, bool allowed)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -90,7 +90,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(MissileSelectionSideScreen __instance, GameObject target)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (__instance.targetMissileLauncher == null) return;
 			__instance.Refresh();
@@ -102,7 +102,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(Gantry __instance)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;

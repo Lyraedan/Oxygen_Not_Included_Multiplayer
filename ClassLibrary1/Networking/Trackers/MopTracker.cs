@@ -1,6 +1,6 @@
 using HarmonyLib;
 using System.Collections.Generic;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Trackers
@@ -15,7 +15,7 @@ namespace ONI_MP.Networking.Trackers
 		{
 			public static void Postfix(KPrefabID __instance)
 			{
-				Profiler.Active.Scope();
+				Profiler.Scope();
 
 				if (__instance.PrefabTag == MopPlacerTag)
 				{
@@ -32,7 +32,7 @@ namespace ONI_MP.Networking.Trackers
 		{
 			public static void Prefix(KPrefabID __instance)
 			{
-				Profiler.Active.Scope();
+				Profiler.Scope();
 
 				if (__instance.PrefabTag == MopPlacerTag)
 				{

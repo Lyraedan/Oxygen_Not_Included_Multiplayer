@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Handshake
 {
@@ -23,7 +23,7 @@ namespace ONI_MP.Networking.Packets.Handshake
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			writer.Write(ClientId.m_SteamID);
 			writer.Write(ActiveDlcIds.Count);
@@ -40,7 +40,7 @@ namespace ONI_MP.Networking.Packets.Handshake
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			ClientId = new CSteamID(reader.ReadUInt64());
 			int count = reader.ReadInt32();
@@ -60,7 +60,7 @@ namespace ONI_MP.Networking.Packets.Handshake
 
 		public void OnDispatched()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!MultiplayerSession.InSession)
 				return;
@@ -77,13 +77,13 @@ namespace ONI_MP.Networking.Packets.Handshake
 
 		void CreateStateResponse()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			PacketSender.SendToPlayer(ClientId, AccumulateStateInfo());
 		}
 		static GameStateRequestPacket AccumulateStateInfo()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			var packet = new GameStateRequestPacket();
 			packet.ActiveDlcIds = SaveLoader.Instance.GameInfo.dlcIds.ToHashSet();
@@ -102,7 +102,7 @@ namespace ONI_MP.Networking.Packets.Handshake
 
 		void ConsumeStateResponse()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			GameClient.OnHostResponseReceived(this);
 		}

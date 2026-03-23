@@ -3,7 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World.SideScreen
@@ -20,7 +20,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(CounterSideScreen __instance, int newValue)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -51,7 +51,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(CounterSideScreen __instance)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -82,7 +82,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(CounterSideScreen __instance)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -113,7 +113,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(Storage __instance, bool is_set)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -143,7 +143,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 	public static void Postfix(ComplexFabricator __instance, ComplexRecipe recipe, int count)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			try
 			{
@@ -193,7 +193,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(FoodStorage __instance)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -223,7 +223,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(FoodStorage __instance, bool value)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;

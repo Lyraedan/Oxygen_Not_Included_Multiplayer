@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Tools.Attack;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.ToolPatches.Attack;
@@ -11,7 +11,7 @@ public class AttackToolPatch
 {
     private static void Postfix(Vector3 downPos, Vector3 upPos, AttackTool __instance)
     {
-        Profiler.Active.Scope();
+        Profiler.Scope();
 
         if (!MultiplayerSession.InSession)
             return;

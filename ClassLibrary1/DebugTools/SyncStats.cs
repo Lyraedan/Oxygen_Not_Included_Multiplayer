@@ -1,4 +1,4 @@
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.DebugTools
@@ -38,7 +38,7 @@ namespace ONI_MP.DebugTools
 		/// </summary>
 		public static void RecordSync(SyncMetric metric, int itemCount, int packetBytes, float durationMs)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			metric.LastSyncTime = Time.unscaledTime;
 			metric.LastItemCount = itemCount;

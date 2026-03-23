@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches
 {
@@ -13,7 +13,7 @@ namespace ONI_MP.Patches
 		[HarmonyPostfix]
 		public static void OnSteamAwake()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (SteamManager.Initialized)
 			{
@@ -31,7 +31,7 @@ namespace ONI_MP.Patches
 		[HarmonyPrefix]
 		public static void OnSteamShutdown()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (SteamManager.Initialized)
 			{

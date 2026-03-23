@@ -3,7 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.DuplicantActions;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.Duplicant
 {
@@ -13,7 +13,7 @@ namespace ONI_MP.Patches.Duplicant
 	{
 		public static void Postfix(MinionResume __instance, string skillId)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!MultiplayerSession.InSession) return;
 			if (SkillMasteryPacket.IsApplying) return;

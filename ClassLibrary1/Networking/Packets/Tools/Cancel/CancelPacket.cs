@@ -1,4 +1,4 @@
-﻿using ONI_MP.Profiling;
+﻿using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Tools.Cancel
 {
@@ -6,7 +6,7 @@ namespace ONI_MP.Networking.Packets.Tools.Cancel
 	{
 		public CancelPacket()
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			ToolInstance = CancelTool.Instance;
 			ToolMode = DragToolMode.OnDragTool;

@@ -2,7 +2,7 @@
 using System.IO;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Architecture
 {
@@ -13,7 +13,7 @@ namespace ONI_MP.Networking.Packets.Architecture
 
 		public static void HandleIncoming(byte[] data)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!readyToProcess)
 			{
@@ -31,7 +31,7 @@ namespace ONI_MP.Networking.Packets.Architecture
                         return;
                     }
 
-                    using var scope = Profiler.Active.Scope();
+                    using var scope = Profiler.Scope();
 
                     var packet = PacketRegistry.Create(type);
 					packet.Deserialize(reader);
@@ -50,7 +50,7 @@ namespace ONI_MP.Networking.Packets.Architecture
 
 		private static void Dispatch(IPacket packet)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			packet.OnDispatched();
 		}

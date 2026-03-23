@@ -9,7 +9,7 @@ using ONI_MP.Menus;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Social;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.Social
@@ -21,7 +21,7 @@ namespace ONI_MP.Patches.Social
         {
             static void Postfix(ScheduleScreenEntry __instance, int sourceTimetableIdx)
             {
-                Profiler.Active.Scope();
+                Profiler.Scope();
 
                 if (__instance.IsNullOrDestroyed())
                     return;
@@ -63,7 +63,7 @@ namespace ONI_MP.Patches.Social
 
             static bool Prefix(ScheduleScreenEntry __instance, GameObject row)
             {
-                Profiler.Active.Scope();
+                Profiler.Scope();
 
                 rowIndex = __instance.timetableRows.IndexOf(row); // Cache the row index before deletion
                 return true;
@@ -71,7 +71,7 @@ namespace ONI_MP.Patches.Social
 
             static void Postfix(ScheduleScreenEntry __instance, GameObject row)
             {
-                Profiler.Active.Scope();
+                Profiler.Scope();
 
                 if (__instance.IsNullOrDestroyed())
                     return;
@@ -110,7 +110,7 @@ namespace ONI_MP.Patches.Social
         {
             static void Postfix(ScheduleScreenEntry __instance, string newName)
             {
-                Profiler.Active.Scope();
+                Profiler.Scope();
 
                 if (__instance.IsNullOrDestroyed())
                     return;
@@ -142,7 +142,7 @@ namespace ONI_MP.Patches.Social
         {
             static void Postfix(ScheduleScreenEntry __instance)
             {
-                Profiler.Active.Scope();
+                Profiler.Scope();
 
                 if (__instance.IsNullOrDestroyed())
                     return;

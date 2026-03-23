@@ -2,7 +2,7 @@
 using ONI_MP.Misc.World;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.World;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -22,7 +22,7 @@ namespace ONI_MP.Patches.World
 				int callbackIdx
 		)
 		{
-			Profiler.Active.Scope();
+			Profiler.Scope();
 
 			if (!MultiplayerSession.IsHost || !Grid.IsValidCell(gameCell)) return;
 

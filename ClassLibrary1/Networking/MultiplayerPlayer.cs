@@ -1,6 +1,6 @@
 ﻿using ONI_MP.Misc;
 using ONI_MP.Networking.States;
-using ONI_MP.Profiling;
+using Shared.Profiling;
 using Steamworks;
 
 public class MultiplayerPlayer
@@ -17,7 +17,7 @@ public class MultiplayerPlayer
 
     public MultiplayerPlayer(CSteamID steamID)
 	{
-		Profiler.Active.Scope();
+		Profiler.Scope();
 
 		SteamID = steamID;
 		SteamName = Utils.TrucateName(SteamFriends.GetFriendPersonaName(steamID));
@@ -26,7 +26,7 @@ public class MultiplayerPlayer
 
 	public override string ToString()
 	{
-		Profiler.Active.Scope();
+		Profiler.Scope();
 
 		return $"{SteamName} ({SteamID})";
 	}
