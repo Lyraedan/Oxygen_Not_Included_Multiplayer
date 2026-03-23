@@ -191,6 +191,8 @@ namespace ONI_MP
             base.OnAllModsLoaded(harmony, mods);
 #if STEAM_WORKSHOP_VERSION
 			ModUpdater.Updater.CheckForUpdate();
+            // For now default to the steam transport
+            NetworkConfig.UpdateTransport(NetworkConfig.NetworkTransport.STEAMWORKS);
 #endif
         }
     }
