@@ -205,12 +205,16 @@ namespace ONI_MP
 			}
 			public class MP_CHATWINDOW
 			{
-				public static LocString CHAT_INITIALIZED = "<color=yellow>System:</color> Chat initialized.";
+				public static LocString CHAT_INITIALIZED = "<color=yellow>[System]:</color> Chat initialized.";
 				public static LocString CHAT_CLIENT_REJECTED = "<color=red>[System]</color> {0} was rejected due to mod incompatibility: {1}";
 				public static LocString CHAT_CLIENT_JOINED = "<color=yellow>[System]</color> <b>{0}</b> joined the game.";
 				public static LocString CHAT_CLIENT_LEFT = "<color=yellow>[System]</color> <b>{0}</b> left the game.";
+				public static LocString CHAT_CLIENT_FAILED = "<color=red>[System]</color>{0} failed to connect to the server.";
 
-				public class RESIZE
+                public static LocString CHAT_SERVER_STARTED = "<color=yellow>[System]</color><color=green>Started server over {0}</color>";
+				public static LocString CHAT_SERVER_STOPPED = "<color=yellow>[System]</color><color=green>Stopped {0} server</color>";
+
+                public class RESIZE
 				{
 					public static LocString EXPAND = "Chat (+)";
 					public static LocString RETRACT = "Chat (-)";
@@ -231,7 +235,7 @@ namespace ONI_MP
 					public static LocString WAITING_FOR_PLAYER = "Waiting for {0}...";
 
 					public static LocString DOWNLOADING_SAVE_FILE = "Downloading Save File\n\n{0} {1}%\n({2}/{3} chunks)";
-					public static LocString TCP_DOWNLOADING_SAVE_FILE = "Downloading LAN Save File\n\n{0} {1}%";
+					public static LocString TCP_DOWNLOADING_SAVE_FILE = "Downloading LAN Save File\n\n{0} {1}%\n({2} remaining)";
 					public static LocString DOWNLOAD_COMPLETE = "Download Complete!\n\n{0} 100%\n({1}/{2} chunks)\n\nLoading world...";
 
 					public static LocString CONNECTION_FAILED = "Failed to connect to host.";

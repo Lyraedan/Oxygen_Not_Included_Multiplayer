@@ -8,6 +8,7 @@ using ONI_MP.Networking.Profiling;
 using ONI_MP.Networking.Transfer;
 using System.Collections.Generic;
 using ONI_MP.UI;
+using static ResearchTypes;
 
 namespace ONI_MP.Networking.Transport.Lan
 {
@@ -43,6 +44,9 @@ namespace ONI_MP.Networking.Transport.Lan
             if (_server != null)
                 return;
 
+            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_SERVER_STARTED, $"LAN"));
+            ChatScreen.QueueMessage(pending);
+
             string ip = Configuration.Instance.Host.LanSettings.Ip;
             int port = Configuration.Instance.Host.LanSettings.Port;
             int maxClients = Configuration.Instance.Host.MaxLobbySize;
@@ -67,7 +71,10 @@ namespace ONI_MP.Networking.Transport.Lan
 
         private void OnClientConnectionFailed(object sender, ServerConnectionFailedEventArgs e)
         {
+            int id = e.Client.Id;
             DebugConsole.Log("[RiptideServer] A client failed to connect to the server.");
+            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_FAILED, $"Player {id}"));
+            ChatScreen.QueueMessage(pending);
         }
 
         private void OnLocalClientConnected(object sender, EventArgs e)
@@ -159,6 +166,9 @@ namespace ONI_MP.Networking.Transport.Lan
 
             if (!_server.IsRunning)
                 return;
+
+            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_SERVER_STOPPED, $"LAN"));
+            ChatScreen.QueueMessage(pending);
 
             if (!_client.IsNotConnected)
             {

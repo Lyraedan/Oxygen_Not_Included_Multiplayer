@@ -9,6 +9,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Profiling;
 using ONI_MP.Networking.States;
+using ONI_MP.UI;
 using Steamworks;
 
 namespace ONI_MP.Networking.Transport.Steam
@@ -31,6 +32,9 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void Start()
         {
+            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_SERVER_STARTED, $"Steam"));
+            ChatScreen.QueueMessage(pending);
+
             // Create listen socket for P2P
             ListenSocket = SteamNetworkingSockets.CreateListenSocketP2P(
                     0, // Virtual port
@@ -62,6 +66,9 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void Stop()
         {
+            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_SERVER_STOPPED, $"Steam"));
+            ChatScreen.QueueMessage(pending);
+
             if (PollGroup.m_HSteamNetPollGroup != 0)
                 SteamNetworkingSockets.DestroyPollGroup(PollGroup);
 
