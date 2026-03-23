@@ -61,9 +61,8 @@ namespace ONI_MP.Networking
 			if (!MultiplayerSession.IsHost)
 				return;
 
-			MultiplayerPlayer host;
-			MultiplayerSession.ConnectedPlayers.TryGetValue(MultiplayerSession.HostUserID, out host);
-			host.readyState = ClientReadyState.Ready; // Host is always ready
+			if (MultiplayerSession.ConnectedPlayers.TryGetValue(MultiplayerSession.HostUserID, out var host))
+				host.readyState = ClientReadyState.Ready; // Host is always ready
 
 			foreach (MultiplayerPlayer player in MultiplayerSession.ConnectedPlayers.Values)
 			{

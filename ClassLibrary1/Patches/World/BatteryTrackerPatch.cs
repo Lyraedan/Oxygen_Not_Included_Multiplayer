@@ -8,6 +8,9 @@ namespace ONI_MP.Patches.World
 	{
 		public static bool Prefix(BatteryTracker __instance)
 		{
+			if (GameClient.IsHardSyncInProgress)
+				return false;
+
 			// Singleplayer
 			if (!MultiplayerSession.InSession)
 			{

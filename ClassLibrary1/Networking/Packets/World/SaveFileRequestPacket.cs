@@ -77,10 +77,10 @@ namespace ONI_MP.Networking.Packets.World
             if (!MultiplayerSession.IsHost)
                 return;
 
-            foreach(CSteamID steamId in SteamLobby.GetAllLobbyMembers())
+            foreach(var player in MultiplayerSession.ConnectedPlayers)
 			{
-				if (steamId.m_SteamID != MultiplayerSession.HostUserID) {
-                    SendSaveFile(steamId.m_SteamID);
+				if (player.Key != MultiplayerSession.HostUserID) {
+                    SendSaveFile(player.Key);
                 }
             }
         }

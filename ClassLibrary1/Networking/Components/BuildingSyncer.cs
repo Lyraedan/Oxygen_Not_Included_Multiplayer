@@ -89,11 +89,12 @@ namespace ONI_MP.Networking.Components
 
 			if(isLan && packetSize > LAN_MAX_SIZE)
 			{
-				// Tried several different methods of splitting the packet but most result in a crash. Considering building the building state packet and sending 1 building at a time
+				// TODO: Split BuildingStatePacket into multiple smaller packets for LAN (crashes with InsufficientCapacityException otherwise)
+				return;
 			}
 
-            /// Lan can only send ~1KB reliably, so we need to split into multiple packets if too large. Steam can handle more.
-             PacketSender.SendToAllClients(packet, SteamNetworkingSend.Unreliable);
+            // Lan can only send ~1KB reliably, so we need to split into multiple packets if too large. Steam can handle more.
+            PacketSender.SendToAllClients(packet, SteamNetworkingSend.Unreliable);
 			//DebugConsole.Log($"[BuildingSyncer] Sent sync packet with {stateList.Count} buildings.");
 		}
 

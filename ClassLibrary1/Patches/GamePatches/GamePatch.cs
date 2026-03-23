@@ -31,7 +31,7 @@ namespace ONI_MP.Patches.GamePatches
   {
     public static void Postfix()
     {
-      DebugConsole.Log($"[GamePatch] Game.OnSpawn fired. ClientState={GameClient.State}, HasCachedConnection={GameClient.HasCachedConnection()}, IsHost={MultiplayerSession.IsHost}");
+      DebugConsole.Log($"[GamePatch] Game.OnSpawn fired. ClientState={GameClient.State}, HasCachedConnection={GameClient.HasCachedConnection()}, IsHost={MultiplayerSession.IsHost}, HardSync={GameClient.IsHardSyncInProgress}");
 
       // Handle client reconnection after world is fully loaded
       // This is triggered AFTER the game world is completely initialized,
