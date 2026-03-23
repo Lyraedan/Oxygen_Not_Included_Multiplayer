@@ -189,7 +189,9 @@ namespace ONI_MP
         public override void OnAllModsLoaded(Harmony harmony, IReadOnlyList<Mod> mods)
         {
             base.OnAllModsLoaded(harmony, mods);
+#if STEAM_WORKSHOP_VERSION
 			ModUpdater.Updater.CheckForUpdate();
-        }
+#endif
+		}
     }
 }
