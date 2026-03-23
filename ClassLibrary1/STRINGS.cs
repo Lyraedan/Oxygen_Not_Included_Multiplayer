@@ -231,6 +231,7 @@ namespace ONI_MP
 					public static LocString WAITING_FOR_PLAYER = "Waiting for {0}...";
 
 					public static LocString DOWNLOADING_SAVE_FILE = "Downloading Save File\n\n{0} {1}%\n({2}/{3} chunks)";
+					public static LocString TCP_DOWNLOADING_SAVE_FILE = "Downloading LAN Save File\n\n{0} {1}%";
 					public static LocString DOWNLOAD_COMPLETE = "Download Complete!\n\n{0} 100%\n({1}/{2} chunks)\n\nLoading world...";
 
 					public static LocString CONNECTION_FAILED = "Failed to connect to host.";

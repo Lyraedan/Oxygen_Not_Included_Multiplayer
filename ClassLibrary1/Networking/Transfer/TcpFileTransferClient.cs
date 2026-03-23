@@ -64,14 +64,15 @@ namespace ONI_MP.Networking.Transfer
 							throw new IOException("Connection closed during transfer");
 						received += n;
 
-						int step = (int)((long)received * 10 / fileSize);
-						if (step != lastReportedStep)
+						int percent = (int)((long)received * 100 / fileSize);
+						if (percent != lastReportedStep)
 						{
-							lastReportedStep = step;
-							int percent = step * 10;
+							lastReportedStep = percent;
 							MainThreadExecutor.dispatcher.QueueEvent(() =>
 							{
-								MultiplayerOverlay.Show($"Downloading save... {percent}%");
+								var bar = CreateClientProgressBar(percent);
+								string message = string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.TCP_DOWNLOADING_SAVE_FILE, bar, percent);
+                                MultiplayerOverlay.Show(message);
 							});
 						}
 					}
@@ -107,5 +108,22 @@ namespace ONI_MP.Networking.Transfer
 			}
 			return buf;
 		}
-	}
+
+        private static string CreateClientProgressBar(int percent)
+        {
+            int barLength = 30;  // Larger bar for the client
+            int filled = (percent * barLength) / 100;
+            string bar = "";
+
+            for (int i = 0; i < barLength; i++)
+            {
+                if (i < filled)
+                    bar += STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR_FILLED;  // Filled
+                else
+                    bar += STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR_EMPTY;  // Empty
+            }
+
+            return string.Format(STRINGS.UI.MP_OVERLAY.SYNC.PROGRESS_BAR, bar);
+        }
+    }
 }
