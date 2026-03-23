@@ -56,6 +56,11 @@ namespace ONI_MP.Networking.Components
 			var buildings = global::Components.BuildingCompletes.Items;
 			var stateList = new List<BuildingState>(buildings.Count);
 
+			bool isSteam = NetworkConfig.IsSteamConfig();
+			bool isLan = NetworkConfig.IsLanConfig();
+			float LAN_MAX_SIZE = PacketSender.MAX_PACKET_SIZE_LAN * 1024f;
+			int STEAM_MAX_SIZE = PacketSender.MAX_PACKET_SIZE_UNRELIABLE;
+
 			foreach (var building in buildings)
 			{
 				if (building == null) continue;
@@ -79,7 +84,16 @@ namespace ONI_MP.Networking.Components
 				Buildings = stateList
 			};
 
-			PacketSender.SendToAllClients(packet, SteamNetworkingSend.Unreliable);
+			byte[] serialized = packet.SerializeToByteArray();
+			int packetSize = serialized.Length + 4; // +4 for packet type header
+
+			if(isLan && packetSize > LAN_MAX_SIZE)
+			{
+				// Tried several different methods of splitting the packet but most result in a crash. Considering building the building state packet and sending 1 building at a time
+			}
+
+            /// Lan can only send ~1KB reliably, so we need to split into multiple packets if too large. Steam can handle more.
+             PacketSender.SendToAllClients(packet, SteamNetworkingSend.Unreliable);
 			//DebugConsole.Log($"[BuildingSyncer] Sent sync packet with {stateList.Count} buildings.");
 		}
 
