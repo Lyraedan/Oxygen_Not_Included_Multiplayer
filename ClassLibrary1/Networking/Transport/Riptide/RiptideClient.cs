@@ -11,6 +11,7 @@ using ONI_MP.Menus;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
+using ONI_MP.Networking.States;
 using ONI_MP.UI;
 using Steamworks;
 using static ONI_MP.STRINGS.UI.MP_OVERLAY;
@@ -20,6 +21,7 @@ namespace ONI_MP.Networking.Transport.Lan
     public class RiptideClient : TransportClient
     {
         private static Client _client;
+        private bool _isLoadingReconnect = false;
 
         public static Client Client
         {
@@ -204,6 +206,11 @@ namespace ONI_MP.Networking.Transport.Lan
                 return;
 
             ClientList.Add(id);
+
+            if (_isLoadingReconnect)
+            {
+                _isLoadingReconnect = false;
+            }
             Game.Instance?.Trigger(MP_HASHES.OnPlayerJoined);
         }
 
@@ -214,9 +221,16 @@ namespace ONI_MP.Networking.Transport.Lan
 
             ClientList.Remove(id);
 
-            string name = MultiplayerSession.KnownPlayerNames.TryGetValue(id, out var cached) ? cached : $"Player {id}";
-            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, name));
-            ChatScreen.QueueMessage(pending);
+            if (id == CLIENT_ID && GameClient.State == ClientState.LoadingWorld)
+            {
+                _isLoadingReconnect = true;
+            }
+            else
+            {
+                string name = MultiplayerSession.KnownPlayerNames.TryGetValue(id, out var cached) ? cached : $"Player {id}";
+                ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, name));
+                ChatScreen.QueueMessage(pending);
+            }
             Game.Instance?.Trigger(MP_HASHES.OnPlayerLeft);
         }
 
