@@ -51,7 +51,8 @@ namespace ONI_MP.Networking
 			var packet = new ClientReadyStatusPacket
 			{
 				SenderId = NetworkConfig.GetLocalID(),
-				Status = state
+				Status = state,
+				PlayerName = SteamFriends.GetPersonaName()
 			};
 			PacketSender.SendToHost(packet);
 		}

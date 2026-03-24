@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
 using ONI_MP.UI;
-
+using Steamworks;
 using static ONI_MP.STRINGS.UI.MP_OVERLAY;
 
 namespace ONI_MP.Networking.Transport.Lan
@@ -102,6 +102,8 @@ namespace ONI_MP.Networking.Transport.Lan
             MultiplayerPlayer host = new MultiplayerPlayer(1);
             host.Connection = conn;
             MultiplayerSession.ConnectedPlayers.Add(1, host);
+
+            MultiplayerSession.KnownPlayerNames[CLIENT_ID] = SteamFriends.GetPersonaName();
 
             DebugConsole.Log($"[Riptide] Connected to server with Client ID: {CLIENT_ID}");
 
@@ -202,9 +204,6 @@ namespace ONI_MP.Networking.Transport.Lan
                 return;
 
             ClientList.Add(id);
-
-            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, $"Player {id}"));
-            ChatScreen.QueueMessage(pending);
             Game.Instance?.Trigger(MP_HASHES.OnPlayerJoined);
         }
 
@@ -215,7 +214,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
             ClientList.Remove(id);
 
-            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, $"Player {id}"));
+            string name = MultiplayerSession.KnownPlayerNames.TryGetValue(id, out var cached) ? cached : $"Player {id}";
+            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, name));
             ChatScreen.QueueMessage(pending);
             Game.Instance?.Trigger(MP_HASHES.OnPlayerLeft);
         }
