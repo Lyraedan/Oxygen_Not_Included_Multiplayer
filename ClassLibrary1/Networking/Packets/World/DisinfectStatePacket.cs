@@ -11,7 +11,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(DisinfectCells.Count);
 			foreach (var cell in DisinfectCells)
@@ -22,7 +22,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			int count = reader.ReadInt32();
 			DisinfectCells = new List<int>(count);
@@ -34,7 +34,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (MultiplayerSession.IsHost) return;
 			ONI_MP.Networking.Components.WorldStateSyncer.Instance?.OnDisinfectStateReceived(this);

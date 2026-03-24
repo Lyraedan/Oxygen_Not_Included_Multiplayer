@@ -32,7 +32,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Serialize(BinaryWriter writer)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             writer.Write(NetId);
             writer.Write((int)Action);
@@ -47,7 +47,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Deserialize(BinaryReader reader)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             NetId = reader.ReadInt32();
             Action = (ItemGroupPacketAction)reader.ReadInt32();
@@ -62,7 +62,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void OnDispatched()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!NetworkIdentityRegistry.TryGet(NetId, out NetworkIdentity identity))
             {
@@ -83,7 +83,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void AddStatusItemGroup(NetworkIdentity identity)
         {
-            
+
         }
 
         public void RemoveStatusItemGroup(NetworkIdentity identity)

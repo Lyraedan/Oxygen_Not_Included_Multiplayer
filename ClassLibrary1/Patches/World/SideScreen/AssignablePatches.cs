@@ -15,7 +15,7 @@ namespace ONI_MP.Patches.World.SideScreen
     {
         public static void Postfix(Assignable __instance)
         {
-	        Profiler.Scope();
+	        using var _ = Profiler.Scope();
 
             var buildingIdentity = __instance.gameObject.AddOrGet<NetworkIdentity>();
             buildingIdentity.RegisterIdentity();
@@ -27,7 +27,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(Assignable __instance, IAssignableIdentity new_assignee)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (AssignmentPacket.IsApplying) return;
 			if (!MultiplayerSession.InSession) return;
@@ -89,7 +89,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(Assignable __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (AssignmentPacket.IsApplying) return;
 			if (!MultiplayerSession.InSession) return;

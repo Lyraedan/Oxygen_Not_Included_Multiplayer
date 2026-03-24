@@ -29,7 +29,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 
 		public bool TryApplyConfig(GameObject go, BuildingConfigPacket packet)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var alarm = go.GetComponent<LogicAlarm>();
 			if (alarm == null) return false;

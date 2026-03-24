@@ -23,7 +23,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			DebugConsole.Log("[AllClientsReadyPacket] All players are ready! Closing overlay");
 			ProcessAllReady();
@@ -31,7 +31,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public static void ProcessAllReady()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			//CoroutineRunner.RunOne(CloseOverlayAfterDelay());
 			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.SYNC.FINALIZING_SYNC);
@@ -41,7 +41,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		private static IEnumerator CloseOverlayAfterDelay()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.SYNC.FINALIZING_SYNC);
 			yield return new WaitForSeconds(1f);

@@ -12,7 +12,7 @@ public class CopySettingsToolPatch
 {
     private static void Postfix(int cell, int distFromOrigin, CopySettingsTool __instance)
     {
-        Profiler.Scope();
+        using var _ = Profiler.Scope();
 
         if (!MultiplayerSession.InSession)
             return;

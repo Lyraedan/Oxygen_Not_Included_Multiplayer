@@ -17,7 +17,7 @@ namespace ONI_MP.Patches.World
 		{
 			public static void Postfix(Workable __instance)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				//if (__instance.multitoolContext.IsValid && __instance.multitoolHitEffectTag.IsValid)
 				__instance.gameObject.AddOrGet<NetworkIdentity>();

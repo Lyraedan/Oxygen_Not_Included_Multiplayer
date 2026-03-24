@@ -20,7 +20,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(SmartReservoir __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -67,28 +67,28 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(ActiveRangeSideScreen __instance, GameObject new_target)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			DebugConsole.Log($"[ActiveRangeSideScreen_SetTarget] Called for {new_target?.name ?? "null"}");
-			
+
 			if (__instance.target == null)
 			{
 				DebugConsole.Log("[ActiveRangeSideScreen_SetTarget] Target is null, returning");
 				return;
 			}
-			
+
 			// Force update sliders and labels from current component values
 			float activateVal = __instance.target.ActivateValue;
 			float deactivateVal = __instance.target.DeactivateValue;
-			
+
 			DebugConsole.Log($"[ActiveRangeSideScreen_SetTarget] Reading values: activate={activateVal}, deactivate={deactivateVal}");
-			
+
 			__instance.activateValueSlider.value = activateVal;
 			__instance.deactivateValueSlider.value = deactivateVal;
 			__instance.activateValueLabel.SetDisplayValue(activateVal.ToString());
 			__instance.deactivateValueLabel.SetDisplayValue(deactivateVal.ToString());
 			__instance.RefreshTooltips();
-			
+
 			DebugConsole.Log("[ActiveRangeSideScreen_SetTarget] Updated sliders and labels");
 		}
 	}
@@ -101,7 +101,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(MassageTable __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -145,7 +145,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(MassageTable __instance, float value)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -175,7 +175,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(MassageTable __instance, float value)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -207,7 +207,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(BatterySmart __instance, float value)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -237,7 +237,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(BatterySmart __instance, float value)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -271,7 +271,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(SmartReservoir __instance, float value)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -301,7 +301,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(SmartReservoir __instance, float value)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;

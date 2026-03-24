@@ -10,14 +10,14 @@ public static class MoveablePatch
 {
 	public static void Postfix(Movable __instance)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		__instance.onPickupComplete += OnPickup;
 		DebugConsole.Log($"[Movable.OnSpawn] Attached to: {STRINGS.UI.StripLinkFormatting(__instance.gameObject.GetProperName())} ({__instance.GetInstanceID()})");
 	}
 	static void OnPickup(GameObject go)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		DebugConsole.Log($"[Movable.onPickupComplete] Picked up {go.name}");
 

@@ -14,7 +14,7 @@ public class ToggleMinionKanimEffectPacket : IPacket
 
 	public void Serialize(BinaryWriter writer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		writer.Write(NetId);
 		writer.Write(Enable);
@@ -24,7 +24,7 @@ public class ToggleMinionKanimEffectPacket : IPacket
 
 	public void Deserialize(BinaryReader reader)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		NetId = reader.ReadInt32();
 		Enable = reader.ReadBoolean();
@@ -34,7 +34,7 @@ public class ToggleMinionKanimEffectPacket : IPacket
 
 	public void OnDispatched()
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (!NetworkIdentityRegistry.TryGet(NetId, out var go)) return;
 

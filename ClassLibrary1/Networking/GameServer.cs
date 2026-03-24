@@ -17,7 +17,7 @@ namespace ONI_MP.Networking
 
 		private static void SetState(ServerState newState)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (_state != newState)
 			{
@@ -29,7 +29,7 @@ namespace ONI_MP.Networking
 
 		public static void Start()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			SetState(ServerState.Preparing);
 
@@ -52,7 +52,7 @@ namespace ONI_MP.Networking
 
 		public static void Shutdown()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			SetState(ServerState.Stopped);
 
@@ -67,7 +67,7 @@ namespace ONI_MP.Networking
 
 		public static void Update()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			switch (State)
 			{

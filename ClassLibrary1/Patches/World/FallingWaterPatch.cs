@@ -24,7 +24,7 @@ namespace ONI_MP.Patches.World
 				bool debug_track,
 				bool disable_randomness)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession) return true;
 

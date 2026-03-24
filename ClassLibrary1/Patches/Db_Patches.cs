@@ -17,7 +17,7 @@ namespace ONI_MP.Patches
         {
             public static void Postfix(Db __instance)
             {
-	            Profiler.Scope();
+	            using var _ = Profiler.Scope();
 
                 Door_QueueStateChange_Patch.ExecutePatch();
 

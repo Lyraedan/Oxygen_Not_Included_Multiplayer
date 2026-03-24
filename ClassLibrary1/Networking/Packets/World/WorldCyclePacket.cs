@@ -13,7 +13,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(Cycle);
 			writer.Write(CycleTime);
@@ -21,7 +21,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Cycle = reader.ReadInt32();
 			CycleTime = reader.ReadSingle();
@@ -29,7 +29,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (MultiplayerSession.IsHost)
 				return;

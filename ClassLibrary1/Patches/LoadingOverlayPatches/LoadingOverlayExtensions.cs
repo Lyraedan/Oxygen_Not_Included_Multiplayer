@@ -7,7 +7,7 @@ namespace ONI_MP.Patches.LoadingOverlayPatch
 	{
 		public static LoadingOverlay GetSingleton()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var type = typeof(LoadingOverlay);
 			var field = type.GetField("instance", BindingFlags.NonPublic | BindingFlags.Static);

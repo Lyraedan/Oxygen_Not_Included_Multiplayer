@@ -21,7 +21,7 @@ public class EntityPositionPacket : IPacket
 
     public void Serialize(BinaryWriter writer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		writer.Write(NetId);
 		writer.Write(Position);
@@ -35,7 +35,7 @@ public class EntityPositionPacket : IPacket
 
 	public void Deserialize(BinaryReader reader)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		NetId = reader.ReadInt32();
 		Position = reader.ReadVector3();
@@ -49,7 +49,7 @@ public class EntityPositionPacket : IPacket
 
 	public void OnDispatched()
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (MultiplayerSession.IsHost) return;
 

@@ -12,7 +12,7 @@ namespace ONI_MP.Patches.GamePatches
 	{
 		static void Postfix(GameScreenManager __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Setup indicators
 			NetworkIndicatorsScreen.Show();

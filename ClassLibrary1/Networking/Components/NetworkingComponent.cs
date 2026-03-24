@@ -15,7 +15,7 @@ namespace ONI_MP.Networking.Components
 		/*
 		 * TODO:
 		 * Update this class now that we can have different relay types. This is not steam specific anymore
-		 * 
+		 *
 		 * **/
 
 		private void Start()
@@ -23,14 +23,14 @@ namespace ONI_MP.Networking.Components
 			//SteamNetworkingUtils.InitRelayNetworkAccess();
 			//GameClient.Init();
 
-			// NOTE: Client reconnection after world load is now handled in 
+			// NOTE: Client reconnection after world load is now handled in
 			// GamePatch.OnSpawnPostfix which triggers AFTER the world is fully loaded.
 			// This is safer than OnPostSceneLoaded which fires during scene unload.
 		}
 
 		private void Update()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			scheduler.Tick();
 
@@ -58,7 +58,7 @@ namespace ONI_MP.Networking.Components
 
         private void OnApplicationQuit()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession)
 				return;

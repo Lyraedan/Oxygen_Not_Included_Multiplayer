@@ -10,7 +10,7 @@ public static class ConstructablePatch
 {
 	public static void Prefix(Constructable __instance)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (!MultiplayerSession.IsHost || !MultiplayerSession.InSession)
 			return;

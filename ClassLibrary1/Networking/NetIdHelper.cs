@@ -12,7 +12,7 @@ namespace ONI_MP.Networking
 		/// </summary>
 		public static int GetDeterministicBuildingId(GameObject go)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (go == null) return 0;
 
@@ -26,7 +26,7 @@ namespace ONI_MP.Networking
 		}
 		public static int GetDeterministicWorkableId(GameObject go)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (go == null) return 0;
 
@@ -51,7 +51,7 @@ namespace ONI_MP.Networking
 
 		public static int GetDeterministicEntityId(GameObject go, bool useBreakOff = true, bool useCell = true)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (go == null || !go.TryGetComponent<PrimaryElement>(out var primaryElement))
 				return 0;

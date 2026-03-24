@@ -11,14 +11,14 @@ namespace ONI_MP.DebugTools
 
 		public void Toggle()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			showWindow = !showWindow;
 		}
 
 		void OnGUI()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!showWindow) return;
 
@@ -53,7 +53,7 @@ namespace ONI_MP.DebugTools
 
 		private void DrawGameObjectRecursive(GameObject obj, int indent)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Component[] components = obj.GetComponents<Component>();
 			string typeInfo = "GameObject";
@@ -101,7 +101,7 @@ namespace ONI_MP.DebugTools
 
 		private string BuildHierarchyStringRecursive(GameObject obj, int indent)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			string indentStr = new string(' ', indent * 2);
 			string typeInfo = "GameObject";

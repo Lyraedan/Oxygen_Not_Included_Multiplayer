@@ -18,9 +18,9 @@ namespace ONI_MP.Networking.Transport.Steamworks
 	{
 
 		/*
-		 
+
 		TODO: Split this..... this is gonna f*cking suck
-		 
+
 		 */
 
 		public static readonly int LOBBY_SIZE_MIN = 2;
@@ -60,7 +60,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 		public static void Initialize()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!SteamManager.Initialized) return;
 
@@ -82,7 +82,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 		public static void CreateLobby(ELobbyType lobbyType = ELobbyType.k_ELobbyTypePublic, System.Action onSuccess = null)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!NetworkConfig.IsSteamConfig())
 				return;
@@ -107,7 +107,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 		public static void LeaveLobby()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if(!NetworkConfig.IsSteamConfig())
 				return;
@@ -134,7 +134,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 		private static void OnLobbyCreated(LobbyCreated_t callback)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (callback.m_eResult == EResult.k_EResultOK)
 			{
@@ -191,7 +191,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 		private static void OnLobbyJoinRequested(GameLobbyJoinRequested_t callback)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			DebugConsole.Log($"[SteamLobby] Joining lobby invited by {callback.m_steamIDFriend}");
 			CSteamID lobbyId = callback.m_steamIDLobby;
@@ -202,7 +202,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
         private static System.Collections.IEnumerator CheckLobbyPasswordAfterDelay(CSteamID lobbyId)
         {
-	        Profiler.Scope();
+	        using var _ = Profiler.Scope();
 
             yield return new WaitForSeconds(0.5f);
 
@@ -223,7 +223,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
         private static void OnLobbyEntered(LobbyEnter_t callback)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			CurrentLobby = new CSteamID(callback.m_ulSteamIDLobby);
 			DebugConsole.Log($"[SteamLobby] Entered lobby: {CurrentLobby}");
@@ -248,7 +248,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 		private static void OnLobbyChatUpdate(LobbyChatUpdate_t callback)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			ulong userId = callback.m_ulSteamIDUserChanged;
 			CSteamID user = userId.AsCSteamID();
@@ -294,7 +294,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 		public static void JoinLobby(CSteamID lobbyId, Action<CSteamID> onJoinedLobby = null, string password = null)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!SteamManager.Initialized)
 				return;
@@ -313,12 +313,12 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 		public static List<CSteamID> GetAllLobbyMembers()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			List<CSteamID> members = new List<CSteamID>();
 
 			if (!NetworkConfig.IsSteamConfig()) return members;
-            
+
 			if (!InLobby) return members;
 
 			int memberCount = SteamMatchmaking.GetNumLobbyMembers(CurrentLobby);
@@ -333,7 +333,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 		private static void RefreshLobbyMembers()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			LobbyMembers.Clear();
 			if (Utils.IsInGame())
@@ -365,7 +365,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 		/// </summary>
 		public static void JoinLobbyByCode(string code, string password = null, Action<CSteamID> onJoined = null, Action<string> onError = null)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!SteamManager.Initialized)
 			{
@@ -397,7 +397,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 		/// </summary>
 		public static bool LobbyRequiresPassword(CSteamID lobbyId)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			string hasPassword = SteamMatchmaking.GetLobbyData(lobbyId, "has_password");
 			return hasPassword == "1";
@@ -408,7 +408,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 		/// </summary>
 		public static bool ValidateLobbyPassword(ulong lobbyId, string password)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!NetworkConfig.IsSteamConfig())
 				return false; // Default to invalid as these don't have passwords yet
@@ -425,7 +425,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 		/// </summary>
 		public static void SetLobbyPassword(string password)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!InLobby || !MultiplayerSession.IsHost)
 			{
@@ -450,7 +450,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 		/// </summary>
 		public static void SetLobbyVisibility(bool isPrivate)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!InLobby || !MultiplayerSession.IsHost)
 			{
@@ -474,7 +474,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 		/// </summary>
 		public static string GetLocalRegion()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Try to get from config first
 			string configRegion = Configuration.Instance.Host.Lobby.Region;
@@ -491,7 +491,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 		/// </summary>
 		public static void UpdateGameInfo()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!NetworkConfig.IsSteamConfig())
 				return;
@@ -549,7 +549,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 		/// </summary>
 		public static void RequestLobbyList(Action<List<LobbyListEntry>> onComplete)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!SteamManager.Initialized)
 			{
@@ -561,7 +561,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 			// Filter for ONI Multiplayer lobbies only
 			SteamMatchmaking.AddRequestLobbyListStringFilter("game_id", "oni_multiplayer", ELobbyComparison.k_ELobbyComparisonEqual);
-			
+
 			// Limit results
 			//SteamMatchmaking.AddRequestLobbyListResultCountFilter(100);
 
@@ -574,7 +574,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 		private static void OnLobbyListReceived(LobbyMatchList_t result, bool bIOFailure)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var lobbies = new List<LobbyListEntry>();
 
@@ -664,7 +664,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 		private static string GetHostName(CSteamID lobbyId)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			string hostStr = SteamMatchmaking.GetLobbyData(lobbyId, "host");
 			if (ulong.TryParse(hostStr, out ulong hostId))

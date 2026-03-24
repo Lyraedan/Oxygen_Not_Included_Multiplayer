@@ -18,7 +18,7 @@ namespace ONI_MP.Networking.Packets.Core
 		public BulkSenderPacket() { }
 		public BulkSenderPacket(int packetId, List<byte[]> innerData)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			InnerPacketId = packetId;
 			SerializedInnerPackets = innerData;
@@ -29,7 +29,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(InnerPacketId);
 			int packetCount = SerializedInnerPackets.Count();
@@ -45,7 +45,7 @@ namespace ONI_MP.Networking.Packets.Core
 		}
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			InnerPacketId = reader.ReadInt32();
 			int packetCount = reader.ReadInt32();
@@ -59,7 +59,7 @@ namespace ONI_MP.Networking.Packets.Core
 		}
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!PacketRegistry.HasRegisteredPacket(InnerPacketId))
 			{

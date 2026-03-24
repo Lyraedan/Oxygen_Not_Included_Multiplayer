@@ -14,7 +14,7 @@ namespace ONI_MP_DedicatedServer.ONI
 
         public SaveFile(string name, byte[] data)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             Name = name;
             Data = data;
@@ -22,7 +22,7 @@ namespace ONI_MP_DedicatedServer.ONI
 
         public static SaveFile FromFile(string filePath)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!File.Exists(filePath))
                 throw new FileNotFoundException($"Save file not found: {filePath}");

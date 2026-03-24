@@ -16,7 +16,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(BottleEmptier __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -43,7 +43,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(Automatable __instance, bool only)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -72,7 +72,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(DirectionControl __instance, WorkableReactable.AllowedDirection new_direction)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -101,7 +101,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(IceMachine __instance, FewOptionSideScreen.IFewOptionSideScreen.Option option)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;

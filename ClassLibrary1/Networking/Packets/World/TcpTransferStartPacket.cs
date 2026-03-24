@@ -16,7 +16,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(TcpPort);
 			writer.Write(FileName);
@@ -25,7 +25,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			TcpPort = reader.ReadInt32();
 			FileName = reader.ReadString();
@@ -34,7 +34,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (MultiplayerSession.IsHost)
 				return;

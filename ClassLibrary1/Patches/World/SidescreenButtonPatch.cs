@@ -25,7 +25,7 @@ namespace ONI_MP.Patches.World
 		// Helper method for sending button press changes
 		public static void SyncButtonPress(UnityEngine.Component component, string configId, float value)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;

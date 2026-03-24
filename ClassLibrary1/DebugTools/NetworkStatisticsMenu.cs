@@ -24,7 +24,7 @@ namespace ONI_MP.DebugTools
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
 		public static void Init()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (_instance != null) return;
 
@@ -40,7 +40,7 @@ namespace ONI_MP.DebugTools
 
 		private void Update()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (Input.GetKeyDown(KeyCode.F1) && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
 			{
@@ -50,7 +50,7 @@ namespace ONI_MP.DebugTools
 
 		private void OnGUI()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!showMenu) return;
 
@@ -60,7 +60,7 @@ namespace ONI_MP.DebugTools
 
 		private void DrawMenuContents(int windowID)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.Width(windowRect.width - 20), GUILayout.Height(windowRect.height - 40));
 

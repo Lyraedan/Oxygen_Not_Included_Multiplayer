@@ -22,7 +22,7 @@ namespace ONI_MP.Patches.World
 				int callbackIdx
 		)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.IsHost || !Grid.IsValidCell(gameCell)) return;
 

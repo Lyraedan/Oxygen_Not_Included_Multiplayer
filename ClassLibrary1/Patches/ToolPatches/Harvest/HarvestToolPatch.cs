@@ -10,7 +10,7 @@ public class HarvestToolPatch
 {
     private static void Postfix(int cell, int distFromOrigin)
     {
-        Profiler.Scope();
+        using var _ = Profiler.Scope();
 
         if (!MultiplayerSession.InSession)
             return;

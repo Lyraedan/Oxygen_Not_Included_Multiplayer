@@ -13,7 +13,7 @@ namespace Shared.Helpers
 	{
 		public static void AutoRegisterPackets(Assembly asm, Action<Type> registerPacketAction, out int count, out TimeSpan duration)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var startTime = System.DateTime.Now;
 

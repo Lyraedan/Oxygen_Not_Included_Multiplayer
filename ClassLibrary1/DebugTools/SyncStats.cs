@@ -38,7 +38,7 @@ namespace ONI_MP.DebugTools
 		/// </summary>
 		public static void RecordSync(SyncMetric metric, int itemCount, int packetBytes, float durationMs)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			metric.LastSyncTime = Time.unscaledTime;
 			metric.LastItemCount = itemCount;

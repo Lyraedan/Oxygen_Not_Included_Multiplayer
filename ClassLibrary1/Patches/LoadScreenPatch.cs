@@ -12,7 +12,7 @@ namespace ONI_MP.Patches
 		[HarmonyTargetMethod]
 		public static MethodBase TargetMethod()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return typeof(LoadScreen).GetMethod(
 					"DoLoad",
@@ -27,7 +27,7 @@ namespace ONI_MP.Patches
 		[HarmonyPrefix]
 		public static void Prefix_DoLoad(string filename)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			DebugConsole.Log($"Loading {filename}");
 		}
@@ -35,7 +35,7 @@ namespace ONI_MP.Patches
 		[HarmonyPostfix]
 		public static void Postfix_DoLoad(string filename)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			DebugConsole.Log($"Loaded {filename}");
 		}

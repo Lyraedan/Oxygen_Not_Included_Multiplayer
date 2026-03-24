@@ -20,7 +20,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(Cell);
 			writer.Write(WorkTimeRemaining);
@@ -28,7 +28,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Cell = reader.ReadInt32();
 			WorkTimeRemaining = reader.ReadSingle();
@@ -36,7 +36,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (MultiplayerSession.IsHost)
 				return;

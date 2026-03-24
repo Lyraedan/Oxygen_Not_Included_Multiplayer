@@ -17,7 +17,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(SuitLocker __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -46,7 +46,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(SuitLocker __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -75,7 +75,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(SuitLocker __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;

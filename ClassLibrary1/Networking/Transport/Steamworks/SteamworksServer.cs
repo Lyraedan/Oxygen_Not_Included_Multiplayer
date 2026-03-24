@@ -21,7 +21,7 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void Prepare()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!SteamManager.Initialized)
             {
@@ -33,7 +33,7 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void Start()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_SERVER_STARTED, $"Steam"));
             ChatScreen.QueueMessage(pending);
@@ -69,7 +69,7 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void Stop()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_SERVER_STOPPED, $"Steam"));
             ChatScreen.QueueMessage(pending);
@@ -85,7 +85,7 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void CloseConnections()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             // Close all client connections and clean up
             foreach (var player in MultiplayerSession.ConnectedPlayers.Values)
@@ -104,7 +104,7 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void Update()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             SteamAPI.RunCallbacks();
             SteamNetworkingSockets.RunCallbacks();
@@ -112,7 +112,7 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void OnMessageRecieved()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             var scope = Profiler.Scope();
             int totalBytes = 0;
@@ -137,7 +137,7 @@ namespace ONI_MP.Networking.Transport.Steam
 
         private static void OnConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t data)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             var conn = data.m_hConn;
             var clientId = data.m_info.m_identityRemote.GetSteamID();
@@ -164,7 +164,7 @@ namespace ONI_MP.Networking.Transport.Steam
 
         private static void TryAcceptConnection(HSteamNetConnection conn, CSteamID clientId)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             // Get connection info to check actual state
             SteamNetConnectionInfo_t info = default;
@@ -206,7 +206,7 @@ namespace ONI_MP.Networking.Transport.Steam
 
         private static void RejectConnection(HSteamNetConnection conn, CSteamID clientId, string reason)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             DebugConsole.LogError($"[GameServer] Rejecting connection from {clientId}: {reason}", false);
             SteamNetworkingSockets.CloseConnection(conn, 0, reason, false);
@@ -214,7 +214,7 @@ namespace ONI_MP.Networking.Transport.Steam
 
         private static void OnClientConnected(HSteamNetConnection conn, CSteamID clientId)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             MultiplayerPlayer player;
             if (!MultiplayerSession.ConnectedPlayers.TryGetValue(clientId.m_SteamID, out player))
@@ -232,7 +232,7 @@ namespace ONI_MP.Networking.Transport.Steam
 
         private static void OnClientClosed(HSteamNetConnection conn, CSteamID clientId)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             SteamNetworkingSockets.CloseConnection(conn, 0, null, false);
 

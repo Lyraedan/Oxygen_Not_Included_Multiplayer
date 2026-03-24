@@ -26,14 +26,14 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
 		static void SerializePathNode(ref BinaryWriter writer, ref BaseUtilityBuildTool.PathNode node)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(node.cell);
 			writer.Write(node.valid);
 		}
 		void DeserializePathNode(ref BinaryReader reader, ref List<BaseUtilityBuildTool.PathNode> toAdd)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var node = new BaseUtilityBuildTool.PathNode
 			{
@@ -47,7 +47,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
 		public UtilityBuildPacket(string prefabId, List<BaseUtilityBuildTool.PathNode> nodes, List<string> mats, string skin)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			PrefabID = prefabId ?? string.Empty;
 			path = nodes ?? [];
@@ -59,7 +59,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 		}
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(PrefabID);
 			writer.Write(FacadeID);
@@ -87,7 +87,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			//DebugConsole.Log("[UtilityBuildPacket] Deserializing UtilityBuildPacket");
 			//DebugConsole.Log("[UtilityBuildPacket] Reading PrefabID...");
@@ -126,7 +126,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var scope = Profiler.Scope();
 
 			DebugConsole.Log("[UtilityBuildPacket] OnDispatched");
 			if (path.Count == 0)

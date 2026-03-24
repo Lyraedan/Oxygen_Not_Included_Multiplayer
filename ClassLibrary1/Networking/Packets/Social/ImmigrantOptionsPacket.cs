@@ -14,7 +14,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(Options.Count);
 			foreach (var opt in Options)
@@ -25,7 +25,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			int count = reader.ReadInt32();
 			Options = new List<ImmigrantOptionEntry>();
@@ -38,7 +38,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			DebugConsole.Log($"[ImmigrantOptionsPacket] Received {Options.Count} options");
 

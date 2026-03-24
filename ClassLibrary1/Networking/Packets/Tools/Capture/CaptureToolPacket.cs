@@ -20,7 +20,7 @@ public class CaptureToolPacket : IPacket
 
     public CaptureToolPacket(Vector2 min, Vector2 max)
     {
-        Profiler.Scope();
+        using var _ = Profiler.Scope();
 
         Min = min;
         Max = max;
@@ -28,7 +28,7 @@ public class CaptureToolPacket : IPacket
 
     public void Serialize(BinaryWriter writer)
     {
-        Profiler.Scope();
+        using var _ = Profiler.Scope();
 
         writer.Write(SenderId);
         writer.Write(Min);
@@ -39,7 +39,7 @@ public class CaptureToolPacket : IPacket
 
     public void Deserialize(BinaryReader reader)
     {
-        Profiler.Scope();
+        using var _ = Profiler.Scope();
 
         SenderId = reader.ReadUInt64();
         Min      = reader.ReadVector2();
@@ -49,7 +49,7 @@ public class CaptureToolPacket : IPacket
 
     public void OnDispatched()
     {
-        Profiler.Scope();
+        using var _ = Profiler.Scope();
 
         Traverse        lastSelectedPriority = Traverse.Create(ToolMenu.Instance.PriorityScreen).Field("lastSelectedPriority");
         PrioritySetting prioritySetting      = lastSelectedPriority.GetValue<PrioritySetting>();

@@ -10,7 +10,7 @@ namespace ONI_MP.Patches.ToolPatches.Dig
 	{
 		public static void Prefix(Diggable __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.IsHost || !MultiplayerSession.InSession)
 				return;

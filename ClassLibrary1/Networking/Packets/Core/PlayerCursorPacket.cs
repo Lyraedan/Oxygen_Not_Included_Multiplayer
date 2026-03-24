@@ -23,7 +23,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(PlayerID);
 			writer.Write(Position);
@@ -37,7 +37,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			PlayerID = reader.ReadUInt64();
 			Position = reader.ReadVector3();
@@ -51,7 +51,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (PlayerID == MultiplayerSession.LocalUserID)
 				return;
@@ -91,7 +91,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		private IEnumerator InterpolateCursorPosition(Transform target, Vector3 targetPos)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Vector3 start = target.position;
 			float duration = CursorManager.SendInterval;

@@ -58,7 +58,7 @@ namespace ONI_MP.DebugTools
 
         public DevToolMultiplayer()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             Name = "Multiplayer";
             RequiresGameRunning = false;
@@ -102,7 +102,7 @@ namespace ONI_MP.DebugTools
 
         public override void RenderTo(DevPanel panel)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ImGui.BeginChild("ScrollRegion", new Vector2(0, 0), true);
 
@@ -162,7 +162,7 @@ namespace ONI_MP.DebugTools
 
         private void DrawGeneralTab()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (ImGui.Button("Open Mod Directory"))
             {
@@ -194,7 +194,7 @@ namespace ONI_MP.DebugTools
 
         private void DrawSessionTab()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if(MultiplayerSession.InSession)
                 ImGui.TextColored(new Vector4(0.3f, 1f, 0.3f, 1f), "Multiplayer Active");
@@ -202,7 +202,7 @@ namespace ONI_MP.DebugTools
                 ImGui.TextColored(new Vector4(1f, 0.3f, 0.3f, 1f), "Multiplayer Not Active");
             ImGui.Separator();
 
-            switch (NetworkConfig.transport) 
+            switch (NetworkConfig.transport)
             {
                 case NetworkConfig.NetworkTransport.STEAMWORKS:
                     if (ImGui.Button("Create Lobby"))
@@ -284,7 +284,7 @@ namespace ONI_MP.DebugTools
 
         private void DrawNetworkTab()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             DrawNetworkTransportDetails();
             if (!MultiplayerSession.InSession)
@@ -314,7 +314,7 @@ namespace ONI_MP.DebugTools
 
         private void DrawDebugTab()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             DisplayProfilers();
             ImGui.Separator();
@@ -323,7 +323,7 @@ namespace ONI_MP.DebugTools
 
         private void DrawTestsTab()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (ImGui.Button("Riptide Smoke Test"))
             {
@@ -367,7 +367,7 @@ namespace ONI_MP.DebugTools
 
         private void DrawConsoleTab()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (ImGui.Button("Popout"))
                 console?.Toggle();
@@ -377,7 +377,7 @@ namespace ONI_MP.DebugTools
 
         public void DisplaySessionDetails()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ImGui.Text("Session details:");
             ImGui.Text($"Connected clients: {(MultiplayerSession.InSession ? (MultiplayerSession.PlayerCursors.Count + 1) : 0)}");
@@ -390,7 +390,7 @@ namespace ONI_MP.DebugTools
 
         private void DrawPlayerList()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if(!MultiplayerSession.SessionHasPlayers)
             {
@@ -414,7 +414,7 @@ namespace ONI_MP.DebugTools
 
         void SteamworksPlayerList()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             var players = SteamLobby.GetAllLobbyMembers();
             string self = $"[You] {SteamFriends.GetPersonaName()} | {MultiplayerSession.LocalUserID}";
@@ -465,7 +465,7 @@ namespace ONI_MP.DebugTools
 
         void RiptidePlayerList()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if(MultiplayerSession.IsHost)
             {
@@ -515,7 +515,7 @@ namespace ONI_MP.DebugTools
 
         public void DisplayNetworkStatistics()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if(!MultiplayerSession.InSession)
                 return;
@@ -558,11 +558,11 @@ namespace ONI_MP.DebugTools
                 }
             }
         }
-		
+
         private string netIdFilter = string.Empty;
 		public void DisplayNetIdHolders()
 		{
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
 			if (ImGui.CollapsingHeader("Net Id Holders"))
 			{
@@ -611,17 +611,17 @@ namespace ONI_MP.DebugTools
 				}
 			}
 		}
-	
+
         public void DisplayProfilers()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             Profiler.DrawImGuiInline();
         }
 
         public void DrawNetworkTransportDetails()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ImGui.Text("Network Transport Settings");
 

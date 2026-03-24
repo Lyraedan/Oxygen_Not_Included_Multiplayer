@@ -13,14 +13,14 @@ namespace ONI_MP_DedicatedServer.Transports
 
         public DedicatedRiptideServer()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             RiptideLogger.Initialize(Console.WriteLine, false);
         }
 
         public override void Start()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (IsRunning())
                 return;
@@ -39,7 +39,7 @@ namespace ONI_MP_DedicatedServer.Transports
 
         private void OnClientConnected(object? sender, ServerConnectedEventArgs e)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ulong clientId = e.Client.Id;
             if(!ConnectedPlayers.ContainsKey(clientId))
@@ -52,7 +52,7 @@ namespace ONI_MP_DedicatedServer.Transports
 
         private void OnClientDisconnected(object? sender, ServerDisconnectedEventArgs e)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ulong clientId = e.Client.Id;
             bool wasMaster = false;
@@ -88,7 +88,7 @@ namespace ONI_MP_DedicatedServer.Transports
 
         private void OnServerMessageReceived(object sender, MessageReceivedEventArgs e)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ulong clientId = e.FromConnection.Id;
             byte[] rawData = e.Message.GetBytes();
@@ -148,7 +148,7 @@ namespace ONI_MP_DedicatedServer.Transports
 
         public override void Stop()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!IsRunning())
                 return;
@@ -159,7 +159,7 @@ namespace ONI_MP_DedicatedServer.Transports
 
         public override bool IsRunning()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (_server == null)
                 return false;
@@ -169,14 +169,14 @@ namespace ONI_MP_DedicatedServer.Transports
 
         public override void Update()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             _server?.Update();
         }
 
         public override Dictionary<ulong, ONI.Player> GetPlayers()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             return ConnectedPlayers;
         }

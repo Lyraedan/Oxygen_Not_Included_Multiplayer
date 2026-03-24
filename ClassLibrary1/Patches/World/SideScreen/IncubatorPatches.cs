@@ -17,7 +17,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(EggIncubator __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -44,7 +44,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(IncubatorSideScreen __instance, GameObject target)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (target == null) return;
 

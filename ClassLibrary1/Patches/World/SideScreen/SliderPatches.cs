@@ -15,10 +15,10 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(SingleSliderSideScreen __instance, GameObject new_target)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (new_target == null) return;
-			
+
 			var identity = new_target.AddOrGet<NetworkIdentity>();
 			identity.RegisterIdentity();
 
@@ -30,7 +30,7 @@ namespace ONI_MP.Patches.World.SideScreen
 					var sliderSet = sliderSets[i];
 					var slider = Traverse.Create(sliderSet).Field("valueSlider").GetValue<KSlider>();
 					var numberInput = Traverse.Create(sliderSet).Field("numberInput").GetValue<KNumberInputField>();
-					
+
 					int index = i;
 					if (slider != null)
 					{
@@ -48,7 +48,7 @@ namespace ONI_MP.Patches.World.SideScreen
 
 		private static void OnSliderReleased(GameObject target, KSlider slider, int index)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			float value = slider.value;
 			// Rounding for generators that use integer percentages
@@ -58,7 +58,7 @@ namespace ONI_MP.Patches.World.SideScreen
 
 		private static void OnInputEndEdit(GameObject target, KNumberInputField input, int index)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			float value = input.currentValue;
 			if (ShouldRoundValue(target)) value = Mathf.Round(value);
@@ -67,7 +67,7 @@ namespace ONI_MP.Patches.World.SideScreen
 
 		private static bool ShouldRoundValue(GameObject target)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// ManualGenerator, EnergyGenerator (Coal), WoodGasGenerator, SpaceHeater all need rounding
 			return target.GetComponent<ManualGenerator>() != null ||
@@ -77,7 +77,7 @@ namespace ONI_MP.Patches.World.SideScreen
 
 		private static void Send(GameObject target, float value, int index)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var comp = target.GetComponent<ISliderControl>() as Component;
 			if (comp == null) comp = target.GetComponent<ISingleSliderControl>() as Component;
@@ -90,10 +90,10 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(IntSliderSideScreen __instance, GameObject new_target)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (new_target == null) return;
-			
+
 			var identity = new_target.AddOrGet<NetworkIdentity>();
 			identity.RegisterIdentity();
 
@@ -105,7 +105,7 @@ namespace ONI_MP.Patches.World.SideScreen
 					var sliderSet = sliderSets[i];
 					var slider = Traverse.Create(sliderSet).Field("valueSlider").GetValue<KSlider>();
 					var numberInput = Traverse.Create(sliderSet).Field("numberInput").GetValue<KNumberInputField>();
-					
+
 					int index = i;
 					if (slider != null)
 					{
@@ -123,21 +123,21 @@ namespace ONI_MP.Patches.World.SideScreen
 
 		private static void OnSliderReleased(GameObject target, KSlider slider, int index)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Send(target, Mathf.Round(slider.value), index);
 		}
 
 		private static void OnInputEndEdit(GameObject target, KNumberInputField input, int index)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Send(target, Mathf.Round(input.currentValue), index);
 		}
 
 		private static void Send(GameObject target, float value, int index)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var comp = target.GetComponent<ISliderControl>() as Component;
 			if (comp == null) comp = target.GetComponent<ISingleSliderControl>() as Component;
@@ -150,7 +150,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(SingleCheckboxSideScreen __instance, GameObject target)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (target == null) return;
 
@@ -167,7 +167,7 @@ namespace ONI_MP.Patches.World.SideScreen
 
 		private static void OnCheckboxClicked(GameObject target, bool value)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			SideScreenSyncHelper.SyncCheckboxChange(target, value);
 		}

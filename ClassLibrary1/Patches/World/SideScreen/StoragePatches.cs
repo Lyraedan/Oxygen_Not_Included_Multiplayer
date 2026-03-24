@@ -20,7 +20,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(CounterSideScreen __instance, int newValue)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -51,7 +51,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(CounterSideScreen __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -82,7 +82,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(CounterSideScreen __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -113,7 +113,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(Storage __instance, bool is_set)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -143,12 +143,12 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 	public static void Postfix(ComplexFabricator __instance, ComplexRecipe recipe, int count)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			try
 			{
 				DebugConsole.Log($"[ComplexFabricator] SetRecipeQueueCount Postfix called: recipe={recipe?.id ?? "null"}, count={count}");
-				
+
 				if (BuildingConfigPacket.IsApplyingPacket)
 				{
 					DebugConsole.Log($"[ComplexFabricator] Ignoring sync - IsApplyingPacket=true");
@@ -193,7 +193,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(FoodStorage __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -223,7 +223,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(FoodStorage __instance, bool value)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;

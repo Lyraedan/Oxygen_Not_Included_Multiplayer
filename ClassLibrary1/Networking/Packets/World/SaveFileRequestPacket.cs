@@ -19,21 +19,21 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(Requester);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Requester = reader.ReadUInt64();
 		}
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.IsHost)
 				return;
@@ -45,7 +45,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public static void SendSaveFile(ulong requester)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.IsHost)
 				return;
@@ -83,7 +83,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public static void SendSaveFileToAll()
         {
-	        Profiler.Scope();
+	        using var _ = Profiler.Scope();
 
             if (!MultiplayerSession.IsHost)
                 return;
@@ -99,7 +99,7 @@ namespace ONI_MP.Networking.Packets.World
 
         private static IEnumerator StreamChunks(byte[] data, string fileName, ulong steamID)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			int chunkSize = SaveHelper.SAVEFILE_CHUNKSIZE_KB * 1024;
 			int totalChunks = (int)Math.Ceiling((double)data.Length / chunkSize);

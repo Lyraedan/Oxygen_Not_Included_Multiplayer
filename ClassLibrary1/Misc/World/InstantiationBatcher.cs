@@ -14,14 +14,14 @@ namespace ONI_MP.Misc.World
 
 		public static void Queue(InstantiationsPacket.InstantiationEntry entry)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			queue.Add(entry);
 		}
 
 		public static void Update()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			timeSinceLastFlush += Time.unscaledDeltaTime;
 
@@ -34,7 +34,7 @@ namespace ONI_MP.Misc.World
 
 		public static void Flush()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (queue.Count == 0)
 				return;

@@ -9,7 +9,7 @@ namespace ONI_MP.Patches.World
 	{
 		public static bool Prefix(BatteryTracker __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (GameClient.IsHardSyncInProgress)
 				return false;

@@ -12,7 +12,7 @@ namespace ONI_MP.Patches.DuplicantActions
     {
         public static void Postfix(GameObject widget_go, TableScreen.ResultValues new_value, ConsumablesTableScreen __instance)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!MultiplayerSession.InSession)
                 return;

@@ -11,7 +11,7 @@ namespace ONI_MP.Patches.World
 	{
 		public static void Postfix(Prioritizable __instance, PrioritySetting priority)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (PrioritizeStatePacket.IsApplying) return;
 			if (!MultiplayerSession.InSession) return;

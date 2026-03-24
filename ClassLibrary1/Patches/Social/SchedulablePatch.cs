@@ -16,7 +16,7 @@ namespace ONI_MP.Patches.Social
 	{
 		public static void Postfix(Schedule __instance, Schedulable schedulable)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession) return;
 			if (ScheduleAssignmentPacket.IsApplying) return;
@@ -44,7 +44,7 @@ namespace ONI_MP.Patches.Social
 	{
 		static void Postfix(Schedule __instance, bool up, int timetableToShiftIdx, bool __result)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!__result)
 				return;
@@ -52,7 +52,7 @@ namespace ONI_MP.Patches.Social
 			if (!MultiplayerSession.InSession)
 				return;
 
-			if (ScheduleRowPacket.IsApplying) 
+			if (ScheduleRowPacket.IsApplying)
 				return;
 
 			int scheduleIndex = __instance.GetScheduleIndex();
@@ -74,7 +74,7 @@ namespace ONI_MP.Patches.Social
     {
         static void Postfix(Schedule __instance, bool directionLeft, int timetableToRotateIdx)
         {
-	        Profiler.Scope();
+	        using var _ = Profiler.Scope();
 
             if (!MultiplayerSession.InSession)
                 return;

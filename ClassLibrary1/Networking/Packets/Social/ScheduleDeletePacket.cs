@@ -13,21 +13,21 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(ScheduleIndex);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			ScheduleIndex = reader.ReadInt32();
 		}
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (IsApplying)
 				return;
@@ -37,7 +37,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		private void Apply()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (ScheduleManager.Instance == null) return;
 

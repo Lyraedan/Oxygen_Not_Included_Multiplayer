@@ -8,7 +8,7 @@ namespace ONI_MP.Patches.MainMenuScreen
 	{
 		public static void AddClonedButton(this MainMenu menu, string text, string small_text, bool highlight, System.Action action)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var sourceButton = menu.Button_NewGame;
 			if (sourceButton == null)

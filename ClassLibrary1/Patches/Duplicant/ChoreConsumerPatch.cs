@@ -13,7 +13,7 @@ namespace ONI_MP.Patches.Duplicant
 	{
 		public static void Postfix(ChoreConsumer __instance, ChoreGroup group, int value)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession) return;
 

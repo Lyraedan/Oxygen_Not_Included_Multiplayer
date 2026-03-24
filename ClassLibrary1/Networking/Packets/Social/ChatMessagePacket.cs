@@ -24,7 +24,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public ChatMessagePacket(string message)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			SenderId = MultiplayerSession.LocalUserID;
             SenderName = Utils.GetLocalPlayerName();
@@ -35,7 +35,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(SenderId);
 			writer.Write(SenderName);
@@ -49,7 +49,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			SenderId = reader.ReadUInt64();
 			SenderName = reader.ReadString();
@@ -64,7 +64,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (SenderId == MultiplayerSession.LocalUserID)
 				return;

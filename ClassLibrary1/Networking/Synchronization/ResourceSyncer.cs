@@ -30,7 +30,7 @@ namespace ONI_MP.Networking.Synchronization
 
 		private void HostUpdate()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (Time.time - _lastSendTime < SYNC_INTERVAL) return;
 
@@ -42,14 +42,14 @@ namespace ONI_MP.Networking.Synchronization
 			// Access DiscoveredResources or iterate WorldInventory?
 			// WorldInventory has the amounts.
 
-			// We need a list of tags to check. 
+			// We need a list of tags to check.
 			// DiscoveredResources.Instance.GetDiscovered() returns a set of Tag.
 
 			var discovered = DiscoveredResources.Instance;
 			if (discovered == null) return;
 
 			// Access private keys? Or iterate all known Element/Item tags?
-			// Simpler: Access Assets.GetPrefabsWithTag? 
+			// Simpler: Access Assets.GetPrefabsWithTag?
 			// DiscoveredResources actually holds the list of what we care about.
 
 			var packet = new ResourceCountPacket();
@@ -86,7 +86,7 @@ namespace ONI_MP.Networking.Synchronization
 	{
 		public static bool Prefix(Tag tag, bool includeRelatedWorlds, ref float __result)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession || MultiplayerSession.IsHost) return true;
 

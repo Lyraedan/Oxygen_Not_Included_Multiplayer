@@ -13,7 +13,7 @@ public static class WorkProgressPatch
 
 	public static void Postfix(Workable __instance)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (!MultiplayerSession.IsHost || !MultiplayerSession.InSession)
 			return;
@@ -43,7 +43,7 @@ public static class WorkProgressPatch
 
 	public static void ClearTracking()
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		nextSendTime.Clear();
 	}

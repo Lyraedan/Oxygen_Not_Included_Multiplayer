@@ -13,7 +13,7 @@ namespace ONI_MP.Patches.ToolPatches.Build
     {
         static void Prefix(BuildTool __instance, int cell)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             var def = AccessTools.Field(typeof(BuildTool), "def").GetValue(__instance) as BuildingDef;
             if (def != null)
@@ -24,7 +24,7 @@ namespace ONI_MP.Patches.ToolPatches.Build
 
         static void Postfix(BuildTool __instance, int cell)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!MultiplayerSession.InSession || __instance == null)
                 return;

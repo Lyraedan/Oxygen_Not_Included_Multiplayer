@@ -19,7 +19,7 @@ namespace ONI_MP.Patches.KleiPatches
         {
             public static void Prefix(SymbolOverrideController __instance, HashedString target_symbol, KAnim.Build.Symbol source_symbol, int priority = 0)
             {
-	            Profiler.Scope();
+	            using var _ = Profiler.Scope();
 
                 if(!Utils.IsHostMinion(__instance))
                     return;
@@ -32,7 +32,7 @@ namespace ONI_MP.Patches.KleiPatches
         {
             public static void Prefix(SymbolOverrideController __instance, HashedString target_symbol, int priority)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				if (!Utils.IsHostMinion(__instance))
 					return;
@@ -45,7 +45,7 @@ namespace ONI_MP.Patches.KleiPatches
         {
             public static void Prefix(SymbolOverrideController __instance, int priority)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				if (!Utils.IsHostMinion(__instance))
 					return;

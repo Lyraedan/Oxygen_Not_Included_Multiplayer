@@ -20,7 +20,7 @@ namespace ONI_MP.Tests
 
         public static void Run(string ip = "127.0.0.1", ushort port = 7777)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             DebugConsole.Log("[RiptideSmokeTest] Starting");
 
@@ -65,7 +65,7 @@ namespace ONI_MP.Tests
 
         private static void OnClientDisconnected(object sender, DisconnectedEventArgs e)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             //MultiplayerSession.InSession = false;
             DebugConsole.Log("[RiptideSmokeTest] Client disconnected");
@@ -73,7 +73,7 @@ namespace ONI_MP.Tests
 
         private static void OnClientConnected(object sender, EventArgs e)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             DebugConsole.Log("[RiptideSmokeTest] Client connected");
 
@@ -87,7 +87,7 @@ namespace ONI_MP.Tests
 
         private static void SendPacket(IPacket packet)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             byte[] bytes = PacketSender.SerializePacketForSending(packet);
 
@@ -99,7 +99,7 @@ namespace ONI_MP.Tests
 
         private static void OnServerMessageReceived(object sender, MessageReceivedEventArgs e)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ulong clientId = e.FromConnection.Id;
             byte[] rawData = e.Message.GetBytes();

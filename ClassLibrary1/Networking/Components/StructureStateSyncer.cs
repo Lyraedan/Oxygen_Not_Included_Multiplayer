@@ -25,7 +25,7 @@ namespace ONI_MP.Networking.Components
 
 		public override void OnSpawn()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			base.OnSpawn();
 
@@ -49,7 +49,7 @@ namespace ONI_MP.Networking.Components
 
 		private void Update()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (MultiplayerSession.IsHost)
 			{
@@ -74,7 +74,7 @@ namespace ONI_MP.Networking.Components
 
 		private void HostUpdate()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			try
 			{
@@ -122,7 +122,7 @@ namespace ONI_MP.Networking.Components
 		// Static handler for client-side reception
 		public static void HandlePacket(StructureStatePacket packet)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!Grid.IsValidCell(packet.Cell)) return;
 

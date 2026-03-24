@@ -23,7 +23,7 @@ namespace ONI_MP.Patches.Duplicant
 			/// <returns></returns>
 			public static bool Prefix(Flatulence __instance)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				if(__instance.IsNullOrDestroyed() || __instance.gameObject.IsNullOrDestroyed())
 					return false;

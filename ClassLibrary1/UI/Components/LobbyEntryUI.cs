@@ -21,7 +21,7 @@ namespace ONI_MP.UI.Components
 
 		public override void OnPrefabInit()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			base.OnPrefabInit();
 			Init();
@@ -29,7 +29,7 @@ namespace ONI_MP.UI.Components
 		bool init;
 		void Init()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (init)
 				return;
@@ -47,7 +47,7 @@ namespace ONI_MP.UI.Components
 
 		void JoinLobbyClicked()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (OnJoinClicked != null && Lobby != null)
 				OnJoinClicked(Lobby);
@@ -55,7 +55,7 @@ namespace ONI_MP.UI.Components
 
 		public void SetLobby(LobbyListEntry _lobby)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Lobby = _lobby;
 			RefreshDisplayedInfo();
@@ -64,7 +64,7 @@ namespace ONI_MP.UI.Components
 
 		public void RefreshDisplayedInfo()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Init();
 			if (Lobby == null)
@@ -81,13 +81,13 @@ namespace ONI_MP.UI.Components
 
 		public void Hide()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			gameObject.SetActive(false);
 		}
 		public void Show()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			gameObject.SetActive(false);
 		}

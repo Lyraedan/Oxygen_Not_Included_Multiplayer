@@ -14,7 +14,7 @@ namespace ONI_MP.Networking.Transfer
 	{
 		public static void Download(string hostIp, int tcpPort, ulong clientId, Action<string, byte[]> onComplete, Action<string> onError)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Thread thread = new Thread(() => DownloadThread(hostIp, tcpPort, clientId, onComplete, onError))
 			{
@@ -26,7 +26,7 @@ namespace ONI_MP.Networking.Transfer
 
 		private static void DownloadThread(string hostIp, int tcpPort, ulong clientId, Action<string, byte[]> onComplete, Action<string> onError)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			try
 			{
@@ -119,7 +119,7 @@ namespace ONI_MP.Networking.Transfer
 
 		private static byte[] ReadExact(NetworkStream stream, int count)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			byte[] buf = new byte[count];
 			int read = 0;
@@ -135,7 +135,7 @@ namespace ONI_MP.Networking.Transfer
 
         private static string CreateClientProgressBar(int percent)
         {
-	        Profiler.Scope();
+	        using var _ = Profiler.Scope();
 
             int barLength = 30;  // Larger bar for the client
             int filled = (percent * barLength) / 100;
@@ -154,7 +154,7 @@ namespace ONI_MP.Networking.Transfer
 
         private static string FormatTime(double seconds)
         {
-	        Profiler.Scope();
+	        using var _ = Profiler.Scope();
 
             if (double.IsInfinity(seconds) || seconds < 0)
                 return "--";
@@ -164,7 +164,7 @@ namespace ONI_MP.Networking.Transfer
 
 			//if (seconds < 1)
 			//	return $"{seconds:0.00}s"; // milliseconds (replaced by rounding up to the next second)
-			
+
 
             if (t.TotalHours >= 1)
                 return $"{(int)t.TotalHours}h {t.Minutes}m";

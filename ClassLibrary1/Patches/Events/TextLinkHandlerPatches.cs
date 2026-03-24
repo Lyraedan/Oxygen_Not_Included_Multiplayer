@@ -19,7 +19,7 @@ namespace ONI_MP.Patches.Events
         {
             public static void Postfix(TextLinkHandler __instance, UnityEngine.EventSystems.PointerEventData eventData)
             {
-                Profiler.Scope();
+                using var _ = Profiler.Scope();
 
                 if (eventData.button != PointerEventData.InputButton.Left || !__instance.text.AllowLinks)
                     return;

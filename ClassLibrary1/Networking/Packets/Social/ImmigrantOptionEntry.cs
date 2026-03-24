@@ -50,7 +50,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(EntryType);
 			if (EntryType == 0)
@@ -111,7 +111,7 @@ namespace ONI_MP.Networking.Packets.Social
 		}
 		public static ImmigrantOptionEntry Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var opt = new ImmigrantOptionEntry();
 			opt.EntryType = reader.ReadInt32();
@@ -167,7 +167,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public static ImmigrantOptionEntry FromGameDeliverable(ITelepadDeliverable deliverable)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			DebugConsole.Log("FromGameDeliverable type: " + (deliverable.GetType()));
 
@@ -211,7 +211,7 @@ namespace ONI_MP.Networking.Packets.Social
 		}
 		public static void ListAllFieldValues(object s)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Console.WriteLine("Listing all fields of: " + s.ToString());
 
@@ -222,7 +222,7 @@ namespace ONI_MP.Networking.Packets.Social
 		}
 		public ITelepadDeliverable ToGameDeliverable()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			//Console.WriteLine("ToDeliverable: " + EntryType);
 			//ListAllFieldValues(this);
@@ -272,7 +272,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		internal string GetId()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if(EntryType == 0)
 			{

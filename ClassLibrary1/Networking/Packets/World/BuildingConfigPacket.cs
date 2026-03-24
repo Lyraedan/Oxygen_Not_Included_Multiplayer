@@ -32,7 +32,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(NetId);
 			writer.Write(Cell);
@@ -45,7 +45,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			NetId = reader.ReadInt32();
 			Cell = reader.ReadInt32();
@@ -58,7 +58,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			DebugConsole.Log($"[BuildingConfigPacket] Received a config update packet. NetId={NetId}, Cell={Cell}");
 
@@ -67,7 +67,7 @@ namespace ONI_MP.Networking.Packets.World
 				// Attempt to find building by cell
 				if (Grid.IsValidCell(Cell))
 				{
-					// For multi-layered buildings, we might need a more specific search, but usually 
+					// For multi-layered buildings, we might need a more specific search, but usually
 					// we just look for BuildingComplete components.
 					GameObject buildingGO = Grid.Objects[Cell, (int)ObjectLayer.Building];
 					if (buildingGO != null)
@@ -100,7 +100,7 @@ namespace ONI_MP.Networking.Packets.World
 					IsApplyingPacket = false;
 				}
 
-				// UI auto-refresh disabled - each side screen subscribes to different 
+				// UI auto-refresh disabled - each side screen subscribes to different
 				// component-specific events. No universal refresh event exists.
 				// Users must close/reopen screens to see changes from other players.
 				// The sync still works - only the visual update is not instant.
@@ -125,16 +125,16 @@ namespace ONI_MP.Networking.Packets.World
 		/// </summary>
 		private void RefreshSideScreenIfOpen(GameObject go)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (go == null) return;
-			
+
 			try
 			{
 				// Check if this building is currently selected in the details screen
 				if (DetailsScreen.Instance == null) return;
 				if (DetailsScreen.Instance.target != go) return;
-				
+
 				// Trigger the refresh event on the building's KMonoBehaviour
 				// 644822890 is the event Storage uses for sweep-only updates
 				// This event notifies side screens to refresh their display
@@ -158,7 +158,7 @@ namespace ONI_MP.Networking.Packets.World
 		/// </summary>
 		private void ApplyConfig(GameObject go)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (go == null) return;
 

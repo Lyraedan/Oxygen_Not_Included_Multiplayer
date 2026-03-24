@@ -15,7 +15,7 @@ namespace ONI_MP.Patches
 		[HarmonyPostfix]
 		public static void SetSpeed_Postfix(int Speed)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (IsSyncing) return;
 
@@ -29,7 +29,7 @@ namespace ONI_MP.Patches
 		[HarmonyPostfix]
 		public static void TogglePause_Postfix(SpeedControlScreen __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (IsSyncing) return;
 

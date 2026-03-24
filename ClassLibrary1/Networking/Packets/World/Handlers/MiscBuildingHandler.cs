@@ -67,7 +67,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 
 		public bool TryApplyConfig(GameObject go, BuildingConfigPacket packet)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			int hash = packet.ConfigHash;
 			int logicSwitchHash = "LogicSwitchState".GetHashCode();
@@ -76,7 +76,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 			// LogicSwitch
 			var logicSwitch = go.GetComponent<LogicSwitch>();
 			DebugConsole.Log($"[MiscBuildingHandler] Checking LogicSwitch: component={logicSwitch != null}, hash={hash}, expected={logicSwitchHash}");
-			
+
 			if (hash == logicSwitchHash || hash == logicStateHash)
 			{
 				if (logicSwitch != null)
@@ -339,7 +339,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 					Tag tag = new Tag(packet.StringValue);
 					bool shouldBeSelected = packet.Value > 0.5f;
 					bool isSelected = flatTagFilter.selectedTags.Contains(tag);
-					
+
 					// Only toggle if state doesn't match
 					if (isSelected != shouldBeSelected)
 					{

@@ -18,21 +18,21 @@ namespace ONI_MP.Tests
 
         public void Serialize(BinaryWriter writer)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             writer.Write(ClientID);
         }
 
         public void Deserialize(BinaryReader reader)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ClientID = reader.ReadUInt64();
         }
 
         public void OnDispatched()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             DebugConsole.Log($"[TestPacket] Recieved test packet from: {ClientID}");
         }

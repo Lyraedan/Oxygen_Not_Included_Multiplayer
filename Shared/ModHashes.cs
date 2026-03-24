@@ -15,7 +15,7 @@ namespace Shared
 
 		public ModHashes(string name)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			this.name = name;
 			value = Hash.SDBMLower(name);
@@ -24,28 +24,28 @@ namespace Shared
 
 		public static implicit operator GameHashes(ModHashes modHashes)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return modHashes.hash;
 		}
 
 		public static implicit operator int(ModHashes modHashes)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return modHashes.value;
 		}
 
 		public static implicit operator string(ModHashes modHashes)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return modHashes.name;
 		}
 
 		public override string ToString()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return name;
 		}

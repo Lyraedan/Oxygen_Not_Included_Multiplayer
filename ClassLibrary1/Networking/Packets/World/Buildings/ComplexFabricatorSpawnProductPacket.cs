@@ -16,14 +16,14 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 		public ComplexFabricatorSpawnProductPacket() { }
 		public ComplexFabricatorSpawnProductPacket(ComplexFabricator cf)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			NetId = cf.GetNetId();
 			CompletedRecipeIdx = cf.CurrentOrderIdx;
 		}
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(NetId);
 			writer.Write(CompletedRecipeIdx);
@@ -31,7 +31,7 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			NetId = reader.ReadInt32();
 			CompletedRecipeIdx = reader.ReadInt32();
@@ -40,7 +40,7 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if(!NetworkIdentityRegistry.TryGetComponent<ComplexFabricator>(NetId, out var fab))
 			{

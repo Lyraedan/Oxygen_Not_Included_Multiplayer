@@ -16,7 +16,7 @@ namespace ONI_MP.Misc.World
 
 		public static void Queue(WorldUpdatePacket.CellUpdate update)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if(MultiplayerSession.IsClient)
 			{
@@ -32,7 +32,7 @@ namespace ONI_MP.Misc.World
 
 		public static void Update()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (MultiplayerSession.IsClient)
 			{
@@ -49,7 +49,7 @@ namespace ONI_MP.Misc.World
 
         public static int Flush()
         {
-	        Profiler.Scope();
+	        using var _ = Profiler.Scope();
 
             if (MultiplayerSession.IsClient)
             {

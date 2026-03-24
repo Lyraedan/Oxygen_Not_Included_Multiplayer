@@ -19,7 +19,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(TargetNetId);
 			writer.Write(PrefabName ?? "");
@@ -31,7 +31,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			TargetNetId = reader.ReadInt32();
 			PrefabName = reader.ReadString();
@@ -43,7 +43,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!NetworkIdentityRegistry.TryGet(TargetNetId, out var target))
 			{
@@ -91,7 +91,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		private string GetAnimFileFor(string prefabId)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			switch (prefabId)
 			{
@@ -115,7 +115,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public static Transform FindHandTransform(Transform root)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Common ONI rigs use a KBatchedAnimTracker with symbol snapTo_rgtHand
 			var trackers = root.GetComponentsInChildren<KBatchedAnimTracker>(true);
@@ -134,7 +134,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		private Transform FindBoneTransform(GameObject go, string boneName)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var trackers = go.GetComponentsInChildren<KBatchedAnimTracker>(true);
 			foreach (var tracker in trackers)

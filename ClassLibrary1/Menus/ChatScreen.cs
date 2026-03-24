@@ -36,7 +36,7 @@ namespace ONI_MP.UI
 
 		public static void Show()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (Instance != null)
 				return;
@@ -56,7 +56,7 @@ namespace ONI_MP.UI
 		}
         private void SetupUI()
         {
-	        Profiler.Scope();
+	        using var _ = Profiler.Scope();
 
             var chatWindowRoot = new GameObject("ChatWindowRoot", typeof(RectTransform));
             chatWindowRoot.transform.SetParent(transform, false);
@@ -146,7 +146,7 @@ namespace ONI_MP.UI
 
         public void ProcessMessageQueue()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			foreach (var pending in pendingMessages)
 				QueueMessage(pending);
@@ -155,14 +155,14 @@ namespace ONI_MP.UI
 
 		public static void QueueMessage(PendingMessage message)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			QueueMessage(message.timestamp, message.message);
 		}
 
 		private static void QueueMessage(long timestamp, string msg)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (string.IsNullOrEmpty(msg))
 			{
@@ -184,7 +184,7 @@ namespace ONI_MP.UI
 
 		private System.Collections.IEnumerator FixInputFieldDisplay()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Fixes the Caret and the text highlighting because without this they don't show
 			yield return new WaitForEndOfFrame();
@@ -195,7 +195,7 @@ namespace ONI_MP.UI
 
 		public void AddMessage(long timestamp, string text)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			DebugConsole.Log($"Adding chat message with timestamp {timestamp} : {text}");
 			// We have a message with this timestamp already. Skip (Handles recieveing multiple of the same chat packet)
@@ -244,14 +244,14 @@ namespace ONI_MP.UI
 		}
 		public static bool IsFocused()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return Instance != null && Instance.inputField != null && Instance.inputField.isFocused;
 		}
 
 		private void Update()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			header.SetActive(MultiplayerSession.InSession);
 			chatbox.SetActive(MultiplayerSession.InSession && expanded);
@@ -275,7 +275,7 @@ namespace ONI_MP.UI
 
 		public GameObject CreatePanel(string name, Transform parent, Vector2 size)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var panel = new GameObject(name, typeof(Image));
 			panel.transform.SetParent(parent, false);
@@ -292,7 +292,7 @@ namespace ONI_MP.UI
 
 		public TMP_InputField CreateInputField(string name, Transform parent, Vector2 position, Vector2 size)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Container with background
 			var go = new GameObject(name, typeof(Image), typeof(TMP_InputField));
@@ -351,7 +351,7 @@ namespace ONI_MP.UI
 
 		public GameObject CreateScrollArea(string name, Transform parent, out RectTransform content)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var scrollGO = new GameObject(name, typeof(RectTransform), typeof(ScrollRect));
 			scrollGO.transform.SetParent(parent, false);
@@ -406,7 +406,7 @@ namespace ONI_MP.UI
 
 		public static bool IsMouseOverChatPanel()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (Instance == null || Instance.panelRectTransform == null)
 				return false;
@@ -417,7 +417,7 @@ namespace ONI_MP.UI
 
 		private void OnInputSubmitted(string text)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!Input.GetKeyDown(KeyCode.Return)) return;
 
@@ -446,7 +446,7 @@ namespace ONI_MP.UI
 
 		public static PendingMessage GeneratePendingMessage(string message)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			PendingMessage pendingMessage = new PendingMessage()
 			{

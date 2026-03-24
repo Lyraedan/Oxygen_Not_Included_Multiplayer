@@ -17,7 +17,7 @@ public class ChoreAssignmentPacket : IPacket
 
 	public void Serialize(BinaryWriter writer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		writer.Write(NetId);
 		writer.Write(ChoreTypeId ?? string.Empty);
@@ -30,7 +30,7 @@ public class ChoreAssignmentPacket : IPacket
 
 	public void Deserialize(BinaryReader reader)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		NetId = reader.ReadInt32();
 		ChoreTypeId = reader.ReadString();
@@ -41,7 +41,7 @@ public class ChoreAssignmentPacket : IPacket
 
 	public void OnDispatched()
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		// Disabled for now
 		return;

@@ -11,7 +11,7 @@ namespace ONI_MP.Patches.ToolPatches.Deconstruct
 	{
 		public static void Postfix(int cell, int distFromOrigin)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession)
 				return;

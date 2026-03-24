@@ -19,7 +19,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Serialize(BinaryWriter writer)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             writer.Write(SequenceNumber);
             writer.Write(TransferId);
@@ -29,7 +29,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Deserialize(BinaryReader reader)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             SequenceNumber = reader.ReadInt32();
             TransferId = reader.ReadString();
@@ -39,7 +39,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void OnDispatched()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             try
             {
@@ -71,7 +71,7 @@ namespace ONI_MP.Networking.Packets.World
         /// </summary>
         private SaveFileChunkPacket DeserializeSaveFileChunk(byte[] bytes)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             using (var ms = new MemoryStream(bytes))
             using (var reader = new BinaryReader(ms))
@@ -100,7 +100,7 @@ namespace ONI_MP.Networking.Packets.World
         /// </summary>
         public static byte[] SerializeSaveFileChunk(SaveFileChunkPacket packet)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             using (var ms = new MemoryStream())
             using (var writer = new BinaryWriter(ms))
@@ -119,7 +119,7 @@ namespace ONI_MP.Networking.Packets.World
         /// </summary>
         private void RequestPacketResend(int sequenceNumber, string transferId)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             // TODO: Implement packet resend request
             // For now, request full file resend (existing behavior)
@@ -138,7 +138,7 @@ namespace ONI_MP.Networking.Packets.World
         /// </summary>
         private void SendChunkAck(int sequenceNumber, string transferId)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             var ackPacket = new ChunkAckPacket
             {

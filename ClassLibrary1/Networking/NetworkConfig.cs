@@ -41,7 +41,7 @@ namespace ONI_MP.Networking
 
         public static TransportServer GetTransportServer()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             switch (transport)
             {
@@ -58,7 +58,7 @@ namespace ONI_MP.Networking
 
         public static TransportClient GetTransportClient()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             switch (transport)
             {
@@ -75,7 +75,7 @@ namespace ONI_MP.Networking
 
         public static TransportPacketSender GetTransportPacketSender()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             switch (transport)
             {
@@ -89,10 +89,10 @@ namespace ONI_MP.Networking
                     return new RiptidePacketSender(); // Use riptide by default now
             }
         }
-    
+
         public static ulong GetLocalID()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             switch (transport)
             {
@@ -123,21 +123,21 @@ namespace ONI_MP.Networking
 
         public static bool IsSteamConfig()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             return transport.Equals(NetworkTransport.STEAMWORKS);
         }
 
         public static bool IsLanConfig()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             return transport.Equals(NetworkTransport.RIPTIDE) || transport.Equals(NetworkTransport.LITENETLIB);
         }
-    
+
         public static List<ulong> GetConnectedClients()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             List<ulong> clients = new List<ulong>();
             switch(transport)

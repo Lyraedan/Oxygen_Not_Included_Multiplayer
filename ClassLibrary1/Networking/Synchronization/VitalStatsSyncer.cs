@@ -19,7 +19,7 @@ namespace ONI_MP.Networking.Synchronization
 
 		public override void OnSpawn()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			base.OnSpawn();
 			_amounts = gameObject.GetAmounts();
@@ -27,7 +27,7 @@ namespace ONI_MP.Networking.Synchronization
 
 		public void Sim1000ms(float dt)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.IsHostInSession) return;
 

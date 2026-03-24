@@ -7,7 +7,7 @@ namespace ONI_MP.Misc
 	{
 		public static string Combine(string root, params string[] paths)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var absoluteRoot = Path.GetFullPath(root);
 			var relativePath = Path.Combine(absoluteRoot, Path.Combine(paths));

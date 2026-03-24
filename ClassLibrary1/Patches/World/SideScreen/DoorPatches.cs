@@ -11,7 +11,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	/// <summary>
 	/// Sync door state changes (Open/Close/Auto)
 	/// </summary>
-	/// 
+	///
 
 	///DO NOT PATCH "Door" DIRECTLY !!
 
@@ -20,14 +20,14 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(Door __instance, Door.ControlState nextState)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			SideScreenSyncHelper.SyncDoorState(__instance.gameObject, nextState);
 		}
 		public static void ExecutePatch()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var m_TargetMethod = AccessTools.Method("Door, Assembly-CSharp:QueueStateChange");
 			var m_Postfix = AccessTools.Method(typeof(Door_QueueStateChange_Patch), "Postfix");

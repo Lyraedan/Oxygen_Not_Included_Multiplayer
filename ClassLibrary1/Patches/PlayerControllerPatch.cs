@@ -12,7 +12,7 @@ namespace ONI_MP.Patches
 		[HarmonyPatch(typeof(PlayerController), "ActivateTool")]
 		public static void ActivateTool_Postfix(InterfaceTool tool)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (tool == null)
 			{
@@ -94,7 +94,7 @@ namespace ONI_MP.Patches
 		[HarmonyPatch(typeof(PlayerController), "DeactivateTool")]
 		public static void DeactivateTool_Postfix()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			CursorManager.Instance.cursorState = CursorState.NONE;
 		}

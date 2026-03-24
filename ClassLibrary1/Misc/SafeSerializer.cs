@@ -21,7 +21,7 @@ namespace ONI_MP.Misc
 		/// </summary>
 		public static string ToJson(object obj)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			try
 			{
@@ -39,7 +39,7 @@ namespace ONI_MP.Misc
 		/// </summary>
 		public static object FromJson(string json, Type type)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			try
 			{
@@ -57,7 +57,7 @@ namespace ONI_MP.Misc
 		/// </summary>
 		public static T FromJson<T>(string json)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			try
 			{

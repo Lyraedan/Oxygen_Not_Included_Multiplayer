@@ -15,7 +15,7 @@ namespace ONI_MP.Scripts.Duplicants
 		[MyCmpGet] Navigator navigator;
 		public override void OnSpawn()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			base.OnSpawn();
 
@@ -26,7 +26,7 @@ namespace ONI_MP.Scripts.Duplicants
 		}
 		void OnPathChanged(object _)
 		{
-			Profiler.Scope();
+			using var scope = Profiler.Scope();
 
 			if(MultiplayerSession.InSession && MultiplayerSession.IsHost)
 			{

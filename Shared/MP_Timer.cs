@@ -28,7 +28,7 @@ namespace Shared
 		System.Action OnTimerEnd = null;
 		public void Update()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (targetTime == System.DateTime.MinValue)
 			{
@@ -44,27 +44,27 @@ namespace Shared
 
 		public void StartDelayedAction(int seconds, System.Action action)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			SetAction(action);
 			SetTimer(seconds);
 		}
 		public void SetTimer(int seconds)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			targetTime = System.DateTime.Now.AddSeconds(seconds);
 		}
 		public void SetAction(System.Action action)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			OnTimerEnd = action;
 		}
 
 		public void Abort()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			targetTime = System.DateTime.MinValue;
 		}

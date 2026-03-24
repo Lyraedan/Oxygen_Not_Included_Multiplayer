@@ -20,7 +20,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public ClientReadyStatusPacket(ulong senderId, ClientReadyState status)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			SenderId = senderId;
 			Status = status;
@@ -28,7 +28,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write((int)Status);
 			writer.Write(SenderId);
@@ -37,7 +37,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Status = (ClientReadyState)reader.ReadInt32();
 			SenderId = reader.ReadUInt64();
@@ -46,7 +46,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.IsHost)
 			{

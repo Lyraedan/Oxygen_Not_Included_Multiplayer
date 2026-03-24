@@ -13,7 +13,7 @@ namespace ONI_MP.Networking.Packets.Architecture
 
 		public static void HandleIncoming(byte[] data)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!readyToProcess)
 			{
@@ -50,7 +50,7 @@ namespace ONI_MP.Networking.Packets.Architecture
 
 		private static void Dispatch(IPacket packet)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			packet.OnDispatched();
 		}

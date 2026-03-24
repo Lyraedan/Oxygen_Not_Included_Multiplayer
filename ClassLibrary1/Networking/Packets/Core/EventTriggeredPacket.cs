@@ -17,7 +17,7 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public EventTriggeredPacket(int netId, int eventHash, object data = null)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			NetId = netId;
 			EventHash = eventHash;
@@ -31,7 +31,7 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(NetId);
 			writer.Write(EventHash);
@@ -41,7 +41,7 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			NetId = reader.ReadInt32();
 			EventHash = reader.ReadInt32();
@@ -51,7 +51,7 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!NetworkIdentityRegistry.TryGet(NetId, out var go))
 			{

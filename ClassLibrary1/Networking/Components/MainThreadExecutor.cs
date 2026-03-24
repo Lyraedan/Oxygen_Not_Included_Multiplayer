@@ -16,7 +16,7 @@ namespace ONI_MP.Networking.Components
 
 		private void Awake()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (dispatcher == null)
 				dispatcher = this;
@@ -26,7 +26,7 @@ namespace ONI_MP.Networking.Components
 
 		private void Start()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			StartCoroutine(Execute());
 		}
@@ -37,7 +37,7 @@ namespace ONI_MP.Networking.Components
 
 		IEnumerator WaitAndExecute(bool condition, Action action)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Wait for condition to be true
 			yield return new WaitUntil(() => condition);
@@ -47,7 +47,7 @@ namespace ONI_MP.Networking.Components
 		// I know that this is terrible... Too bad
 		IEnumerator Execute()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			yield return new WaitUntil(() => events.Count > 0);
 			events[0]?.Invoke();

@@ -18,7 +18,7 @@ namespace ONI_MP.Patches.Critters
         {
             public static void Postfix(GameObject __result)
             {
-                Profiler.Scope();
+                using var _ = Profiler.Scope();
 
                 if (__result == null)
                     return;

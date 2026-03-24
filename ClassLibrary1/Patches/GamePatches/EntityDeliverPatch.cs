@@ -19,7 +19,7 @@ namespace ONI_MP.Patches.GamePatches
 	{
 		public static void Postfix(MinionStartingStats __instance, Vector3 location, ref GameObject __result)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession) return;
 			if (!MultiplayerSession.IsHost) return;
@@ -63,7 +63,7 @@ namespace ONI_MP.Patches.GamePatches
 	{
 		public static void Postfix(CarePackageInfo __instance, Vector3 location, ref GameObject __result)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession) return;
 			if (!MultiplayerSession.IsHost) return;

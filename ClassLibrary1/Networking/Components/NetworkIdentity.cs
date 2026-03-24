@@ -16,7 +16,7 @@ namespace ONI_MP.Networking.Components
 
 		public override void OnSpawn()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			base.OnSpawn();
 			RegisterIdentity();
@@ -24,7 +24,7 @@ namespace ONI_MP.Networking.Components
 
 		public void RegisterIdentity()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (IsRegistered)
 				return;
@@ -86,7 +86,7 @@ namespace ONI_MP.Networking.Components
 		/// <param name="netIdOverride"></param>
 		public void OverrideNetId(int netIdOverride)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Unregister old NetId
 			NetworkIdentityRegistry.Unregister(NetId);
@@ -103,7 +103,7 @@ namespace ONI_MP.Networking.Components
 
 		public override void OnCleanUp()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			NetworkIdentityRegistry.Unregister(NetId);
 			DebugConsole.Log($"[NetworkIdentity] Unregistered NetId {NetId} for {gameObject.name}");

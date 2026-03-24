@@ -11,7 +11,7 @@ namespace ONI_MP.Patches.ToolPatches.Deconstruct
 	{
 		public static void Prefix(Deconstructable __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.IsHost || !MultiplayerSession.InSession)
 				return;

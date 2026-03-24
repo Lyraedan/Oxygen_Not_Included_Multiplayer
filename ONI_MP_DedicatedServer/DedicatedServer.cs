@@ -43,14 +43,14 @@ namespace ONI_MP.DedicatedServer
         /// If a save action happens on the master, upload it to the dedi, if the master disconnects with clients present, the next client sends the save state to the dedi and it overwrites it with that one
         ///
         /// This is purely conceptual
-        /// 
+        ///
         /// Maybe it'll be better to hold the save file in Memory and use that then only save locally if the server shuts down
-        /// 
+        ///
         /// </summary>
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             Console.WriteLine("ONI Together: Dedicated Server starting...");
 
@@ -75,7 +75,7 @@ namespace ONI_MP.DedicatedServer
 
                 while (server.IsRunning())
                 {
-                    Profiler.Scope();
+                    using var scope = Profiler.Scope();
 
                     server.Update();
 
@@ -96,7 +96,7 @@ namespace ONI_MP.DedicatedServer
 
         static void ReadConsole()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (server == null)
                 return;
@@ -134,7 +134,7 @@ namespace ONI_MP.DedicatedServer
 
         static void RegisterCommands()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             RegisterCommand(new Command
             {
@@ -260,14 +260,14 @@ namespace ONI_MP.DedicatedServer
 
         public static void RegisterCommand(Command command)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             commands[command.Name.ToLowerInvariant()] = command;
         }
 
         public static void BindExistingCommandTo(string newBinding, string commandToBindTo)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!commands.TryGetValue(commandToBindTo.ToLowerInvariant(), out var existing))
             {
@@ -285,7 +285,7 @@ namespace ONI_MP.DedicatedServer
 
         public static DedicatedTransportServer SetupTransport()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             switch (transport) {
                 case Transports.Riptide:

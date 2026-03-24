@@ -29,7 +29,7 @@ namespace ONI_MP.UI
 	{
 		public static void OnSceneChanged()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (Instance != null)
 			{
@@ -53,7 +53,7 @@ namespace ONI_MP.UI
 
 		public void Init()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (init) { return; }
 
@@ -77,7 +77,7 @@ namespace ONI_MP.UI
 		}
 		void VerifyPasswordInput()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			string password = PasswortInput.Text;
 			if (SteamLobby.ValidateLobbyPassword(LobbyId, password))
@@ -86,8 +86,8 @@ namespace ONI_MP.UI
 				SteamLobby.JoinLobby(LobbyId.AsCSteamID(), (lobbyId) =>
 				{
 					DebugConsole.Log($"[LobbyBrowser] Successfully joined lobby: {lobbyId}");
-					
-				}); 
+
+				});
 				Show(false);
 			}
 			else
@@ -99,7 +99,7 @@ namespace ONI_MP.UI
 
 		public static void ShowPasswordDialogueFor(ulong lobby)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			ShowWindow();
 			Instance.PasswortInput.Text = string.Empty;
@@ -111,7 +111,7 @@ namespace ONI_MP.UI
 
 		static void ShowWindow()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			string currentScene = App.GetCurrentSceneName();
 			if (currentScene != lastScene)

@@ -23,7 +23,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(ClusterCometDetector.Instance __instance, ClusterCometDetector.Instance.ClusterCometDetectorState newState)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -58,7 +58,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(ClusterCometDetector.Instance __instance, Clustercraft target)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -107,7 +107,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(CometDetector.Instance __instance, LaunchConditionManager target)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;

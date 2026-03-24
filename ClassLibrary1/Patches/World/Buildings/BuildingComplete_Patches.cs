@@ -17,7 +17,7 @@ namespace ONI_MP.Patches.World.Buildings
         {
             public static void Postfix(BuildingComplete __instance)
             {
-                Profiler.Scope();
+                using var _ = Profiler.Scope();
 
                 __instance.gameObject.AddOrGet<NetworkIdentity>();
             }

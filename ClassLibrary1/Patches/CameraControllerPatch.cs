@@ -7,7 +7,7 @@ public static class CameraControllerPatch
 {
 	static bool Prefix(KButtonEvent e)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		// Block camera zoom if mouse is over chat panel
 		if (ChatScreen.IsMouseOverChatPanel())

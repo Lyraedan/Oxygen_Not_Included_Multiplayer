@@ -10,7 +10,7 @@ namespace ONI_MP.Patches.World
 	{
 		public static void Postfix(Battery __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (MultiplayerSession.InSession)
 			{
@@ -24,7 +24,7 @@ namespace ONI_MP.Patches.World
 	{
 		public static void Postfix(Generator __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (MultiplayerSession.InSession)
 			{

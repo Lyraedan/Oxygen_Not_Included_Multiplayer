@@ -23,7 +23,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
         public BuildPacket(string prefabID, int cell, Orientation orientation, IEnumerable<Tag> materials)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             PrefabID     = prefabID;
             Cell         = cell;
@@ -36,7 +36,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
         public void Serialize(BinaryWriter writer)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             writer.Write(PrefabID);
             writer.Write(Cell);
@@ -51,7 +51,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
         public void Deserialize(BinaryReader reader)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             PrefabID    = reader.ReadString();
             Cell        = reader.ReadInt32();
@@ -66,7 +66,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
         public void OnDispatched()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!Grid.IsValidCell(Cell))
             {

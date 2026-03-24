@@ -7,7 +7,7 @@ public static class KInputManagerPatch
 {
 	static bool Prefix()
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		// Suppress input processing while typing in chat
 		if (ChatScreen.IsFocused())

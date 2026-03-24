@@ -10,7 +10,7 @@ namespace ONI_MP.Networking.Transport.Lan
     {
         public override bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (conn is not Connection connection)
                 return false;
@@ -51,7 +51,7 @@ namespace ONI_MP.Networking.Transport.Lan
 
         private static MessageSendMode ConvertSendType(SteamNetworkingSend sendType)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             switch (sendType)
             {

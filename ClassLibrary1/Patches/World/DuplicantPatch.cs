@@ -14,7 +14,7 @@ public static class DuplicantPatch
 {
 	public static void Postfix(GameObject __result)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var saveRoot = __result.GetComponent<SaveLoadRoot>();
 		if (saveRoot != null)
@@ -33,7 +33,7 @@ public static class DuplicantPatch
 
 	public static void ToggleEffect(GameObject minion, string eventName, string context, bool enable)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (!MultiplayerSession.InSession || MultiplayerSession.IsClient)
 			return;
@@ -61,7 +61,7 @@ public static class DuplicantSpawnPatch
 {
 	public static void Postfix(GameObject go)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		go.AddOrGet<MinionMultiplayerInitializer>(); // Doesn't work (yet)
 		//CoroutineRunner.RunOne(DelayedOnSpawn(go));
@@ -69,7 +69,7 @@ public static class DuplicantSpawnPatch
 
 	static IEnumerator DelayedOnSpawn(GameObject go)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		yield return new WaitForSeconds(1f);
 

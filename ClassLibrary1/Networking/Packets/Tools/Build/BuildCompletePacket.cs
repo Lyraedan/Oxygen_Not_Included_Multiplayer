@@ -25,7 +25,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(Cell);
 			writer.Write(PrefabID);
@@ -46,7 +46,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Cell = reader.ReadInt32();
 			PrefabID = reader.ReadString();
@@ -68,7 +68,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!Grid.IsValidCell(Cell))
 			{
@@ -124,7 +124,7 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 		/// </summary>
 		private void ApplyUtilityConnections(GameObject builtObj, int cell)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Apply connection state to the built object
 			var tileVis = builtObj.GetComponent<KAnimGraphTileVisualizer>();

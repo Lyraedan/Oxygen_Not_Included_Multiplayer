@@ -20,7 +20,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 
 		public bool TryApplyConfig(GameObject go, BuildingConfigPacket packet)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var thresholdSwitch = go.GetComponent<IThresholdSwitch>();
 			if (thresholdSwitch == null) return false;

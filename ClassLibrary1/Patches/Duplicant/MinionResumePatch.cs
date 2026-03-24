@@ -13,7 +13,7 @@ namespace ONI_MP.Patches.Duplicant
 	{
 		public static void Postfix(MinionResume __instance, string skillId)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession) return;
 			if (SkillMasteryPacket.IsApplying) return;

@@ -85,7 +85,7 @@ namespace ONI_MP.Networking
 		/// ------------------
 		public bool Equals(LobbyListEntry other)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return other?.HostSteamId == this.HostSteamId && other?.LobbyId == this.LobbyId;
 		}
@@ -95,7 +95,7 @@ namespace ONI_MP.Networking
 		public static bool operator !=(LobbyListEntry a, LobbyListEntry b) => !(a == b);
 		public override int GetHashCode()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return LobbyId.GetHashCode() ^ HostSteamId.GetHashCode();
 		}

@@ -21,7 +21,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 		/// </summary>
 		public static void Initialize()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (_initialized) return;
 			_initialized = true;
@@ -54,7 +54,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 		/// </summary>
 		public static void RegisterHandler(IBuildingConfigHandler handler)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			_allHandlers.Add(handler);
 
@@ -76,7 +76,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 		/// <returns>True if the configuration was handled by a registered handler</returns>
 		public static bool TryHandle(GameObject go, BuildingConfigPacket packet)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!_initialized) Initialize();
 
@@ -106,7 +106,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 		/// </summary>
 		public static void Clear()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			_handlersByHash.Clear();
 			_allHandlers.Clear();

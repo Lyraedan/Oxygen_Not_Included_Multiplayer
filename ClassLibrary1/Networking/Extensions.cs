@@ -15,7 +15,7 @@ namespace ONI_MP.Networking
 	{
 		public static NetworkIdentity GetNetIdentity(this MonoBehaviour behaviour)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (behaviour.IsNullOrDestroyed() || behaviour.gameObject.IsNullOrDestroyed())
 			{
@@ -25,7 +25,7 @@ namespace ONI_MP.Networking
 		}
 		public static NetworkIdentity GetNetIdentity(this GameObject go)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (go.IsNullOrDestroyed())
 			{
@@ -39,7 +39,7 @@ namespace ONI_MP.Networking
 		}
 		public static int GetNetId(this MonoBehaviour behaviour)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var identity = GetNetIdentity(behaviour);
 			if (identity == null)
@@ -50,21 +50,21 @@ namespace ONI_MP.Networking
 		// Used to replace CSteamID
         public static bool IsValid(this ulong value)
         {
-	        Profiler.Scope();
+	        using var _ = Profiler.Scope();
 
             return value != ulong.MaxValue && !value.Equals(value.Nil());
         }
 
 		public static CSteamID AsCSteamID(this ulong value)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return new CSteamID(value);
 		}
 
 		public static ulong Nil(this ulong value)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return 0uL; // Stole this badboy from the steamworks api
         }

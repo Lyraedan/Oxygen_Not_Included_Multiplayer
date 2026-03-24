@@ -18,7 +18,7 @@ namespace ONI_MP.Networking.Packets.Core
 
         public void Serialize(BinaryWriter writer)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             writer.Write(PacketID);
             writer.Write(SendType);
@@ -28,7 +28,7 @@ namespace ONI_MP.Networking.Packets.Core
 
         public void Deserialize(BinaryReader reader)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             PacketID = reader.ReadInt32();
             SendType = reader.ReadInt32();
@@ -38,7 +38,7 @@ namespace ONI_MP.Networking.Packets.Core
 
         public void OnDispatched()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!PacketRegistry.HasRegisteredPacket(PacketID))
             {

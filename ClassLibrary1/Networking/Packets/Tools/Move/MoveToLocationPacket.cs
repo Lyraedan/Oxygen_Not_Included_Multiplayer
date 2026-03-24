@@ -13,7 +13,7 @@ namespace ONI_MP.Networking.Packets.Tools.Move
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(Cell);
 			writer.Write(TargetNetId);
@@ -21,7 +21,7 @@ namespace ONI_MP.Networking.Packets.Tools.Move
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Cell = reader.ReadInt32();
 			TargetNetId = reader.ReadInt32();
@@ -29,7 +29,7 @@ namespace ONI_MP.Networking.Packets.Tools.Move
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.IsHost)
 				return;

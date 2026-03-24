@@ -36,7 +36,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Serialize(BinaryWriter writer)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             writer.Write(ClientSteamID);
             writer.Write(ClientName);
@@ -48,7 +48,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Deserialize(BinaryReader reader)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ClientSteamID = reader.ReadUInt64();
             ClientName = reader.ReadString();
@@ -60,7 +60,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void OnDispatched()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             // Only host processes client progress
             if (!MultiplayerSession.IsHost)
@@ -85,7 +85,7 @@ namespace ONI_MP.Networking.Packets.World
 
         private static void UpdateHostProgressDisplay()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             try
             {
@@ -153,7 +153,7 @@ namespace ONI_MP.Networking.Packets.World
 
         private static string CreateProgressBar(int percent)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             int barLength = 20;
             int filled = (percent * barLength) / 100;
@@ -175,7 +175,7 @@ namespace ONI_MP.Networking.Packets.World
         /// </summary>
         public static void RemoveClientProgress(ulong clientId)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ClientProgress.Remove(clientId);
             if (ClientProgress.Count == 0)

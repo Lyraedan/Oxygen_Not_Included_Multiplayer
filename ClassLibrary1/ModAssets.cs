@@ -19,7 +19,7 @@ namespace ONI_MP
 
 		public static void LoadAssetBundles()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var bundle = AssetUtils.LoadAssetBundle("oni_mp_ui_assets", platformSpecific: true);
 			MP_ScreenPrefab = bundle.LoadAsset<GameObject>("Assets/UIs/mp_screen.prefab");

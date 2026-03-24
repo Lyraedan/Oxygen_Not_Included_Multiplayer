@@ -21,7 +21,7 @@ namespace ONI_MP.Patches.GamePatches
 		[HarmonyPrefix]
 		public static bool AddTime_Prefix()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession)
 				return true;
@@ -37,7 +37,7 @@ namespace ONI_MP.Patches.GamePatches
 		[HarmonyPostfix]
 		public static void AddTime_Postfix(GameClock __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
 				return;
@@ -73,7 +73,7 @@ namespace ONI_MP.Patches.GamePatches
 
 		private static IEnumerator DelayedHardSync()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			yield return new WaitForSeconds(5f); // wait to ensure ONI's autosave completes (generous wait time)
 			GameServerHardSync.PerformHardSync();

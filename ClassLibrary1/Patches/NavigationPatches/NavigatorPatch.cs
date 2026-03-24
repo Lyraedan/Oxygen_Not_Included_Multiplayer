@@ -13,7 +13,7 @@ namespace ONI_MP.Patches.Navigation
 	{
 		static bool Prefix(Navigator __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!__instance.path.IsValid() || __instance.path.nodes == null || __instance.path.nodes.Count == 0)
 				return true;
@@ -46,7 +46,7 @@ namespace ONI_MP.Patches.Navigation
 
 		private static void SendNavigationPacket(Navigator __instance, NetworkIdentity identity)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var packet = new NavigatorPathPacket
 			{
@@ -68,7 +68,7 @@ namespace ONI_MP.Patches.Navigation
 
 		private static void DebugNavigationPath(Navigator __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			string log = $"[Navigator AdvancePath] Sent path for {__instance.name} with {__instance.path.nodes.Count} steps.";
 			for (int i = 0; i < __instance.path.nodes.Count; i++)
@@ -89,7 +89,7 @@ namespace ONI_MP.Patches.Navigation
 	{
 		static bool Prefix(Navigator __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession)
 			{

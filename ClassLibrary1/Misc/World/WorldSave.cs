@@ -10,7 +10,7 @@ namespace ONI_MP.Misc.World
 
 		public WorldSave(string name, byte[] data)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Name = name;
 			Data = data;
@@ -18,7 +18,7 @@ namespace ONI_MP.Misc.World
 
 		public static WorldSave FromFile(string filePath)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!File.Exists(filePath))
 				throw new FileNotFoundException($"Save file not found: {filePath}");

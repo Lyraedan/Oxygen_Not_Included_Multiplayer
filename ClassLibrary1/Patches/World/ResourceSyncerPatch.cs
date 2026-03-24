@@ -11,7 +11,7 @@ namespace ONI_MP.Patches.World
 	{
 		public static void Postfix(Game __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (MultiplayerSession.IsHost)
 			{

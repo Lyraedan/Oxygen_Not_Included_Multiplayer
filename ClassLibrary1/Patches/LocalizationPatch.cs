@@ -19,7 +19,7 @@ namespace ONI_MP.Patches
         {
 			public static void Postfix()
             {
-	            Profiler.Scope();
+	            using var _ = Profiler.Scope();
 
 				Translate(typeof(STRINGS), true);
             }
@@ -28,7 +28,7 @@ namespace ONI_MP.Patches
 
 			public static void Translate(Type root, bool generateTemplate = false)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				Localization.RegisterForTranslation(root);
 				OverLoadStrings();
@@ -45,7 +45,7 @@ namespace ONI_MP.Patches
 			// Loads user created translations
 			private static void OverLoadStrings()
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				string code = Localization.GetLocale()?.Code;
 

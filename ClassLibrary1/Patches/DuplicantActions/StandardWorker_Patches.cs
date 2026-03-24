@@ -21,7 +21,7 @@ namespace ONI_MP.Patches.DuplicantActions
 		[HarmonyPatch(typeof(StandardWorker), nameof(StandardWorker.StartWork))]
 		public class StandardWorker_StartWork_Patch
 		{
-			private static Type[] workablesToSkip = 
+			private static Type[] workablesToSkip =
 			{
                 typeof(DefragmentationZone), // Bionic sleeping
                 typeof(RancherWorkable) // Ranching
@@ -29,9 +29,9 @@ namespace ONI_MP.Patches.DuplicantActions
 
 			public static void Postfix(StandardWorker __instance, StartWorkInfo start_work_info)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
-				if (__instance.IsNullOrDestroyed()) 
+				if (__instance.IsNullOrDestroyed())
 					return;
 
 				if (start_work_info.IsNullOrDestroyed())
@@ -60,9 +60,9 @@ namespace ONI_MP.Patches.DuplicantActions
 		{
 			public static void Postfix(StandardWorker __instance)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
-				if (__instance.IsNullOrDestroyed()) 
+				if (__instance.IsNullOrDestroyed())
 					return;
 
 				if (!Utils.IsHostMinion(__instance))

@@ -39,7 +39,7 @@ namespace ONI_MP.Networking.Packets.Tools
 
 		public virtual void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if(ToolInstance is FilteredDragTool filteredToolInstance)
 				StoreFilterData(filteredToolInstance);
@@ -71,7 +71,7 @@ namespace ONI_MP.Networking.Packets.Tools
 
 		public virtual void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (ToolInstance is FilteredDragTool)
 			{
@@ -100,7 +100,7 @@ namespace ONI_MP.Networking.Packets.Tools
 
 		public virtual void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (ToolInstance == null)
 			{
@@ -148,7 +148,7 @@ namespace ONI_MP.Networking.Packets.Tools
 		}
 		public void ApplyFilterData(FilteredDragTool tool, HashSet<string> targets)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var currentFilterKeys = tool.currentFilterTargets.Keys.ToList();
 
@@ -164,7 +164,7 @@ namespace ONI_MP.Networking.Packets.Tools
 
 		public void StoreFilterData(FilteredDragTool tool)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			foreach (var target in tool.currentFilterTargets)
 			{

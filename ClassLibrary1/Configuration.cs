@@ -32,21 +32,21 @@ namespace ONI_MP
 
         public static T GetHostProperty<T>(string propertyName)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             return Instance.GetProperty<T>(Instance.Host, propertyName);
         }
 
         public static T GetClientProperty<T>(string propertyName)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             return Instance.GetProperty<T>(Instance.Client, propertyName);
         }
 
         private T GetProperty<T>(object obj, string propertyName)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             var prop = obj.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
 
@@ -61,7 +61,7 @@ namespace ONI_MP
 
         public static Configuration LoadOrCreate()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!Directory.Exists(ConfigDirectory))
             {
@@ -82,7 +82,7 @@ namespace ONI_MP
 
         public static void SetClientProperty<T>(string propertyName, T value)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             Instance.SetProperty(Instance.Client, propertyName, value);
 
@@ -91,7 +91,7 @@ namespace ONI_MP
 
         public static void SetHostProperty<T>(string propertyName, T value)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             Instance.SetProperty(Instance.Host, propertyName, value);
             Instance.Save();
@@ -99,7 +99,7 @@ namespace ONI_MP
 
         private void SetProperty<T>(object obj, string propertyName, T value)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             var prop = obj.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
 
@@ -114,7 +114,7 @@ namespace ONI_MP
 
         public void Save()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             string json = JsonConvert.SerializeObject(this, Formatting.Indented);
             File.WriteAllText(ConfigPath, json);

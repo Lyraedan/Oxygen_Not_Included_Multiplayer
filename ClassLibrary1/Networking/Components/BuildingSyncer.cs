@@ -27,14 +27,14 @@ namespace ONI_MP.Networking.Components
 
         private void Awake()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             Instance = this;
         }
 
         private void Update()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
                 return;
@@ -69,7 +69,7 @@ namespace ONI_MP.Networking.Components
 
         private void SendSyncPacket()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             var buildings = global::Components.BuildingCompletes.Items;
             var stateList = new List<BuildingState>(buildings.Count);
@@ -132,7 +132,7 @@ namespace ONI_MP.Networking.Components
 
         private void SendBatch(List<BuildingState> batch, int chunkIndex, int totalChunks)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             var packet = new BuildingStatePacket
             {
@@ -146,7 +146,7 @@ namespace ONI_MP.Networking.Components
 
         public void OnPacketReceived(BuildingStatePacket packet)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (MultiplayerSession.IsHost) return;
             if (Grid.WidthInCells == 0) return;
@@ -174,7 +174,7 @@ namespace ONI_MP.Networking.Components
 
         private IEnumerator Reconcile(List<BuildingState> remoteBuildings)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             // Build remote lookup: (Cell, Layer) -> Prefab
             var remoteByCellLayer = new Dictionary<(int, ObjectLayer), string>();
@@ -248,7 +248,7 @@ namespace ONI_MP.Networking.Components
 
         private void SpawnBuilding(int cell, string prefabName)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (Grid.WidthInCells == 0) return;
             if (string.IsNullOrEmpty(prefabName)) return;

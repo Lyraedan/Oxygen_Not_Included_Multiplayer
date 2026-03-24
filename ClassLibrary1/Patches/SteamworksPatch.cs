@@ -13,7 +13,7 @@ namespace ONI_MP.Patches
 		[HarmonyPostfix]
 		public static void OnSteamAwake()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (SteamManager.Initialized)
 			{
@@ -31,7 +31,7 @@ namespace ONI_MP.Patches
 		[HarmonyPrefix]
 		public static void OnSteamShutdown()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (SteamManager.Initialized)
 			{

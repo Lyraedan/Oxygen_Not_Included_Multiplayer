@@ -14,11 +14,11 @@ namespace ONI_MP.Patches.World
 	{
 		public static void Postfix(TechInstance __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.IsHost) return;
 			if (__instance?.tech == null) return;
-			
+
 			// Prevent sending completion if we're applying state from a received packet
 			if (ResearchStatePacket.IsApplying) return;
 

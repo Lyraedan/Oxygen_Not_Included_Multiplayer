@@ -19,7 +19,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Serialize(BinaryWriter writer)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             writer.Write(SequenceNumber);
             writer.Write(TransferId);
@@ -28,7 +28,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Deserialize(BinaryReader reader)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             SequenceNumber = reader.ReadInt32();
             TransferId = reader.ReadString();
@@ -37,7 +37,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void OnDispatched()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             // Only server processes ACKs
             if (!MultiplayerSession.IsHost)

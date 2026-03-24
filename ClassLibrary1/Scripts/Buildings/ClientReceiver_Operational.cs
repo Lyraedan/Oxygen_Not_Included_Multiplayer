@@ -17,7 +17,7 @@ namespace ONI_MP.Scripts.Buildings
 
 		public override void OnSpawn()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			base.OnSpawn();
 			if (MultiplayerSession.IsClient)

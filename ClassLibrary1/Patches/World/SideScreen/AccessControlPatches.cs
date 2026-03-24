@@ -16,7 +16,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(AccessControl __instance, Tag groupTag, AccessControl.Permission permission)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -44,7 +44,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(AccessControl __instance, MinionAssignablesProxy key, AccessControl.Permission permission)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -87,7 +87,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(AccessControl __instance, MinionAssignablesProxy key)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -133,7 +133,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(AccessControl __instance, Tag gameTag, AccessControl.Permission permission)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -166,7 +166,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(AccessControl __instance, Tag tag, Tag default_key)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;

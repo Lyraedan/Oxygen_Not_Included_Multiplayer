@@ -19,7 +19,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(LogicAlarm __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -106,7 +106,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(AlarmSideScreen __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -137,7 +137,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(AlarmSideScreen __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -168,7 +168,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(AlarmSideScreen __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -199,7 +199,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(AlarmSideScreen __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -230,7 +230,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(AlarmSideScreen __instance, NotificationType type)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -261,10 +261,10 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(AlarmSideScreen __instance, GameObject target)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (__instance.targetAlarm == null) return;
-			
+
 			// Force update visuals from current component values
 			__instance.UpdateVisuals();
 			__instance.RefreshToggles();

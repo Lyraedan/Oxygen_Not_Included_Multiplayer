@@ -43,7 +43,7 @@ namespace ONI_MP.DebugTools
 
         public static DebugConsole Init()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (_instance != null)
                 return _instance;
@@ -54,7 +54,7 @@ namespace ONI_MP.DebugTools
 
         public static void Log(string message)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             Debug.Log($"[ONI_MP] {message}");
             EnsureInstance();
@@ -63,7 +63,7 @@ namespace ONI_MP.DebugTools
 
         public static void LogWarning(string message)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             Debug.LogWarning($"[ONI_MP] {message}");
             EnsureInstance();
@@ -72,7 +72,7 @@ namespace ONI_MP.DebugTools
 
         public static void LogError(string message, bool trigger_error_screen = true)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (trigger_error_screen)
                 Debug.LogError($"[ONI_MP] {message}");
@@ -85,7 +85,7 @@ namespace ONI_MP.DebugTools
 
         public static void LogException(Exception ex)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             Debug.LogException(ex);
             EnsureInstance();
@@ -94,7 +94,7 @@ namespace ONI_MP.DebugTools
 
         public static void LogAssert(string message)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             Debug.Log($"[ONI_MP/Assert] {message}");
             EnsureInstance();
@@ -103,7 +103,7 @@ namespace ONI_MP.DebugTools
 
         public static void LogSuccess(string message)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             Debug.Log($"[ONI_MP] {message}");
             EnsureInstance();
@@ -112,7 +112,7 @@ namespace ONI_MP.DebugTools
 
         public static void LogNonImportant(string message)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             Debug.Log($"[ONI_MP] {message}");
             EnsureInstance();
@@ -121,14 +121,14 @@ namespace ONI_MP.DebugTools
 
         private static void EnsureInstance()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             _instance = new DebugConsole();
         }
 
         private void AddLog(string message, string stack, LogType type)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             lock (_lock)
             {
@@ -160,7 +160,7 @@ namespace ONI_MP.DebugTools
         /// </summary>
         public void Toggle()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             showConsole = !showConsole;
         }
@@ -171,7 +171,7 @@ namespace ONI_MP.DebugTools
         /// </summary>
         public void ShowWindow()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!showConsole)
                 return;
@@ -186,14 +186,14 @@ namespace ONI_MP.DebugTools
 
         public void ShowInTab()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ShowConsoleContent(false);
         }
-    
+
         private void ShowConsoleContent(bool usesMenuBar)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             // Toolbar
             if (usesMenuBar)
@@ -209,7 +209,7 @@ namespace ONI_MP.DebugTools
 
                     ImGui.EndMenuBar();
                 }
-            } 
+            }
             else
             {
                 if (ImGui.Button("Clear"))

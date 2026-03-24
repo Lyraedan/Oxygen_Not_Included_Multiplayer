@@ -23,7 +23,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 
 		public bool TryApplyConfig(GameObject go, BuildingConfigPacket packet)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			int hash = packet.ConfigHash;
 
@@ -48,7 +48,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 			{
 				int minionNetId = packet.SliderIndex;
 				AccessControl.Permission permission = (AccessControl.Permission)(int)packet.Value;
-				
+
 				// Find the minion by NetID using the registry
 				if (NetworkIdentityRegistry.TryGet(minionNetId, out var minionIdentity) && minionIdentity != null)
 				{
@@ -73,7 +73,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 			if (hash == "AccessControlClear".GetHashCode())
 			{
 				int minionNetId = packet.SliderIndex;
-				
+
 				if (NetworkIdentityRegistry.TryGet(minionNetId, out var minionIdentity) && minionIdentity != null)
 				{
 					var minionGO = minionIdentity.gameObject;

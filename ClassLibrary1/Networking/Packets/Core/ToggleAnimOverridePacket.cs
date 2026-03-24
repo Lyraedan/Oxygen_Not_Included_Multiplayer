@@ -25,7 +25,7 @@ namespace ONI_MP.Networking.Packets.Core
 		public ToggleAnimOverridePacket() { }
 		public ToggleAnimOverridePacket(GameObject instance, KAnimFile kanim)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			EntityNetId = instance.AddOrGet<NetworkIdentity>().NetId;
 			AddingOverride = false;
@@ -33,7 +33,7 @@ namespace ONI_MP.Networking.Packets.Core
 		}
 		public ToggleAnimOverridePacket(GameObject instance, KAnimFile kanim, float priority)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			EntityNetId = instance.AddOrGet<NetworkIdentity>().NetId;
 			AddingOverride = true;
@@ -43,7 +43,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			EntityNetId = reader.ReadInt32();
 			Kanim = reader.ReadString();
@@ -52,7 +52,7 @@ namespace ONI_MP.Networking.Packets.Core
 		}
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(EntityNetId);
 			writer.Write(Kanim);
@@ -61,7 +61,7 @@ namespace ONI_MP.Networking.Packets.Core
 		}
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (MultiplayerSession.IsHost)
 				return;

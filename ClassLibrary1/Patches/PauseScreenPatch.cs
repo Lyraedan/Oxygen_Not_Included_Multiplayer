@@ -22,7 +22,7 @@ namespace ONI_MP.Patches
 		[UsedImplicitly]
 		public static void OnQuitConfirm_Prefix(bool saveFirst)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (MultiplayerSession.InSession)
 			{
@@ -51,7 +51,7 @@ namespace ONI_MP.Patches
 		{
 			public static void Postfix(PauseScreen __instance)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				var buttonInfos = __instance.buttons;
 
@@ -95,7 +95,7 @@ namespace ONI_MP.Patches
 						ONI_MP.Menus.MultiplayerInfoScreen.Show(canvas.transform);
 					}
 				});
-				
+
 				/*
                     AddButton(__instance, MP_STRINGS.UI.PAUSESCREEN.INVITE.LABEL, () =>
                     {
@@ -122,7 +122,7 @@ namespace ONI_MP.Patches
 					{
                         AddButton(__instance, MP_STRINGS.UI.PAUSESCREEN.HARDSYNCNOTAVAILABLE.LABEL, () =>
                         {
-                            
+
                         });
                     }
 
@@ -142,7 +142,7 @@ namespace ONI_MP.Patches
 		{
             static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> insts)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
                 var pauseTarget = AccessTools.Method(
 					typeof(SpeedControlScreen),
@@ -181,17 +181,17 @@ namespace ONI_MP.Patches
 
 			static void ConditionalPause(SpeedControlScreen inst, bool playSound, bool isCrash)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				// Only pause if we arent in a multiplayer session
 				if (MultiplayerSession.InSession) return;
-				
+
 				SpeedControlScreen.Instance.Pause(playSound, isCrash);
 			}
 
             static void ConditionalUnpause(SpeedControlScreen inst, bool playSound)
             {
-	            Profiler.Scope();
+	            using var _ = Profiler.Scope();
 
 				// Only unpause if we arent in a multiplayer session
 				if (MultiplayerSession.InSession) return;
@@ -202,7 +202,7 @@ namespace ONI_MP.Patches
 
 		private static void AddButton(PauseScreen __instance, string label, System.Action onClicked, string placeAfter = "Resume")
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var buttonInfos = __instance.buttons.ToList();
             if (buttonInfos.Any(b => b.text == label))

@@ -18,7 +18,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(FlatTagFilterable __instance, Tag tag)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;

@@ -14,7 +14,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(PrintingPodWorldIndex);
 			selectedOption.Serialize(writer);
@@ -22,7 +22,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			PrintingPodWorldIndex = reader.ReadInt32();
 			selectedOption = ImmigrantOptionEntry.Deserialize(reader);
@@ -30,7 +30,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession) return;
 

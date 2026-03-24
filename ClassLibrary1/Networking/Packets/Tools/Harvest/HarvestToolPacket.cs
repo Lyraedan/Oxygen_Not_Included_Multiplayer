@@ -6,7 +6,7 @@ public class HarvestToolPacket : DragToolPacket
 {
     public HarvestToolPacket()
     {
-        Profiler.Scope();
+        using var _ = Profiler.Scope();
 
         ToolInstance = HarvestTool.Instance;
         ToolMode     = DragToolMode.OnDragTool;

@@ -11,10 +11,10 @@ namespace ONI_MP.Patches.World
 	{
 		public static void Postfix(Research __instance, Tech tech, bool clearQueue)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.IsHost) return;
-			
+
 			// Don't send packets if we're applying state from a received packet (prevents loop)
 			if (ResearchStatePacket.IsApplying) return;
 
@@ -27,7 +27,7 @@ namespace ONI_MP.Patches.World
 				UnlockedTechIds = new List<string>(),
 				QueuedTechIds = new List<string>()
 			};
-			
+
 			// Populate the research queue
 			try
 			{

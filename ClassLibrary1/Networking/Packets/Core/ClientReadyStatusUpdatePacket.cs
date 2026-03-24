@@ -14,28 +14,28 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public ClientReadyStatusUpdatePacket(string message)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Message = message;
 		}
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(Message);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Message = reader.ReadString();
 		}
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Host updates theirs on each ready status packet so we dont do anything here
 			if (MultiplayerSession.IsHost)

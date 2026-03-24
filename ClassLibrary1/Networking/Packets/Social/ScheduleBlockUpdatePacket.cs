@@ -17,10 +17,10 @@ namespace ONI_MP.Networking.Packets.Social
         public string GroupId;
 
         public static bool IsApplying = false;
-                
+
         public void Serialize(BinaryWriter writer)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             writer.Write(ScheduleIndex);
             writer.Write(BlockIndex);
@@ -29,7 +29,7 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void Deserialize(BinaryReader reader)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ScheduleIndex = reader.ReadInt32();
             BlockIndex = reader.ReadInt32();
@@ -38,7 +38,7 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void OnDispatched()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (IsApplying)
                 return;
@@ -48,7 +48,7 @@ namespace ONI_MP.Networking.Packets.Social
 
         private void Apply()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             List<Schedule> schedules = ScheduleManager.Instance.schedules;
             if (schedules == null) return;
@@ -78,7 +78,7 @@ namespace ONI_MP.Networking.Packets.Social
             {
                 IsApplying = false;
             }
-            
+
         }
 
     }

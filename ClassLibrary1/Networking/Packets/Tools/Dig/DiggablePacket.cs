@@ -23,7 +23,7 @@ namespace ONI_MP.Networking.Packets.Tools.Dig
 
         public DiggablePacket(int cell, int animationDelay)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             Cell           = cell;
             AnimationDelay = animationDelay;
@@ -31,7 +31,7 @@ namespace ONI_MP.Networking.Packets.Tools.Dig
 
         public void Serialize(BinaryWriter writer)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             writer.Write(Cell);
             writer.Write(AnimationDelay);
@@ -41,7 +41,7 @@ namespace ONI_MP.Networking.Packets.Tools.Dig
 
         public void Deserialize(BinaryReader reader)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             Cell           = reader.ReadInt32();
             AnimationDelay = reader.ReadInt32();
@@ -50,7 +50,7 @@ namespace ONI_MP.Networking.Packets.Tools.Dig
 
         public void OnDispatched()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ProcessingIncoming = true;
             GameObject game_object = DigTool.PlaceDig(Cell, AnimationDelay);

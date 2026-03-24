@@ -15,7 +15,7 @@ namespace ONI_MP.Networking.Trackers
 		{
 			public static void Postfix(KPrefabID __instance)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				if (__instance.PrefabTag == MopPlacerTag)
 				{
@@ -32,7 +32,7 @@ namespace ONI_MP.Networking.Trackers
 		{
 			public static void Prefix(KPrefabID __instance)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				if (__instance.PrefabTag == MopPlacerTag)
 				{

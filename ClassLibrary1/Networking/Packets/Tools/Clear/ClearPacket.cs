@@ -6,7 +6,7 @@ namespace ONI_MP.Networking.Packets.Tools.Clear
 	{
 		public ClearPacket()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			ToolInstance = ClearTool.Instance;
 			ToolMode     = DragToolMode.OnDragTool;

@@ -19,7 +19,7 @@ namespace ONI_MP.Patches.World.Buildings
         {
             public static void Postfix(ComplexFabricator __instance)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				DebugConsole.Log("ComplexFabricator_SpawnOrderProduct_Patch called");
 				if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)

@@ -8,14 +8,14 @@ namespace ONI_MP.Networking.Trackers
 	{
 		public static readonly HashSet<Disinfectable> Disinfectables = new HashSet<Disinfectable>();
 
-		// We patch KPrefabID because Disinfectable might not override OnSpawn/OnCleanUp, 
+		// We patch KPrefabID because Disinfectable might not override OnSpawn/OnCleanUp,
 		// causing "Undefined target method" crashes if we try to patch Disinfectable directly.
 		[HarmonyPatch(typeof(KPrefabID), "OnSpawn")]
 		public static class Disinfectable_OnSpawn_Patch
 		{
 			public static void Postfix(KPrefabID __instance)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				var disinfectable = __instance.GetComponent<Disinfectable>();
 				if (disinfectable != null)
@@ -33,7 +33,7 @@ namespace ONI_MP.Networking.Trackers
 		{
 			public static void Prefix(KPrefabID __instance)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				var disinfectable = __instance.GetComponent<Disinfectable>();
 				if (disinfectable != null)

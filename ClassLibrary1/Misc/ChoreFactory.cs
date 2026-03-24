@@ -11,7 +11,7 @@ public static class ChoreFactory
 {
 	public static Chore Create(string choreTypeId, Precondition.Context context, GameObject dupeGO, Vector3 pos, int cell, string prefabId)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var type = Db.Get().ChoreTypes.Get(choreTypeId);
 		var consumer = dupeGO.GetComponent<ChoreConsumer>();
@@ -89,7 +89,7 @@ public static class ChoreFactory
 
 	private static Chore CreateRancher(ChoreConsumer consumer, int cell)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (!Grid.IsValidCell(cell))
 		{
@@ -124,7 +124,7 @@ public static class ChoreFactory
 
 	private static Chore CreatePutOnHat(ChoreConsumer consumer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var smTarget = consumer.GetComponent<IStateMachineTarget>();
 		if (smTarget == null)
@@ -139,14 +139,14 @@ public static class ChoreFactory
 
 	private static Chore CreatePee(ChoreConsumer consumer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		return new PeeChore(consumer);
 	}
 
 	private static Chore CreateParty(ChoreConsumer consumer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var smTarget = consumer.GetComponent<IStateMachineTarget>();
 		if (smTarget == null)
@@ -174,14 +174,14 @@ public static class ChoreFactory
 
 	private static Chore CreateMoveToSafety(ChoreConsumer consumer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		return new MoveToSafetyChore(consumer);
 	}
 
 	private static Chore CreateMoveToQuarantine(ChoreConsumer consumer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var smTarget = consumer.GetComponent<IStateMachineTarget>();
 		if (smTarget == null)
@@ -208,7 +208,7 @@ public static class ChoreFactory
 
 	private static Chore CreateMovePickupable(ChoreConsumer consumer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var smTarget = consumer.GetComponent<IStateMachineTarget>();
 		if (smTarget == null)
@@ -251,7 +251,7 @@ public static class ChoreFactory
 
 	private static Chore CreateMove(ChoreConsumer consumer, GameObject targetObject)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (consumer == null || targetObject == null)
 		{
@@ -303,28 +303,28 @@ public static class ChoreFactory
 
 	private static Chore CreateMourn(ChoreConsumer consumer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		return new MournChore(consumer);
 	}
 
 	private static Chore CreateMingle(ChoreConsumer consumer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		return new MingleChore(consumer);
 	}
 
 	private static Chore CreateIdle(ChoreConsumer consumer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		return new IdleChore(consumer);
 	}
 
 	private static Chore CreateFoodFight(ChoreConsumer consumer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var smTarget = consumer.GetComponent<IStateMachineTarget>();
 		if (smTarget == null)
@@ -383,7 +383,7 @@ public static class ChoreFactory
 	private static Chore CreateOxygenSourceChore(ChoreConsumer consumer) => new FindAndConsumeOxygenSourceChore(consumer.gameObject.GetComponent<IStateMachineTarget>(), false);
 	private static Chore CreateFixedCapture(int cell)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var obj = Grid.Objects[cell, (int)ObjectLayer.Building];
 		var prefab = obj?.GetComponent<KPrefabID>();
@@ -391,7 +391,7 @@ public static class ChoreFactory
 	}
 	private static Chore CreateFlee(GameObject dupeGO)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var enemy = Utils.FindEntityInRadius(
 				dupeGO.transform.position,
@@ -408,7 +408,7 @@ public static class ChoreFactory
 	private static Chore CreateRecoverBreath(ChoreConsumer consumer) => new RecoverBreathChore(consumer);
 	private static Chore CreateRemote(ChoreConsumer consumer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var smTarget = consumer.GetComponent<IStateMachineTarget>();
 		if (smTarget == null)
@@ -437,7 +437,7 @@ public static class ChoreFactory
 	private static Chore CreateReloadElectrobank(ChoreConsumer consumer) => new ReloadElectrobankChore(consumer);
 	private static Chore CreateRescueIncapacitated(ChoreConsumer consumer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		Vector3 origin = consumer.transform.position;
 		float searchRadius = 10f;
@@ -457,7 +457,7 @@ public static class ChoreFactory
 
 	private static Chore CreateRescueSweepBot(ChoreConsumer consumer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		Vector3 origin = consumer.transform.position;
 		float searchRadius = 10f;
@@ -489,7 +489,7 @@ public static class ChoreFactory
 	private static Chore CreateSeekAndInstallUpgrade(ChoreConsumer consumer) => new SeekAndInstallBionicUpgradeChore(consumer);
 	private static Chore CreateSleep(GameObject dupeGO)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		GameObject bed = null;
 		bool bedIsLocator = true;
@@ -520,7 +520,7 @@ public static class ChoreFactory
 	private static Chore CreateStressIdle(ChoreConsumer consumer) => new StressIdleChore(consumer);
 	public static Chore CreateStressShock(GameObject dupe, Notification notification = null)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (dupe == null || dupe.GetComponent<ChoreProvider>() == null)
 			return null;
@@ -546,7 +546,7 @@ public static class ChoreFactory
 
 	public static Chore CreateSwitchRoleHat(GameObject dupe)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (dupe == null || dupe.GetComponent<ChoreProvider>() == null)
 			return null;
@@ -568,7 +568,7 @@ public static class ChoreFactory
 
 	public static Chore CreateTakeMedicine(GameObject dupe, MedicinalPillWorkable pillWorkable)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (dupe == null || pillWorkable == null)
 			return null;
@@ -593,7 +593,7 @@ public static class ChoreFactory
 
 	public static Chore CreateTakeOffHat(GameObject dupe)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (dupe == null)
 			return null;
@@ -618,7 +618,7 @@ public static class ChoreFactory
 	private static Chore CreateUseSolidLubricant(ChoreConsumer consumer) => new UseSolidLubricantChore(consumer);
 	public static Chore CreateVomit(GameObject dupe)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (dupe == null)
 			return null;
@@ -660,7 +660,7 @@ public static class ChoreFactory
 
 	public static Chore CreateWaterCoolerChore(GameObject dupe)
 	{
-		Profiler.Scope();
+		using var scope = Profiler.Scope();
 
 		if (dupe == null || dupe.GetComponent<IStateMachineTarget>() == null)
 			return null;
@@ -683,7 +683,7 @@ public static class ChoreFactory
 
 	private static Chore CreateWorkChore<T>(ChoreType type, ChoreConsumer consumer, int cell) where T : Workable
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (!Grid.IsValidCell(cell))
 		{
@@ -727,7 +727,7 @@ public static class ChoreFactory
 
 	private static Chore CreateNamedEmote(string id, ChoreType type, ChoreConsumer consumer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var emote = Db.Get().Emotes.Get(id) as Klei.AI.Emote;
 		if (emote == null)
@@ -741,7 +741,7 @@ public static class ChoreFactory
 
 	private static Chore CreateDie(GameObject dupeGO, ChoreConsumer consumer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var deathMonitor = dupeGO.GetSMI<DeathMonitor.Instance>();
 		if (deathMonitor == null) return null;
@@ -752,7 +752,7 @@ public static class ChoreFactory
 
 	public static Chore CreateDig(ChoreConsumer consumer, int cell)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (!Grid.IsValidCell(cell))
 		{

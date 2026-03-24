@@ -20,7 +20,7 @@ namespace ONI_MP.Patches.ToolPatches
         {
             public static void Prefix(DisconnectTool __instance, Vector3 downPos, Vector3 upPos)
             {
-	            Profiler.Scope();
+	            using var _ = Profiler.Scope();
 
                 if (!MultiplayerSession.InSession)
                     return;

@@ -27,7 +27,7 @@ namespace ONI_MP.Networking.Components
 
 		public override void OnSpawn()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			base.OnSpawn();
 
@@ -48,19 +48,19 @@ namespace ONI_MP.Networking.Components
 
 		public void Render1000ms(float dt)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			UpdateState(true);
 		}
 		public void Render200ms(float dt)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			UpdateState();
 		}
 		void UpdateState(bool heartbeat = false)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession || MultiplayerSession.IsClient)
 				return;
@@ -73,7 +73,7 @@ namespace ONI_MP.Networking.Components
 		}
 		private void SendStatePacket(bool isHeartbeat)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			try
 			{
@@ -125,7 +125,7 @@ namespace ONI_MP.Networking.Components
 
 		private string DetermineHeldItemSymbol()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Check for SymbolOverrideController
 			var symbolOverride = GetComponent<SymbolOverrideController>();
@@ -187,7 +187,7 @@ namespace ONI_MP.Networking.Components
 
 		private DuplicantActionState DetermineCurrentState()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (choreDriver == null || choreDriver.GetCurrentChore() == null)
 			{
@@ -231,7 +231,7 @@ namespace ONI_MP.Networking.Components
 
 		private DuplicantActionState GetNavTypeState(NavType navType)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (navType == NavType.Ladder || navType == NavType.Pole)
 				return DuplicantActionState.Climbing;
@@ -242,7 +242,7 @@ namespace ONI_MP.Networking.Components
 
 		private int DetermineTargetCell()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (choreDriver == null)
 				return -1;
@@ -257,7 +257,7 @@ namespace ONI_MP.Networking.Components
 
 		private string GetCurrentAnimName()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (animController == null)
 				return string.Empty;
@@ -267,7 +267,7 @@ namespace ONI_MP.Networking.Components
 
 		private bool IsCurrentlyWorking()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (choreDriver == null)
 				return false;

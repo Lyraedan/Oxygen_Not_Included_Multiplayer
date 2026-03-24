@@ -13,21 +13,21 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(SenderId);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			SenderId = reader.ReadUInt64();
 		}
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.IsHost)
 				return;
@@ -38,7 +38,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		private void SendWorldData(ulong target)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			DebugConsole.Log($"[WorldDataRequestPacket] Sending world data to {target}");
 

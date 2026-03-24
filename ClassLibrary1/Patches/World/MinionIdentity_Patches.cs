@@ -16,7 +16,7 @@ namespace ONI_MP.Patches.World
 		static bool ApplyingPacket = false;
 		public static void ApplyPacketName(MinionIdentity nameable, string name)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			ApplyingPacket = true;
 			nameable.SetName(name);
@@ -28,7 +28,7 @@ namespace ONI_MP.Patches.World
 		{
 			public static void Postfix(MinionIdentity __instance, string name)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				if (MultiplayerSession.NotInSession)
 					return;

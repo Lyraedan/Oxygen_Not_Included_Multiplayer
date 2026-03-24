@@ -15,7 +15,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(Resources.Count);
 			foreach (var kvp in Resources)
@@ -27,7 +27,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			int count = reader.ReadInt32();
 			Resources.Clear();
@@ -41,7 +41,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (MultiplayerSession.IsHost) return;
 			Apply();
@@ -49,7 +49,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		private void Apply()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Update local cache for the patch to use
 			ResourceSyncer.ClientResources = Resources;
@@ -60,7 +60,7 @@ namespace ONI_MP.Networking.Packets.World
 				foreach (var kvp in Resources)
 				{
 					Tag tag = TagManager.Create(kvp.Key);
-					// DiscoveredResources.Instance.Discover(tag); 
+					// DiscoveredResources.Instance.Discover(tag);
 					// To avoid spamming notifications or issues, we can check if already discovered.
 					if (!DiscoveredResources.Instance.IsDiscovered(tag))
 					{

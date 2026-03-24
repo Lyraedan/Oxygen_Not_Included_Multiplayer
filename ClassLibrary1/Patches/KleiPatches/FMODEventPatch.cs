@@ -22,7 +22,7 @@ namespace ONI_MP.Patches.KleiPatches
         [HarmonyPrefix]
         public static bool Prefix(FMODUnity.EventReference event_ref, ref string __result)
         {
-	        Profiler.Scope();
+	        using var _ = Profiler.Scope();
 
             try
             {
@@ -63,7 +63,7 @@ namespace ONI_MP.Patches.KleiPatches
 		[HarmonyPrefix]
 		public static bool Prefix(FMODUnity.EventReference event_ref, ref string __result)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			try
 			{
@@ -109,7 +109,7 @@ namespace ONI_MP.Patches.KleiPatches
 		[HarmonyFinalizer]
 		public static Exception Finalizer(Exception __exception)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (__exception is FMODUnity.EventNotFoundException)
 			{

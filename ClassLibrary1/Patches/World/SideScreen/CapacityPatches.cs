@@ -18,7 +18,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(CapacityControlSideScreen __instance, float newValue)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (__instance.target == null) return;
@@ -40,7 +40,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(CapacityControlSideScreen __instance, GameObject new_target)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (new_target == null) return;
 			var identity = new_target.AddOrGet<NetworkIdentity>();

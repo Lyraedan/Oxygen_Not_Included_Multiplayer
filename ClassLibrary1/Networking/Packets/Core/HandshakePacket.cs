@@ -21,14 +21,14 @@ namespace ONI_MP.Tests
 
         public void Serialize(BinaryWriter writer)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             writer.Write(ClientID);
         }
 
         public void Deserialize(BinaryReader reader)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ClientID = reader.ReadUInt64();
         }

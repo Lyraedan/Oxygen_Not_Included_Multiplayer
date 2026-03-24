@@ -19,7 +19,7 @@ namespace ONI_MP.Tests
 
         public static void Connect(string ip = "127.0.0.1", int port = 7777)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             RiptideLogger.Initialize(DebugConsole.Log, false);
             _client = new Client("Dedicated client test");
@@ -32,7 +32,7 @@ namespace ONI_MP.Tests
 
         private static void OnClientConnected(object sender, EventArgs e)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             DebugConsole.Log("[DediTest] Successfully connected to the Dedicated server!");
 
@@ -41,14 +41,14 @@ namespace ONI_MP.Tests
 
         private static void OnClientDisconnected(object sender, DisconnectedEventArgs e)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             DebugConsole.Log("[DediTest] Successfully disconnected to the Dedicated server!");
         }
 
         public static void Update()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (_client == null)
                 return;
@@ -57,7 +57,7 @@ namespace ONI_MP.Tests
 
         public static void Disconnect()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (_client == null || _client.IsNotConnected)
                 return;
@@ -66,7 +66,7 @@ namespace ONI_MP.Tests
 
         public static void SendTestPacket()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             TestPacket testPacket = new TestPacket();
             testPacket.ClientID = 123;
@@ -76,7 +76,7 @@ namespace ONI_MP.Tests
 
         private static void SendPacket(IPacket packet)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             byte[] bytes = PacketSender.SerializePacketForSending(packet);
 

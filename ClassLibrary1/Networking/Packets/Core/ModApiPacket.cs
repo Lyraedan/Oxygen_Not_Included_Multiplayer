@@ -23,14 +23,14 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public ModApiPacket()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			WrappedInstance = Activator.CreateInstance<T>();
 			Traverse = Traverse.Create(WrappedInstance);
 		}
 		public void SetWrappedInstance(object instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			WrappedInstance = (T)instance;
 			Traverse = Traverse.Create(WrappedInstance);
@@ -38,21 +38,21 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Traverse.Method("Deserialize", reader).GetValue();
 		}
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Traverse.Method("OnDispatched").GetValue();
 		}
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Traverse.Method("Serialize", writer).GetValue();
 		}

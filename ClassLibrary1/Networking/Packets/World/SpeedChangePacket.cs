@@ -24,28 +24,28 @@ namespace ONI_MP.Networking.Packets.World
 
 		public SpeedChangePacket(SpeedState speed)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Speed = speed;
 		}
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write((int)Speed);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Speed = (SpeedState)reader.ReadInt32();
 		}
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (SpeedControlScreen.Instance == null)
 				return;

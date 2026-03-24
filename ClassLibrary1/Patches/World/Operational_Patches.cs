@@ -17,7 +17,7 @@ namespace ONI_MP.Patches.World
 		{
             public static void Postfix(Operational __instance)
             {
-	            Profiler.Scope();
+	            using var _ = Profiler.Scope();
 
                 __instance.gameObject.AddOrGet<ClientReceiver_Operational>();
             }

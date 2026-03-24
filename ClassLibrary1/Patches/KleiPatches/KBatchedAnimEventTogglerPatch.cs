@@ -10,7 +10,7 @@ public static class KBatchedAnimEventTogglerPatch
 	[HarmonyPrefix]
 	private static void Prefix_Enable(KBatchedAnimEventToggler __instance, object data)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		TrySendEffectPacket(__instance, true);
 	}
@@ -19,14 +19,14 @@ public static class KBatchedAnimEventTogglerPatch
 	[HarmonyPrefix]
 	private static void Prefix_Disable(KBatchedAnimEventToggler __instance, object data)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		TrySendEffectPacket(__instance, false);
 	}
 
 	private static void TrySendEffectPacket(KBatchedAnimEventToggler toggler, bool enable)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (!toggler.isActiveAndEnabled || toggler.eventSource == null)
 			return;

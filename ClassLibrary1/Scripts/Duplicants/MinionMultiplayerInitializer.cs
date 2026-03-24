@@ -20,7 +20,7 @@ namespace ONI_MP.Scripts.Duplicants
 
 		public override void OnSpawn()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			base.OnSpawn();
 
@@ -33,14 +33,14 @@ namespace ONI_MP.Scripts.Duplicants
 
 		void InitializeMP(object _ = null)
 		{
-			Profiler.Scope();
+			using var scope = Profiler.Scope();
 
 			StartCoroutine(DelayedInit());
 		}
 
 		IEnumerator DelayedInit()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			yield return null;
 			FinalizeInit();
@@ -48,7 +48,7 @@ namespace ONI_MP.Scripts.Duplicants
 
 		void FinalizeInit()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var go = gameObject;
 			if (MultiplayerSession.NotInSession) return;

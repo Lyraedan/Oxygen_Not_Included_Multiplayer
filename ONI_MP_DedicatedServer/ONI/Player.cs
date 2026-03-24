@@ -17,7 +17,7 @@ namespace ONI_MP_DedicatedServer.ONI
 
         public Player(Connection conn, bool IsMaster)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             Connection = conn;
             UpdateMasterState(IsMaster);
@@ -25,7 +25,7 @@ namespace ONI_MP_DedicatedServer.ONI
 
         public void UpdateMasterState(bool state)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             IsMaster = state;
         }

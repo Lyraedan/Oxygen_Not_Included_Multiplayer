@@ -14,7 +14,7 @@ namespace ONI_MP.Networking
 
 		public static int Register(NetworkIdentity entity)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			int id, attempt = 0;
 			do
@@ -28,7 +28,7 @@ namespace ONI_MP.Networking
 
 		public static void Unregister(int netId)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			identities.Remove(netId);
 		}
@@ -36,7 +36,7 @@ namespace ONI_MP.Networking
 
 		public static void RegisterExisting(NetworkIdentity entity, int netId)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!identities.ContainsKey(netId))
 			{
@@ -51,7 +51,7 @@ namespace ONI_MP.Networking
 
 		public static void RegisterOverride(NetworkIdentity entity, int netId)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (identities.ContainsKey(netId))
 			{
@@ -70,7 +70,7 @@ namespace ONI_MP.Networking
 
 		public static bool TryGet(int netId, out NetworkIdentity entity)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			bool found = identities.TryGetValue(netId, out entity);
 			if (!found)
@@ -82,7 +82,7 @@ namespace ONI_MP.Networking
 
 		public static bool TryGetComponent<T>(int netId, out T component)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			component = default(T);
 			if (!TryGet(netId, out var ni))
@@ -93,7 +93,7 @@ namespace ONI_MP.Networking
 		}
 		public static bool TryGetComponent<T>(NetworkIdentity ni, out T component)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			component = default(T);
 			if (ni.IsNullOrDestroyed() || ni.gameObject.IsNullOrDestroyed())
@@ -103,7 +103,7 @@ namespace ONI_MP.Networking
 
 		public static void Clear()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			identities.Clear();
 		}

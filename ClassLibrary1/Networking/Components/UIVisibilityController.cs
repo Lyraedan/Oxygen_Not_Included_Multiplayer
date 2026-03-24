@@ -21,7 +21,7 @@ namespace ONI_MP.Components
 
 		private void Update()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			//UpdatePauseButton();
 			NetworkIndicatorsScreen.Update();
@@ -29,7 +29,7 @@ namespace ONI_MP.Components
 
 		void UpdatePauseButton()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (SpeedControlScreen.Instance == null)
 				return;

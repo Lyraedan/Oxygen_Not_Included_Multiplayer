@@ -16,7 +16,7 @@ namespace ONI_MP.Networking.Packets
 	{
 		public static Type CreateModApiPacketType(Type modPacketType)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var genericType = typeof(ModApiPacket<>);
 			var constructedType = genericType.MakeGenericType(modPacketType);
@@ -25,7 +25,7 @@ namespace ONI_MP.Networking.Packets
 
 		public static int GetHashCode(Type type)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var identity = type.FullName!;
 			using var sha256 = SHA256.Create();
@@ -35,7 +35,7 @@ namespace ONI_MP.Networking.Packets
 
 		public static bool WrapApiPacket(object packet, out IPacket wrap)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			wrap = null;
 
@@ -54,7 +54,7 @@ namespace ONI_MP.Networking.Packets
 
 		public static bool ValidAsModApiPacket(Type potentialPacketType)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			///Ducktyping check if it has the required methods from IPacket interface
 			var t = Traverse.Create(potentialPacketType);

@@ -15,7 +15,7 @@ namespace ONI_MP.Networking.Packets.World
 		static Dictionary<string, DiagnosticResult> CachedResults = [];
 		internal static void OnPacketReceived(DiagnosticPacket diagnosticPacket)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			CachedResults[diagnosticPacket.DiagnosticType] = diagnosticPacket.ToResult();
 		}
@@ -25,7 +25,7 @@ namespace ONI_MP.Networking.Packets.World
 		{
 			public static bool Prefix(ColonyDiagnostic __instance, ref DiagnosticResult __result)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				if (!MultiplayerSession.IsClient)
 					return true;
@@ -38,7 +38,7 @@ namespace ONI_MP.Networking.Packets.World
 			}
 			public static void Postfix(ColonyDiagnostic __instance, DiagnosticResult __result)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				if (MultiplayerSession.IsHostInSession)
 				{

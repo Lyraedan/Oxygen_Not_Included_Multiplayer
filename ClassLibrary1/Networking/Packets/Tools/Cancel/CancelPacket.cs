@@ -6,7 +6,7 @@ namespace ONI_MP.Networking.Packets.Tools.Cancel
 	{
 		public CancelPacket()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			ToolInstance = CancelTool.Instance;
 			ToolMode = DragToolMode.OnDragTool;

@@ -16,7 +16,7 @@ public class CopySettingsToolPacket : IPacket
 
     public CopySettingsToolPacket(int netID, int cell)
     {
-        Profiler.Scope();
+        using var _ = Profiler.Scope();
 
         NetID = netID;
         Cell  = cell;
@@ -24,7 +24,7 @@ public class CopySettingsToolPacket : IPacket
 
     public void Serialize(BinaryWriter writer)
     {
-        Profiler.Scope();
+        using var _ = Profiler.Scope();
 
         writer.Write(NetID);
         writer.Write(Cell);
@@ -32,7 +32,7 @@ public class CopySettingsToolPacket : IPacket
 
     public void Deserialize(BinaryReader reader)
     {
-        Profiler.Scope();
+        using var _ = Profiler.Scope();
 
         NetID = reader.ReadInt32();
         Cell  = reader.ReadInt32();
@@ -40,7 +40,7 @@ public class CopySettingsToolPacket : IPacket
 
     public void OnDispatched()
     {
-        Profiler.Scope();
+        using var _ = Profiler.Scope();
 
         NetworkIdentity identity;
         if (!NetworkIdentityRegistry.TryGet(NetID, out identity))

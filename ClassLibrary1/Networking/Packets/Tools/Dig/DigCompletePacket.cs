@@ -15,7 +15,7 @@ public class DigCompletePacket : IPacket
 
 	public void Serialize(BinaryWriter writer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		writer.Write(Cell);
 		writer.Write(Mass);
@@ -27,7 +27,7 @@ public class DigCompletePacket : IPacket
 
 	public void Deserialize(BinaryReader reader)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		Cell = reader.ReadInt32();
 		Mass = reader.ReadSingle();
@@ -39,7 +39,7 @@ public class DigCompletePacket : IPacket
 
 	public void OnDispatched()
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (MultiplayerSession.IsHost)
 			return;

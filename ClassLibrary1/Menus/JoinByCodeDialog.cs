@@ -30,7 +30,7 @@ namespace ONI_MP.Menus
 
         public static void Show(Transform parent)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (_instance != null)
             {
@@ -45,7 +45,7 @@ namespace ONI_MP.Menus
 
         public static void Close()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (_dialogGO != null)
             {
@@ -57,7 +57,7 @@ namespace ONI_MP.Menus
 
         private static GameObject CreateDialog(Transform parent)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             GameObject dialog = new GameObject("JoinByCodeDialog", typeof(RectTransform), typeof(CanvasGroup), typeof(Image));
             dialog.transform.SetParent(parent, false);
@@ -88,7 +88,7 @@ namespace ONI_MP.Menus
 
         private void Initialize()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             // Title
             CreateLabel(_dialogGO.transform, STRINGS.UI.JOINBYDIALOGMENU.JOIN_BY_CODE, 22, FontStyles.Bold, 30);
@@ -141,7 +141,7 @@ namespace ONI_MP.Menus
 
         private void OnJoinClicked()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             _errorText.text = "";
 
@@ -186,7 +186,7 @@ namespace ONI_MP.Menus
 
         private System.Collections.IEnumerator CheckLobbyPasswordAfterDelay(ulong lobbyId)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             yield return new WaitForSeconds(0.5f);
 
@@ -213,7 +213,7 @@ namespace ONI_MP.Menus
 
         private void ValidatePassword()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             string password = _passwordInput.text;
 
@@ -241,7 +241,7 @@ namespace ONI_MP.Menus
 
         private void JoinLobbyDirectly(ulong lobbyId, string password)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             _statusText.text = STRINGS.UI.JOINBYDIALOGMENU.JOINING;
             _errorText.text = "";
@@ -255,7 +255,7 @@ namespace ONI_MP.Menus
 
         private GameObject CreateLabel(Transform parent, string text, int fontSize, FontStyles style, float height)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             var labelGO = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
             labelGO.transform.SetParent(parent, false);
@@ -275,7 +275,7 @@ namespace ONI_MP.Menus
 
         private TMP_InputField CreateInputField(Transform parent, string placeholder, float height)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             var inputGO = new GameObject("Input", typeof(RectTransform), typeof(Image), typeof(TMP_InputField));
             inputGO.transform.SetParent(parent, false);
@@ -330,7 +330,7 @@ namespace ONI_MP.Menus
 
         private void CreateButton(Transform parent, string text, System.Action onClick, float width, float height)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             var buttonGO = new GameObject($"Button_{text}", typeof(RectTransform), typeof(Image), typeof(Button));
             buttonGO.transform.SetParent(parent, false);

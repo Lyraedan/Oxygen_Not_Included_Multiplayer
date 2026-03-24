@@ -28,7 +28,7 @@ namespace ONI_MP.UI
 	{
 		public static void OnSceneChanged()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (Instance != null)
 			{
@@ -83,7 +83,7 @@ namespace ONI_MP.UI
 
 		public void Init()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (init) { return; }
 
@@ -156,7 +156,7 @@ namespace ONI_MP.UI
 
 		void IncreaseLobbySize()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (int.TryParse(LobbySize.Text, out int lobbySize))
 			{
@@ -169,7 +169,7 @@ namespace ONI_MP.UI
 
 		void DecreaseLobbySize()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (int.TryParse(LobbySize.Text, out int lobbySize))
 			{
@@ -181,7 +181,7 @@ namespace ONI_MP.UI
 		}
 		void RefreshLobbySizeButtons()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!int.TryParse(LobbySize.Text, out int lobbySize))
 				lobbySize = SteamLobby.LOBBY_SIZE_DEFAULT;
@@ -191,7 +191,7 @@ namespace ONI_MP.UI
 		}
 		void CancelHosting()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (ShowMain)
 				ShowHostSegment(false);
@@ -200,7 +200,7 @@ namespace ONI_MP.UI
 		}
 		void ClampLobbySize(string text)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (int.TryParse(text, out int lobbySize))
 			{
@@ -214,7 +214,7 @@ namespace ONI_MP.UI
 
 		public static void ShowWindow()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			string currentScene = App.GetCurrentSceneName();
 			if (currentScene != lastScene)
@@ -232,7 +232,7 @@ namespace ONI_MP.UI
 		}
 		public override void OnShow(bool show)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			base.OnShow(show);
 
@@ -244,7 +244,7 @@ namespace ONI_MP.UI
 
 		public static void OpenFromMainMenu()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			ShowWindow();
 			Instance.ShowMainSegment(true);
@@ -254,7 +254,7 @@ namespace ONI_MP.UI
 		}
 		public static void OpenFromPauseScreen()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			ShowWindow();
 			Instance.ShowMainSegment(false);
@@ -264,7 +264,7 @@ namespace ONI_MP.UI
 		}
 		void JoinLobbyWithCode()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// First step: Validate and parse code
 			string code = LobbyCodeHelper.CleanCode(LobbyCodeInput.Text);
@@ -296,7 +296,7 @@ namespace ONI_MP.UI
 
 		void OnLobbyDataUpdateReceived(LobbyDataUpdate_t data)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (data.m_ulSteamIDLobby != _pendingLobbyId)
 				return;
@@ -310,7 +310,7 @@ namespace ONI_MP.UI
 
 		void JoinOrOpenPasswordDialogue(ulong lobbyId)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			bool hasPassword = SteamMatchmaking.GetLobbyData(lobbyId.AsCSteamID(), "has_password") == "1";
 
@@ -322,7 +322,7 @@ namespace ONI_MP.UI
 		}
 		void JoinSteamLobby(ulong lobbyId)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			SteamLobby.JoinLobby(lobbyId.AsCSteamID(), (lobbyId) =>
 			{
@@ -332,7 +332,7 @@ namespace ONI_MP.UI
 		}
 		void OpenPasswordDialogue(ulong lobbyId)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			UnityPasswordInputDialogueUI.ShowPasswordDialogueFor(lobbyId);
 		}
@@ -340,7 +340,7 @@ namespace ONI_MP.UI
 
 		void ShowMainSegment(bool show)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			ShowMain = show;
 			MainMenuSegment.SetActive(show);
@@ -348,7 +348,7 @@ namespace ONI_MP.UI
 		}
 		void ShowHostSegment(bool show)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (ShowLobbies && show)
 				ShowLobbySegment(false);
@@ -360,14 +360,14 @@ namespace ONI_MP.UI
 		}
 		void ShowAdditionalHostSettingsSegment(bool show)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			ShowAdditionalHostSettings = show;
 			AdditionalHostSettingsSegment.SetActive(show);
 		}
 		void ShowLobbySegment(bool show)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (ShowHost && show)
 			{
@@ -384,7 +384,7 @@ namespace ONI_MP.UI
 
 		void TintLobbyState(bool isPrivate)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			string text = isPrivate ? STRINGS.UI.MP_SCREEN.HOSTMENU.FRIENDSONLY.LOBBY_VISIBILITY_FRIENDSONLY : STRINGS.UI.MP_SCREEN.HOSTMENU.FRIENDSONLY.LOBBY_VISIBILITY_PUBLIC;
 			LobbyStateInfo.SetText(Utils.ColorText(text, isPrivate ? PrivateLobbyTint : PublicLobbyTint));
@@ -393,7 +393,7 @@ namespace ONI_MP.UI
 
 		void RefreshSpacer()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			MiddleSpacer.SetActive(ShowMain && (ShowLobbies || ShowHost));
 		}
@@ -401,7 +401,7 @@ namespace ONI_MP.UI
 		int secondsPassed = 0;
 		IEnumerator RefreshLobbiesEnumerator()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			for (; ; )
 			{
@@ -412,7 +412,7 @@ namespace ONI_MP.UI
 
 		void RefreshLobbies()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!ShowLobbies)
 				return;
@@ -421,7 +421,7 @@ namespace ONI_MP.UI
 		}
 		private void OnLobbyListReceived(List<LobbyListEntry> lobbies)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			foreach (var existing in Lobbies.Values)
 			{
@@ -436,7 +436,7 @@ namespace ONI_MP.UI
 
 		LobbyEntryUI AddOrGetLobbyEntryUI(LobbyListEntry lobby)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (Lobbies.TryGetValue(lobby, out LobbyEntryUI entryUI))
 			{
@@ -452,7 +452,7 @@ namespace ONI_MP.UI
 		}
 		void OnLobbyJoinClicked(LobbyListEntry lobby)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (lobby.HasPassword)
 			{
@@ -467,7 +467,7 @@ namespace ONI_MP.UI
 
 		void StoreHostConfigurationSettings()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Configuration.Instance.Host.Lobby.IsPrivate = PrivateLobbyCheckbox.On;
 			string lobbySize = LobbySize.Text;
@@ -499,7 +499,7 @@ namespace ONI_MP.UI
 
 		private void StartHostingGame()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Save the host config
 			StoreHostConfigurationSettings();
@@ -534,14 +534,14 @@ namespace ONI_MP.UI
 		}
 		void RegisterOnExitLoadScreenTriggers()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			LoadScreen.Instance.closeButton.onClick += OnLoadScreenExited;
 			UI_Patches.OnLoadScreenExited = OnLoadScreenExited;
 		}
 		void OnLoadScreenExited()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			UI_Patches.OnLoadScreenExited = null;
 			LoadScreen.Instance.closeButton.onClick -= OnLoadScreenExited;

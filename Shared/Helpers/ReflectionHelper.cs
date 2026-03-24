@@ -12,7 +12,7 @@ namespace Shared.Helpers
 	{
 		public static bool TryGetType(string typeName, out Type type)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			type = Type.GetType(typeName);
 			if (type == null)
@@ -21,7 +21,7 @@ namespace Shared.Helpers
 		}
 		public static bool TryGetMethodInfo(string typeName, string methodName, Type[] parameters, out System.Reflection.MethodInfo methodInfo)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			methodInfo = null;
 			if (!TryGetType(typeName, out Type type))
@@ -35,7 +35,7 @@ namespace Shared.Helpers
 		}
 		public static bool TryGetFieldInfo(string typeName, string fieldName, out System.Reflection.FieldInfo fieldInfo)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			fieldInfo = null;
 			if (!TryGetType(typeName, out Type type))
@@ -49,7 +49,7 @@ namespace Shared.Helpers
 		}
 		public static bool TryGetPropertyGetter(string typeName, string propertyName, out System.Reflection.MethodInfo getter)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			getter = null;
 			if (!TryGetType(typeName, out Type type))
@@ -63,7 +63,7 @@ namespace Shared.Helpers
 		}
 		public static bool TryCreateDelegate<T>(string typeName, string methodName, Type[] parameters, out T del) where T : Delegate
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			del = null;
 			if (!TryGetMethodInfo(typeName, methodName, parameters, out var methodInfo))

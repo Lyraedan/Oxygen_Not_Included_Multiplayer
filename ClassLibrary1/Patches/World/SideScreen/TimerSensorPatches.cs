@@ -19,7 +19,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(CritterSensorSideScreen __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (__instance.targetSensor == null) return;
@@ -46,7 +46,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(CritterSensorSideScreen __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (__instance.targetSensor == null) return;
@@ -76,7 +76,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(LogicTimerSensor __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -123,7 +123,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(TimerSideScreen __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -171,7 +171,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(LogicTimeOfDaySensor __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -217,7 +217,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(TimeRangeSideScreen __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -264,10 +264,10 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(TimeRangeSideScreen __instance, GameObject target)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (__instance.targetTimedSwitch == null) return;
-			
+
 			// Force update sliders from current component values
 			__instance.startTime.value = __instance.targetTimedSwitch.startTime;
 			__instance.duration.value = __instance.targetTimedSwitch.duration;

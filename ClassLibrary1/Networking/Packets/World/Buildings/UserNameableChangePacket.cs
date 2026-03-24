@@ -20,7 +20,7 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 		public UserNameableChangePacket() { }
 		public UserNameableChangePacket(int netId, string newName)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			NetId = netId;
 			NewName = newName;
@@ -28,14 +28,14 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			NetId = reader.ReadInt32();
 			NewName = reader.ReadString();
 		}
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(NetId);
 			writer.Write(NewName);
@@ -43,7 +43,7 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!NetworkIdentityRegistry.TryGetComponent<UserNameable>(NetId, out var nameable))
 			{

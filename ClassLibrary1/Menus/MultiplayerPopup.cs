@@ -12,7 +12,7 @@ public static class MultiplayerPopup
 
 	public static void Show(Transform parent)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (currentPopup != null)
 		{
@@ -70,7 +70,7 @@ public static class MultiplayerPopup
 
 	private static void Close()
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (currentPopup != null)
 		{
@@ -81,7 +81,7 @@ public static class MultiplayerPopup
 
 	private static void HostLastSave()
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		MultiplayerOverlay.Show(ONI_MP.STRINGS.UI.MP_OVERLAY.HOST.STARTINGHOSTING);
 		string text;
@@ -106,7 +106,7 @@ public static class MultiplayerPopup
 
 	private static void AddPopupButton(Transform parent, string text, Vector2 position, System.Action onClick)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var template = UnityEngine.Object.FindObjectOfType<MainMenu>()?.Button_ResumeGame;
 		if (template == null)

@@ -11,7 +11,7 @@ namespace ONI_MP.Patches.Chores
 	{
 		public static void SendAssignmentPacket(Chore __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Only the host/server sends assignment packets
 			if (MultiplayerSession.IsClient || !MultiplayerSession.InSession)
@@ -62,7 +62,7 @@ namespace ONI_MP.Patches.Chores
 	{
 		public static void Postfix(Chore __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return; // Disabled for now
 			ChoresPatch.SendAssignmentPacket(__instance);

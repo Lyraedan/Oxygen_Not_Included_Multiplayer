@@ -20,7 +20,7 @@ namespace ONI_MP.Networking.Components
 
 		private void Awake()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (Instance != null)
 			{
@@ -34,21 +34,21 @@ namespace ONI_MP.Networking.Components
 
 		private void Start()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			AssignColor();
         }
 
 		public void ResetColor()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			color = Color.white;
 		}
 
 		public void AssignColor()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
             bool useRandom = Configuration.GetClientProperty<bool>("UseRandomPlayerColor");
             if (useRandom)
@@ -62,7 +62,7 @@ namespace ONI_MP.Networking.Components
 
 		private void Update()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!Utils.IsInGame())
 				return;
@@ -79,7 +79,7 @@ namespace ONI_MP.Networking.Components
 		}
 		private void SendCursorPosition()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Vector3 cursorWorldPos = GetCursorWorldPosition();
 
@@ -130,7 +130,7 @@ namespace ONI_MP.Networking.Components
 
 		private Vector3 GetCursorWorldPosition()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var camera = GameScreenManager.Instance.GetCamera(GameScreenManager.UIRenderTarget.ScreenSpaceCamera);
 			if (camera == null) return Vector3.zero;

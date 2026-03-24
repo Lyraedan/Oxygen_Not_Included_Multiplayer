@@ -35,7 +35,7 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void Serialize(BinaryWriter writer)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             writer.Write(ScheduleIndex);
             writer.Write((int)Action);
@@ -55,7 +55,7 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void Deserialize(BinaryReader reader)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ScheduleIndex = reader.ReadInt32();
             Action = (RowAction)reader.ReadInt32();
@@ -78,7 +78,7 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void OnDispatched()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (IsApplying)
                 return;
@@ -95,7 +95,7 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void Apply()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             var schedules = ScheduleManager.Instance.schedules;
             if (schedules == null)
@@ -132,35 +132,35 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void ShiftUp(Schedule schedule)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             schedule.ShiftTimetable(true, TimetableToIndex);
         }
 
         public void ShiftDown(Schedule schedule)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             schedule.ShiftTimetable(false, TimetableToIndex);
         }
 
         public void RotateLeft(Schedule schedule)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             schedule.RotateBlocks(true, TimetableToIndex);
         }
 
         public void RotateRight(Schedule schedule)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             schedule.RotateBlocks(false, TimetableToIndex);
         }
 
         public void DuplicateRow(Schedule schedule)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             // Schedule screen hasn't been opened so we can't update UI
             if(ScheduleScreen.Instance == null)
@@ -189,7 +189,7 @@ namespace ONI_MP.Networking.Packets.Social
 
         public void DeleteRow(Schedule schedule)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if(ScheduleScreen.Instance == null)
             {

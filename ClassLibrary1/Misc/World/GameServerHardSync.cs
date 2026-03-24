@@ -29,7 +29,7 @@ namespace ONI_MP.Networking
 
 		public static void PerformHardSync()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (hardSyncInProgress)
 			{
@@ -56,7 +56,7 @@ namespace ONI_MP.Networking
 
 		private static IEnumerator HardSyncCoroutine()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			hardSyncInProgress = true;
 

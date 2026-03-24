@@ -11,7 +11,7 @@ namespace ONI_MP.Networking.Packets.Tools
 	{
 		public EmptyPipePacket() : base()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			ToolInstance = EmptyPipeTool.Instance;
 			ToolMode = DragToolMode.OnDragTool;

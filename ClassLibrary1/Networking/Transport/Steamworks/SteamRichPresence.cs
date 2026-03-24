@@ -8,7 +8,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 	{
 		public static void SetStatus(string status)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!SteamManager.Initialized)
 			{
@@ -22,7 +22,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 		public static void Clear()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!SteamManager.Initialized)
 			{
@@ -36,7 +36,7 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 		public static void SetLobbyInfo(CSteamID lobby, string status)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			SteamFriends.ClearRichPresence();
 

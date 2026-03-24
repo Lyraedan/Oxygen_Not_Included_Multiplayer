@@ -18,7 +18,7 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(Title ?? string.Empty);
 			writer.Write(Text ?? string.Empty);
@@ -27,7 +27,7 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Title = reader.ReadString();
 			Text = reader.ReadString();
@@ -36,7 +36,7 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (MultiplayerSession.IsHost) return;
 			Apply();
@@ -44,7 +44,7 @@ namespace ONI_MP.Networking.Packets.Events
 
 		private void Apply()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Create a local notification
 			// Notification(string title, NotificationType type, HashedString? tooltip = null, object tooltip_data = null, bool expires = true, float delay = 0f, Notification.ClickCallback custom_click_callback = null, object custom_click_data = null, Transform click_focus = null, bool volume_attenuation = true)

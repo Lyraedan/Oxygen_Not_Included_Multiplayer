@@ -45,7 +45,7 @@ namespace ONI_MP.Menus
 
 		public MultiplayerOverlay()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			SceneManager.sceneLoaded += OnPostLoadScene;
 			ScreenResize.Instance.OnResize += OnResize;
@@ -54,7 +54,7 @@ namespace ONI_MP.Menus
 
 		private void CreateOverlay()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			LoadingOverlay.Load(() => { });
 			var inst = instance;
@@ -107,7 +107,7 @@ namespace ONI_MP.Menus
 
 		private void Dispose()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			SceneManager.sceneLoaded -= OnPostLoadScene;
 			ScreenResize.Instance.OnResize -= OnResize;
@@ -116,7 +116,7 @@ namespace ONI_MP.Menus
 
 		public static void Show(string text)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (overlay == null)
 			{
@@ -127,7 +127,7 @@ namespace ONI_MP.Menus
 
 		public static void Close()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			overlay?.Dispose();
 			overlay = null;

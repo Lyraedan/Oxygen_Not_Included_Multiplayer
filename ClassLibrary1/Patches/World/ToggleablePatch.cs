@@ -11,7 +11,7 @@ namespace ONI_MP.Patches.World
     {
         static void Postfix(Toggleable __instance, int targetIdx)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!MultiplayerSession.InSession) return;
 
@@ -25,9 +25,9 @@ namespace ONI_MP.Patches.World
     {
         static void Prefix(Toggleable __instance, out IToggleHandler __state, WorkerBase worker)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
-            // Get the toggle handler for the completed work. 
+            // Get the toggle handler for the completed work.
             int targetForWorker = __instance.GetTargetForWorker(worker);
             __state = targetForWorker != -1 ? __instance.targets[targetForWorker].Key : null;
 
@@ -36,7 +36,7 @@ namespace ONI_MP.Patches.World
 
         static void Postfix(Toggleable __instance, IToggleHandler __state)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!MultiplayerSession.InSession) return;
 

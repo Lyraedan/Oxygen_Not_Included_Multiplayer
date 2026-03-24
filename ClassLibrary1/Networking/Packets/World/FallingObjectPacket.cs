@@ -17,7 +17,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(Cell);
 			writer.Write(ElementIndex);
@@ -30,7 +30,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Cell = reader.ReadInt32();
 			ElementIndex = reader.ReadUInt16();
@@ -43,7 +43,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (MultiplayerSession.IsHost)
 			{
@@ -59,7 +59,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		private void Apply()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			IsApplying = true;
 			try

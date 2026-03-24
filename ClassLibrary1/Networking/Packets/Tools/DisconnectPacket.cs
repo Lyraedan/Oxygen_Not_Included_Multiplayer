@@ -16,9 +16,9 @@ namespace ONI_MP.Networking.Packets.Tools
 {
 	internal class DisconnectPacket : DragToolPacket
 	{
-		public DisconnectPacket() : base() 
+		public DisconnectPacket() : base()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			ToolInstance = DisconnectTool.Instance;
 			ToolMode = DragToolMode.OnDragComplete;

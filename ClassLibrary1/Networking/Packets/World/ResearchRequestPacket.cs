@@ -13,21 +13,21 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(TechId ?? string.Empty);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			TechId = reader.ReadString();
 		}
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.IsHost) return;
 
@@ -45,7 +45,7 @@ namespace ONI_MP.Networking.Packets.World
 							.Field("researchScreen")
 							.GetValue();
 					}
-					
+
 					// First, deselect all current queue items visually
 					try
 					{
@@ -73,10 +73,10 @@ namespace ONI_MP.Networking.Packets.World
 						}
 					}
 					catch { }
-					
+
 					// Set the new research
 					Research.Instance.SetActiveResearch(tech, true);
-					
+
 					// Select the new research visually on host
 					if (researchScreen != null)
 					{
@@ -88,7 +88,7 @@ namespace ONI_MP.Networking.Packets.World
 						}
 						catch { }
 					}
-					
+
 					// ResearchPatch will trigger and sync back to all clients
 				}
 			}

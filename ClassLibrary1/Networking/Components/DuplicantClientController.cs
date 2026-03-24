@@ -54,7 +54,7 @@ namespace ONI_MP.Networking.Components
 
 		public override void OnSpawn()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			base.OnSpawn();
 
@@ -82,7 +82,7 @@ namespace ONI_MP.Networking.Components
 
 		private void Update()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession || MultiplayerSession.IsHost)
 				return;
@@ -93,7 +93,7 @@ namespace ONI_MP.Networking.Components
 
 		private void LateUpdate()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Process any queued animations
 			ProcessAnimationQueue();
@@ -104,7 +104,7 @@ namespace ONI_MP.Networking.Components
 		/// </summary>
 		public void OnPositionReceived(Vector3 newPosition, Vector3 newVelocity, bool newFacingLeft, NavType navType)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			float timeSinceLastUpdate = Time.time - lastUpdateTime;
 			lastUpdateTime = Time.time;
@@ -156,7 +156,7 @@ namespace ONI_MP.Networking.Components
 		/// </summary>
 		public void OnAnimationReceived(HashedString animHash, KAnim.PlayMode mode, float speed, bool isQueue)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var cmd = new AnimCommand
 			{
@@ -185,7 +185,7 @@ namespace ONI_MP.Networking.Components
 		/// </summary>
 		public void OnAnimationsReceived(HashedString[] animHashes, KAnim.PlayMode mode)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return;
 
@@ -201,7 +201,7 @@ namespace ONI_MP.Networking.Components
 
 		private void UpdatePosition()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!hasReceivedFirstPosition)
 				return;
@@ -234,7 +234,7 @@ namespace ONI_MP.Networking.Components
 				extrapolationT = Mathf.Clamp01(extrapolationT);
 				newPos = targetPosition + (velocity * 0.8f) * Time.deltaTime; // 0.8f damping
 
-				// If we are extrapolating, we might be drifting. 
+				// If we are extrapolating, we might be drifting.
 				// We don't update transform immediately here if we want to "slide" into the next packet
 				// But for now, let's just use the damped newPos
 			}
@@ -252,7 +252,7 @@ namespace ONI_MP.Networking.Components
 
 		private void UpdateAnimation()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return;
 			if (animController == null)
@@ -268,7 +268,7 @@ namespace ONI_MP.Networking.Components
 
 		private void ProcessAnimationQueue()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return;
 			if (animController == null)
@@ -284,7 +284,7 @@ namespace ONI_MP.Networking.Components
 
 		private void ApplyMovementAnimation()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return;
 			if (animController == null)
@@ -306,7 +306,7 @@ namespace ONI_MP.Networking.Components
 
 		private HashedString GetNavTypeAnim(NavType navType)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (navType == NavType.Ladder)
 				return new HashedString("climb_loop");
@@ -325,7 +325,7 @@ namespace ONI_MP.Networking.Components
 
 		private void ForceAnimControllerUpdate()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (animController is KBatchedAnimController kbac)
 			{
@@ -350,7 +350,7 @@ namespace ONI_MP.Networking.Components
 		/// </summary>
 		public void OnStateReceived(DuplicantActionState state, int targetCell, string animName, float animElapsedTime, bool isWorking, string heldSymbol)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			currentActionState = state;
 			currentTargetCell = targetCell;
@@ -403,7 +403,7 @@ namespace ONI_MP.Networking.Components
 		private bool hasEquippedGun = false;
 		private void EquipGun()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 
 
@@ -413,7 +413,7 @@ namespace ONI_MP.Networking.Components
 			var symbolOverride = GetComponent<SymbolOverrideController>();
 			if (symbolOverride != null)
 			{
-				// We need to verify what symbol to use. 
+				// We need to verify what symbol to use.
 				// "build_tool" or "dig_tool" are common
 				// Assets.GetAnim("build_tool_kanim")
 				KAnimFile gunAnim = Assets.GetAnim("gun_kanim");
@@ -431,7 +431,7 @@ namespace ONI_MP.Networking.Components
 
 		private void UnequipGun()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!hasEquippedGun) return;
 			hasEquippedGun = false;
@@ -445,7 +445,7 @@ namespace ONI_MP.Networking.Components
 
 		private void SnapToWorkable(int cell)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!Grid.IsValidCell(cell)) return;
 
@@ -506,7 +506,7 @@ namespace ONI_MP.Networking.Components
 
 		private void ApplyActionAnimation(DuplicantActionState state)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (animController == null)
 				return;
@@ -522,7 +522,7 @@ namespace ONI_MP.Networking.Components
 
 		private HashedString GetActionStateAnim(DuplicantActionState state)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (state == DuplicantActionState.Building)
 				return new HashedString("build_loop");

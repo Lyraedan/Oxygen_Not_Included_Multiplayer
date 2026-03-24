@@ -34,14 +34,14 @@ public static class SaveHelper
 	}
 	public static void RequestWorldLoad(WorldSave world)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		NetworkingComponent.scheduler.Run(() => LoadWorldSave(Path.GetFileNameWithoutExtension(world.Name), world.Data));
 	}
 
 	private static void LoadWorldSave(string name, byte[] data)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var savePath = SaveLoader.GetCloudSavesDefault() ? SaveLoader.GetCloudSavePrefix() : SaveLoader.GetSavePrefixAndCreateFolder();
 
@@ -72,14 +72,14 @@ public static class SaveHelper
 	}
 	public static void ShowMessageAndReturnToMainMenu(string msg)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		CoroutineRunner.RunOne(ShowMessageAndReturnToTitle(msg));
 	}
 
 	private static IEnumerator ShowMessageAndReturnToTitle(string msg = null)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		// This is stupid
 		try
@@ -122,7 +122,7 @@ public static class SaveHelper
 	{
 		public static void Postfix(KMod.Mod mod)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (mod.label.distribution_platform != KMod.Label.DistributionPlatform.Steam
 			|| !ulong.TryParse(mod.label.id, out var localId))
@@ -134,7 +134,7 @@ public static class SaveHelper
 
 	static void RefreshMissingModList()
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var mng = Global.Instance.modManager;
 		foreach (var mod in Global.Instance.modManager.mods)
@@ -159,7 +159,7 @@ public static class SaveHelper
 	static HashSet<ulong> MissingModIds = [];
 	internal static void SyncModsAndRestart(HashSet<ulong> notEnabled, HashSet<ulong> notDisabled, HashSet<ulong> missingMods)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var mng = Global.Instance.modManager;
 		foreach (var mod in Global.Instance.modManager.mods)
@@ -180,20 +180,20 @@ public static class SaveHelper
 	}
 	public static void SubToAllMissing()
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		Global.Instance.StartCoroutine(DelayedSubscription());
 	}
 
 	static void SubToMissing(ulong steamID)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		SteamUGC.SubscribeItem(new PublishedFileId_t(steamID));
 	}
 	static IEnumerator DelayedSubscription()
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		float modsToSub = MissingModIds.Count;
 		float waitingDelay = Mathf.Clamp(15f / modsToSub, 0.05f, 0.5f);
@@ -209,7 +209,7 @@ public static class SaveHelper
 	static StringBuilder sb = new();
 	public static bool SteamModListSynced(List<ulong> steamMods, out HashSet<ulong> toEnable, out HashSet<ulong> toDisable, out HashSet<ulong> missingMods)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		//response = null;
 		//return true;
@@ -250,7 +250,7 @@ public static class SaveHelper
 
 	public static bool SavegameDlcListValid(IEnumerable<string> dlcIds, out string errorMsg)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		errorMsg = string.Empty;
 		HashSet<string> missingDLCs = new HashSet<string>();
@@ -284,7 +284,7 @@ public static class SaveHelper
 
 	public static bool SavegameDlcListValid(byte[] saveBytes, out string errorMsg)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		errorMsg = null;
 		IReader reader = new FastReader(saveBytes);
@@ -365,7 +365,7 @@ public static class SaveHelper
 
 	public static byte[] GetWorldSave()
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var path = SaveLoader.GetActiveSaveFilePath();
 		SaveLoader.Instance.Save(path); // Saves current state to that file
@@ -377,7 +377,7 @@ public static class SaveHelper
 	/// </summary>
 	public static void CaptureWorldSnapshot()
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (Utils.IsInMenu())
 		{
@@ -391,7 +391,7 @@ public static class SaveHelper
 
 	public static void LoadDownloadedSave(string fileName)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		var savePath = SaveLoader.GetCloudSavesDefault()
 				? SaveLoader.GetCloudSavePrefix()

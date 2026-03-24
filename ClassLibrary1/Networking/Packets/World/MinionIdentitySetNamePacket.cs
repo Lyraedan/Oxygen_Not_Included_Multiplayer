@@ -23,7 +23,7 @@ namespace ONI_MP.Networking.Packets.World
 		public MinionIdentitySetNamePacket() { }
 		public MinionIdentitySetNamePacket(int netId, string newName)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			NetId = netId;
 			NewName = newName;
@@ -31,14 +31,14 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			NetId = reader.ReadInt32();
 			NewName = reader.ReadString();
 		}
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(NetId);
 			writer.Write(NewName);
@@ -46,7 +46,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!NetworkIdentityRegistry.TryGetComponent<MinionIdentity>(NetId, out var identity))
 			{

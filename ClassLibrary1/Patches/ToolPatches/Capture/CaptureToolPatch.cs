@@ -11,7 +11,7 @@ public class CaptureToolPatch
 {
     private static void Postfix(Vector3 downPos, Vector3 upPos, CaptureTool __instance)
     {
-        Profiler.Scope();
+        using var _ = Profiler.Scope();
 
         if (!MultiplayerSession.InSession)
             return;

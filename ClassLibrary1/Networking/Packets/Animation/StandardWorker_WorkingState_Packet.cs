@@ -19,7 +19,7 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public StandardWorker_WorkingState_Packet(StandardWorker worker, Workable workable, bool startedWorking)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			WorkerNetId = worker.GetNetId();
 			StartingToWork = startedWorking;
@@ -36,7 +36,7 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(WorkerNetId);
 			writer.Write(StartingToWork);
@@ -48,7 +48,7 @@ namespace ONI_MP.Networking.Packets.Animation
 		}
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			WorkerNetId = reader.ReadInt32();
 			StartingToWork = reader.ReadBoolean();
@@ -61,7 +61,7 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (MultiplayerSession.IsHost)
 				return;
@@ -74,7 +74,7 @@ namespace ONI_MP.Networking.Packets.Animation
 			{
 				if (!NetworkIdentityRegistry.TryGetComponent<Workable>(WorkableNetId, out var protoWorkable))
 					return;
-				
+
 				workableGO = protoWorkable.gameObject;
 
 				var workableType = AccessTools.TypeByName(WorkableType);

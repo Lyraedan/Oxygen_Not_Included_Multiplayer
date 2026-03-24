@@ -22,9 +22,9 @@ namespace ONI_MP.Networking.Packets.Events
 		public string DiagnosticType;
 		public Opinion DiagnosticOpinion;
 		public string DiagnosticMsg;
-		public DiagnosticPacket(string diagnosticTypeName, DiagnosticResult diagnosticResult) 
+		public DiagnosticPacket(string diagnosticTypeName, DiagnosticResult diagnosticResult)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			DiagnosticType = diagnosticTypeName;
 			DiagnosticOpinion = diagnosticResult.opinion;
@@ -34,7 +34,7 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			DiagnosticType = reader.ReadString();
 			DiagnosticOpinion = (Opinion)reader.ReadInt32();
@@ -44,7 +44,7 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(DiagnosticType);
 			writer.Write((int) DiagnosticOpinion);
@@ -52,7 +52,7 @@ namespace ONI_MP.Networking.Packets.Events
 		}
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.IsClient)
 				return;
@@ -61,7 +61,7 @@ namespace ONI_MP.Networking.Packets.Events
 		}
 		public DiagnosticResult ToResult()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return new DiagnosticResult(DiagnosticOpinion, DiagnosticMsg);
 		}

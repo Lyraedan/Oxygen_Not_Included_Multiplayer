@@ -11,7 +11,7 @@ namespace ONI_MP.Patches.ToolPatches.Dig
     {
         public static void Postfix(int cell, int animationDelay)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!MultiplayerSession.InSession)
             {

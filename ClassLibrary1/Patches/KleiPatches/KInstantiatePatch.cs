@@ -17,7 +17,7 @@ public static class KInstantiatePatch
 {
 	public static bool Prefix(GameObject original, Vector3 position, Quaternion rotation, GameObject parent, string name, bool initialize_id, int gameLayer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (MultiplayerSession.IsClient)
 		{
@@ -31,7 +31,7 @@ public static class KInstantiatePatch
 	// Queue instantiation into batcher on host
 	public static void Postfix(GameObject __result, GameObject original, Vector3 position, Quaternion rotation, GameObject parent, string name, bool initialize_id, int gameLayer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (__result == null || original == null)
 			return;

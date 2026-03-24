@@ -35,7 +35,7 @@ namespace ONI_MP.DebugTools
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
 		public static void Init()
 		{
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
 			if (_instance != null) return;
 
@@ -46,7 +46,7 @@ namespace ONI_MP.DebugTools
 
 		private void Awake()
 		{
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
 			hierarchyViewer = gameObject.AddComponent<HierarchyViewer>();
 			//debugConsole = gameObject.AddComponent<DebugConsole>();
@@ -54,7 +54,7 @@ namespace ONI_MP.DebugTools
 
 		private void Update()
 		{
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (Input.GetKeyDown(KeyCode.F2) && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
 			{
@@ -64,7 +64,7 @@ namespace ONI_MP.DebugTools
 
 		private void OnGUI()
 		{
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
 			if (!showMenu) return;
 
@@ -74,7 +74,7 @@ namespace ONI_MP.DebugTools
 
         private void DrawMenuContents(int windowID)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             scrollPosition = GUILayout.BeginScrollView(
                 scrollPosition,
@@ -180,7 +180,7 @@ namespace ONI_MP.DebugTools
 
         void StartServer()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             MultiplayerSession.Clear();
             try
@@ -199,7 +199,7 @@ namespace ONI_MP.DebugTools
 
         void Stop()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (MultiplayerSession.IsHost)
                 Networking.GameServer.Shutdown();
@@ -215,7 +215,7 @@ namespace ONI_MP.DebugTools
 
         void Join(string ip, int port)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             GameClient.ConnectToHost(ip: ip, port: port);
         }

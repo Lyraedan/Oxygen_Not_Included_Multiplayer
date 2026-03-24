@@ -30,7 +30,7 @@ namespace ONI_MP
 
         public override void OnLoad(Harmony harmony)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Harmony = harmony;
 			base.OnLoad(harmony);
@@ -104,7 +104,7 @@ namespace ONI_MP
 
 		void LoadAssetBundles()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Load custom asset bundles
 			string cursor_bundle = GetBundleBasedOnPlatform("ONI_MP.Assets.bundles.playercursor_win.bundle",
@@ -120,7 +120,7 @@ namespace ONI_MP
 
 		private void SetupListeners()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			App.OnPostLoadScene += () =>
 			{
@@ -131,7 +131,7 @@ namespace ONI_MP
 		}
 		public static AssetBundle LoadAssetBundle(string bundleKey, string resourceName)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (LoadedBundles.TryGetValue(bundleKey, out var bundle))
 			{
@@ -172,7 +172,7 @@ namespace ONI_MP
 
 		public string GetBundleBasedOnPlatform(string windows_bundle, string mac_bundle, string linux_bundle)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			switch (Application.platform)
 			{
@@ -187,7 +187,7 @@ namespace ONI_MP
 
 		private static void RegisterDevTools()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 #if DEBUG // DevTool is not accessible on mac.
 			var baseMethod = AccessTools.Method(typeof(DevToolManager), "RegisterDevTool");
@@ -199,7 +199,7 @@ namespace ONI_MP
 
         public override void OnAllModsLoaded(Harmony harmony, IReadOnlyList<Mod> mods)
         {
-	        Profiler.Scope();
+	        using var _ = Profiler.Scope();
 
             base.OnAllModsLoaded(harmony, mods);
 			ModUpdater.Updater.CheckForUpdate();

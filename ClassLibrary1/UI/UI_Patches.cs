@@ -19,7 +19,7 @@ namespace ONI_MP.UI
 		{
 			public static void Prefix(KScreen __instance, KButtonEvent e)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				if (__instance is LoadScreen && (e.IsAction(Action.Escape) || e.IsAction(Action.MouseRight)))
 				{
@@ -39,7 +39,7 @@ namespace ONI_MP.UI
 		{
 			public static void Postfix(NewGameFlow __instance)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				if (__instance.currentScreenIndex < 0)
 				{

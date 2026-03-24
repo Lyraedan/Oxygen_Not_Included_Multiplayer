@@ -19,7 +19,7 @@ namespace ONI_MP.Networking.Packets.Animation
 		public MultiToolSyncPacket() { }
 		public MultiToolSyncPacket(StandardWorker worker, MultitoolController.Instance smi)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			WorkerNetId = worker.GetNetId();
 			WorkableNetId = smi.workable?.GetNetId() ?? 0;
@@ -30,7 +30,7 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(WorkerNetId);
 			writer.Write(WorkableNetId);
@@ -39,7 +39,7 @@ namespace ONI_MP.Networking.Packets.Animation
 		}
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			WorkerNetId = reader.ReadInt32();
 			WorkableNetId = reader.ReadInt32();
@@ -49,7 +49,7 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (MultiplayerSession.IsHost)
 				return;

@@ -18,7 +18,7 @@ public class PlayAnimPacket : IPacket, IBulkablePacket
 	public PlayAnimPacket() { }
 	public PlayAnimPacket(int targetNetId, HashedString[] anims, bool queue, KAnim.PlayMode mode, float speed, float offset)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		NetId = targetNetId;
 		AnimHashes = anims;
@@ -44,7 +44,7 @@ public class PlayAnimPacket : IPacket, IBulkablePacket
 
     public void Serialize(BinaryWriter writer)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		writer.Write(NetId);
 		writer.Write(TimeStamp);
@@ -60,7 +60,7 @@ public class PlayAnimPacket : IPacket, IBulkablePacket
 
 	public void Deserialize(BinaryReader reader)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		NetId = reader.ReadInt32();
 		TimeStamp = reader.ReadSingle();
@@ -79,7 +79,7 @@ public class PlayAnimPacket : IPacket, IBulkablePacket
 
 	public void OnDispatched()
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		if (MultiplayerSession.IsHost)
 			return;
@@ -146,7 +146,7 @@ public class PlayAnimPacket : IPacket, IBulkablePacket
 
 	private void ForceAnimUpdate(KBatchedAnimController kbac)
 	{
-		Profiler.Scope();
+		using var _ = Profiler.Scope();
 
 		try
 		{

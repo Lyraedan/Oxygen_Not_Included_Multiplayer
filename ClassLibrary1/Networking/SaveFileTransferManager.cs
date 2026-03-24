@@ -32,7 +32,7 @@ namespace ONI_MP.Networking
 
             public ClientTransfer(ulong clientID, string transferId, string fileName, byte[] data, int chunkSize)
             {
-                Profiler.Scope();
+                using var _ = Profiler.Scope();
 
                 ClientID = clientID;
                 TransferId = transferId;
@@ -51,7 +51,7 @@ namespace ONI_MP.Networking
 
         private static string GetTransferKey(ulong clientID, string transferId)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             return $"{clientID}_{transferId}";
         }
@@ -61,7 +61,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static void StartTransfer(ulong clientID, string transferId, string fileName, byte[] data, int chunkSize)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             string key = GetTransferKey(clientID, transferId);
             var transfer = new ClientTransfer(clientID, transferId, fileName, data, chunkSize);
@@ -75,7 +75,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static void MarkChunkSent(ulong clientID, string transferId, int chunkIndex)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             string key = GetTransferKey(clientID, transferId);
             if (ActiveTransfers.TryGetValue(key, out var transfer))
@@ -91,7 +91,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static void HandleChunkAck(ulong clientID, string transferId, int chunkIndex)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             string key = GetTransferKey(clientID, transferId);
             if (!ActiveTransfers.TryGetValue(key, out var transfer))
@@ -131,7 +131,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static void CheckForLostChunks()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             var now = System.DateTime.Now;
 
@@ -162,7 +162,7 @@ namespace ONI_MP.Networking
         /// </summary>
         private static void ResendSpecificChunk(ClientTransfer transfer, int chunkIndex)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             try
             {

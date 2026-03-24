@@ -16,7 +16,7 @@ namespace ONI_MP.Networking.Transport.Steam
     {
         public override bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (conn is not HSteamNetConnection)
                 return false;

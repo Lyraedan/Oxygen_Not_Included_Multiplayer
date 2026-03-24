@@ -10,7 +10,7 @@ namespace ONI_MP.Networking.Transport.Lan
     {
         public override bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             DebugConsole.Log(string.Format("[LanPacketSender] Connection is NetPeer: {0}", conn is not NetPeer));
 
@@ -41,7 +41,7 @@ namespace ONI_MP.Networking.Transport.Lan
 
         private static DeliveryMethod ConvertSendType(SteamNetworkingSend sendType)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             switch (sendType)
             {

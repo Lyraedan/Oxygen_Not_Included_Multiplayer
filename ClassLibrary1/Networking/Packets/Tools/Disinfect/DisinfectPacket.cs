@@ -6,7 +6,7 @@ namespace ONI_MP.Networking.Packets.Tools.Disinfect
     {
         public DisinfectPacket()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ToolInstance = DisinfectTool.Instance;
             ToolMode     = DragToolMode.OnDragTool;

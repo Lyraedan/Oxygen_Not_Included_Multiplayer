@@ -12,7 +12,7 @@ namespace ONI_MP.Patches.ToolPatches
 	{
 		static void Postfix()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Only apply if SelectTool is the currently active tool
 			if (PlayerController.Instance.ActiveTool != SelectTool.Instance)
@@ -22,7 +22,7 @@ namespace ONI_MP.Patches.ToolPatches
 
 		public static void UpdateColor()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Texture2D cursor = Assets.GetTexture("cursor_arrow") as Texture2D;
 			if (cursor == null)
@@ -45,7 +45,7 @@ namespace ONI_MP.Patches.ToolPatches
 
 		private static Texture2D TintTexture(Texture2D src, Color tint)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Texture2D tex = new Texture2D(src.width, src.height, src.format, false);
 			Color[] pixels = src.GetPixels();

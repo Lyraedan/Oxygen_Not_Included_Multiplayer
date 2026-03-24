@@ -39,7 +39,7 @@ namespace ONI_MP.Networking
 
 		public static void Clear()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			ConnectedPlayers.Clear();
 			KnownPlayerNames.Clear();
@@ -50,7 +50,7 @@ namespace ONI_MP.Networking
 
 		public static void SetHost(ulong host)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			HostUserID = host;
 			DebugConsole.Log($"[MultiplayerSession] Host set to: {host}");
@@ -58,7 +58,7 @@ namespace ONI_MP.Networking
 
 		public static MultiplayerPlayer GetPlayer(ulong id)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return ConnectedPlayers.TryGetValue(id, out var player) ? player : null;
 		}
@@ -69,7 +69,7 @@ namespace ONI_MP.Networking
 
 		public static void CreateNewPlayerCursor(ulong steamID)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (PlayerCursors.ContainsKey(steamID))
 				return;
@@ -96,7 +96,7 @@ namespace ONI_MP.Networking
 
 		public static void CreateConnectedPlayerCursors()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
             var members = NetworkConfig.GetConnectedClients();
             foreach (var playerId in members)
@@ -113,7 +113,7 @@ namespace ONI_MP.Networking
 
 		public static void RemovePlayerCursor(ulong steamID)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!PlayerCursors.TryGetValue(steamID, out var cursor))
 				return;
@@ -130,7 +130,7 @@ namespace ONI_MP.Networking
 
 		public static void RemoveAllPlayerCursors()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			foreach (var kvp in PlayerCursors)
 			{
@@ -148,7 +148,7 @@ namespace ONI_MP.Networking
 
 		public static bool TryGetCursorObject(ulong steamID, out PlayerCursor cursorGO)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (PlayerCursors.TryGetValue(steamID, out var cursor) && cursor != null)
 			{

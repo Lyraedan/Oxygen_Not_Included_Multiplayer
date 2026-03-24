@@ -18,7 +18,7 @@ namespace ONI_MP.Patches.ToolPatches.Build
 	{
 		public static void Prefix(BaseUtilityBuildTool __instance)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			//DebugConsole.Log($"[UtilityBuildToolPatch] Prefix called! Tool type: {__instance.GetType().Name}");
 			if (!MultiplayerSession.InSession)

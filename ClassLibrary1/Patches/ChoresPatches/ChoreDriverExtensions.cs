@@ -9,7 +9,7 @@ namespace ONI_MP.Patches.Chores
 	{
 		public static void AssignChoreToDuplicant(this Chore newChore, GameObject dupeGO)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			try
 			{

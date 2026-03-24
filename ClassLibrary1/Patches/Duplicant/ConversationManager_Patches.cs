@@ -17,7 +17,7 @@ namespace ONI_MP.Patches.Duplicant
         {
             public static bool Prefix(ConversationManager __instance)
             {
-                Profiler.Scope();
+                using var _ = Profiler.Scope();
 
                 return !MultiplayerSession.IsClient;
             }

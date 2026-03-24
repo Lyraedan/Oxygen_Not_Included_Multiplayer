@@ -12,7 +12,7 @@ namespace ONI_MP.Networking.Packets.Tools.Deconstruct
 	{
 		public DeconstructPacket() : base()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			ToolInstance = DeconstructTool.Instance;
 			ToolMode = DragToolMode.OnDragTool;

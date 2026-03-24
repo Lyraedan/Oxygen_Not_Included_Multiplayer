@@ -15,7 +15,7 @@ namespace ONI_MP_API
 	{
 		static bool Init()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (typesInitialized)
 				return true;

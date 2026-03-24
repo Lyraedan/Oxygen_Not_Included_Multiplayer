@@ -6,7 +6,7 @@ namespace ONI_MP.Networking.Packets.Tools.Prioritize
     {
         public PrioritizePacket()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             ToolInstance = PrioritizeTool.Instance;
             ToolMode     = DragToolMode.OnDragTool;

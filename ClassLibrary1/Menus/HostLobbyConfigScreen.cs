@@ -27,7 +27,7 @@ namespace ONI_MP.Menus
 
 		public static void Show(Transform parent, System.Action onContinue = null)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (_instance != null)
 			{
@@ -43,7 +43,7 @@ namespace ONI_MP.Menus
 
 		public static void Close()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (_screenGO != null)
 			{
@@ -55,7 +55,7 @@ namespace ONI_MP.Menus
 
 		private static GameObject CreateScreen(Transform parent)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			GameObject screen = new GameObject("HostLobbyConfigScreen", typeof(RectTransform), typeof(CanvasGroup), typeof(Image));
 			screen.transform.SetParent(parent, false);
@@ -83,7 +83,7 @@ namespace ONI_MP.Menus
 
 		private void OnEnable()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Disable PlayerController to block player input
 			if (PlayerController.Instance != null)
@@ -121,7 +121,7 @@ namespace ONI_MP.Menus
 
 		private void OnDisable()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Re-enable PlayerController
 			if (PlayerController.Instance != null)
@@ -153,7 +153,7 @@ namespace ONI_MP.Menus
 
 		private void Update()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Consume ESC key to close dialog
 			if (Input.GetKeyDown(KeyCode.Escape))
@@ -164,7 +164,7 @@ namespace ONI_MP.Menus
 
 		private void Initialize()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Create content container
 			var contentGO = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup));
@@ -209,7 +209,7 @@ namespace ONI_MP.Menus
 
 		private void CreateLobbySizeOption(Transform parent)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var container = new GameObject("LobbySizeOption", typeof(RectTransform), typeof(VerticalLayoutGroup));
 			container.transform.SetParent(parent, false);
@@ -232,7 +232,7 @@ namespace ONI_MP.Menus
 
 		private void CreateVisibilityOption(Transform parent)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var container = new GameObject("VisibilityOption", typeof(RectTransform), typeof(HorizontalLayoutGroup));
 			container.transform.SetParent(parent, false);
@@ -309,14 +309,14 @@ namespace ONI_MP.Menus
 
 		private void OnPrivateToggleChanged(bool isPrivate)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			UpdatePrivateLabel();
 		}
 
 		private void UpdatePrivateLabel()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (_privateToggle.isOn)
 			{
@@ -332,7 +332,7 @@ namespace ONI_MP.Menus
 
 		private void CreatePasswordOption(Transform parent)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var container = new GameObject("PasswordOption", typeof(RectTransform), typeof(VerticalLayoutGroup));
 			container.transform.SetParent(parent, false);
@@ -355,7 +355,7 @@ namespace ONI_MP.Menus
 
 		private TMP_InputField CreateInputField(Transform parent, string placeholder, float height, TMP_InputField.ContentType contentType = TMP_InputField.ContentType.Standard)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var inputGO = new GameObject("PasswordInput", typeof(RectTransform), typeof(Image), typeof(TMP_InputField));
 			inputGO.transform.SetParent(parent, false);
@@ -414,7 +414,7 @@ namespace ONI_MP.Menus
 
 		private void CreateButtons(Transform parent)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var container = new GameObject("ButtonContainer", typeof(RectTransform), typeof(HorizontalLayoutGroup));
 			container.transform.SetParent(parent, false);
@@ -436,7 +436,7 @@ namespace ONI_MP.Menus
 
 		private void OnContinueClicked()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Save settings to config
 			Configuration.Instance.Host.Lobby.IsPrivate = _privateToggle.isOn;
@@ -499,7 +499,7 @@ namespace ONI_MP.Menus
 
 		private void CreateLabel(Transform parent, string text, int fontSize, float height)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var labelGO = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
 			labelGO.transform.SetParent(parent, false);
@@ -517,7 +517,7 @@ namespace ONI_MP.Menus
 
 		private void CreateDivider(Transform parent)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var dividerGO = new GameObject("Divider", typeof(RectTransform), typeof(Image));
 			dividerGO.transform.SetParent(parent, false);
@@ -531,7 +531,7 @@ namespace ONI_MP.Menus
 
 		private void CreateButton(Transform parent, string text, System.Action onClick, float width, float height)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var mainMenu = FindObjectOfType<MainMenu>();
 			var templateButton = mainMenu?.Button_NewGame;

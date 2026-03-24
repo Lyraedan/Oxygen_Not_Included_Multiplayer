@@ -26,7 +26,7 @@ namespace ONI_MP_DedicatedServer
 
         public static ServerConfiguration LoadOrCreate()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!Directory.Exists(ConfigDirectory))
                 Directory.CreateDirectory(ConfigDirectory);
@@ -49,7 +49,7 @@ namespace ONI_MP_DedicatedServer
 
         public void Save()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             string json = JsonConvert.SerializeObject(this, Formatting.Indented);
             File.WriteAllText(ConfigPath, json);
@@ -57,7 +57,7 @@ namespace ONI_MP_DedicatedServer
 
         public void Reload()
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!File.Exists(ConfigPath))
                 throw new FileNotFoundException("Configuration file not found.", ConfigPath);

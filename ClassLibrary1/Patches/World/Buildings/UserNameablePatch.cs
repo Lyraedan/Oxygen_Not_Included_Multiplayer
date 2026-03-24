@@ -18,7 +18,7 @@ namespace ONI_MP.Patches.World.Buildings
 		static bool ApplyingPacket = false;
 		public static void ApplyPacketName(UserNameable nameable, string name)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			ApplyingPacket = true;
 			nameable.SetName(name);
@@ -30,7 +30,7 @@ namespace ONI_MP.Patches.World.Buildings
 		{
 			public static void Postfix(UserNameable __instance, string name)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				if (MultiplayerSession.NotInSession)
 					return;

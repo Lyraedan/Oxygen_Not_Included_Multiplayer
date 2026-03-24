@@ -13,7 +13,7 @@ namespace ONI_MP.Misc.World
 
 		public void Serialize(BinaryWriter w)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			w.Write(TileX); w.Write(TileY);
 			w.Write(Width); w.Write(Height);
@@ -31,7 +31,7 @@ namespace ONI_MP.Misc.World
 
 		public void Deserialize(BinaryReader r)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			TileX = r.ReadInt32(); TileY = r.ReadInt32();
 			Width = r.ReadInt32(); Height = r.ReadInt32();
@@ -53,7 +53,7 @@ namespace ONI_MP.Misc.World
 
 		public void Apply()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Minimum simulation temperature - cells with mass must have temperature above this
 			const float SIM_MIN_TEMPERATURE = 1f; // 1 Kelvin

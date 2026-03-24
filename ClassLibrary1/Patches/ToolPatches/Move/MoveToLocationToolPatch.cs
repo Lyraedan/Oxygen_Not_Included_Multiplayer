@@ -12,7 +12,7 @@ namespace ONI_MP.Patches.ToolPatches.Move
 	{
 		public static bool Prefix(MoveToLocationTool __instance, int target_cell)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession || MultiplayerSession.IsHost) return true; // Run like normal
 

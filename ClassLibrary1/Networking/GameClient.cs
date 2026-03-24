@@ -59,7 +59,7 @@ namespace ONI_MP.Networking
 		/// </summary>
 		public static bool HasCachedConnection()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			return _cachedConnectionInfo.HasValue;
 		}
@@ -69,25 +69,25 @@ namespace ONI_MP.Networking
 		/// </summary>
 		public static void ClearCachedConnection()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			_cachedConnectionInfo = null;
 		}
 
 		public static void SetState(ClientState newState)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (_state != newState)
 			{
 				_state = newState;
-				DebugConsole.Log($"[GameClient] State changed to: {_state}");					
+				DebugConsole.Log($"[GameClient] State changed to: {_state}");
 			}
 		}
 
 		public static void Init()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// I fucking hate this, maybe replace this with hashes?
 			NetworkConfig.TransportClient.OnClientDisconnected = () => SetState(ClientState.Disconnected);
@@ -104,7 +104,7 @@ namespace ONI_MP.Networking
 
 		public static void ConnectToHost(bool showLoadingScreen = true, string ip = "", int port = 7777)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
             Init();
 
@@ -131,21 +131,21 @@ namespace ONI_MP.Networking
 
 		public static void Disconnect()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			NetworkConfig.TransportClient.Disconnect();
 		}
 
 		public static void ReconnectToSession()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			NetworkConfig.TransportClient.ReconnectToSession();
 		}
 
 		public static void Poll()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (_pollingPaused)
 				return;
@@ -168,7 +168,7 @@ namespace ONI_MP.Networking
 
 		public static void OnHostResponseReceived(GameStateRequestPacket packet)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			DebugConsole.Log("Gamestate packet received");
 			MP_Timer.Instance.Abort();
@@ -205,7 +205,7 @@ namespace ONI_MP.Networking
 		}
 		static void BackToMainMenu()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			MultiplayerOverlay.Close();
 			NetworkIdentityRegistry.Clear();
@@ -215,7 +215,7 @@ namespace ONI_MP.Networking
 
         private static void ContinueConnectionFlow()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// CRITICAL: Only execute on client, never on server
 			if (MultiplayerSession.IsHost)
@@ -309,7 +309,7 @@ namespace ONI_MP.Networking
 
 		public static void CacheCurrentServer()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if(NetworkConfig.IsSteamConfig())
 			{
@@ -319,7 +319,7 @@ namespace ONI_MP.Networking
                             MultiplayerSession.HostUserID
                     );
                 }
-            } 
+            }
 			else if(NetworkConfig.IsLanConfig())
 			{
 				_cachedConnectionInfo = new CachedConnectionInfo(
@@ -331,7 +331,7 @@ namespace ONI_MP.Networking
 
 		public static void ReconnectFromCache()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (_cachedConnectionInfo.HasValue)
 			{
@@ -342,7 +342,7 @@ namespace ONI_MP.Networking
                     _cachedConnectionInfo = null; // Clear cache to prevent re-triggering
                     MultiplayerSession.HostUserID = hostId;
                     ConnectToHost(false);
-                } 
+                }
 				else if(NetworkConfig.IsLanConfig())
 				{
                     DebugConsole.Log($"[GameClient] Reconnecting to cached server: {_cachedConnectionInfo.Value.ServerPort}:{_cachedConnectionInfo.Value.ServerPort}");

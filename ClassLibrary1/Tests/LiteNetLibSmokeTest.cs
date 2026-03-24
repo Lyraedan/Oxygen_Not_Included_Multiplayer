@@ -23,7 +23,7 @@ namespace ONI_MP.Tests
 
         public static void Run(int port = 7777)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             DebugConsole.Log("[LiteNetLibSmokeTest] Starting");
 
@@ -80,7 +80,7 @@ namespace ONI_MP.Tests
 
         private static void SendPacket(NetPeer peer, IPacket packet)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             byte[] bytes = PacketSender.SerializePacketForSending(packet);
             peer.Send(bytes, DeliveryMethod.ReliableOrdered);
@@ -89,7 +89,7 @@ namespace ONI_MP.Tests
 
         private static void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             int size = reader.AvailableBytes;
             byte[] data = reader.GetRemainingBytes();

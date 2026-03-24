@@ -15,7 +15,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			writer.Write(FileName);
 			writer.Write(Offset);
@@ -26,7 +26,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			FileName = reader.ReadString();
 			Offset = reader.ReadInt32();
@@ -37,7 +37,7 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (Utils.IsInGame() && !GameClient.IsHardSyncInProgress)
 			{

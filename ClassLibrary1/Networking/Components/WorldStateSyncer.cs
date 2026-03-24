@@ -38,14 +38,14 @@ namespace ONI_MP.Networking.Components
 
 		private void Awake()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			Instance = this;
 		}
 
 		public void UpdateClientView(ulong steamId, int minX, int minY, int maxX, int maxY)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Update or add
 			_clientViewports[steamId] = new RectInt(minX, minY, maxX - minX, maxY - minY);
@@ -53,7 +53,7 @@ namespace ONI_MP.Networking.Components
 
 		private void Update()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
 				return;
@@ -117,7 +117,7 @@ namespace ONI_MP.Networking.Components
 
 			private void SyncDigging()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			var digPacket = new DiggingStatePacket();
@@ -135,7 +135,7 @@ namespace ONI_MP.Networking.Components
 				}
 
 				PacketSender.SendToAllClients(digPacket, SteamNetworkingSend.Unreliable);
-				
+
 				sw.Stop();
 				SyncStats.RecordSync(SyncStats.Digging, digPacket.DigCells.Count, digPacket.DigCells.Count * 4, sw.ElapsedMilliseconds);
 			}
@@ -147,7 +147,7 @@ namespace ONI_MP.Networking.Components
 
 		public void OnDiggingStateReceived(DiggingStatePacket packet)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// Reconcile
 			// 1. Get all local diggables
@@ -186,7 +186,7 @@ namespace ONI_MP.Networking.Components
 						// We can manually instantiate the DigPlacer.
 						if (Grid.IsValidCell(cell) && Grid.Solid[cell])
 						{
-							// DigTool.PlaceDig might trigger patches. 
+							// DigTool.PlaceDig might trigger patches.
 							// We should instantiate the prefab directly to avoid triggering client->host packets.
 							GameObject prefab = Assets.GetPrefab("DigPlacer");
 							if (prefab != null)
@@ -209,7 +209,7 @@ namespace ONI_MP.Networking.Components
 
 		private void SyncChores()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			var chorePacket = new ChoreStatePacket();
@@ -228,7 +228,7 @@ namespace ONI_MP.Networking.Components
 				}
 
 				PacketSender.SendToAllClients(chorePacket, SteamNetworkingSend.Unreliable);
-				
+
 				sw.Stop();
 				SyncStats.RecordSync(SyncStats.Chores, chorePacket.Chores.Count, chorePacket.Chores.Count * 5, sw.ElapsedMilliseconds);
 			}
@@ -240,7 +240,7 @@ namespace ONI_MP.Networking.Components
 
 		public void OnChoreStateReceived(ChoreStatePacket packet)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			try
 			{
@@ -317,7 +317,7 @@ namespace ONI_MP.Networking.Components
 		// --- Research Logic ---
 		private void SyncResearch()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (Db.Get().Techs == null || Research.Instance == null) return;
 
@@ -374,7 +374,7 @@ namespace ONI_MP.Networking.Components
 		// --- Research Progress Logic ---
 		private void SyncResearchProgress()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (Research.Instance == null) return;
 
@@ -386,32 +386,32 @@ namespace ONI_MP.Networking.Components
 
 				var techInstance = activeResearch;
 				var tech = techInstance.tech;
-				
+
 				// Calculate total progress percentage
 				float totalCost = 0f;
 				float totalProgress = 0f;
-				
+
 				foreach (var researchType in tech.costsByResearchTypeID.Keys)
 				{
 					float cost = tech.costsByResearchTypeID[researchType];
-					float points = techInstance.progressInventory.PointsByTypeID.ContainsKey(researchType) 
-						? techInstance.progressInventory.PointsByTypeID[researchType] 
+					float points = techInstance.progressInventory.PointsByTypeID.ContainsKey(researchType)
+						? techInstance.progressInventory.PointsByTypeID[researchType]
 						: 0f;
-					
+
 					totalCost += cost;
 					totalProgress += Mathf.Min(points, cost);
 				}
-				
+
 				float progressPercent = totalCost > 0 ? totalProgress / totalCost : 0f;
-				
+
 				var packet = new ResearchProgressPacket
 				{
 					TechId = tech.Id,
 					Progress = progressPercent
 				};
-				
+
 				PacketSender.SendToAllClients(packet, SteamNetworkingSend.Unreliable);
-				
+
 				sw.Stop();
 				SyncStats.RecordSync(SyncStats.Research, 1, 20, sw.ElapsedMilliseconds);
 			}
@@ -424,7 +424,7 @@ namespace ONI_MP.Networking.Components
 		// --- Priorities Logic (NOT USED - synced via event-driven patches) ---
 		private void SyncPriorities()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			try
 			{
@@ -462,7 +462,7 @@ namespace ONI_MP.Networking.Components
 	// --- Disinfect Logic (NOT USED - synced via event-driven patches) ---
 		private void SyncDisinfectImpl()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			try
 			{
@@ -501,7 +501,7 @@ namespace ONI_MP.Networking.Components
 
 		public void OnDisinfectStateReceived(DisinfectStatePacket packet)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			try
 			{
@@ -547,11 +547,11 @@ namespace ONI_MP.Networking.Components
 		// --- Gas and Liquid Logic ---
 		private void SyncGasLiquid()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			int cellsScanned = 0;
-			
+
 			if (Grid.WidthInCells == 0 || Grid.HeightInCells == 0) return;
 
 			// Initialize Shadow Grid if needed
@@ -604,14 +604,14 @@ namespace ONI_MP.Networking.Components
 
 			// Flush the batcher
 			int packetSize = ONI_MP.Misc.World.WorldUpdateBatcher.Flush();
-			
+
 			sw.Stop();
 			SyncStats.RecordSync(SyncStats.Gas, cellsScanned, packetSize, sw.ElapsedMilliseconds);
 		}
 
 		private void ScanArea(int x1, int y1, int x2, int y2)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			for (int y = y1; y < y2; y++)
 			{

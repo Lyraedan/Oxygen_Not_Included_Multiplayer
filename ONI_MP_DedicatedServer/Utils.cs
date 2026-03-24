@@ -14,7 +14,7 @@ namespace ONI_MP_DedicatedServer
 
         public static string FormatBytes(long bytes)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             string[] sizes = { "B", "KB", "MB", "GB", "TB" };
             double len = bytes;
@@ -29,7 +29,7 @@ namespace ONI_MP_DedicatedServer
 
         public static byte[] SerializePacketForSending(int packetType, Action<System.IO.BinaryWriter> serialize)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             using (var ms = new System.IO.MemoryStream())
             using (var writer = new System.IO.BinaryWriter(ms))

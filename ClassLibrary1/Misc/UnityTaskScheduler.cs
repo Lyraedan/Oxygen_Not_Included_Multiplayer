@@ -24,7 +24,7 @@ namespace ONI_MP.Misc
 
 		public void Tick()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var length = CreateSnapshot();
 			for (var i = 0; i < length; ++i)
@@ -47,7 +47,7 @@ namespace ONI_MP.Misc
 
 		private int CreateSnapshot()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			var length = 0;
 			while (length < snapshot.Length && tasks.TryDequeue(out var task))

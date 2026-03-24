@@ -10,7 +10,7 @@ public class UIDragHandler : MonoBehaviour, IPointerDownHandler, IDragHandler
 
     private void Awake()
     {
-        Profiler.Scope();
+        using var _ = Profiler.Scope();
 
         if (target == null)
             target = GetComponent<RectTransform>();
@@ -18,7 +18,7 @@ public class UIDragHandler : MonoBehaviour, IPointerDownHandler, IDragHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        Profiler.Scope();
+        using var _ = Profiler.Scope();
 
         RectTransform parent = target.parent as RectTransform;
 
@@ -28,7 +28,7 @@ public class UIDragHandler : MonoBehaviour, IPointerDownHandler, IDragHandler
 
     public void OnDrag(PointerEventData eventData)
     {
-        Profiler.Scope();
+        using var _ = Profiler.Scope();
 
         if (target == null)
             return;

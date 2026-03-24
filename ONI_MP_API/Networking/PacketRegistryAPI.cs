@@ -15,11 +15,11 @@ namespace ONI_MP_API.Networking
 	{
 		static bool Init()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (typesInitialized)
 				return true;
-						
+
 			if (!ReflectionHelper.TryCreateDelegate<TryRegisterPacketDelegate>("ONI_MP.Networking.Packets.Architecture.PacketRegistry, ONI_MP", "TryRegister", [typeof(Type), typeof(string)], out _TryRegister))
 				return false;
 			typesInitialized = true;
@@ -38,7 +38,7 @@ namespace ONI_MP_API.Networking
 		/// <param name="packetType"></param>
 		public static void TryRegister(Type packetType, string nameOverride = null)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!Init())
 				return;
@@ -51,7 +51,7 @@ namespace ONI_MP_API.Networking
 		/// <param name="assembly"></param>
 		public static void AutoRegisterAll(Assembly? assembly = null)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if(assembly == null)
 				assembly = Assembly.GetExecutingAssembly();

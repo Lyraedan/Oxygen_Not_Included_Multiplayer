@@ -10,7 +10,7 @@ namespace ONI_MP.Patches.ToolPatches.Clear
 	{
 		public static void Prefix(int cell, int distFromOrigin)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!MultiplayerSession.InSession)
 				return;

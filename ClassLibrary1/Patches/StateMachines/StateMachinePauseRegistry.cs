@@ -21,7 +21,7 @@ namespace ONI_MP.Patches.StateMachines
 
         public static void SetPaused(StateMachine.Instance smi, bool paused)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             var data = table.GetOrCreateValue(smi);
             data.Paused = paused;
@@ -29,21 +29,21 @@ namespace ONI_MP.Patches.StateMachines
 
         public static void PauseSMI(this StateMachine.Instance smi)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             SetPaused(smi, true);
         }
 
         public static void ResumeSMI(this StateMachine.Instance smi)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             SetPaused(smi, false);
         }
 
         public static bool IsSMIPaused(this StateMachine.Instance smi)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             return IsPaused(smi);
         }

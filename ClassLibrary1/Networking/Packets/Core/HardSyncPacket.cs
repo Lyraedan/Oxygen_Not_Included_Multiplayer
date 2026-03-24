@@ -20,7 +20,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (MultiplayerSession.IsHost)
 				return;
@@ -37,7 +37,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public static void Sync()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			GameClient.IsHardSyncInProgress = true;
 			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.SYNC.HARDSYNC_INPROGRESS);

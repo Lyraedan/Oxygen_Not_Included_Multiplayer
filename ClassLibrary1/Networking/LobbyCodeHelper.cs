@@ -22,7 +22,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static string GenerateCode(ulong lobbyId)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (!lobbyId.IsValid())
             {
@@ -47,7 +47,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static bool TryParseCode(string code, out ulong lobbyId)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             lobbyId = Utils.NilUlong();
 
@@ -76,7 +76,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static bool IsValidCodeFormat(string code)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (string.IsNullOrWhiteSpace(code))
                 return false;
@@ -97,7 +97,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static string FormatCodeForDisplay(string code)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             return code;
 
@@ -120,7 +120,7 @@ namespace ONI_MP.Networking
         /// </summary>
         public static string CleanCode(string code)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (string.IsNullOrEmpty(code))
                 return string.Empty;
@@ -130,7 +130,7 @@ namespace ONI_MP.Networking
 
         private static string EncodeBase36(ulong value)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             if (value == 0)
                 return "0";
@@ -154,7 +154,7 @@ namespace ONI_MP.Networking
 
         private static ulong DecodeBase36(string encoded)
         {
-            Profiler.Scope();
+            using var _ = Profiler.Scope();
 
             encoded = CleanCode(encoded);
             ulong result = 0;

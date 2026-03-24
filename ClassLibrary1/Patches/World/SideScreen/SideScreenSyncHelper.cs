@@ -16,7 +16,7 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void SyncSliderChange(Component target, float value, int sliderIndex = 0)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
@@ -40,17 +40,17 @@ namespace ONI_MP.Patches.World.SideScreen
 
 		public static void SyncThresholdChange(GameObject target, float value)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			DebugConsole.Log($"[SideScreenSyncHelper.SyncThresholdChange] Called for {target?.name ?? "null"}, value={value}");
-			
+
 			if (BuildingConfigPacket.IsApplyingPacket)
 			{
 				DebugConsole.Log("[SideScreenSyncHelper.SyncThresholdChange] IsApplyingPacket=true, skipping");
 				return;
 			}
 			if (target == null) return;
-			
+
 			var identity = target.AddOrGet<NetworkIdentity>();
 
 			var packet = new BuildingConfigPacket
@@ -70,7 +70,7 @@ namespace ONI_MP.Patches.World.SideScreen
 
 		public static void SyncThresholdDirection(GameObject target, bool activateAbove)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (target == null) return;
@@ -92,7 +92,7 @@ namespace ONI_MP.Patches.World.SideScreen
 
 		public static void SyncCheckboxChange(GameObject target, bool value)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (target == null) return;
@@ -114,7 +114,7 @@ namespace ONI_MP.Patches.World.SideScreen
 
 		public static void SyncCapacityChange(GameObject target, float value)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (target == null) return;
@@ -136,7 +136,7 @@ namespace ONI_MP.Patches.World.SideScreen
 
 		public static void SyncDoorState(GameObject target, Door.ControlState state)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (target == null) return;
@@ -158,7 +158,7 @@ namespace ONI_MP.Patches.World.SideScreen
 
         public static void SyncQueueToggleable(GameObject target, bool expectedQueue)
         {
-	        Profiler.Scope();
+	        using var _ = Profiler.Scope();
 
             if (BuildingConfigPacket.IsApplyingPacket) return;
             if (target == null) return;
@@ -183,7 +183,7 @@ namespace ONI_MP.Patches.World.SideScreen
 
         public static void SyncToggleableState(GameObject target, bool buildingEnabled)
         {
-	        Profiler.Scope();
+	        using var _ = Profiler.Scope();
 
             if (BuildingConfigPacket.IsApplyingPacket) return;
             if (target == null) return;

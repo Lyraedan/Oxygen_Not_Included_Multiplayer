@@ -28,7 +28,7 @@ namespace ONI_MP.Misc.World
 
 			public InProgressSave(int totalSize, int chunkSize)
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				TotalSize = totalSize;
 				ChunkSize = chunkSize;
@@ -39,7 +39,7 @@ namespace ONI_MP.Misc.World
 
 			public int GetReceivedChunks()
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				int count = 0;
 				for (int i = 0; i < ChunkReceived.Length; i++)
@@ -51,7 +51,7 @@ namespace ONI_MP.Misc.World
 
 			public List<int> GetMissingChunks()
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				var missing = new List<int>();
 				for (int i = 0; i < ChunkReceived.Length; i++)
@@ -63,7 +63,7 @@ namespace ONI_MP.Misc.World
 
 			public bool IsComplete()
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				for (int i = 0; i < ChunkReceived.Length; i++)
 				{
@@ -75,7 +75,7 @@ namespace ONI_MP.Misc.World
 			// Checks how many sequential chunks we have from the beginning
 			public int GetMaxContiguousChunks()
 			{
-				Profiler.Scope();
+				using var _ = Profiler.Scope();
 
 				for (int i = 0; i < ChunkReceived.Length; i++)
 				{
@@ -89,7 +89,7 @@ namespace ONI_MP.Misc.World
 
 		public static void ReceiveChunk(SaveFileChunkPacket chunk)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			if (!InProgress.TryGetValue(chunk.FileName, out var save))
 			{
@@ -178,7 +178,7 @@ namespace ONI_MP.Misc.World
 
 		private static void CheckForMissingChunks(string fileName, InProgressSave save)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// MUCH more patience - wait substantial time for chunks to arrive
 			double waitTime = 30.0; // Always wait 30 seconds between checks
@@ -225,7 +225,7 @@ namespace ONI_MP.Misc.World
 
 		private static void RequestSpecificChunks(string fileName, List<int> missingChunks)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			// CURRENT IMPLEMENTATION: For now request full resend - future improvement = request specific chunks
 			DebugConsole.LogWarning($"[ChunkAssembler] Requesting full resend due to missing chunks");
@@ -251,7 +251,7 @@ namespace ONI_MP.Misc.World
 		/// </summary>
 		public static void CheckInactiveTransfers()
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			foreach (var kvp in InProgress.ToArray())
 			{
@@ -274,7 +274,7 @@ namespace ONI_MP.Misc.World
 		/// </summary>
 		private static string CreateClientProgressBar(int percent)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			int barLength = 30;  // Larger bar for the client
 			int filled = (percent * barLength) / 100;
@@ -296,7 +296,7 @@ namespace ONI_MP.Misc.World
 		/// </summary>
 		private static void SendProgressToHost(string fileName, int receivedChunks, int totalChunks, int percent)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
 			try
 			{
@@ -324,7 +324,7 @@ namespace ONI_MP.Misc.World
 
 		private static System.Collections.IEnumerator DelayedLoad(WorldSave save)
 		{
-			Profiler.Scope();
+			using var _ = Profiler.Scope();
 
             yield return new WaitForSecondsRealtime(1f);
 			SaveHelper.RequestWorldLoad(save);
