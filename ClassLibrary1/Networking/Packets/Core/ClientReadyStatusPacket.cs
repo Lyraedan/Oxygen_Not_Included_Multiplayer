@@ -54,11 +54,20 @@ namespace ONI_MP.Networking.Packets.Core
 						host.PlayerName = PlayerName;
 					}
 				}
-				else if (SenderId != MultiplayerSession.LocalUserID)
+				else
 				{
-					var pending = ChatScreen.GeneratePendingMessage(
-						string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_JOINED, PlayerName));
-					ChatScreen.QueueMessage(pending);
+					var client = NetworkConfig.TransportClient as RiptideClient;
+					bool isLoading = client != null && SenderId == MultiplayerSession.LocalUserID && client.IsLoadingReconnect;
+					if (isLoading)
+					{
+						client.IsLoadingReconnect = false;
+					}
+					else
+					{
+						var pending = ChatScreen.GeneratePendingMessage(
+							string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_JOINED, PlayerName));
+						ChatScreen.QueueMessage(pending);
+					}
 				}
 				return;
 			}
@@ -90,9 +99,15 @@ namespace ONI_MP.Networking.Packets.Core
 
 			if (NetworkConfig.IsLanConfig() && nameChanged)
 			{
-				var pending = ChatScreen.GeneratePendingMessage(
-					string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_JOINED, player.PlayerName));
-				ChatScreen.QueueMessage(pending);
+				var server = NetworkConfig.TransportServer as RiptideServer;
+				bool isLoadingReconnect = server != null && server.ConsumeReconnectFromLoad(SenderId);
+
+				if (!isLoadingReconnect)
+				{
+					var pending = ChatScreen.GeneratePendingMessage(
+						string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_JOINED, player.PlayerName));
+					ChatScreen.QueueMessage(pending);
+				}
 
 				PacketSender.SendToAllClients(new ClientReadyStatusPacket
 				{

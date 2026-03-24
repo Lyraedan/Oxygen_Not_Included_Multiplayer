@@ -21,7 +21,7 @@ namespace ONI_MP.Networking.Transport.Lan
     public class RiptideClient : TransportClient
     {
         private static Client _client;
-        private bool _isLoadingReconnect = false;
+        public bool IsLoadingReconnect { get; set; } = false;
 
         public static Client Client
         {
@@ -207,10 +207,6 @@ namespace ONI_MP.Networking.Transport.Lan
 
             ClientList.Add(id);
 
-            if (_isLoadingReconnect)
-            {
-                _isLoadingReconnect = false;
-            }
             Game.Instance?.Trigger(MP_HASHES.OnPlayerJoined);
         }
 
@@ -223,7 +219,7 @@ namespace ONI_MP.Networking.Transport.Lan
 
             if (id == CLIENT_ID && GameClient.State == ClientState.LoadingWorld)
             {
-                _isLoadingReconnect = true;
+                IsLoadingReconnect = true;
             }
             else
             {

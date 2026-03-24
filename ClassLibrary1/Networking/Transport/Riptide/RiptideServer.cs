@@ -20,6 +20,7 @@ namespace ONI_MP.Networking.Transport.Lan
         private TcpFileTransferServer _tcpTransfer;
         private Dictionary<ulong, float> _loadingClients = new Dictionary<ulong, float>();
         private List<ulong> _expiredLoadingClients = new List<ulong>();
+        private HashSet<ulong> _reconnectedFromLoad = new HashSet<ulong>();
         private const float LOADING_TIMEOUT = 30f;
 
         public TcpFileTransferServer TcpTransfer => _tcpTransfer;
@@ -244,6 +245,11 @@ namespace ONI_MP.Networking.Transport.Lan
             }
         }
 
+        public bool ConsumeReconnectFromLoad(ulong id)
+        {
+            return _reconnectedFromLoad.Remove(id);
+        }
+
         public void MarkClientLoading(ulong id)
         {
             _loadingClients[id] = UnityEngine.Time.unscaledTime;
@@ -262,6 +268,7 @@ namespace ONI_MP.Networking.Transport.Lan
                 var enumerator = _loadingClients.GetEnumerator();
                 enumerator.MoveNext();
                 _loadingClients.Remove(enumerator.Current.Key);
+                _reconnectedFromLoad.Add(id);
             }
             Game.Instance?.Trigger(MP_HASHES.OnPlayerJoined);
         }
