@@ -14,7 +14,13 @@ using static STRINGS.UI;
 using Steamworks;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
-using Shared.Profiling;
+using ONI_MP.Networking.Profiling;
+using System.Text;
+using ONI_MP.Patches.ToolPatches;
+using ONI_MP.Tests;
+#if STEAM_WORKSHOP_VERSION
+using ONI_MP.Networking.Transport.Steamworks;
+#endif
 
 namespace ONI_MP.DebugTools
 {
@@ -32,7 +38,17 @@ namespace ONI_MP.DebugTools
         private bool showRestartPrompt = false;
 
         // Open player profile
-        private CSteamID? selectedPlayer = null;
+        private ulong? selectedPlayer = null;
+
+        // Network transport
+        private int selectedTransportType = 0; // 0 = Steam, 1 = LAN
+        private int selectedLanType = 0; // 0 = Riptide, 1 = LiteNetLib
+        private string hostIP = "";
+        private int hostPort = 7777;
+        private string clientIP = "";
+        private int clientPort = 7777;
+        LanSettings settings_host = new LanSettings();
+        LanSettings settings_client = new LanSettings();
 
         private static readonly string ModDirectory = Path.Combine(
             Path.GetDirectoryName(typeof(DevToolMultiplayer).Assembly.Location),
@@ -41,8 +57,6 @@ namespace ONI_MP.DebugTools
 
         public DevToolMultiplayer()
         {
-            Profiler.Scope();
-
             Name = "Multiplayer";
             RequiresGameRunning = false;
             console = DebugConsole.Init();
@@ -55,6 +69,17 @@ namespace ONI_MP.DebugTools
             OnInit += () => Init();
             OnUpdate += () => Update();
             OnUninit += () => UnInit();
+
+            selectedTransportType = Configuration.Instance.Host.NetworkTransport;
+            hostIP = Configuration.Instance.Host.LanSettings.Ip;
+            hostPort = Configuration.Instance.Host.LanSettings.Port;
+            settings_host.Ip = hostIP;
+            settings_host.Port = hostPort;
+
+            clientIP = Configuration.Instance.Client.LanSettings.Ip;
+            clientPort = Configuration.Instance.Client.LanSettings.Port;
+            settings_client.Ip = clientIP;
+            settings_client.Port = clientPort;
         }
 
         void Init()
@@ -74,8 +99,6 @@ namespace ONI_MP.DebugTools
 
         public override void RenderTo(DevPanel panel)
         {
-            Profiler.Scope();
-
             ImGui.BeginChild("ScrollRegion", new Vector2(0, 0), true);
 
             if (ImGui.BeginTabBar("MultiplayerTabs"))
@@ -98,15 +121,15 @@ namespace ONI_MP.DebugTools
                     ImGui.EndTabItem();
                 }
 
-                if (ImGui.BeginTabItem("Profiler"))
-                {
-                    DrawProfilerTab();
-                    ImGui.EndTabItem();
-                }
-
                 if (ImGui.BeginTabItem("Debug"))
                 {
                     DrawDebugTab();
+                    ImGui.EndTabItem();
+                }
+
+                if (ImGui.BeginTabItem("Unit Tests"))
+                {
+                    DrawTestsTab();
                     ImGui.EndTabItem();
                 }
 
@@ -123,14 +146,12 @@ namespace ONI_MP.DebugTools
 
             console?.ShowWindow();
             packetTracker?.ShowWindow();
-
-            Profiler.DrawImGuiPopout();
+            GameClientProfiler.DrawImGuiPopout();
+            GameServerProfiler.DrawImGuiPopout();
         }
 
         private void DrawGeneralTab()
         {
-            Profiler.Scope();
-
             if (ImGui.Button("Open Mod Directory"))
             {
                 Process.Start(new ProcessStartInfo
@@ -161,26 +182,65 @@ namespace ONI_MP.DebugTools
 
         private void DrawSessionTab()
         {
-            Profiler.Scope();
-
             if(MultiplayerSession.InSession)
                 ImGui.TextColored(new Vector4(0.3f, 1f, 0.3f, 1f), "Multiplayer Active");
             else
                 ImGui.TextColored(new Vector4(1f, 0.3f, 0.3f, 1f), "Multiplayer Not Active");
             ImGui.Separator();
 
-            if (ImGui.Button("Create Lobby"))
+            switch (NetworkConfig.transport) 
             {
-                SteamLobby.CreateLobby(onSuccess: () =>
-                {
-                    SpeedControlScreen.Instance?.Unpause(false);
-                    Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
-                });
-            }
+                case NetworkConfig.NetworkTransport.STEAMWORKS:
+                    if (ImGui.Button("Create Lobby"))
+                    {
+                        SteamLobby.CreateLobby(onSuccess: () =>
+                        {
+                            SpeedControlScreen.Instance?.Unpause(false);
+                            Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
+                        });
+                    }
 
-            ImGui.SameLine();
-            if (ImGui.Button("Leave Lobby"))
-                SteamLobby.LeaveLobby();
+                    ImGui.SameLine();
+                    if (ImGui.Button("Leave Lobby"))
+                        SteamLobby.LeaveLobby();
+                    break;
+                case NetworkConfig.NetworkTransport.LITENETLIB:
+                case NetworkConfig.NetworkTransport.RIPTIDE:
+                    if (ImGui.Button("Start Lan"))
+                    {
+                        MultiplayerSession.Clear();
+                        try
+                        {
+                            DebugConsole.Log("Starting GameServer...");
+                            Networking.GameServer.Start();
+                            DebugConsole.Log("GameServer started successfully.");
+                        }
+                        catch (Exception ex)
+                        {
+                            DebugConsole.LogError($"GameServer.Start() failed: {ex}");
+                        }
+                        SelectToolPatch.UpdateColor();
+                        Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
+                    }
+
+                    ImGui.SameLine();
+                    if (ImGui.Button("Stop Lan"))
+                    {
+                        if (MultiplayerSession.IsHost)
+                            Networking.GameServer.Shutdown();
+
+                        if (MultiplayerSession.IsClient)
+                            GameClient.Disconnect();
+
+                        NetworkIdentityRegistry.Clear();
+                        MultiplayerSession.Clear();
+
+                        SelectToolPatch.UpdateColor();
+                    }
+                    break;
+                default:
+                    break;
+            }
 
             ImGui.SameLine();
             if (ImGui.Button("Client Disconnect"))
@@ -196,16 +256,21 @@ namespace ONI_MP.DebugTools
             ImGui.Separator();
             DisplaySessionDetails();
 
-            if (MultiplayerSession.InSession)
-                DrawPlayerList();
-            else
-                ImGui.TextDisabled("Not in a multiplayer session.");
+            if (NetworkConfig.transport.Equals(NetworkConfig.NetworkTransport.STEAMWORKS))
+            {
+                if (MultiplayerSession.InSession)
+                    DrawPlayerList();
+                else
+                    ImGui.TextDisabled("Not in a multiplayer session.");
+            } else
+            {
+                ImGui.TextDisabled("No access to a player list.");
+            }
         }
 
         private void DrawNetworkTab()
         {
-            Profiler.Scope();
-
+            DrawNetworkTransportDetails();
             if (!MultiplayerSession.InSession)
             {
                 ImGui.TextDisabled("Not connected.");
@@ -231,36 +296,57 @@ namespace ONI_MP.DebugTools
             }
         }
 
-        private void DrawProfilerTab()
+        private void DrawDebugTab()
         {
-            Profiler.Scope();
+            DisplayProfilers();
+            ImGui.Separator();
+            DisplayNetIdHolders();
+        }
 
-            if (!MultiplayerSession.InSession)
+        private void DrawTestsTab()
+        {
+            if (ImGui.Button("Riptide Smoke Test"))
             {
-                ImGui.TextDisabled("Not connected. Profiler data will appear when in a session.");
-                return;
+                RiptideSmokeTest.Run();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("LiteNetLib Smoke Test"))
+            {
+                LiteNetLibSmokeTest.Run(7777);
+            }
+
+            if (ImGui.Button("Start Current Config Server"))
+            {
+                NetworkConfig.TransportServer.Start();
             }
 
             ImGui.SameLine();
-            if (ImGui.Button("Reset"))
-                Profiler.Reset();
-
+            if (ImGui.Button("Stop Current Config Server"))
+            {
+                NetworkConfig.TransportServer.Stop();
+            }
             ImGui.Separator();
+            ImGui.Text("Dedicated Server Tests");
+            DediTest.Update();
+            if (ImGui.Button("Connect to dedi"))
+            {
+                DediTest.Connect();
+            }
 
-            Profiler.DrawImGuiInline();
-        }
+            ImGui.SameLine();
+            if(ImGui.Button("Disconnect from dedi"))
+            {
+                DediTest.Disconnect();
+            }
 
-        private void DrawDebugTab()
-        {
-            Profiler.Scope();
-
-            DisplayNetIdHolders();
+            if(ImGui.Button("Send test packet"))
+            {
+                DediTest.SendTestPacket();
+            }
         }
 
         private void DrawConsoleTab()
         {
-            Profiler.Scope();
-
             if (ImGui.Button("Popout"))
                 console?.Toggle();
             ImGui.SameLine();
@@ -269,27 +355,23 @@ namespace ONI_MP.DebugTools
 
         public void DisplaySessionDetails()
         {
-            Profiler.Scope();
-
             ImGui.Text("Session details:");
             ImGui.Text($"Connected clients: {(MultiplayerSession.InSession ? (MultiplayerSession.PlayerCursors.Count + 1) : 0)}");
             ImGui.Text($"Is Host: {MultiplayerSession.IsHost}");
             ImGui.Text($"Is Client: {MultiplayerSession.IsClient}");
             ImGui.Text($"In Session: {MultiplayerSession.InSession}");
-            ImGui.Text($"Local ID: {MultiplayerSession.LocalSteamID}");
-            ImGui.Text($"Host ID: {MultiplayerSession.HostSteamID}");
+            ImGui.Text($"Local ID: {MultiplayerSession.LocalUserID}");
+            ImGui.Text($"Host ID: {MultiplayerSession.HostUserID}");
         }
 
         private void DrawPlayerList()
         {
-            Profiler.Scope();
-
             var players = SteamLobby.GetAllLobbyMembers();
 
             ImGui.Separator();
             ImGui.Text("Players in Lobby:");
 
-            string self = $"[YOU] {SteamFriends.GetPersonaName()} ({MultiplayerSession.LocalSteamID})";
+            string self = $"[YOU] {SteamFriends.GetPersonaName()} ({MultiplayerSession.LocalUserID})";
 
             if (players.Count == 0)
             {
@@ -297,25 +379,25 @@ namespace ONI_MP.DebugTools
                 return;
             }
 
-            if (MultiplayerSession.HostSteamID == MultiplayerSession.LocalSteamID)
-                self = $"[YOU|HOST] {SteamFriends.GetPersonaName()} ({MultiplayerSession.LocalSteamID})";
+            if (MultiplayerSession.HostUserID == MultiplayerSession.LocalUserID)
+                self = $"[YOU|HOST] {SteamFriends.GetPersonaName()} ({MultiplayerSession.LocalUserID})";
 
             ImGui.TextColored(new Vector4(0.3f, 1f, 0.3f, 1f), self);
 
             foreach (var playerId in players)
             {
                 string playerName = SteamFriends.GetFriendPersonaName(playerId);
-                bool isHost = MultiplayerSession.HostSteamID == playerId;
+                bool isHost = MultiplayerSession.HostUserID == playerId.m_SteamID;
 
                 string label = isHost
                     ? $"[HOST] {playerName} ({playerId})"
                     : $"{playerName} ({playerId})";
 
-                bool isSelected = selectedPlayer.HasValue && selectedPlayer.Value == playerId;
+                bool isSelected = selectedPlayer.HasValue && selectedPlayer.Value == playerId.m_SteamID;
 
                 if (ImGui.Selectable(label, isSelected))
                 {
-                    selectedPlayer = playerId;
+                    selectedPlayer = playerId.m_SteamID;
                 }
 
                 // Right-click context menu
@@ -333,18 +415,17 @@ namespace ONI_MP.DebugTools
 
         public void DisplayNetworkStatistics()
         {
-            Profiler.Scope();
-
             if(!MultiplayerSession.InSession)
                 return;
 
             ImGui.Separator();
             ImGui.Text("Network Statistics");
-            ImGui.Text($"Ping: {GameClient.GetPingToHost()}");
-            ImGui.Text($"Quality(L/R): {GameClient.GetLocalPacketQuality():0.00} / {GameClient.GetRemotePacketQuality():0.00}");
-            ImGui.Text($"Unacked Reliable: {GameClient.GetUnackedReliable()}");
-            ImGui.Text($"Pending Unreliable: {GameClient.GetPendingUnreliable()}");
-            ImGui.Text($"Queue Time: {GameClient.GetUsecQueueTime() / 1000}ms");
+            // TODO Update:
+            //ImGui.Text($"Ping: {GameClient.GetPingToHost()}");
+            //ImGui.Text($"Quality(L/R): {GameClient.GetLocalPacketQuality():0.00} / {GameClient.GetRemotePacketQuality():0.00}");
+            //ImGui.Text($"Unacked Reliable: {GameClient.GetUnackedReliable()}");
+            //ImGui.Text($"Pending Unreliable: {GameClient.GetPendingUnreliable()}");
+            //ImGui.Text($"Queue Time: {GameClient.GetUsecQueueTime() / 1000}ms");
             ImGui.Spacing();
             ImGui.Text($"Latency: {Utils.NetworkStateToString(NetworkIndicatorsScreen.latencyState)}");
             ImGui.Text($"Jitter: {Utils.NetworkStateToString(NetworkIndicatorsScreen.jitterState)}");
@@ -375,12 +456,10 @@ namespace ONI_MP.DebugTools
                 }
             }
         }
-
+		
         private string netIdFilter = string.Empty;
 		public void DisplayNetIdHolders()
 		{
-            Profiler.Scope();
-
 			if (ImGui.CollapsingHeader("Net Id Holders"))
 			{
 				var all_identities = NetworkIdentityRegistry.AllIdentities;
@@ -428,6 +507,91 @@ namespace ONI_MP.DebugTools
 				}
 			}
 		}
+	
+        public void DisplayProfilers()
+        {
+            if (ImGui.BeginTable("profilers", 2))
+            {
+                ImGui.TableNextColumn();
+                ImGui.Text("Server");
+                GameServerProfiler.DrawImGuiInTab();
+
+                // Why can I never interact with the toggles or buttons of the second one even if I saw them around
+
+                ImGui.TableNextColumn();
+                ImGui.Text("Client");
+                GameClientProfiler.DrawImGuiInTab();
+
+                ImGui.EndTable();
+            }
+        }
+
+        public void DrawNetworkTransportDetails()
+        {
+            ImGui.Text("Network Transport Settings");
+
+            string[] display_options = new string[] { "Steam", "LAN/Riptide", "Lan/LiteNetLib" };
+            ImGui.Text($"Currently used transport: {display_options[(int)NetworkConfig.transport]}");
+
+            string[] options = new string[] { "Steam", "LAN" };
+            // Dropdown for Steam/LAN
+            ImGui.Combo("Transport Type", ref selectedTransportType, options, options.Length);
+
+            // Only show LAN-specific fields if LAN is selected
+            if (selectedTransportType == 1)
+            {
+                ImGui.Indent();
+                ImGui.Separator();
+
+                string[] lan_options = new string[] { "Riptide", "LiteNetLib" };
+                ImGui.Combo("Lan Type", ref selectedLanType, lan_options, lan_options.Length);
+                ImGui.Separator();
+
+                // Host section
+                ImGui.Text("Host Settings (Used for hosting a server)");
+                ImGui.InputText("Host IP", ref hostIP, 64);
+                ImGui.InputInt("Host Port", ref hostPort);
+                settings_host.Ip = hostIP;
+                settings_host.Port = hostPort;
+
+                ImGui.Separator();
+
+                // Client section
+                ImGui.Text("Client Settings (The server you are connecting too)");
+                ImGui.InputText("Client IP", ref clientIP, 64);
+                ImGui.InputInt("Client Port", ref clientPort);
+                settings_client.Ip = hostIP;
+                settings_client.Port = hostPort;
+                ImGui.Unindent();
+            }
+
+            if (ImGui.Button("Save & Apply"))
+            {
+                Configuration.Instance.Host.LanSettings.Ip = hostIP;
+                Configuration.Instance.Host.LanSettings.Port = hostPort;
+                Configuration.Instance.Client.LanSettings.Ip = clientIP;
+                Configuration.Instance.Client.LanSettings.Port = clientPort;
+
+                NetworkConfig.NetworkTransport selected_transport = NetworkConfig.NetworkTransport.STEAMWORKS;
+                if (selectedTransportType == 0)
+                {
+                    selected_transport = NetworkConfig.NetworkTransport.STEAMWORKS;
+                }
+                else
+                {
+                    if(selectedLanType == 0)
+                    {
+                        selected_transport = NetworkConfig.NetworkTransport.RIPTIDE;
+                    } else
+                    {
+                        selected_transport = NetworkConfig.NetworkTransport.LITENETLIB;
+                    }
+                }
+                Configuration.Instance.Host.NetworkTransport = (int)selected_transport;
+                NetworkConfig.UpdateTransport(selected_transport);
+                Configuration.Instance.Save();
+            }
+        }
     }
 }
 #endif

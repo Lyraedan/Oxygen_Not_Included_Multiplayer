@@ -11,12 +11,12 @@ namespace ONI_MP.Networking.Packets.Core
 {
 	class ClientReadyStatusPacket : IPacket
 	{
-		public CSteamID SenderId;
+		public ulong SenderId;
 		public ClientReadyState Status = ClientReadyState.Unready;
 
 		public ClientReadyStatusPacket() { }
 
-		public ClientReadyStatusPacket(CSteamID senderId, ClientReadyState status)
+		public ClientReadyStatusPacket(ulong senderId, ClientReadyState status)
 		{
 			Profiler.Scope();
 
@@ -29,7 +29,7 @@ namespace ONI_MP.Networking.Packets.Core
 			Profiler.Scope();
 
 			writer.Write((int)Status);
-			writer.Write(SenderId.m_SteamID);
+			writer.Write(SenderId);
 		}
 
 		public void Deserialize(BinaryReader reader)
@@ -37,7 +37,7 @@ namespace ONI_MP.Networking.Packets.Core
 			Profiler.Scope();
 
 			Status = (ClientReadyState)reader.ReadInt32();
-			SenderId = new CSteamID(reader.ReadUInt64());
+			SenderId = reader.ReadUInt64();
 		}
 
 		public void OnDispatched()
@@ -55,7 +55,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 			if (player == null)
 			{
-				DebugConsole.LogError("Tried to update ready state for a null player");
+				DebugConsole.LogError("Tried to update ready state for a null player", false);
 				return;
 			}
 

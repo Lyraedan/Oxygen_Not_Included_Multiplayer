@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using HarmonyLib;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
-using Shared.Profiling;
+using ONI_MP.Networking.Transport.Steamworks;
 
 namespace ONI_MP.Patches.World
 {
@@ -67,3 +67,4 @@ namespace ONI_MP.Patches.World
 		}
 	}
 }
+

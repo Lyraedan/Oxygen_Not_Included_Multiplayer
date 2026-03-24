@@ -1,39 +1,33 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Networking.Transport.Lan;
+using ONI_MP.Networking.Transport.Steamworks;
 using Steamworks;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
 	public class SaveFileRequestPacket : IPacket
 	{
-		public CSteamID Requester;
+		public ulong Requester;
 
 		public const float SAVE_DATA_SEND_DELAY = 0.05f;
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
-
-			writer.Write(Requester.m_SteamID);
+			writer.Write(Requester);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
-
-			Requester = new CSteamID(reader.ReadUInt64());
+			Requester = reader.ReadUInt64();
 		}
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
-
 			if (!MultiplayerSession.IsHost)
 				return;
 
@@ -42,10 +36,8 @@ namespace ONI_MP.Networking.Packets.World
 			SendSaveFile(Requester);
 		}
 
-		public static void SendSaveFile(CSteamID requester)
+		public static void SendSaveFile(ulong requester)
 		{
-			Profiler.Scope();
-
 			if (!MultiplayerSession.IsHost)
 				return;
 
@@ -55,8 +47,24 @@ namespace ONI_MP.Networking.Packets.World
 				byte[] data = SaveHelper.GetWorldSave();
 				string fileName = name + ".sav";
 
-				// Start the streaming coroutine
-				CoroutineRunner.RunOne(StreamChunks(data, fileName, requester));
+				if (NetworkConfig.IsLanConfig() && NetworkConfig.TransportServer is RiptideServer riptideServer && riptideServer.TcpTransfer != null)
+				{
+					int tcpPort = Configuration.Instance.Host.LanSettings.Port + 1;
+					riptideServer.TcpTransfer.QueueTransfer(requester, fileName, data);
+
+					var startPacket = new TcpTransferStartPacket
+					{
+						TcpPort = tcpPort,
+						FileName = fileName,
+						FileSize = data.Length
+					};
+					PacketSender.SendToPlayer(requester, startPacket);
+					DebugConsole.Log($"[SaveFileRequest] Initiated TCP transfer for '{fileName}' to {requester}");
+				}
+				else
+				{
+					CoroutineRunner.RunOne(StreamChunks(data, fileName, requester));
+				}
 			}
 			catch (Exception ex)
 			{
@@ -66,24 +74,20 @@ namespace ONI_MP.Networking.Packets.World
 
         public static void SendSaveFileToAll()
         {
-	        Profiler.Scope();
-
             if (!MultiplayerSession.IsHost)
                 return;
 
-            foreach(CSteamID steamId in SteamLobby.GetAllLobbyMembers())
+            foreach(var player in MultiplayerSession.ConnectedPlayers)
 			{
-				if (steamId != MultiplayerSession.HostSteamID) {
-                    SendSaveFile(steamId);
+				if (player.Key != MultiplayerSession.HostUserID) {
+                    SendSaveFile(player.Key);
                 }
             }
         }
 
 
-        private static IEnumerator StreamChunks(byte[] data, string fileName, CSteamID steamID)
+        private static IEnumerator StreamChunks(byte[] data, string fileName, ulong steamID)
 		{
-			Profiler.Scope();
-
 			int chunkSize = SaveHelper.SAVEFILE_CHUNKSIZE_KB * 1024;
 			int totalChunks = (int)Math.Ceiling((double)data.Length / chunkSize);
 

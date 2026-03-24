@@ -6,6 +6,7 @@ using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
+using ONI_MP.Networking.Transport.Steamworks;
 using Shared.Helpers;
 using System;
 using System.Collections.Generic;
@@ -34,7 +35,7 @@ namespace ONI_MP
 			Harmony = harmony;
 			base.OnLoad(harmony);
 
-			ModAssets.LoadAssetBundles();
+            ModAssets.LoadAssetBundles();
 
             string logPath = System.IO.Path.Combine(Application.dataPath, "../ONI_MP_Log.txt");
 
@@ -50,9 +51,11 @@ namespace ONI_MP
                 System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 1: Pre-DebugMenu\n");
 				DebugMenu.Init();
 
-				// CHECKPOINT 2
-				System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 2: Pre-SteamLobby\n");
+                // CHECKPOINT 2
+#if STEAM_WORKSHOP_VERSION
+                System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 2: Pre-SteamLobby\n");
 				SteamLobby.Initialize();
+#endif
 
 				// CHECKPOINT 3
 				System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 3: Pre-GameObjects\n");
@@ -61,7 +64,7 @@ namespace ONI_MP
 
 				// CHECKPOINT 4
 				System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 4: Pre-Components\n");
-				go.AddComponent<SteamNetworkingComponent>();
+				go.AddComponent<NetworkingComponent>();
 				go.AddComponent<UIVisibilityController>();
 				go.AddComponent<MainThreadExecutor>();
 				go.AddComponent<CursorManager>();
@@ -92,6 +95,13 @@ namespace ONI_MP
 
 
 			RegisterDevTools();
+			LoadNetworkRelay();
+        }
+
+        void LoadNetworkRelay()
+		{
+			int relay = Configuration.Instance.Host.NetworkTransport;
+			NetworkConfig.UpdateTransport((NetworkConfig.NetworkTransport)relay);
 		}
 
 		void LoadAssetBundles()
@@ -194,7 +204,11 @@ namespace ONI_MP
 	        Profiler.Scope();
 
             base.OnAllModsLoaded(harmony, mods);
+#if STEAM_WORKSHOP_VERSION
 			ModUpdater.Updater.CheckForUpdate();
+            // For now default to the steam transport
+            NetworkConfig.UpdateTransport(NetworkConfig.NetworkTransport.STEAMWORKS);
+#endif
         }
     }
 }

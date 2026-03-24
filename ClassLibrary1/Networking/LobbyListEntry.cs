@@ -8,8 +8,8 @@ namespace ONI_MP.Networking
 	/// </summary>
 	public class LobbyListEntry
 	{
-		public CSteamID LobbyId { get; set; }
-		public CSteamID HostSteamId { get; set; }
+		public ulong LobbyId { get; set; }
+		public ulong HostSteamId { get; set; }
 		public string LobbyName { get; set; }
 		public string HostName { get; set; }
 		public int PlayerCount { get; set; }
@@ -18,6 +18,9 @@ namespace ONI_MP.Networking
 		public bool HasPassword { get; set; }
 		public string LobbyCode { get; set; }
 		public bool IsFriend { get; set; } = false;
+
+		public bool IsLan { get; set; } = false;
+		public string LanAddress { get; set; } = "127.0.0.1";
 
 		public bool IsPrivate { get; set; } = false;
 

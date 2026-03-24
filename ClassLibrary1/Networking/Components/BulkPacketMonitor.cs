@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Components
@@ -16,7 +15,7 @@ namespace ONI_MP.Networking.Components
 
 		public void LateUpdate()
 		{
-			Profiler.Scope();
+			return;
 
 			if (!MultiplayerSession.InSession)
 				return;

@@ -1,9 +1,9 @@
 using ONI_MP.DebugTools;
+using ONI_MP.Misc;
 using Steamworks;
 using System;
 using System.Numerics;
 using System.Text;
-using Shared.Profiling;
 
 namespace ONI_MP.Networking
 {
@@ -19,10 +19,8 @@ namespace ONI_MP.Networking
         /// <summary>
         /// Convert a Steam Lobby ID to a short alphanumeric code.
         /// </summary>
-        public static string GenerateCode(CSteamID lobbyId)
+        public static string GenerateCode(ulong lobbyId)
         {
-            Profiler.Scope();
-
             if (!lobbyId.IsValid())
             {
                 DebugConsole.LogWarning("[LobbyCodeHelper] Cannot generate code for invalid lobby ID");
@@ -31,7 +29,7 @@ namespace ONI_MP.Networking
 
             try
             {
-                ulong id = lobbyId.m_SteamID;
+                ulong id = lobbyId;
                 return EncodeBase36(id);
             }
             catch (Exception ex)
@@ -44,11 +42,9 @@ namespace ONI_MP.Networking
         /// <summary>
         /// Parse a lobby code back to a Steam Lobby ID.
         /// </summary>
-        public static bool TryParseCode(string code, out CSteamID lobbyId)
+        public static bool TryParseCode(string code, out ulong lobbyId)
         {
-            Profiler.Scope();
-
-            lobbyId = CSteamID.Nil;
+            lobbyId = Utils.NilUlong();
 
             if (string.IsNullOrWhiteSpace(code))
             {
@@ -60,7 +56,7 @@ namespace ONI_MP.Networking
             {
                 code = code.Trim().ToUpperInvariant();
                 ulong id = DecodeBase36(code);
-                lobbyId = new CSteamID(id);
+                lobbyId = id;
                 return lobbyId.IsValid();
             }
             catch (Exception ex)
@@ -75,8 +71,6 @@ namespace ONI_MP.Networking
         /// </summary>
         public static bool IsValidCodeFormat(string code)
         {
-            Profiler.Scope();
-
             if (string.IsNullOrWhiteSpace(code))
                 return false;
 
@@ -96,8 +90,6 @@ namespace ONI_MP.Networking
         /// </summary>
         public static string FormatCodeForDisplay(string code)
         {
-            Profiler.Scope();
-
             return code;
 
 			if (string.IsNullOrEmpty(code) || code.Length <= 4)
@@ -119,8 +111,6 @@ namespace ONI_MP.Networking
         /// </summary>
         public static string CleanCode(string code)
         {
-            Profiler.Scope();
-
             if (string.IsNullOrEmpty(code))
                 return string.Empty;
 
@@ -129,8 +119,6 @@ namespace ONI_MP.Networking
 
         private static string EncodeBase36(ulong value)
         {
-            Profiler.Scope();
-
             if (value == 0)
                 return "0";
 
@@ -153,8 +141,6 @@ namespace ONI_MP.Networking
 
         private static ulong DecodeBase36(string encoded)
         {
-            Profiler.Scope();
-
             encoded = CleanCode(encoded);
             ulong result = 0;
 

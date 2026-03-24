@@ -6,14 +6,13 @@ using Steamworks;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Core
 {
 	public class PlayerCursorPacket : IPacket
 	{
-		public CSteamID SteamID;
+		public ulong PlayerID;
 		public Vector3 Position;
 		public Color Color;
 		public CursorState CursorState;
@@ -23,16 +22,9 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
-
-			writer.Write(SteamID.m_SteamID);
-			writer.Write(Position.x);
-			writer.Write(Position.y);
-			writer.Write(Position.z);
-			writer.Write(Color.r);
-			writer.Write(Color.g);
-			writer.Write(Color.b);
-			writer.Write(Color.a);
+			writer.Write(PlayerID);
+			writer.Write(Position);
+			writer.Write(Color);
 			writer.Write((int)CursorState);
 			writer.Write(ViewMinX);
 			writer.Write(ViewMinY);
@@ -42,18 +34,9 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
-
-			SteamID = new CSteamID(reader.ReadUInt64());
-			float x = reader.ReadSingle();
-			float y = reader.ReadSingle();
-			float z = reader.ReadSingle();
-			Position = new Vector3(x, y, z);
-			float r = reader.ReadSingle();
-			float g = reader.ReadSingle();
-			float b = reader.ReadSingle();
-			float a = reader.ReadSingle();
-			Color = new Color(r, g, b, a);
+			PlayerID = reader.ReadUInt64();
+			Position = reader.ReadVector3();
+			Color = reader.ReadColor();
 			CursorState = (CursorState)reader.ReadInt32();
 			ViewMinX = reader.ReadInt32();
 			ViewMinY = reader.ReadInt32();
@@ -63,25 +46,25 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			if (PlayerID == MultiplayerSession.LocalUserID)
+				return;
 
-			if (MultiplayerSession.TryGetCursorObject(SteamID, out var cursorGO))
+			if (MultiplayerSession.TryGetCursorObject(PlayerID, out PlayerCursor cursor))
 			{
-				var cursorComponent = cursorGO.GetComponent<PlayerCursor>();
-				if (cursorComponent != null)
+				if (cursor != null)
 				{
-					cursorComponent.SetState(CursorState);
-					cursorComponent.SetColor(Color);
-					cursorComponent.SetVisibility(true);
-					cursorComponent.StopCoroutine("InterpolateCursorPosition");
-					cursorComponent.StartCoroutine(InterpolateCursorPosition(cursorComponent.transform, Position));
+                    cursor.SetState(CursorState);
+                    cursor.SetColor(Color);
+                    cursor.SetVisibility(true);
+                    cursor.StopCoroutine("InterpolateCursorPosition");
+                    cursor.StartCoroutine(InterpolateCursorPosition(cursor.transform, Position));
 				}
 			}
 			else
 			{
 				if (Utils.IsInGame())
 				{
-					MultiplayerSession.CreateNewPlayerCursor(SteamID); // Create a cursor if one doesn't exist.
+					MultiplayerSession.CreateNewPlayerCursor(PlayerID); // Create a cursor if one doesn't exist.
 				}
 			}
 
@@ -92,22 +75,15 @@ namespace ONI_MP.Networking.Packets.Core
 				// Update Viewport in Syncer
 				if (WorldStateSyncer.Instance != null)
 				{
-					WorldStateSyncer.Instance.UpdateClientView(SteamID, ViewMinX, ViewMinY, ViewMaxX, ViewMaxY);
+					WorldStateSyncer.Instance.UpdateClientView(PlayerID, ViewMinX, ViewMinY, ViewMaxX, ViewMaxY);
 				}
 
-				HashSet<CSteamID> excluding = new HashSet<CSteamID>
-								{
-										SteamID,
-										MultiplayerSession.LocalSteamID
-								};
-				PacketSender.SendToAllExcluding(this, excluding);
+				PacketSender.SendToAllOtherPeers(this);
 			}
 		}
 
 		private IEnumerator InterpolateCursorPosition(Transform target, Vector3 targetPos)
 		{
-			Profiler.Scope();
-
 			Vector3 start = target.position;
 			float duration = CursorManager.SendInterval;
 			float elapsed = 0f;

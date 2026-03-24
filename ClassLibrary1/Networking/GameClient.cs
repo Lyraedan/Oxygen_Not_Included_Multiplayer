@@ -5,7 +5,9 @@ using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Handshake;
 using ONI_MP.Networking.Packets.World;
+using ONI_MP.Networking.Profiling;
 using ONI_MP.Networking.States;
+using ONI_MP.Networking.Transport.Steamworks;
 using ONI_MP.Patches.ToolPatches;
 using Shared;
 using Shared.Helpers;
@@ -14,15 +16,12 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking
 {
 	public static class GameClient
 	{
-        private static Callback<SteamNetConnectionStatusChangedCallback_t> _connectionStatusChangedCallback;
-		public static HSteamNetConnection? Connection { get; private set; }
 
 		private static ClientState _state = ClientState.Disconnected;
 		public static ClientState State => _state;
@@ -34,19 +33,25 @@ namespace ONI_MP.Networking
 		public static bool IsHardSyncInProgress = false;
 		private static bool _modVerificationSent = false;
 
-		private static SteamNetConnectionRealTimeStatus_t? connectionHealth = null;
 
 		private struct CachedConnectionInfo
 		{
-			public CSteamID HostSteamID;
+			public ulong HostSteamID;
+			public string ServerIp;
+			public int ServerPort;
 
-			public CachedConnectionInfo(CSteamID id)
+			public CachedConnectionInfo(ulong id)
 			{
-				Profiler.Scope();
-
 				HostSteamID = id;
 			}
-		}
+
+			public CachedConnectionInfo(string ip, int port)
+            {
+                ServerIp = ip;
+                ServerPort = port;
+            }
+
+        }
 
 		/// <summary>
 		/// Returns true if we have cached connection info from a previous session
@@ -54,8 +59,6 @@ namespace ONI_MP.Networking
 		/// </summary>
 		public static bool HasCachedConnection()
 		{
-			Profiler.Scope();
-
 			return _cachedConnectionInfo.HasValue;
 		}
 
@@ -64,15 +67,11 @@ namespace ONI_MP.Networking
 		/// </summary>
 		public static void ClearCachedConnection()
 		{
-			Profiler.Scope();
-
 			_cachedConnectionInfo = null;
 		}
 
 		public static void SetState(ClientState newState)
 		{
-			Profiler.Scope();
-
 			if (_state != newState)
 			{
 				_state = newState;
@@ -82,104 +81,66 @@ namespace ONI_MP.Networking
 
 		public static void Init()
 		{
-			Profiler.Scope();
-
-			if (_connectionStatusChangedCallback == null)
+			// I fucking hate this, maybe replace this with hashes?
+			NetworkConfig.TransportClient.OnClientDisconnected = () => SetState(ClientState.Disconnected);
+			NetworkConfig.TransportClient.OnClientConnected = () => SetState(ClientState.Connected);
+			NetworkConfig.TransportClient.OnContinueConnectionFlow = () => ContinueConnectionFlow();
+			NetworkConfig.TransportClient.OnReturnToMenu = () => CoroutineRunner.RunOne(ShowMessageAndReturnToTitle());
+			NetworkConfig.TransportClient.OnRequestStateOrReturn = () =>
 			{
-				_connectionStatusChangedCallback = Callback<SteamNetConnectionStatusChangedCallback_t>.Create(OnConnectionStatusChanged);
-				DebugConsole.Log("[GameClient] Registered connection status callback.");
-			}
+                PacketSender.SendToHost(new GameStateRequestPacket(MultiplayerSession.LocalUserID));
+                MP_Timer.Instance.StartDelayedAction(10, () => CoroutineRunner.RunOne(ShowMessageAndReturnToTitle()));
+            };
+            NetworkConfig.TransportClient.Prepare();
 		}
 
-		public static void ConnectToHost(CSteamID hostSteamId, bool showLoadingScreen = true)
+		public static void ConnectToHost(bool showLoadingScreen = true, string ip = "", int port = 7777)
 		{
-			Profiler.Scope();
+            Init();
 
-			// Reset mod verification for new connection attempts
-			_modVerificationSent = false;
+            // Reset mod verification for new connection attempts
+            _modVerificationSent = false;
 
 			if (showLoadingScreen)
 			{
-				MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTING_TO_HOST, SteamFriends.GetFriendPersonaName(hostSteamId)));
+				string hostName = "uknown host";
+				if (NetworkConfig.IsSteamConfig())
+				{
+					hostName = SteamFriends.GetFriendPersonaName(MultiplayerSession.HostUserID.AsCSteamID());
+                }
+				else if (NetworkConfig.IsLanConfig())
+				{
+					hostName = $"{ip}:{port}";
+                }
+					MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTING_TO_HOST, hostName));
 			}
 
-			DebugConsole.Log($"[GameClient] Attempting ConnectP2P to host {hostSteamId}...");
 			SetState(ClientState.Connecting);
-
-			var identity = new SteamNetworkingIdentity();
-			identity.SetSteamID64(hostSteamId.m_SteamID);
-
-			Connection = SteamNetworkingSockets.ConnectP2P(ref identity, 0, 0, null);
-			DebugConsole.Log($"[GameClient] ConnectP2P returned handle: {Connection.Value.m_HSteamNetConnection}");
+			NetworkConfig.TransportClient.ConnectToHost(ip, port);
 		}
 
 		public static void Disconnect()
 		{
-			Profiler.Scope();
-
-			if (Connection.HasValue)
-			{
-				DebugConsole.Log("[GameClient] Disconnecting from host...");
-
-				bool result = SteamNetworkingSockets.CloseConnection(
-						Connection.Value,
-						0,
-						"Client disconnecting",
-						false
-				);
-
-				DebugConsole.Log($"[GameClient] CloseConnection result: {result}");
-				Connection = null;
-				SetState(ClientState.Disconnected);
-				MultiplayerSession.InSession = false;
-				//SaveHelper.CaptureWorldSnapshot();
-			}
-			else
-			{
-				DebugConsole.LogWarning("[GameClient] Disconnect called, but no connection exists.");
-			}
+			NetworkConfig.TransportClient.Disconnect();
 		}
 
 		public static void ReconnectToSession()
 		{
-			Profiler.Scope();
-
-			if (Connection.HasValue || State == ClientState.Connected || State == ClientState.Connecting)
-			{
-				DebugConsole.Log("[GameClient] Reconnecting: First disconnecting existing connection.");
-				Disconnect();
-				System.Threading.Thread.Sleep(100);
-			}
-
-			if (MultiplayerSession.HostSteamID != CSteamID.Nil)
-			{
-				DebugConsole.Log("[GameClient] Attempting to reconnect to host...");
-				ConnectToHost(MultiplayerSession.HostSteamID);
-			}
-			else
-			{
-				DebugConsole.LogWarning("[GameClient] Cannot reconnect: HostSteamID is not set.");
-			}
+			NetworkConfig.TransportClient.ReconnectToSession();
 		}
 
 		public static void Poll()
 		{
-			Profiler.Scope();
-
 			if (_pollingPaused)
 				return;
 
-			SteamNetworkingSockets.RunCallbacks();
-			EvaluateConnectionHealth();
+			NetworkConfig.TransportClient.Update();
 
 			switch (State)
 			{
 				case ClientState.Connected:
 				case ClientState.InGame:
-					if (Connection.HasValue)
-						ProcessIncomingMessages(Connection.Value);
-					else
-						DebugConsole.LogWarning($"[GameClient] Poll() - Connection is null! State: {State}");
+					NetworkConfig.TransportClient.OnMessageRecieved();
 					break;
 				case ClientState.Connecting:
 				case ClientState.Disconnected:
@@ -189,74 +150,8 @@ namespace ONI_MP.Networking
 			}
 		}
 
-		private static void ProcessIncomingMessages(HSteamNetConnection conn)
-		{
-			Profiler.Scope();
-
-            using var scope = Profiler.Scope();
-            int totalBytes = 0;
-
-            int maxMessagesPerConnectionPoll = Configuration.GetClientProperty<int>("MaxMessagesPerPoll");
-			IntPtr[] messages = new IntPtr[maxMessagesPerConnectionPoll];
-			int msgCount = SteamNetworkingSockets.ReceiveMessagesOnConnection(conn, messages, maxMessagesPerConnectionPoll);
-
-			//if (msgCount > 0)
-			//{
-			//	DebugConsole.Log($"[GameClient] ProcessIncomingMessages() - Received {msgCount} messages");
-			//}
-
-			for (int i = 0; i < msgCount; i++)
-			{
-				var msg = Marshal.PtrToStructure<SteamNetworkingMessage_t>(messages[i]);
-                totalBytes += msg.m_cbSize;
-                byte[] data = new byte[msg.m_cbSize];
-				Marshal.Copy(msg.m_pData, data, 0, msg.m_cbSize);
-
-				try
-				{
-					//DebugConsole.Log($"[GameClient] Processing packet {i+1}/{msgCount}, size: {msg.m_cbSize} bytes, readyToProcess: {PacketHandler.readyToProcess}");
-					PacketHandler.HandleIncoming(data);
-				}
-				catch (Exception ex)
-				{
-					DebugConsole.LogWarning($"[GameClient] Failed to handle incoming packet: {ex}"); // Prevent crashes from packet handling
-				}
-
-				SteamNetworkingMessage_t.Release(messages[i]);
-			}
-            scope.End(msgCount, totalBytes);
-        }
-
-		private static void OnConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t data)
-		{
-			Profiler.Scope();
-
-			var state = data.m_info.m_eState;
-			var remote = data.m_info.m_identityRemote.GetSteamID();
-
-			DebugConsole.Log($"[GameClient] Connection status changed: {state} (remote={remote})");
-
-			if (Connection.HasValue && data.m_hConn.m_HSteamNetConnection != Connection.Value.m_HSteamNetConnection)
-				return;
-
-			switch (state)
-			{
-				case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_Connected:
-					OnConnected();
-					break;
-				case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ClosedByPeer:
-				case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
-					OnDisconnected("Closed by peer or problem detected locally", remote, state);
-					break;
-				default:
-					break;
-			}
-		}
-
 		public static void OnHostResponseReceived(GameStateRequestPacket packet)
 		{
-			Profiler.Scope();
-
 			DebugConsole.Log("Gamestate packet received");
 			MP_Timer.Instance.Abort();
 			if (!SaveHelper.SavegameDlcListValid(packet.ActiveDlcIds, out var errorMsg))
@@ -292,60 +187,14 @@ namespace ONI_MP.Networking
 		}
 		static void BackToMainMenu()
 		{
-			Profiler.Scope();
-
 			MultiplayerOverlay.Close();
 			NetworkIdentityRegistry.Clear();
 			SteamLobby.LeaveLobby();
 			App.LoadScene("frontend");
 		}
 
-		private static void OnConnected()
-		{
-			Profiler.Scope();
-
-			//MultiplayerOverlay.Close();
-
-			// We've reconnected in game
-			MultiplayerSession.InSession = true;
-            Game.Instance?.Trigger(MP_HASHES.OnConnected);
-            SetState(ClientState.Connected);
-
-            var hostId = MultiplayerSession.HostSteamID;
-			if (!MultiplayerSession.ConnectedPlayers.ContainsKey(hostId))
-			{
-				var hostPlayer = new MultiplayerPlayer(hostId);
-				MultiplayerSession.ConnectedPlayers[hostId] = hostPlayer;
-			}
-
-			// Store the connection handle for host
-			MultiplayerSession.ConnectedPlayers[hostId].Connection = Connection;
-
-			DebugConsole.Log("[GameClient] Connection to host established!");
-
-            // Skip mod verification if we are the host
-            if (MultiplayerSession.IsHost)
-			{
-				return;
-			}
-
-			PacketHandler.readyToProcess = true;
-
-			if (Utils.IsInGame())
-			{
-				ContinueConnectionFlow();
-			}
-			else
-			{
-				PacketSender.SendToHost(new GameStateRequestPacket(MultiplayerSession.LocalSteamID));
-				MP_Timer.Instance.StartDelayedAction(10, () => CoroutineRunner.RunOne(ShowMessageAndReturnToTitle()));
-			}
-        }
-
         private static void ContinueConnectionFlow()
 		{
-			Profiler.Scope();
-
 			// CRITICAL: Only execute on client, never on server
 			if (MultiplayerSession.IsHost)
 			{
@@ -367,13 +216,13 @@ namespace ONI_MP.Networking
 				DebugConsole.Log("[GameClient] PacketHandler.readyToProcess = true (menu)");
 
 				// Show overlay with localized message
-				MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.WAITING_FOR_PLAYER, SteamFriends.GetFriendPersonaName(MultiplayerSession.HostSteamID)));
+				MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.WAITING_FOR_PLAYER, SteamFriends.GetFriendPersonaName(MultiplayerSession.HostUserID.AsCSteamID())));
 				if (!IsHardSyncInProgress)
 				{
 					DebugConsole.Log("[GameClient] Requesting save file from host");
 					var packet = new SaveFileRequestPacket
 					{
-						Requester = MultiplayerSession.LocalSteamID
+						Requester = MultiplayerSession.LocalUserID
 					};
 					PacketSender.SendToHost(packet);
 				}
@@ -419,40 +268,8 @@ namespace ONI_MP.Networking
 			}
 		}
 
-		private static void OnDisconnected(string reason, CSteamID remote, ESteamNetworkingConnectionState state)
-		{
-			Profiler.Scope();
-
-			DebugConsole.LogWarning($"[GameClient] Connection closed or failed ({state}) for {remote}. Reason: {reason}");
-
-			// If we're intentionally disconnecting for world loading, don't show error or return to title
-			// We will reconnect automatically after the world finishes loading via ReconnectFromCache()
-			if (_state == ClientState.LoadingWorld)
-			{
-				DebugConsole.Log("[GameClient] Ignoring disconnect callback - world is loading, will reconnect after.");
-				return;
-			}
-
-			switch (state)
-			{
-				case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ClosedByPeer:
-					// The host closed our connection
-					if (remote == MultiplayerSession.HostSteamID)
-					{
-						CoroutineRunner.RunOne(ShowMessageAndReturnToTitle());
-					}
-					break;
-				case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
-					// Something went wrong locally
-					CoroutineRunner.RunOne(ShowMessageAndReturnToTitle());
-					break;
-			}
-		}
-
 		private static IEnumerator ShowMessageAndReturnToTitle()
 		{
-			Profiler.Scope();
-
 			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.CLIENT.LOST_CONNECTION);
 			//SaveHelper.CaptureWorldSnapshot();
 			yield return new WaitForSeconds(3f);
@@ -465,193 +282,52 @@ namespace ONI_MP.Networking
 
 			MultiplayerOverlay.Close();
 			NetworkIdentityRegistry.Clear();
-			SteamLobby.LeaveLobby();
-		}
-
-		#region Connection Health
-		public static SteamNetConnectionRealTimeStatus_t? QueryConnectionHealth()
-		{
-			Profiler.Scope();
-
-			if (Connection.HasValue)
+			if (NetworkConfig.IsSteamConfig())
 			{
-				SteamNetConnectionRealTimeStatus_t status = default;
-				SteamNetConnectionRealTimeLaneStatus_t laneStatus = default;
-
-				EResult res = SteamNetworkingSockets.GetConnectionRealTimeStatus(
-						Connection.Value,
-						ref status,
-						0,
-						ref laneStatus
-				);
-
-				if (res == EResult.k_EResultOK)
-				{
-					return status;
-				}
+				SteamLobby.LeaveLobby();
 			}
-			return null;
 		}
 
-		public static void EvaluateConnectionHealth()
-		{
-			Profiler.Scope();
-
-			connectionHealth = QueryConnectionHealth();
-		}
-
-		public static SteamNetConnectionRealTimeStatus_t? GetConnectionHealth()
-		{
-			Profiler.Scope();
-
-			return connectionHealth;
-		}
-
-		public static float GetLocalPacketQuality()
-		{
-			Profiler.Scope();
-
-			if (!connectionHealth.HasValue)
-				return 0f;
-
-			return connectionHealth.Value.m_flConnectionQualityLocal;
-		}
-
-		public static float GetRemotePacketQuality()
-		{
-			Profiler.Scope();
-
-			if (!connectionHealth.HasValue)
-				return 0f;
-
-			return connectionHealth.Value.m_flConnectionQualityRemote;
-		}
-
-		public static int GetPingToHost()
-		{
-			Profiler.Scope();
-
-			if (!connectionHealth.HasValue)
-				return -1;
-
-			return connectionHealth.Value.m_nPing;
-		}
-
-		public static int GetUnackedReliable()
-		{
-			Profiler.Scope();
-
-			if (!connectionHealth.HasValue)
-				return -1;
-
-			return connectionHealth.Value.m_cbSentUnackedReliable;
-		}
-
-		public static int GetPendingUnreliable()
-		{
-			Profiler.Scope();
-
-			if (!connectionHealth.HasValue)
-				return -1;
-
-			return connectionHealth.Value.m_cbPendingUnreliable;
-		}
-
-		public static long GetUsecQueueTime()
-		{
-			Profiler.Scope();
-
-			if (!connectionHealth.HasValue)
-				return -1;
-
-			return (long)connectionHealth.Value.m_usecQueueTime;
-		}
-		#endregion
 		public static void CacheCurrentServer()
 		{
-			Profiler.Scope();
-
-			if (MultiplayerSession.HostSteamID != CSteamID.Nil)
+			if(NetworkConfig.IsSteamConfig())
+			{
+                if (MultiplayerSession.HostUserID != Utils.NilUlong())
+                {
+                    _cachedConnectionInfo = new CachedConnectionInfo(
+                            MultiplayerSession.HostUserID
+                    );
+                }
+            } 
+			else if(NetworkConfig.IsLanConfig())
 			{
 				_cachedConnectionInfo = new CachedConnectionInfo(
-						MultiplayerSession.HostSteamID
-				);
-				DebugConsole.Log($"[GameClient] Cached server: {_cachedConnectionInfo.Value.HostSteamID}");
-			}
-			else
-			{
-				DebugConsole.LogWarning("[GameClient] Tried to cache, but HostSteamID is Nil.");
-			}
+                    MultiplayerSession.ServerIp,
+                    MultiplayerSession.ServerPort
+                );
+            }
 		}
 
 		public static void ReconnectFromCache()
 		{
-			Profiler.Scope();
-
 			if (_cachedConnectionInfo.HasValue)
 			{
-				DebugConsole.Log($"[GameClient] Reconnecting to cached server: {_cachedConnectionInfo.Value.HostSteamID}");
-				var hostId = _cachedConnectionInfo.Value.HostSteamID;
-				_cachedConnectionInfo = null; // Clear cache to prevent re-triggering
-				ConnectToHost(hostId, false);
-			}
-			else
-			{
-				DebugConsole.LogWarning("[GameClient] No cached server info available to reconnect.");
-			}
-		}
-
-
-
-		public static void PauseNetworkingCallbacks()
-		{
-			Profiler.Scope();
-
-			_pollingPaused = true;
-			DebugConsole.Log("[GameClient] Networking callbacks paused.");
-		}
-
-		public static void ResumeNetworkingCallbacks()
-		{
-			Profiler.Scope();
-
-			_pollingPaused = false;
-			DebugConsole.Log("[GameClient] Networking callbacks resumed.");
-		}
-
-		public static void OnModVerificationApproved()
-		{
-			Profiler.Scope();
-
-			DebugConsole.Log("[GameClient] Mod verification approved by host!");
-
-			// DO NOT close overlay here - let connection flow manage it
-			DebugConsole.Log("[GameClient] Mod verification approved, continuing connection flow");
-
-			// Continue with normal connection flow
-			ContinueConnectionFlow();
-		}
-
-		public static void DisableMessageHandlers()
-		{
-			Profiler.Scope();
-
-			if (_connectionStatusChangedCallback != null)
-			{
-				_connectionStatusChangedCallback.Unregister();
-				_connectionStatusChangedCallback = null;
-				DebugConsole.Log("[GameClient] Networking message handlers disabled.");
-			}
-		}
-
-		public static void EnableMessageHandlers()
-		{
-			Profiler.Scope();
-
-			if (_connectionStatusChangedCallback == null)
-			{
-				_connectionStatusChangedCallback = Callback<SteamNetConnectionStatusChangedCallback_t>.Create(OnConnectionStatusChanged);
-				DebugConsole.Log("[GameClient] Networking message handlers enabled.");
+				if(NetworkConfig.IsSteamConfig())
+				{
+                    DebugConsole.Log($"[GameClient] Reconnecting to cached server: {_cachedConnectionInfo.Value.HostSteamID}");
+                    var hostId = _cachedConnectionInfo.Value.HostSteamID;
+                    _cachedConnectionInfo = null; // Clear cache to prevent re-triggering
+                    MultiplayerSession.HostUserID = hostId;
+                    ConnectToHost(false);
+                } 
+				else if(NetworkConfig.IsLanConfig())
+				{
+                    DebugConsole.Log($"[GameClient] Reconnecting to cached server: {_cachedConnectionInfo.Value.ServerPort}:{_cachedConnectionInfo.Value.ServerPort}");
+                    var ip = _cachedConnectionInfo.Value.ServerIp;
+                    var port = _cachedConnectionInfo.Value.ServerPort;
+                    _cachedConnectionInfo = null; // Clear cache to prevent re-triggering
+                    ConnectToHost(false, ip, port);
+                }
 			}
 		}
 	}

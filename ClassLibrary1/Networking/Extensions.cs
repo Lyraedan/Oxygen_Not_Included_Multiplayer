@@ -1,4 +1,5 @@
 ﻿using ONI_MP.Networking.Components;
+using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,5 +46,21 @@ namespace ONI_MP.Networking
 				return 0;
 			return identity.NetId;
 		}
-	}
+
+		// Used to replace CSteamID
+        public static bool IsValid(this ulong value)
+        {
+            return value != ulong.MaxValue && !value.Equals(value.Nil());
+        }
+
+		public static CSteamID AsCSteamID(this ulong value)
+		{
+			return new CSteamID(value);
+		}
+
+		public static ulong Nil(this ulong value)
+		{
+			return 0uL; // Stole this badboy from the steamworks api
+        }
+    }
 }

@@ -67,7 +67,7 @@ namespace ONI_MP.Networking.Components
 			if (!Utils.IsInGame())
 				return;
 
-			if (!MultiplayerSession.InSession || !MultiplayerSession.LocalSteamID.IsValid())
+			if (!MultiplayerSession.InSession || !MultiplayerSession.LocalUserID.IsValid())
 				return;
 
 			timeSinceLastSend += Time.unscaledDeltaTime;
@@ -108,7 +108,7 @@ namespace ONI_MP.Networking.Components
 
 			var packet = new PlayerCursorPacket
 			{
-				SteamID = MultiplayerSession.LocalSteamID,
+				PlayerID = MultiplayerSession.LocalUserID,
 				Position = cursorWorldPos,
 				Color = color,
 				CursorState = cursorState,

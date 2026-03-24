@@ -1,228 +1,292 @@
-using ONI_MP.DebugTools;
+﻿using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.World;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Components
 {
-	public class BuildingSyncer : MonoBehaviour
-	{
-		public static BuildingSyncer Instance { get; private set; }
+    public class BuildingSyncer : MonoBehaviour
+    {
+        public static BuildingSyncer Instance { get; private set; }
 
-		private const float SYNC_INTERVAL = 30f; // Increased from 10s, helps sandbox mode
-		private float _lastSyncTime;
+        private const float SYNC_INTERVAL = 30f;
+        private float _lastSyncTime;
 
-		// Grace period
-		private bool _initialized = false;
-		private float _initializationTime;
-		private const float INITIAL_DELAY = 5f;
+        private bool _initialized = false;
+        private float _initializationTime;
+        private const float INITIAL_DELAY = 5f;
 
-		private void Awake()
-		{
-			Profiler.Scope();
+        // Chunk reassembly
+        private Dictionary<int, List<BuildingState>> _chunkBuffer = new();
+        private int _expectedChunks = -1;
+        private float _lastChunkTime;
+        private const float CHUNK_TIMEOUT = 5f;
 
-			Instance = this;
-		}
+        private void Awake()
+        {
+            Instance = this;
+        }
 
-		private void Update()
-		{
-			Profiler.Scope();
+        private void Update()
+        {
+            if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
+                return;
 
-			if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
-				return;
+            if (MultiplayerSession.ConnectedPlayers.Count == 0)
+                return;
 
-			// Skip if no clients connected
-			if (MultiplayerSession.ConnectedPlayers.Count == 0)
-				return;
+            if (!_initialized)
+            {
+                _initializationTime = Time.unscaledTime;
+                _initialized = true;
+                return;
+            }
 
-			// Grace period after world load
-			if (!_initialized)
-			{
-				_initializationTime = Time.unscaledTime;
-				_initialized = true;
-				return;
-			}
+            if (Time.unscaledTime - _initializationTime < INITIAL_DELAY)
+                return;
 
-			if (Time.unscaledTime - _initializationTime < INITIAL_DELAY)
-				return;
+            if (Time.unscaledTime - _lastSyncTime > SYNC_INTERVAL)
+            {
+                _lastSyncTime = Time.unscaledTime;
+                SendSyncPacket();
+            }
 
-			if (Time.unscaledTime - _lastSyncTime > SYNC_INTERVAL)
-			{
-				_lastSyncTime = Time.unscaledTime;
-				SendSyncPacket();
-			}
-		}
+            // Timeout protection (client-side safety)
+            if (_chunkBuffer.Count > 0 && Time.time - _lastChunkTime > CHUNK_TIMEOUT)
+            {
+                DebugConsole.Log("[BuildingSyncer] Chunk timeout - clearing buffer");
+                _chunkBuffer.Clear();
+                _expectedChunks = -1;
+            }
+        }
 
-		private void SendSyncPacket()
-		{
-			Profiler.Scope();
+        private void SendSyncPacket()
+        {
+            var buildings = global::Components.BuildingCompletes.Items;
+            var stateList = new List<BuildingState>(buildings.Count);
 
-			var buildings = global::Components.BuildingCompletes.Items;
-			var stateList = new List<BuildingState>(buildings.Count);
+            bool isLan = NetworkConfig.IsLanConfig();
+            float maxPacketSize = isLan
+                ? PacketSender.MAX_PACKET_SIZE_LAN * 1024f
+                : PacketSender.MAX_PACKET_SIZE_UNRELIABLE;
 
-			foreach (var building in buildings)
-			{
-				if (building == null) continue;
+            foreach (var building in buildings)
+            {
+                if (building == null) continue;
 
-				int cell = Grid.PosToCell(building);
-				if (!Grid.IsValidCell(cell)) continue;
+                int cell = Grid.PosToCell(building);
+                if (!Grid.IsValidCell(cell)) continue;
 
-				// Use KPrefabID for identification
-				var kpid = building.GetComponent<KPrefabID>();
-				if (kpid == null) continue;
+                var kpid = building.GetComponent<KPrefabID>();
+                if (kpid == null) continue;
 
-				stateList.Add(new BuildingState
-				{
-					Cell = cell,
-					PrefabName = kpid.PrefabTag.Name  // Send string name instead of hash
-				});
-			}
+                stateList.Add(new BuildingState
+                {
+                    Cell = cell,
+                    PrefabName = kpid.PrefabTag.Name
+                });
+            }
 
-			var packet = new BuildingStatePacket
-			{
-				Buildings = stateList
-			};
+            // Build chunks
+            List<List<BuildingState>> chunks = new();
+            List<BuildingState> currentBatch = new();
 
-			PacketSender.SendToAllClients(packet, SteamNetworkingSend.Unreliable);
-			//DebugConsole.Log($"[BuildingSyncer] Sent sync packet with {stateList.Count} buildings.");
-		}
+            foreach (var state in stateList)
+            {
+                currentBatch.Add(state);
 
-		public void OnPacketReceived(BuildingStatePacket packet)
-		{
-			Profiler.Scope();
+                var testPacket = new BuildingStatePacket
+                {
+                    Buildings = currentBatch
+                };
 
-			if (MultiplayerSession.IsHost) return;
-			if (Grid.WidthInCells == 0) return; // World not loaded yet
+                int size = testPacket.SerializeToByteArray().Length + 4;
 
-			// DebugConsole.Log($"[BuildingSyncer] Received sync packet with {packet.Buildings.Count} remote buildings.");
-			StartCoroutine(Reconcile(packet.Buildings));
-		}
+                if (size > maxPacketSize)
+                {
+                    currentBatch.RemoveAt(currentBatch.Count - 1);
 
-		private IEnumerator Reconcile(List<BuildingState> remoteBuildings)
-		{
-			Profiler.Scope();
+                    chunks.Add(currentBatch);
+                    currentBatch = new List<BuildingState> { state };
+                }
+            }
 
-			// Create a lookup for remote buildings: Cell -> List of PrefabNames
-			var remoteSet = new HashSet<(int, string)>();
-			foreach (var b in remoteBuildings)
-			{
-				if (!string.IsNullOrEmpty(b.PrefabName))
-				{
-					remoteSet.Add((b.Cell, b.PrefabName));
-				}
-			}
+            if (currentBatch.Count > 0)
+                chunks.Add(currentBatch);
 
-			var localBuildings = global::Components.BuildingCompletes.Items;
-			// We need a stable list copy since we might modify it
-			var localList = new List<BuildingComplete>(localBuildings);
+            // Send chunks with metadata
+            for (int i = 0; i < chunks.Count; i++)
+            {
+                SendBatch(chunks[i], i, chunks.Count);
+            }
+        }
 
-			// 1. Destroy Phantom Buildings (Local but not Remote)
-			foreach (var building in localList)
-			{
-				if (building == null) continue;
+        private void SendBatch(List<BuildingState> batch, int chunkIndex, int totalChunks)
+        {
+            var packet = new BuildingStatePacket
+            {
+                Buildings = batch,
+                ChunkIndex = chunkIndex,
+                TotalChunks = totalChunks
+            };
 
-				int cell = Grid.PosToCell(building);
-				var kpid = building.GetComponent<KPrefabID>();
-				if (kpid == null) continue;
+            PacketSender.SendToAllClients(packet, SteamNetworkingSend.Unreliable);
+        }
 
-				string prefabName = kpid.PrefabTag.Name;
+        public void OnPacketReceived(BuildingStatePacket packet)
+        {
+            if (MultiplayerSession.IsHost) return;
+            if (Grid.WidthInCells == 0) return;
 
-				if (!remoteSet.Contains((cell, prefabName)))
-				{
-					DebugConsole.Log($"[BuildingSyncer] Removing phantom building {prefabName} at {cell}");
-					// Use standard deconstruction or immediate destroy? Immediate is safer for sync fix
-					Util.KDestroyGameObject(building.gameObject);
-				}
-			}
+            _chunkBuffer[packet.ChunkIndex] = packet.Buildings;
+            _expectedChunks = packet.TotalChunks;
+            _lastChunkTime = Time.time;
 
-			// 2. Spawn Missing Buildings (Remote but not Local)
-			// This is O(N*M) if naive. Let's build a local set first.
-			var localSet = new HashSet<(int, string)>();
-			foreach (var building in localList)
-			{
-				if (building == null) continue;
-				int cell = Grid.PosToCell(building);
-				var kpid = building.GetComponent<KPrefabID>();
-				if (kpid == null) continue;
-				localSet.Add((cell, kpid.PrefabTag.Name));
-			}
+            if (_chunkBuffer.Count < _expectedChunks)
+                return;
 
-			foreach (var remote in remoteBuildings)
-			{
-				if (string.IsNullOrEmpty(remote.PrefabName)) continue;
-				
-				if (!localSet.Contains((remote.Cell, remote.PrefabName)))
-				{
-					DebugConsole.Log($"[BuildingSyncer] Spawning missing building {remote.PrefabName} at {remote.Cell}");
-					SpawnBuilding(remote.Cell, remote.PrefabName);
-					yield return null; // Spread out instantiation to avoid frame spikes
-				}
-			}
-		}
+            // Reassemble full dataset
+            var fullList = new List<BuildingState>();
+            for (int i = 0; i < _expectedChunks; i++)
+            {
+                if (_chunkBuffer.TryGetValue(i, out var chunk))
+                    fullList.AddRange(chunk);
+            }
 
-		private void SpawnBuilding(int cell, string prefabName)
-		{
-			Profiler.Scope();
+            _chunkBuffer.Clear();
+            _expectedChunks = -1;
 
-			if (Grid.WidthInCells == 0) return;
-			if (string.IsNullOrEmpty(prefabName)) return;
+            StartCoroutine(Reconcile(fullList));
+        }
 
-			var def = Assets.GetBuildingDef(prefabName);
+        private IEnumerator Reconcile(List<BuildingState> remoteBuildings)
+        {
+            // Build remote lookup: (Cell, Layer) -> Prefab
+            var remoteByCellLayer = new Dictionary<(int, ObjectLayer), string>();
+            foreach (var b in remoteBuildings)
+            {
+                if (!string.IsNullOrEmpty(b.PrefabName))
+                {
+                    var def = Assets.GetBuildingDef(b.PrefabName);
+                    if (def != null)
+                    {
+                        remoteByCellLayer[(b.Cell, def.TileLayer)] = b.PrefabName;
+                    }
+                }
+            }
 
-			if (def == null)
-			{
-				// Try fallback via prefab lookup
-				GameObject prefab = Assets.GetPrefab(prefabName);
-				if (prefab != null)
-				{
-					var wBuilding = prefab.GetComponent<Building>();
-					if (wBuilding != null) def = wBuilding.Def;
-				}
-			}
+            var localBuildings = global::Components.BuildingCompletes.Items;
+            var localList = new List<BuildingComplete>(localBuildings);
 
-			if (def != null)
-			{
-				try
-				{
-					// Use Util.KInstantiate to bypass complex BuildingDef.Build logic that causes DivideByZero
-					// This is a "visual/functional" spawn for client sync.
-					Vector3 pos = Grid.CellToPosCBC(cell, def.SceneLayer);
-					GameObject go = Util.KInstantiate(Assets.GetPrefab(def.Tag), pos);
+            // Replace buildings ONLY if something different exists at same cell AND same layer
+            foreach (var building in localList)
+            {
+                if (building == null) continue;
 
-					if (go != null)
-					{
-						// Try to set element to something safe so it has properties (mass, temp, etc)
-						var primaryElement = go.GetComponent<PrimaryElement>();
-						if (primaryElement != null)
-						{
-							// "Bloco" (Tile) needs a solid element.
-							var safeElement = ElementLoader.FindElementByHash(SimHashes.SandStone);
-							if (safeElement == null) safeElement = ElementLoader.FindElementByHash(SimHashes.Dirt);
-							if (safeElement == null && ElementLoader.elements != null) safeElement = ElementLoader.elements.FirstOrDefault(e => e.IsSolid);
+                ObjectLayer layer = building.Def.TileLayer;
+                int cell = Grid.PosToCell(building);
+                var kpid = building.GetComponent<KPrefabID>();
+                if (kpid == null) continue;
 
-							if (safeElement != null)
-							{
-								primaryElement.SetElement(safeElement.id, true);
-								primaryElement.Temperature = 293.15f;
-								if (primaryElement.Mass <= 0.001f) primaryElement.Mass = 100f; // Ensure non-zero mass
-							}
-						}
+                string localPrefab = kpid.PrefabTag.Name;
 
-						go.SetActive(true);
-					}
-				}
-				catch (System.Exception ex)
-				{
-					DebugConsole.LogError($"[BuildingSyncer] Failed to spawn building {def.Name} at {cell}: {ex}");
-				}
-			}
-			else
-			{
-				DebugConsole.LogWarning($"[BuildingSyncer] Could not find BuildingDef for {prefabName}");
-			}
-		}
-	}
+                if (remoteByCellLayer.TryGetValue((cell, layer), out var remotePrefab))
+                {
+                    if (remotePrefab != localPrefab)
+                    {
+                        DebugConsole.Log($"[BuildingSyncer] Replacing {localPrefab} with {remotePrefab} at {cell} (Layer: {layer})");
+                        Util.KDestroyGameObject(building.gameObject);
+                    }
+                }
+                // If no remote building at this cell+layer then do nothing
+            }
+
+            // Build a set of (cell, layer, prefab) for existing local buildings
+            var localSet = new HashSet<(int, ObjectLayer, string)>();
+            foreach (var building in global::Components.BuildingCompletes.Items)
+            {
+                if (building == null) continue;
+
+                int cell = Grid.PosToCell(building);
+                var kpid = building.GetComponent<KPrefabID>();
+                if (kpid == null) continue;
+
+                localSet.Add((cell, building.Def.TileLayer, kpid.PrefabTag.Name));
+            }
+
+            // Spawn missing remote buildings
+            foreach (var remote in remoteBuildings)
+            {
+                if (string.IsNullOrEmpty(remote.PrefabName)) continue;
+
+                var def = Assets.GetBuildingDef(remote.PrefabName);
+                if (def == null) continue;
+
+                if (!localSet.Contains((remote.Cell, def.TileLayer, remote.PrefabName)))
+                {
+                    DebugConsole.Log($"[BuildingSyncer] Spawning missing building {remote.PrefabName} at {remote.Cell} (Layer: {def.TileLayer})");
+                    SpawnBuilding(remote.Cell, remote.PrefabName);
+                    yield return null;
+                }
+            }
+        }
+
+        private void SpawnBuilding(int cell, string prefabName)
+        {
+            if (Grid.WidthInCells == 0) return;
+            if (string.IsNullOrEmpty(prefabName)) return;
+
+            var def = Assets.GetBuildingDef(prefabName);
+
+            if (def == null)
+            {
+                GameObject prefab = Assets.GetPrefab(prefabName);
+                if (prefab != null)
+                {
+                    var wBuilding = prefab.GetComponent<Building>();
+                    if (wBuilding != null) def = wBuilding.Def;
+                }
+            }
+
+            if (def != null)
+            {
+                try
+                {
+                    Vector3 pos = Grid.CellToPosCBC(cell, def.SceneLayer);
+                    GameObject go = Util.KInstantiate(Assets.GetPrefab(def.Tag), pos);
+
+                    if (go != null)
+                    {
+                        var primaryElement = go.GetComponent<PrimaryElement>();
+                        if (primaryElement != null)
+                        {
+                            var safeElement = ElementLoader.FindElementByHash(SimHashes.SandStone)
+                                ?? ElementLoader.FindElementByHash(SimHashes.Dirt)
+                                ?? ElementLoader.elements?.FirstOrDefault(e => e.IsSolid);
+
+                            if (safeElement != null)
+                            {
+                                primaryElement.SetElement(safeElement.id, true);
+                                primaryElement.Temperature = 293.15f;
+                                if (primaryElement.Mass <= 0.001f)
+                                    primaryElement.Mass = 100f;
+                            }
+                        }
+
+                        go.SetActive(true);
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    DebugConsole.LogError($"[BuildingSyncer] Failed to spawn building {def.Name} at {cell}: {ex}");
+                }
+            }
+            else
+            {
+                DebugConsole.LogWarning($"[BuildingSyncer] Could not find BuildingDef for {prefabName}");
+            }
+        }
+    }
 }

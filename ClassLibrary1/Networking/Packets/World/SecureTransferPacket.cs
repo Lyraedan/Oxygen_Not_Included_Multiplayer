@@ -128,7 +128,7 @@ namespace ONI_MP.Networking.Packets.World
             // Trigger existing resend mechanism
             var requestPacket = new SaveFileRequestPacket
             {
-                Requester = MultiplayerSession.LocalSteamID
+                Requester = MultiplayerSession.LocalUserID
             };
             PacketSender.SendToHost(requestPacket);
         }
@@ -144,7 +144,7 @@ namespace ONI_MP.Networking.Packets.World
             {
                 SequenceNumber = sequenceNumber,
                 TransferId = transferId,
-                ClientSteamID = MultiplayerSession.LocalSteamID
+                ClientSteamID = MultiplayerSession.LocalUserID
             };
 
             PacketSender.SendToHost(ackPacket);

@@ -1,6 +1,7 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
+using ONI_MP.Networking.Transport.Steamworks;
 using ONI_MP.UI.Components;
 using ONI_MP.UI.lib.FUI;
 using Shared.Helpers;
@@ -48,7 +49,7 @@ namespace ONI_MP.UI
 
 		bool init = false;
 		static string lastScene = string.Empty;
-		CSteamID LobbyId;
+		ulong LobbyId;
 
 		public void Init()
 		{
@@ -82,7 +83,7 @@ namespace ONI_MP.UI
 			if (SteamLobby.ValidateLobbyPassword(LobbyId, password))
 			{
 				SetRegularStatus();
-				SteamLobby.JoinLobby(LobbyId, (lobbyId) =>
+				SteamLobby.JoinLobby(LobbyId.AsCSteamID(), (lobbyId) =>
 				{
 					DebugConsole.Log($"[LobbyBrowser] Successfully joined lobby: {lobbyId}");
 					
@@ -96,7 +97,7 @@ namespace ONI_MP.UI
 		}
 		void SetRegularStatus() => PasswordStatus.SetText(MP_PASSWORD_DIALOGUE.HOSTMENU.PASSWORDTITLE);
 
-		public static void ShowPasswordDialogueFor(CSteamID lobby)
+		public static void ShowPasswordDialogueFor(ulong lobby)
 		{
 			Profiler.Scope();
 

@@ -1,7 +1,8 @@
-﻿using NodeEditorFramework;
+using NodeEditorFramework;
 using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
+using ONI_MP.Networking.Transport.Steamworks;
 using ONI_MP.UI.Components;
 using ONI_MP.UI.lib;
 using Shared.Helpers;
@@ -78,7 +79,7 @@ namespace ONI_MP.UI
 		bool init = false;
 		static string lastScene = string.Empty;
 		Coroutine LobbyRefresh;
-		CSteamID _pendingLobbyId = CSteamID.Nil;
+		ulong _pendingLobbyId = Utils.NilUlong();
 
 		public void Init()
 		{
@@ -280,7 +281,7 @@ namespace ONI_MP.UI
 				return;
 			}
 
-			if (!LobbyCodeHelper.TryParseCode(code, out CSteamID lobbyId))
+			if (!LobbyCodeHelper.TryParseCode(code, out ulong lobbyId))
 			{
 				DialogUtil.CreateConfirmDialogFrontend(JOINBYDIALOGMENU.JOIN_BY_CODE, STRINGS.UI.JOINBYDIALOGMENU.ERR_PARSE_CODE_FAILED);
 				return;
@@ -290,28 +291,24 @@ namespace ONI_MP.UI
 
 			// We need to join the lobby to get its metadata (including password status)
 			// But first, let's check if we can get the data by requesting lobby data
-			SteamMatchmaking.RequestLobbyData(lobbyId);
+			SteamMatchmaking.RequestLobbyData(lobbyId.AsCSteamID());
 		}
 
 		void OnLobbyDataUpdateReceived(LobbyDataUpdate_t data)
 		{
-			Profiler.Scope();
-
-			if (data.m_ulSteamIDLobby != _pendingLobbyId.m_SteamID)
+			if (data.m_ulSteamIDLobby != _pendingLobbyId)
 				return;
 
 			if (data.m_bSuccess == 0)
 				return;
 
 			JoinOrOpenPasswordDialogue(_pendingLobbyId);
-			_pendingLobbyId = CSteamID.Nil;
+			_pendingLobbyId = Utils.NilUlong();
 		}
 
-		void JoinOrOpenPasswordDialogue(CSteamID lobbyId)
+		void JoinOrOpenPasswordDialogue(ulong lobbyId)
 		{
-			Profiler.Scope();
-
-			bool hasPassword = SteamMatchmaking.GetLobbyData(lobbyId, "has_password") == "1";
+			bool hasPassword = SteamMatchmaking.GetLobbyData(lobbyId.AsCSteamID(), "has_password") == "1";
 
 			if (!hasPassword)
 				JoinSteamLobby(lobbyId);
@@ -319,17 +316,15 @@ namespace ONI_MP.UI
 				OpenPasswordDialogue(lobbyId);
 
 		}
-		void JoinSteamLobby(CSteamID lobbyId)
+		void JoinSteamLobby(ulong lobbyId)
 		{
-			Profiler.Scope();
-
-			SteamLobby.JoinLobby(lobbyId, (lobbyId) =>
+			SteamLobby.JoinLobby(lobbyId.AsCSteamID(), (lobbyId) =>
 			{
 				DebugConsole.Log($"[LobbyBrowser] Successfully joined lobby: {lobbyId}");
 				this.Show(false);
 			});
 		}
-		void OpenPasswordDialogue(CSteamID lobbyId)
+		void OpenPasswordDialogue(ulong lobbyId)
 		{
 			Profiler.Scope();
 
@@ -549,4 +544,5 @@ namespace ONI_MP.UI
 		}
 	}
 }
+
 

@@ -1,33 +1,36 @@
 ﻿using ONI_MP.Misc;
+using ONI_MP.Networking;
 using ONI_MP.Networking.States;
-using Shared.Profiling;
 using Steamworks;
 
 public class MultiplayerPlayer
 {
-	public CSteamID SteamID { get; private set; }
-	public string SteamName { get; private set; }
-	public bool IsLocal => SteamID == SteamUser.GetSteamID();
+	public ulong PlayerId { get; private set; }
+	public string PlayerName { get; private set; }
+	public bool IsLocal => PlayerId == NetworkConfig.GetLocalID();
 
 	public int AvatarImageId { get; private set; } = -1;
-	public HSteamNetConnection? Connection { get; set; } = null;
+	//public HSteamNetConnection? Connection { get; set; } = null;
+	public object? Connection { get; set; } = null;
 	public bool IsConnected => Connection != null;
 
 	public ClientReadyState readyState = ClientReadyState.Ready;
 
-    public MultiplayerPlayer(CSteamID steamID)
+    public MultiplayerPlayer(ulong playerId)
 	{
-		Profiler.Scope();
+		PlayerId = playerId;
+		if(NetworkConfig.IsLanConfig())
+		{
+            PlayerName = $"Player {playerId}";
+            return;
+        }
 
-		SteamID = steamID;
-		SteamName = Utils.TrucateName(SteamFriends.GetFriendPersonaName(steamID));
-		AvatarImageId = SteamFriends.GetLargeFriendAvatar(steamID);
+		PlayerName = Utils.TrucateName(SteamFriends.GetFriendPersonaName(playerId.AsCSteamID()));
+		AvatarImageId = SteamFriends.GetLargeFriendAvatar(playerId.AsCSteamID());
 	}
 
 	public override string ToString()
 	{
-		Profiler.Scope();
-
-		return $"{SteamName} ({SteamID})";
+		return $"{PlayerName} ({PlayerId})";
 	}
 }

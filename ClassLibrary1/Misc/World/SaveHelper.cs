@@ -9,6 +9,7 @@ using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.States;
+using ONI_MP.Networking.Transport.Steamworks;
 using Steamworks;
 using System;
 using System.Collections;
@@ -17,7 +18,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Shared.Profiling;
 using UnityEngine;
 
 public static class SaveHelper
@@ -27,20 +27,17 @@ public static class SaveHelper
 	{
 		get
 		{
-			return Math.Max(64, Configuration.GetHostProperty<int>("SaveFileTransferChunkKB"));
+			int minChunkKB = NetworkConfig.IsLanConfig() ? 1 : 64;
+			return Math.Max(minChunkKB, Configuration.GetHostProperty<int>("SaveFileTransferChunkKB"));
 		}
 	}
 	public static void RequestWorldLoad(WorldSave world)
 	{
-		Profiler.Scope();
-
-		SteamNetworkingComponent.scheduler.Run(() => LoadWorldSave(Path.GetFileNameWithoutExtension(world.Name), world.Data));
+		NetworkingComponent.scheduler.Run(() => LoadWorldSave(Path.GetFileNameWithoutExtension(world.Name), world.Data));
 	}
 
 	private static void LoadWorldSave(string name, byte[] data)
 	{
-		Profiler.Scope();
-
 		var savePath = SaveLoader.GetCloudSavesDefault() ? SaveLoader.GetCloudSavePrefix() : SaveLoader.GetSavePrefixAndCreateFolder();
 
 		var baseName = Path.GetFileNameWithoutExtension(name);
@@ -48,15 +45,7 @@ public static class SaveHelper
 
 		Directory.CreateDirectory(Path.GetDirectoryName(path));
 
-		// Write save data safely
-		using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
-		{
-			using (var writer = new BinaryWriter(fs))
-			{
-				writer.Write(data);
-				writer.Flush();
-			}
-		}
+		File.WriteAllBytes(path, data);
 
 		if (!SavegameDlcListValid(data, out string errorMsg))
 		{
@@ -69,21 +58,18 @@ public static class SaveHelper
 		GameClient.Disconnect();
 		GameClient.SetState(ClientState.LoadingWorld);
 		PacketHandler.readyToProcess = false;
+		NetworkIdentityRegistry.Clear();
 		MultiplayerOverlay.Show(global::STRINGS.UI.FRONTEND.LOADING);
 
 		LoadScreen.DoLoad(path);
 	}
 	public static void ShowMessageAndReturnToMainMenu(string msg)
 	{
-		Profiler.Scope();
-
 		CoroutineRunner.RunOne(ShowMessageAndReturnToTitle(msg));
 	}
 
 	private static IEnumerator ShowMessageAndReturnToTitle(string msg = null)
 	{
-		Profiler.Scope();
-
 		// This is stupid
 		try
 		{
@@ -123,8 +109,6 @@ public static class SaveHelper
 	{
 		public static void Postfix(KMod.Mod mod)
 		{
-			Profiler.Scope();
-
 			if (mod.label.distribution_platform != KMod.Label.DistributionPlatform.Steam
 			|| !ulong.TryParse(mod.label.id, out var localId))
 				return;
@@ -135,8 +119,6 @@ public static class SaveHelper
 
 	static void RefreshMissingModList()
 	{
-		Profiler.Scope();
-
 		var mng = Global.Instance.modManager;
 		foreach (var mod in Global.Instance.modManager.mods)
 		{
@@ -160,8 +142,6 @@ public static class SaveHelper
 	static HashSet<ulong> MissingModIds = [];
 	internal static void SyncModsAndRestart(HashSet<ulong> notEnabled, HashSet<ulong> notDisabled, HashSet<ulong> missingMods)
 	{
-		Profiler.Scope();
-
 		var mng = Global.Instance.modManager;
 		foreach (var mod in Global.Instance.modManager.mods)
 		{
@@ -181,21 +161,15 @@ public static class SaveHelper
 	}
 	public static void SubToAllMissing()
 	{
-		Profiler.Scope();
-
 		Global.Instance.StartCoroutine(DelayedSubscription());
 	}
 
 	static void SubToMissing(ulong steamID)
 	{
-		Profiler.Scope();
-
 		SteamUGC.SubscribeItem(new PublishedFileId_t(steamID));
 	}
 	static IEnumerator DelayedSubscription()
 	{
-		Profiler.Scope();
-
 		float modsToSub = MissingModIds.Count;
 		float waitingDelay = Mathf.Clamp(15f / modsToSub, 0.05f, 0.5f);
 
@@ -210,8 +184,6 @@ public static class SaveHelper
 	static StringBuilder sb = new();
 	public static bool SteamModListSynced(List<ulong> steamMods, out HashSet<ulong> toEnable, out HashSet<ulong> toDisable, out HashSet<ulong> missingMods)
 	{
-		Profiler.Scope();
-
 		//response = null;
 		//return true;
 		sb.Clear();
@@ -251,8 +223,6 @@ public static class SaveHelper
 
 	public static bool SavegameDlcListValid(IEnumerable<string> dlcIds, out string errorMsg)
 	{
-		Profiler.Scope();
-
 		errorMsg = string.Empty;
 		HashSet<string> missingDLCs = new HashSet<string>();
 
@@ -285,8 +255,6 @@ public static class SaveHelper
 
 	public static bool SavegameDlcListValid(byte[] saveBytes, out string errorMsg)
 	{
-		Profiler.Scope();
-
 		errorMsg = null;
 		IReader reader = new FastReader(saveBytes);
 		//read the gameInfo to advance the filereader
@@ -366,8 +334,6 @@ public static class SaveHelper
 
 	public static byte[] GetWorldSave()
 	{
-		Profiler.Scope();
-
 		var path = SaveLoader.GetActiveSaveFilePath();
 		SaveLoader.Instance.Save(path); // Saves current state to that file
 		return File.ReadAllBytes(path);
@@ -378,8 +344,6 @@ public static class SaveHelper
 	/// </summary>
 	public static void CaptureWorldSnapshot()
 	{
-		Profiler.Scope();
-
 		if (Utils.IsInMenu())
 		{
 			// We are not in game, ignore
@@ -392,8 +356,6 @@ public static class SaveHelper
 
 	public static void LoadDownloadedSave(string fileName)
 	{
-		Profiler.Scope();
-
 		var savePath = SaveLoader.GetCloudSavesDefault()
 				? SaveLoader.GetCloudSavePrefix()
 				: SaveLoader.GetSavePrefixAndCreateFolder();

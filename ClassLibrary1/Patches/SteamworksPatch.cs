@@ -1,7 +1,7 @@
-﻿using HarmonyLib;
+#if STEAM_WORKSHOP_VERSION
+using HarmonyLib;
 using ONI_MP.DebugTools;
-using ONI_MP.Networking;
-using Shared.Profiling;
+using ONI_MP.Networking.Transport.Steamworks;
 
 namespace ONI_MP.Patches
 {
@@ -41,3 +41,4 @@ namespace ONI_MP.Patches
 		}
 	}
 }
+#endif

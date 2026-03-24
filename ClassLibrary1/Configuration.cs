@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using Newtonsoft.Json;
 using Shared.Profiling;
 using UnityEngine;
@@ -122,9 +123,11 @@ namespace ONI_MP
 
     class HostSettings
     {
+        public int NetworkTransport = 0; // 0 = steam, 1 = riptide, 2 = litenetlib
         public int MaxLobbySize { get; set; } = 4;
         public int MaxMessagesPerPoll { get; set; } = 128;
         public int SaveFileTransferChunkKB { get; set; } = 256;
+        public LanSettings LanSettings { get; set; } = new LanSettings();
         public LobbySettings Lobby { get; set; } = new LobbySettings();
     }
 
@@ -142,9 +145,24 @@ namespace ONI_MP
         public int MaxMessagesPerPoll { get; set; } = 16;
         public bool UseRandomPlayerColor { get; set; } = true;
         public ColorRGB PlayerColor { get; set; } = new ColorRGB(255, 255, 255);
+
+        public LanSettings LanSettings { get; set; } = new LanSettings();
     }
 
-    class ColorRGB
+    public class LanSettings
+    {
+        public string Ip { get; set; } = "127.0.0.1";
+        public int Port { get; set; } = 8080;
+
+        public string GetHashedAddress()
+        {
+            string value = $"{Ip}:{Port}";
+            byte[] bytes = Encoding.UTF8.GetBytes(value);
+            return Convert.ToBase64String(bytes);
+        }
+    }
+
+    public class ColorRGB
     {
         public byte R { get; set; }
         public byte G { get; set; }

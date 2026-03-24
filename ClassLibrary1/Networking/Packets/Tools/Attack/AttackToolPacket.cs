@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using HarmonyLib;
 using ONI_MP.Networking.Packets.Architecture;
-using Shared.Profiling;
 using Steamworks;
 using UnityEngine;
 
@@ -9,7 +8,7 @@ namespace ONI_MP.Networking.Packets.Tools.Attack;
 
 public class AttackToolPacket : IPacket
 {
-    private CSteamID        SenderId = MultiplayerSession.LocalSteamID;
+    private ulong        SenderId = MultiplayerSession.LocalUserID;
     private Vector2         Min;
     private Vector2         Max;
     private PrioritySetting Priority = ToolMenu.Instance.PriorityScreen.GetLastSelectedPriority();
@@ -20,17 +19,13 @@ public class AttackToolPacket : IPacket
 
     public AttackToolPacket(Vector2 min, Vector2 max)
     {
-        Profiler.Scope();
-
         Min = min;
         Max = max;
     }
 
     public void Serialize(BinaryWriter writer)
     {
-        Profiler.Scope();
-
-        writer.Write(SenderId.m_SteamID);
+        writer.Write(SenderId);
         writer.Write(Min);
         writer.Write(Max);
         writer.Write((int)Priority.priority_class);
@@ -39,9 +34,7 @@ public class AttackToolPacket : IPacket
 
     public void Deserialize(BinaryReader reader)
     {
-        Profiler.Scope();
-
-        SenderId = new CSteamID(reader.ReadUInt64());
+        SenderId = reader.ReadUInt64();
         Min      = reader.ReadVector2();
         Max      = reader.ReadVector2();
         Priority = new PrioritySetting((PriorityScreen.PriorityClass)reader.ReadInt32(), reader.ReadInt32());
@@ -49,8 +42,6 @@ public class AttackToolPacket : IPacket
 
     public void OnDispatched()
     {
-        Profiler.Scope();
-
         Traverse        lastSelectedPriority = Traverse.Create(ToolMenu.Instance.PriorityScreen).Field("lastSelectedPriority");
         PrioritySetting prioritySetting      = lastSelectedPriority.GetValue<PrioritySetting>();
 

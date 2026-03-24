@@ -17,7 +17,7 @@ namespace ONI_MP.Networking.Packets.Core
 	internal class HostBroadcastPacket : IPacket
 	{
 		public HostBroadcastPacket() { }
-		public HostBroadcastPacket(IPacket innerPacket, CSteamID sender)
+		public HostBroadcastPacket(IPacket innerPacket, ulong sender)
 		{
 			Profiler.Scope();
 
@@ -31,7 +31,7 @@ namespace ONI_MP.Networking.Packets.Core
 
 
 		int InnerPacketId;
-		public CSteamID SenderId;
+		public ulong SenderId;
 		byte[] InnerPacketData;
 
 		public void Serialize(BinaryWriter writer)
@@ -39,7 +39,7 @@ namespace ONI_MP.Networking.Packets.Core
 			Profiler.Scope();
 
 			writer.Write(InnerPacketId);
-			writer.Write(SenderId.m_SteamID);
+			writer.Write(SenderId);
 			writer.Write(InnerPacketData.Length);
 			writer.Write(InnerPacketData);
 		}
@@ -48,7 +48,7 @@ namespace ONI_MP.Networking.Packets.Core
 			Profiler.Scope();
 
 			InnerPacketId = reader.ReadInt32();
-			SenderId = new CSteamID(reader.ReadUInt64());
+			SenderId = reader.ReadUInt64();
 			int dataLength = reader.ReadInt32();
 			InnerPacketData = reader.ReadBytes(dataLength);
 		}
@@ -73,7 +73,7 @@ namespace ONI_MP.Networking.Packets.Core
 				//trigger it on the host
 				innerPacket.OnDispatched();
 				//send it to all other clients except the sender
-				PacketSender.SendToAllExcluding(innerPacket, [MultiplayerSession.HostSteamID, SenderId]);
+				PacketSender.SendToAllExcluding(innerPacket, [MultiplayerSession.HostUserID, SenderId]);
 			}
 		}
 

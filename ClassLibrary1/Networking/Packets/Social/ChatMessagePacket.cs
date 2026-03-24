@@ -5,14 +5,13 @@ using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Social
 {
 	public class ChatMessagePacket : IPacket
 	{
-		public CSteamID SenderId;
+		public ulong SenderId;
 		public string Message;
 		public Color PlayerColor;
 		public long Timestamp;
@@ -24,9 +23,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public ChatMessagePacket(string message)
 		{
-			Profiler.Scope();
-
-			SenderId = MultiplayerSession.LocalSteamID;
+			SenderId = MultiplayerSession.LocalUserID;
             SenderName = SteamFriends.GetPersonaName();
             Message = message;
 			PlayerColor = CursorManager.Instance.color;
@@ -35,9 +32,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Serialize(BinaryWriter writer)
 		{
-			Profiler.Scope();
-
-			writer.Write(SenderId.m_SteamID);
+			writer.Write(SenderId);
 			writer.Write(SenderName);
 			writer.Write(Message);
 			writer.Write(PlayerColor.r);
@@ -49,9 +44,7 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Deserialize(BinaryReader reader)
 		{
-			Profiler.Scope();
-
-			SenderId = new CSteamID(reader.ReadUInt64());
+			SenderId = reader.ReadUInt64();
 			SenderName = reader.ReadString();
 			Message = reader.ReadString();
 			float r = reader.ReadSingle();
@@ -64,14 +57,15 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void OnDispatched()
 		{
-			Profiler.Scope();
+			if (SenderId == MultiplayerSession.LocalUserID)
+				return;
 
-			bool isFriends = SteamFriends.HasFriend(SenderId, EFriendFlags.k_EFriendFlagImmediate);
+			bool isFriends = SteamFriends.HasFriend(SenderId.AsCSteamID(), EFriendFlags.k_EFriendFlagImmediate);
             string senderName = SenderName;
             if (isFriends)
 			{
 				// Update the sender name to what we have them named as on our friends list
-                senderName = SteamFriends.GetFriendPersonaName(SenderId);
+                senderName = SteamFriends.GetFriendPersonaName(SenderId.AsCSteamID());
             }
 			string colorHex = ColorUtility.ToHtmlStringRGB(PlayerColor);
 			ChatScreen.PendingMessage message = new ChatScreen.PendingMessage()
@@ -84,7 +78,7 @@ namespace ONI_MP.Networking.Packets.Social
 			if (MultiplayerSession.IsHost)
 			{
 				// Broadcast the chat to all other clients except sender and host
-				PacketSender.SendToAllExcluding(this, new HashSet<CSteamID> { SenderId, MultiplayerSession.LocalSteamID });
+				PacketSender.SendToAllOtherPeers(this);
 			}
 		}
 	}

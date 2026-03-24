@@ -1,7 +1,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
-using Shared.Profiling;
+using ONI_MP.Networking.Transport.Steamworks;
 using Steamworks;
 using TMPro;
 using UnityEngine;
@@ -24,13 +24,11 @@ namespace ONI_MP.Menus
         private TextMeshProUGUI _errorText;
         private TextMeshProUGUI _statusText;
 
-        private CSteamID _pendingLobbyId = CSteamID.Nil;
+        private ulong _pendingLobbyId = Utils.NilUlong();
         private bool _awaitingPasswordRetry = false;
 
         public static void Show(Transform parent)
         {
-            Profiler.Scope();
-
             if (_instance != null)
             {
                 DebugConsole.Log("[JoinByCodeDialog] Dialog already open.");
@@ -44,8 +42,6 @@ namespace ONI_MP.Menus
 
         public static void Close()
         {
-            Profiler.Scope();
-
             if (_dialogGO != null)
             {
                 Destroy(_dialogGO);
@@ -56,8 +52,6 @@ namespace ONI_MP.Menus
 
         private static GameObject CreateDialog(Transform parent)
         {
-            Profiler.Scope();
-
             GameObject dialog = new GameObject("JoinByCodeDialog", typeof(RectTransform), typeof(CanvasGroup), typeof(Image));
             dialog.transform.SetParent(parent, false);
 
@@ -87,8 +81,6 @@ namespace ONI_MP.Menus
 
         private void Initialize()
         {
-            Profiler.Scope();
-
             // Title
             CreateLabel(_dialogGO.transform, STRINGS.UI.JOINBYDIALOGMENU.JOIN_BY_CODE, 22, FontStyles.Bold, 30);
 
@@ -140,8 +132,6 @@ namespace ONI_MP.Menus
 
         private void OnJoinClicked()
         {
-            Profiler.Scope();
-
             _errorText.text = "";
 
             // If we're in password retry mode, validate the password
@@ -166,7 +156,7 @@ namespace ONI_MP.Menus
                 return;
             }
 
-            if (!LobbyCodeHelper.TryParseCode(code, out CSteamID lobbyId))
+            if (!LobbyCodeHelper.TryParseCode(code, out ulong lobbyId))
             {
                 _errorText.text = STRINGS.UI.JOINBYDIALOGMENU.ERR_PARSE_CODE_FAILED;
                 return;
@@ -177,20 +167,18 @@ namespace ONI_MP.Menus
 
             // We need to join the lobby to get its metadata (including password status)
             // But first, let's check if we can get the data by requesting lobby data
-            SteamMatchmaking.RequestLobbyData(lobbyId);
+            SteamMatchmaking.RequestLobbyData(lobbyId.AsCSteamID());
 
             // Wait a moment for data to arrive, then check password
             StartCoroutine(CheckLobbyPasswordAfterDelay(lobbyId));
         }
 
-        private System.Collections.IEnumerator CheckLobbyPasswordAfterDelay(CSteamID lobbyId)
+        private System.Collections.IEnumerator CheckLobbyPasswordAfterDelay(ulong lobbyId)
         {
-            Profiler.Scope();
-
             yield return new WaitForSeconds(0.5f);
 
             // Check if lobby requires password
-            string hasPassword = SteamMatchmaking.GetLobbyData(lobbyId, "has_password");
+            string hasPassword = SteamMatchmaking.GetLobbyData(lobbyId.AsCSteamID(), "has_password");
 
             if (hasPassword == "1")
             {
@@ -212,8 +200,6 @@ namespace ONI_MP.Menus
 
         private void ValidatePassword()
         {
-            Profiler.Scope();
-
             string password = _passwordInput.text;
 
             if (string.IsNullOrEmpty(password))
@@ -223,7 +209,7 @@ namespace ONI_MP.Menus
             }
 
             // Check password against stored hash
-            string storedHash = SteamMatchmaking.GetLobbyData(_pendingLobbyId, "password_hash");
+            string storedHash = SteamMatchmaking.GetLobbyData(_pendingLobbyId.AsCSteamID(), "password_hash");
             if (!string.IsNullOrEmpty(storedHash))
             {
                 if (!PasswordHelper.VerifyPassword(password, storedHash))
@@ -238,14 +224,12 @@ namespace ONI_MP.Menus
             JoinLobbyDirectly(_pendingLobbyId, password);
         }
 
-        private void JoinLobbyDirectly(CSteamID lobbyId, string password)
+        private void JoinLobbyDirectly(ulong lobbyId, string password)
         {
-            Profiler.Scope();
-
             _statusText.text = STRINGS.UI.JOINBYDIALOGMENU.JOINING;
             _errorText.text = "";
 
-            SteamLobby.JoinLobby(lobbyId, (joinedId) =>
+            SteamLobby.JoinLobby(lobbyId.AsCSteamID(), (joinedId) =>
             {
                 DebugConsole.Log($"[JoinByCodeDialog] Successfully joined lobby: {joinedId}");
                 Close();
@@ -254,8 +238,6 @@ namespace ONI_MP.Menus
 
         private GameObject CreateLabel(Transform parent, string text, int fontSize, FontStyles style, float height)
         {
-            Profiler.Scope();
-
             var labelGO = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
             labelGO.transform.SetParent(parent, false);
 
@@ -274,8 +256,6 @@ namespace ONI_MP.Menus
 
         private TMP_InputField CreateInputField(Transform parent, string placeholder, float height)
         {
-            Profiler.Scope();
-
             var inputGO = new GameObject("Input", typeof(RectTransform), typeof(Image), typeof(TMP_InputField));
             inputGO.transform.SetParent(parent, false);
 
@@ -329,8 +309,6 @@ namespace ONI_MP.Menus
 
         private void CreateButton(Transform parent, string text, System.Action onClick, float width, float height)
         {
-            Profiler.Scope();
-
             var buttonGO = new GameObject($"Button_{text}", typeof(RectTransform), typeof(Image), typeof(Button));
             buttonGO.transform.SetParent(parent, false);
 

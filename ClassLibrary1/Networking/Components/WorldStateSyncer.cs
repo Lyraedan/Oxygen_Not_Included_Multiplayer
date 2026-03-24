@@ -1,6 +1,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.World;
 using ONI_MP.Networking.Trackers;
+using ONI_MP.Networking.Transport.Steamworks;
 using System.Collections.Generic;
 using Shared.Profiling;
 using UnityEngine;
@@ -33,7 +34,7 @@ namespace ONI_MP.Networking.Components
 		private ushort[] _shadowElements;
 		private float[] _shadowMass;
 
-		private readonly Dictionary<Steamworks.CSteamID, RectInt> _clientViewports = new Dictionary<Steamworks.CSteamID, RectInt>();
+		private readonly Dictionary<ulong, RectInt> _clientViewports = new Dictionary<ulong, RectInt>();
 
 		private void Awake()
 		{
@@ -42,7 +43,7 @@ namespace ONI_MP.Networking.Components
 			Instance = this;
 		}
 
-		public void UpdateClientView(Steamworks.CSteamID steamId, int minX, int minY, int maxX, int maxY)
+		public void UpdateClientView(ulong steamId, int minX, int minY, int maxX, int maxY)
 		{
 			Profiler.Scope();
 

@@ -1,56 +1,59 @@
-using ONI_MP.Networking.Packets.Architecture;
+﻿using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
-using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
-	public struct BuildingState
-	{
-		public int Cell;
-		public string PrefabName;  // Changed from int PrefabHash to string for reliable lookup
-	}
+    public struct BuildingState
+    {
+        public int Cell;
+        public string PrefabName;
+    }
 
-	public class BuildingStatePacket : IPacket
-	{
-		public List<BuildingState> Buildings = new List<BuildingState>();
+    public class BuildingStatePacket : IPacket
+    {
+        public List<BuildingState> Buildings = new List<BuildingState>();
 
-		public void Serialize(BinaryWriter writer)
-		{
-			Profiler.Scope();
+        public int ChunkIndex;
+        public int TotalChunks;
 
-			writer.Write(Buildings.Count);
-			foreach (var b in Buildings)
-			{
-				writer.Write(b.Cell);
-				writer.Write(b.PrefabName ?? string.Empty);
-			}
-		}
+        public void Serialize(BinaryWriter writer)
+        {
+            writer.Write(ChunkIndex);
+            writer.Write(TotalChunks);
 
-		public void Deserialize(BinaryReader reader)
-		{
-			Profiler.Scope();
+            writer.Write(Buildings.Count);
+            foreach (var b in Buildings)
+            {
+                writer.Write(b.Cell);
+                writer.Write(b.PrefabName ?? string.Empty);
+            }
+        }
 
-			int count = reader.ReadInt32();
-			Buildings = new List<BuildingState>(count);
-			for (int i = 0; i < count; i++)
-			{
-				Buildings.Add(new BuildingState
-				{
-					Cell = reader.ReadInt32(),
-					PrefabName = reader.ReadString()
-				});
-			}
-		}
+        public void Deserialize(BinaryReader reader)
+        {
+            ChunkIndex = reader.ReadInt32();
+            TotalChunks = reader.ReadInt32();
 
-		public void OnDispatched()
-		{
-			Profiler.Scope();
+            int count = reader.ReadInt32();
+            Buildings = new List<BuildingState>(count);
 
-			if (MultiplayerSession.IsHost)
-				return;
+            for (int i = 0; i < count; i++)
+            {
+                Buildings.Add(new BuildingState
+                {
+                    Cell = reader.ReadInt32(),
+                    PrefabName = reader.ReadString()
+                });
+            }
+        }
 
-			Networking.Components.BuildingSyncer.Instance?.OnPacketReceived(this);
-		}
-	}
+        public void OnDispatched()
+        {
+            if (MultiplayerSession.IsHost)
+                return;
+
+            Components.BuildingSyncer.Instance?.OnPacketReceived(this);
+        }
+    }
 }

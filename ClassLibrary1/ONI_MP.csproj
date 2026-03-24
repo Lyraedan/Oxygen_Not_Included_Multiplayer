@@ -3,7 +3,7 @@
 	<!-- General Package Properties -->
 	<PropertyGroup>
 		<PackageId>ItsLukesMultiplayerMod</PackageId>
-		<Version>0.4.3-alpha</Version>
+		<Version>0.5.0-alpha</Version>
 		<Authors>ItsLuke,Sgt_Lmalas</Authors>
 		<Copyright>$(AssemblyCopyright)</Copyright>
 	</PropertyGroup>
@@ -40,6 +40,10 @@
 	<PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
 		<DefineConstants>OS_MAC</DefineConstants>
 	</PropertyGroup>
+	
+	<PropertyGroup>
+		<DefineConstants>STEAM_WORKSHOP_VERSION</DefineConstants> <!--Comment this out to disable Steam interaction -->
+	</PropertyGroup>
 
 	<ItemGroup>
 		<EmbeddedResource Include="Assets\oni_together_logo.png" />
@@ -59,5 +63,11 @@
 	<ItemGroup>
 	  <Folder Include="ModAssets\translations\" />
 	  <Folder Include="Networking\Packets\BulkDataPackets\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="LiteNetLib" Version="1.3.5" />
+	  <PackageReference Include="Mono.Nat" Version="3.0.4" />
+	  <PackageReference Include="RiptideNetworking.Riptide" Version="2.2.1" />
 	</ItemGroup>
 </Project>
