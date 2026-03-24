@@ -284,6 +284,8 @@ namespace ONI_MP.Networking
 
 			if (MultiplayerSession.IsHost)
 				SendToAllClients(packet);
+			else if (packet is IBulkablePacket)
+				SendToHost(packet);
 			else
 				SendToHost(new HostBroadcastPacket(packet, MultiplayerSession.LocalUserID));
 		}

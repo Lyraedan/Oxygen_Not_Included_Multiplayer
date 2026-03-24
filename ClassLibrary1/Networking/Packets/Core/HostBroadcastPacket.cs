@@ -1,12 +1,6 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
-using Steamworks;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ONI_MP.Networking.Packets.Core
 {

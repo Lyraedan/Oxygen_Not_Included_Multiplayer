@@ -116,6 +116,11 @@ namespace ONI_MP.Networking.Transport.Lan
             }
             player.Connection = e.Client;
 
+            e.Client.CanQualityDisconnect = false;
+            e.Client.MaxSendAttempts = 30;
+            e.Client.MaxAvgSendAttempts = 12;
+            e.Client.AvgSendAttemptsResilience = 128;
+
             if (clientId == CLIENT_ID)
             {
                 player.PlayerName = Utils.GetLocalPlayerName();
