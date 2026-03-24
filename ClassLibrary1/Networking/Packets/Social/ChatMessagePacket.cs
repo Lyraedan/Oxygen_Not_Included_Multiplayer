@@ -1,9 +1,9 @@
-﻿using ONI_MP.Networking.Components;
+﻿using ONI_MP.Misc;
+using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.UI;
 using Steamworks;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using Shared.Profiling;
 using UnityEngine;
@@ -27,7 +27,7 @@ namespace ONI_MP.Networking.Packets.Social
 			Profiler.Scope();
 
 			SenderId = MultiplayerSession.LocalUserID;
-            SenderName = SteamFriends.GetPersonaName();
+            SenderName = Utils.GetLocalPlayerName();
             Message = message;
 			PlayerColor = CursorManager.Instance.color;
 			Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
@@ -69,9 +69,8 @@ namespace ONI_MP.Networking.Packets.Social
 			if (SenderId == MultiplayerSession.LocalUserID)
 				return;
 
-			bool isFriends = SteamFriends.HasFriend(SenderId.AsCSteamID(), EFriendFlags.k_EFriendFlagImmediate);
             string senderName = SenderName;
-            if (isFriends)
+            if (NetworkConfig.IsSteamConfig() && SteamFriends.HasFriend(SenderId.AsCSteamID(), EFriendFlags.k_EFriendFlagImmediate))
 			{
 				// Update the sender name to what we have them named as on our friends list
                 senderName = SteamFriends.GetFriendPersonaName(SenderId.AsCSteamID());

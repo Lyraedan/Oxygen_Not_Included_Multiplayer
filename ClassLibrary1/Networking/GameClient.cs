@@ -1,4 +1,4 @@
-﻿using ONI_MP.DebugTools;
+using ONI_MP.DebugTools;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Components;
@@ -93,7 +93,7 @@ namespace ONI_MP.Networking
 			NetworkConfig.TransportClient.OnClientDisconnected = () => SetState(ClientState.Disconnected);
 			NetworkConfig.TransportClient.OnClientConnected = () => SetState(ClientState.Connected);
 			NetworkConfig.TransportClient.OnContinueConnectionFlow = () => ContinueConnectionFlow();
-			NetworkConfig.TransportClient.OnReturnToMenu = () => CoroutineRunner.RunOne(ShowMessageAndReturnToTitle());
+			NetworkConfig.TransportClient.OnReturnToMenu = (reason, message) => CoroutineRunner.RunOne(ShowMessageAndReturnToTitle(reason, message));
 			NetworkConfig.TransportClient.OnRequestStateOrReturn = () =>
 			{
                 PacketSender.SendToHost(new GameStateRequestPacket(MultiplayerSession.LocalUserID));
@@ -290,11 +290,9 @@ namespace ONI_MP.Networking
 			}
 		}
 
-		private static IEnumerator ShowMessageAndReturnToTitle()
+		private static IEnumerator ShowMessageAndReturnToTitle(string reason = "", string message = "")
 		{
-			Profiler.Scope();
-
-			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.CLIENT.LOST_CONNECTION);
+            MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.LOST_CONNECTION, reason, message));
 			//SaveHelper.CaptureWorldSnapshot();
 			yield return new WaitForSeconds(3f);
 			//PauseScreen.TriggerQuitGame(); // Force exit to frontend, getting a crash here
@@ -306,10 +304,7 @@ namespace ONI_MP.Networking
 
 			MultiplayerOverlay.Close();
 			NetworkIdentityRegistry.Clear();
-			if (NetworkConfig.IsSteamConfig())
-			{
-				SteamLobby.LeaveLobby();
-			}
+			SteamLobby.LeaveLobby();
 		}
 
 		public static void CacheCurrentServer()
@@ -360,3 +355,4 @@ namespace ONI_MP.Networking
 		}
 	}
 }
+

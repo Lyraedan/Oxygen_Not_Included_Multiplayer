@@ -301,7 +301,7 @@ namespace ONI_MP.Misc.World
 			try
 			{
 				// Get local player name to display on host
-				string playerName = Steamworks.SteamFriends.GetPersonaName();
+				string playerName = Utils.GetLocalPlayerName();
 
 				var progressPacket = new ONI_MP.Networking.Packets.World.SyncProgressPacket
 				{

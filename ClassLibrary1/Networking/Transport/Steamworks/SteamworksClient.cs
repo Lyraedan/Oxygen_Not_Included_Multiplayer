@@ -1,5 +1,4 @@
-﻿#if STEAM_WORKSHOP_VERSION
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -249,12 +248,13 @@ namespace ONI_MP.Networking.Transport.Steam
                     // The host closed our connection
                     if (remote.m_SteamID == MultiplayerSession.HostUserID)
                     {
-                        NetworkConfig.TransportClient.OnReturnToMenu.Invoke();
+                        // Invoke(reason, message)
+                        NetworkConfig.TransportClient.OnReturnToMenu.Invoke(STRINGS.UI.MP_OVERLAY.CLIENT.STEAMWORKS.HOST_DISCONNECTED, STRINGS.UI.MP_OVERLAY.CLIENT.STEAMWORKS.HOST_DISCONNECTED_DESC);
                     }
                     break;
                 case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
                     // Something went wrong locally
-                    NetworkConfig.TransportClient.OnReturnToMenu.Invoke();
+                    NetworkConfig.TransportClient.OnReturnToMenu.Invoke(STRINGS.UI.MP_OVERLAY.CLIENT.STEAMWORKS.LOCAL_PROBLEM, STRINGS.UI.MP_OVERLAY.CLIENT.STEAMWORKS.LOCAL_PROBLEM_DESC);
                     break;
             }
         }
@@ -488,4 +488,3 @@ namespace ONI_MP.Networking.Transport.Steam
         #endregion
     }
 }
-#endif

@@ -1,9 +1,7 @@
 ﻿using ONI_MP.Networking;
 using ONI_MP.Networking.States;
-#if STEAM_WORKSHOP_VERSION
 using ONI_MP.Networking.Transport.Steamworks;
 using Steamworks;
-#endif
 using ONI_MP.Patches.ToolPatches;
 using System;
 using Shared.Profiling;
@@ -107,13 +105,11 @@ namespace ONI_MP.DebugTools
                     NetworkConfig.UpdateTransport(selected_transport);
                     Configuration.Instance.Save();
 
-#if STEAM_WORKSHOP_VERSION
                     SteamLobby.CreateLobby(onSuccess: () =>
                     {
                         SpeedControlScreen.Instance?.Unpause(false);
                         Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
                     });
-#endif
                     return;
                 }
 
@@ -139,14 +135,11 @@ namespace ONI_MP.DebugTools
             }
             if (GUILayout.Button("Stop Hosting"))
             {
-#if STEAM_WORKSHOP_VERSION
                 if(selectedHostTransport == 0)
                 {
                     SteamLobby.LeaveLobby();
                     return;
                 }
-#endif
-
                 Stop();
             }
 

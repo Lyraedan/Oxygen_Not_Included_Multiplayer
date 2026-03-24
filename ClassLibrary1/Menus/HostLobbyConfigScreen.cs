@@ -2,10 +2,7 @@ using System;
 using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
-using Shared.Profiling;
-#if STEAM_WORKSHOP_VERSION
 using ONI_MP.Networking.Transport.Steamworks;
-#endif
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -587,3 +584,4 @@ namespace ONI_MP.Menus
 		}
 	}
 }
+

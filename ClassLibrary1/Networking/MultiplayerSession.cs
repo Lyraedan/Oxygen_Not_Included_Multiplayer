@@ -34,12 +34,15 @@ namespace ONI_MP.Networking
 		public static bool IsHostInSession => IsHost && InSession;
 
 		public static readonly Dictionary<ulong, PlayerCursor> PlayerCursors = new Dictionary<ulong, PlayerCursor>();
-		
+
+		public static readonly Dictionary<ulong, string> KnownPlayerNames = new Dictionary<ulong, string>();
+
 		public static void Clear()
 		{
 			Profiler.Scope();
 
 			ConnectedPlayers.Clear();
+			KnownPlayerNames.Clear();
 			HostUserID = Utils.NilUlong();
 			WorkProgressPatch.ClearTracking();
 			DebugConsole.Log("[MultiplayerSession] Session cleared.");

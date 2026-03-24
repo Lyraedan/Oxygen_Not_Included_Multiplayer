@@ -1,5 +1,4 @@
-﻿#if STEAM_WORKSHOP_VERSION
-using System;
+﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using ONI_MP.DebugTools;
@@ -178,4 +177,3 @@ namespace ONI_MP.ModUpdater
         }
     }
 }
-#endif

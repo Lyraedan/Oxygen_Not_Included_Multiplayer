@@ -1,6 +1,7 @@
 ﻿using KSerialization;
 using ONI_MP.DebugTools;
 using ONI_MP.Menus;
+using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Core;
 using ONI_MP.Networking.States;
 using ONI_MP.Networking.Transport.Steamworks;
@@ -60,7 +61,8 @@ namespace ONI_MP.Networking
 			var packet = new ClientReadyStatusPacket
 			{
 				SenderId = NetworkConfig.GetLocalID(),
-				Status = state
+				Status = state,
+				PlayerName = Utils.GetLocalPlayerName()
 			};
 			PacketSender.SendToHost(packet);
 		}

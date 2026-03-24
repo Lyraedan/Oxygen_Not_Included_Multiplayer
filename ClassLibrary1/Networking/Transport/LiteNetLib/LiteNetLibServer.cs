@@ -248,5 +248,10 @@ namespace ONI_MP.Networking.Transport.Lan
                 DebugConsole.LogWarning($"[LanServer] Port mapping failed: {ex}");
             }
         }
+
+        public override void KickClient(ulong clientId)
+        {
+            
+        }
     }
 }

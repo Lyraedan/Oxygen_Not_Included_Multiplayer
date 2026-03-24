@@ -21,5 +21,7 @@ namespace ONI_MP.Networking.Transport
         public abstract void Update();
 
         public abstract void OnMessageRecieved();
+
+        public abstract void KickClient(ulong clientId);
     }
 }

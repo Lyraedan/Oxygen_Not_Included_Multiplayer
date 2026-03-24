@@ -73,7 +73,7 @@ namespace ONI_MP.Networking.Transfer
 				catch (Exception ex)
 				{
 					if (_running)
-						DebugConsole.LogError($"[TcpFileTransfer] Accept error: {ex.Message}");
+						DebugConsole.LogError($"[TcpFileTransfer] Accept error: {ex.Message}", false);
 				}
 			}
 		}
@@ -125,7 +125,7 @@ namespace ONI_MP.Networking.Transfer
 			}
 			catch (Exception ex)
 			{
-				DebugConsole.LogError($"[TcpFileTransfer] Handler error: {ex.Message}");
+				DebugConsole.LogError($"[TcpFileTransfer] Handler error: {ex.Message}", false);
 			}
 		}
 

@@ -109,7 +109,7 @@ namespace ONI_MP.Networking.Transfer
 			}
 			catch (Exception ex)
 			{
-				DebugConsole.LogError($"[TcpFileTransfer] Download failed: {ex.Message}");
+				DebugConsole.LogError($"[TcpFileTransfer] Download failed: {ex.Message}", false);
 				MainThreadExecutor.dispatcher.QueueEvent(() =>
 				{
 					onError(ex.Message);

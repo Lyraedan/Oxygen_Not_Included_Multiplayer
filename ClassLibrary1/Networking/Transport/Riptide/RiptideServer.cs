@@ -8,6 +8,7 @@ using Shared.Profiling;
 using ONI_MP.Networking.Transfer;
 using System.Collections.Generic;
 using ONI_MP.UI;
+using Steamworks;
 using static ResearchTypes;
 
 namespace ONI_MP.Networking.Transport.Lan
@@ -17,6 +18,9 @@ namespace ONI_MP.Networking.Transport.Lan
         private static Server _server;
         private static Client _client; // Server client (Other users will use GameClient)
         private TcpFileTransferServer _tcpTransfer;
+        private Dictionary<ulong, float> _loadingClients = new Dictionary<ulong, float>();
+        private List<ulong> _expiredLoadingClients = new List<ulong>();
+        private const float LOADING_TIMEOUT = 30f;
 
         public TcpFileTransferServer TcpTransfer => _tcpTransfer;
 
@@ -79,7 +83,7 @@ namespace ONI_MP.Networking.Transport.Lan
 
             int id = e.Client.Id;
             DebugConsole.Log("[RiptideServer] A client failed to connect to the server.");
-            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_FAILED, $"Player {id}"));
+            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_FAILED, "A client"));
             ChatScreen.QueueMessage(pending);
         }
 
@@ -92,6 +96,11 @@ namespace ONI_MP.Networking.Transport.Lan
             DebugConsole.Log("[RiptideServer] Host client connected to server!");
             MultiplayerSession.SetHost(GetClientID());
             MultiplayerSession.InSession = true;
+
+            string hostName = Utils.GetLocalPlayerName();
+            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(
+                string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_JOINED, hostName));
+            ChatScreen.QueueMessage(pending);
         }
 
         private void OnLocalClientDisconnected(object sender, DisconnectedEventArgs e)
@@ -118,6 +127,11 @@ namespace ONI_MP.Networking.Transport.Lan
             }
             player.Connection = e.Client;
 
+            if (clientId == CLIENT_ID)
+            {
+                player.PlayerName = Utils.GetLocalPlayerName();
+            }
+
             AddClientToList(e.Client.Id);
             DebugConsole.Log($"New client connected: {clientId}");
         }
@@ -127,12 +141,13 @@ namespace ONI_MP.Networking.Transport.Lan
             Profiler.Scope();
 
             ulong clientId = e.Client.Id;
+
+            RemoveClientFromList(clientId);
+
             if (MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out MultiplayerPlayer player))
             {
                 player.Connection = null;
-
                 MultiplayerSession.ConnectedPlayers.Remove(clientId);
-
                 DebugConsole.Log($"Player {clientId} disconnected.");
             }
             else
@@ -140,8 +155,6 @@ namespace ONI_MP.Networking.Transport.Lan
                 DebugConsole.LogWarning($"Disconnected client {clientId} was not found in ConnectedPlayers.");
             }
             ReadyManager.RefreshReadyState();
-
-            RemoveClientFromList(clientId);
         }
 
         private void OnServerMessageReceived(object sender, MessageReceivedEventArgs e)
@@ -234,6 +247,28 @@ namespace ONI_MP.Networking.Transport.Lan
 
             _server?.Update();
             _client?.Update();
+
+            if (_loadingClients.Count > 0)
+            {
+                float now = UnityEngine.Time.unscaledTime;
+                _expiredLoadingClients.Clear();
+                foreach (var kvp in _loadingClients)
+                {
+                    if (now - kvp.Value > LOADING_TIMEOUT)
+                    {
+                        _expiredLoadingClients.Add(kvp.Key);
+                    }
+                }
+                foreach (var id in _expiredLoadingClients)
+                {
+                    _loadingClients.Remove(id);
+                }
+            }
+        }
+
+        public void MarkClientLoading(ulong id)
+        {
+            _loadingClients[id] = UnityEngine.Time.unscaledTime;
         }
 
         public void AddClientToList(ulong id)
@@ -245,8 +280,13 @@ namespace ONI_MP.Networking.Transport.Lan
 
             ClientList.Add(id);
 
-            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_JOINED, $"Player {id}"));
-            ChatScreen.QueueMessage(pending);
+            // A loading client reconnects with a new Riptide ID, so we consume one loading entry
+            if (_loadingClients.Count > 0)
+            {
+                var enumerator = _loadingClients.GetEnumerator();
+                enumerator.MoveNext();
+                _loadingClients.Remove(enumerator.Current.Key);
+            }
             Game.Instance?.Trigger(MP_HASHES.OnPlayerJoined);
         }
 
@@ -259,8 +299,12 @@ namespace ONI_MP.Networking.Transport.Lan
 
             ClientList.Remove(id);
 
-            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, $"Player {id}"));
-            ChatScreen.QueueMessage(pending);
+            if (!_loadingClients.ContainsKey(id))
+            {
+                string name = MultiplayerSession.GetPlayer(id)?.PlayerName ?? $"Player {id}";
+                ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, name));
+                ChatScreen.QueueMessage(pending);
+            }
             Game.Instance?.Trigger(MP_HASHES.OnPlayerLeft);
         }
         public ulong GetClientID()
@@ -271,6 +315,41 @@ namespace ONI_MP.Networking.Transport.Lan
                 return Utils.NilUlong();
 
             return _client.Id;
+        }
+
+        public override void KickClient(ulong clientId)
+        {
+            if (_server == null || !_server.IsRunning)
+            {
+                DebugConsole.LogWarning("[RiptideServer] KickClient: Server is not running.");
+                return;
+            }
+
+            if (!MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out var player))
+            {
+                DebugConsole.LogWarning($"[RiptideServer] KickClient: Client {clientId} not found.");
+                return;
+            }
+
+            if (player.Connection is Connection conn)
+            {
+                if (conn.IsNotConnected)
+                {
+                    DebugConsole.LogWarning($"[RiptideServer] KickClient: Client {clientId} already disconnected.");
+                    return;
+                }
+
+                DebugConsole.Log($"[RiptideServer] Kicking client {clientId}");
+
+                // Disconnect via Riptide
+                _server.DisconnectClient(conn);
+
+                // OnClientDisconnected should disconnect so we shouldn't need to cleanup here
+            }
+            else
+            {
+                DebugConsole.LogError($"[RiptideServer] KickClient: Invalid connection type for {clientId}");
+            }
         }
     }
 }

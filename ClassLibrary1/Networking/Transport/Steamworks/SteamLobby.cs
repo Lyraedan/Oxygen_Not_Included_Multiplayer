@@ -1,5 +1,4 @@
-﻿#if STEAM_WORKSHOP_VERSION
-using ONI_MP.DebugTools;
+﻿using ONI_MP.DebugTools;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Components;
@@ -692,4 +691,3 @@ namespace ONI_MP.Networking.Transport.Steamworks
         #endregion
 	}
 }
-#endif

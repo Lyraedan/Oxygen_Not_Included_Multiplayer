@@ -58,10 +58,12 @@ public static class SaveHelper
 			return;
 		}
 
-		// We've saved a copy of the downloaded world now load it
+		// Notify host before disconnecting so it can suppress leave/join messages
+		ReadyManager.SendReadyStatusPacket(ClientReadyState.Loading);
+
+		GameClient.SetState(ClientState.LoadingWorld);
 		GameClient.CacheCurrentServer();
 		GameClient.Disconnect();
-		GameClient.SetState(ClientState.LoadingWorld);
 		PacketHandler.readyToProcess = false;
 		NetworkIdentityRegistry.Clear();
 		MultiplayerOverlay.Show(global::STRINGS.UI.FRONTEND.LOADING);
@@ -83,7 +85,9 @@ public static class SaveHelper
 		try
 		{
 			if (msg == null)
-				msg = ONI_MP.STRINGS.UI.MP_OVERLAY.CLIENT.LOST_CONNECTION;
+			{
+				msg = ONI_MP.STRINGS.UI.MP_OVERLAY.CLIENT.MENU_LOST_CONNECTION;
+			}
 
 			MultiplayerOverlay.Show(msg);
 		}
@@ -406,10 +410,12 @@ public static class SaveHelper
 			return;
 		}
 
-		// We've saved a copy of the downloaded world, now load it
+		// Notify host before disconnecting so it can suppress leave/join messages
+		ReadyManager.SendReadyStatusPacket(ClientReadyState.Loading);
+
+		GameClient.SetState(ClientState.LoadingWorld);
 		GameClient.CacheCurrentServer();
 		GameClient.Disconnect();
-		GameClient.SetState(ClientState.LoadingWorld);
 		PacketHandler.readyToProcess = false;
 		MultiplayerOverlay.Show(global::STRINGS.UI.FRONTEND.LOADING);
 

@@ -1,9 +1,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
-#if STEAM_WORKSHOP_VERSION
 using ONI_MP.Networking.Transport.Steamworks;
 using Steamworks;
-#endif
 using System.Collections.Generic;
 using System.Linq;
 using Shared.Profiling;

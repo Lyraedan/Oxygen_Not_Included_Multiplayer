@@ -16,6 +16,7 @@ namespace ONI_MP.Networking.States
 	public enum ClientReadyState
 	{
 		Ready,
-		Unready
+		Unready,
+		Loading
 	}
 }
