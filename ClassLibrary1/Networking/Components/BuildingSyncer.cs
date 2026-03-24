@@ -163,42 +163,48 @@ namespace ONI_MP.Networking.Components
 
         private IEnumerator Reconcile(List<BuildingState> remoteBuildings)
         {
-            // Build remote lookup: Cell -> Prefab
-            var remoteByCell = new Dictionary<int, string>();
+            // Build remote lookup: (Cell, Layer) -> Prefab
+            var remoteByCellLayer = new Dictionary<(int, ObjectLayer), string>();
             foreach (var b in remoteBuildings)
             {
                 if (!string.IsNullOrEmpty(b.PrefabName))
                 {
-                    remoteByCell[b.Cell] = b.PrefabName;
+                    var def = Assets.GetBuildingDef(b.PrefabName);
+                    if (def != null)
+                    {
+                        remoteByCellLayer[(b.Cell, def.TileLayer)] = b.PrefabName;
+                    }
                 }
             }
 
             var localBuildings = global::Components.BuildingCompletes.Items;
             var localList = new List<BuildingComplete>(localBuildings);
 
-            // 1. Replace buildings ONLY if something different exists at same cell
+            // Replace buildings ONLY if something different exists at same cell AND same layer
             foreach (var building in localList)
             {
                 if (building == null) continue;
 
+                ObjectLayer layer = building.Def.TileLayer;
                 int cell = Grid.PosToCell(building);
                 var kpid = building.GetComponent<KPrefabID>();
                 if (kpid == null) continue;
 
                 string localPrefab = kpid.PrefabTag.Name;
 
-                if (remoteByCell.TryGetValue(cell, out var remotePrefab))
+                if (remoteByCellLayer.TryGetValue((cell, layer), out var remotePrefab))
                 {
                     if (remotePrefab != localPrefab)
                     {
-                        DebugConsole.Log($"[BuildingSyncer] Replacing {localPrefab} with {remotePrefab} at {cell}");
+                        DebugConsole.Log($"[BuildingSyncer] Replacing {localPrefab} with {remotePrefab} at {cell} (Layer: {layer})");
                         Util.KDestroyGameObject(building.gameObject);
                     }
                 }
-                // If no remote building at this cell → do nothing
+                // If no remote building at this cell+layer then do nothing
             }
 
-            var localSet = new HashSet<(int, string)>();
+            // Build a set of (cell, layer, prefab) for existing local buildings
+            var localSet = new HashSet<(int, ObjectLayer, string)>();
             foreach (var building in global::Components.BuildingCompletes.Items)
             {
                 if (building == null) continue;
@@ -207,16 +213,20 @@ namespace ONI_MP.Networking.Components
                 var kpid = building.GetComponent<KPrefabID>();
                 if (kpid == null) continue;
 
-                localSet.Add((cell, kpid.PrefabTag.Name));
+                localSet.Add((cell, building.Def.TileLayer, kpid.PrefabTag.Name));
             }
 
+            // Spawn missing remote buildings
             foreach (var remote in remoteBuildings)
             {
                 if (string.IsNullOrEmpty(remote.PrefabName)) continue;
 
-                if (!localSet.Contains((remote.Cell, remote.PrefabName)))
+                var def = Assets.GetBuildingDef(remote.PrefabName);
+                if (def == null) continue;
+
+                if (!localSet.Contains((remote.Cell, def.TileLayer, remote.PrefabName)))
                 {
-                    DebugConsole.Log($"[BuildingSyncer] Spawning missing building {remote.PrefabName} at {remote.Cell}");
+                    DebugConsole.Log($"[BuildingSyncer] Spawning missing building {remote.PrefabName} at {remote.Cell} (Layer: {def.TileLayer})");
                     SpawnBuilding(remote.Cell, remote.PrefabName);
                     yield return null;
                 }

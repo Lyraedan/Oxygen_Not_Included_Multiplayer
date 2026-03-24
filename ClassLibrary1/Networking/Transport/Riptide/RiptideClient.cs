@@ -13,6 +13,7 @@ using UnityEngine;
 using System.Collections;
 using static STRINGS.UI.DEVELOPMENTBUILDS.ALPHA;
 using ONI_MP.UI;
+using static ONI_MP.STRINGS.UI.MP_OVERLAY;
 
 namespace ONI_MP.Networking.Transport.Lan
 {
@@ -85,6 +86,12 @@ namespace ONI_MP.Networking.Transport.Lan
         {
             CLIENT_ID = GetClientID();
             AddClientToList(CLIENT_ID);
+
+            var conn = _client.Connection;
+            conn.CanQualityDisconnect = false; // prevents auto‑disconnect due to poor delivery
+            conn.MaxSendAttempts = 30;         // 15 is default so we'll double it
+            conn.MaxAvgSendAttempts = 12;
+            conn.AvgSendAttemptsResilience = 5;
 
             OnClientConnected.Invoke();
             MultiplayerSession.SetHost(1); // Host's client is always 1
