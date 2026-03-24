@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 using UnityEngine;
 using static RancherChore;
 
@@ -18,6 +19,8 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public StandardWorker_WorkingState_Packet(StandardWorker worker, Workable workable, bool startedWorking)
 		{
+			using var _ = Profiler.Scope();
+
 			WorkerNetId = worker.GetNetId();
 			StartingToWork = startedWorking;
 			if (startedWorking)
@@ -33,6 +36,8 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(WorkerNetId);
 			writer.Write(StartingToWork);
 			if (StartingToWork)
@@ -43,6 +48,8 @@ namespace ONI_MP.Networking.Packets.Animation
 		}
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			WorkerNetId = reader.ReadInt32();
 			StartingToWork = reader.ReadBoolean();
 			if (StartingToWork)
@@ -54,6 +61,8 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.IsHost)
 				return;
 
@@ -65,7 +74,7 @@ namespace ONI_MP.Networking.Packets.Animation
 			{
 				if (!NetworkIdentityRegistry.TryGetComponent<Workable>(WorkableNetId, out var protoWorkable))
 					return;
-				
+
 				workableGO = protoWorkable.gameObject;
 
 				var workableType = AccessTools.TypeByName(WorkableType);

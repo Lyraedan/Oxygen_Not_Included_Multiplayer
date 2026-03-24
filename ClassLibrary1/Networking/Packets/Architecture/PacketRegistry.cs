@@ -23,6 +23,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Architecture
 {
@@ -32,15 +33,21 @@ namespace ONI_MP.Networking.Packets.Architecture
 
         public static bool HasRegisteredPacket(int type)
         {
+	        using var _ = Profiler.Scope();
+
             return _PacketTypes.ContainsKey(type);
         }
 		public static bool HasRegisteredPacket(Type type)
 		{
+			using var _ = Profiler.Scope();
+
 			return _PacketTypes.ContainsKey(API_Helper.GetHashCode(type));
 		}
 
 		private static void Register(Type packageType)
         {
+	        using var _ = Profiler.Scope();
+
             int id = API_Helper.GetHashCode(packageType);
 			var IPacketType = typeof(IPacket);
             if(IPacketType.IsAssignableFrom(packageType))
@@ -74,6 +81,8 @@ namespace ONI_MP.Networking.Packets.Architecture
         }
         public static IPacket Create(int type)
 		{
+			using var _ = Profiler.Scope();
+
 			return _PacketTypes.TryGetValue(type, out var packetType)
 					? (IPacket)Activator.CreateInstance(packetType)
 					: throw new InvalidOperationException($"No packet registered for type {type}");
@@ -81,6 +90,8 @@ namespace ONI_MP.Networking.Packets.Architecture
 
         public static int GetPacketId(IPacket packet)
         {
+	        using var scope = Profiler.Scope();
+
             var type = packet.GetType();
             int id = API_Helper.GetHashCode(type);
 
@@ -92,12 +103,16 @@ namespace ONI_MP.Networking.Packets.Architecture
 
 		public static void RegisterDefaults()
 		{
+			using var _ = Profiler.Scope();
+
            Shared.Helpers.PacketRegistrationHelper.AutoRegisterPackets(Assembly.GetExecutingAssembly(), (t=>TryRegister(t)), out int count, out var duration);
 			DebugConsole.LogSuccess($"[PacketRegistry] Auto-registering {count} packets took {duration.TotalMilliseconds} ms");
 		}
 
         public static void TryRegister(Type packetType, string nameOverride = "")
         {
+	        using var _ = Profiler.Scope();
+
             try
             {
                 Register(packetType);

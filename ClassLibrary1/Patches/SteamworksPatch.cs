@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Transport.Steamworks;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches
 {
@@ -12,6 +13,8 @@ namespace ONI_MP.Patches
 		[HarmonyPostfix]
 		public static void OnSteamAwake()
 		{
+			using var _ = Profiler.Scope();
+
 			if (SteamManager.Initialized)
 			{
 				DebugConsole.Log("Steam initialized – setting rich presence.");
@@ -28,6 +31,8 @@ namespace ONI_MP.Patches
 		[HarmonyPrefix]
 		public static void OnSteamShutdown()
 		{
+			using var _ = Profiler.Scope();
+
 			if (SteamManager.Initialized)
 			{
 				DebugConsole.Log("SteamManager shutting down – clearing rich presence.");
@@ -36,3 +41,4 @@ namespace ONI_MP.Patches
 		}
 	}
 }
+

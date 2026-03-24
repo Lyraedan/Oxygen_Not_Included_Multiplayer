@@ -2,6 +2,7 @@
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Tools.Cancel;
 using ONI_MP.Networking.Packets.Tools.Deconstruct;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.ToolPatches.Deconstruct
 {
@@ -10,6 +11,8 @@ namespace ONI_MP.Patches.ToolPatches.Deconstruct
 	{
 		public static void Postfix(int cell, int distFromOrigin)
 		{
+			using var _ = Profiler.Scope();
+
 			if (!MultiplayerSession.InSession)
 				return;
 

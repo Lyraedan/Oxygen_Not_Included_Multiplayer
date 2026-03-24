@@ -3,6 +3,7 @@ using ONI_MP.Misc.World;
 using ONI_MP.Networking.Packets.Architecture;
 using System;
 using System.IO;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -18,6 +19,8 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Serialize(BinaryWriter writer)
         {
+            using var _ = Profiler.Scope();
+
             writer.Write(SequenceNumber);
             writer.Write(TransferId);
             writer.Write(PayloadBytes.Length);
@@ -26,6 +29,8 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Deserialize(BinaryReader reader)
         {
+            using var _ = Profiler.Scope();
+
             SequenceNumber = reader.ReadInt32();
             TransferId = reader.ReadString();
             int payloadLength = reader.ReadInt32();
@@ -34,6 +39,8 @@ namespace ONI_MP.Networking.Packets.World
 
         public void OnDispatched()
         {
+            using var _ = Profiler.Scope();
+
             try
             {
                 // INTEGRITY TEST: Try to deserialize payload back to SaveFileChunkPacket
@@ -64,6 +71,8 @@ namespace ONI_MP.Networking.Packets.World
         /// </summary>
         private SaveFileChunkPacket DeserializeSaveFileChunk(byte[] bytes)
         {
+            using var _ = Profiler.Scope();
+
             using (var ms = new MemoryStream(bytes))
             using (var reader = new BinaryReader(ms))
             {
@@ -91,6 +100,8 @@ namespace ONI_MP.Networking.Packets.World
         /// </summary>
         public static byte[] SerializeSaveFileChunk(SaveFileChunkPacket packet)
         {
+            using var _ = Profiler.Scope();
+
             using (var ms = new MemoryStream())
             using (var writer = new BinaryWriter(ms))
             {
@@ -108,6 +119,8 @@ namespace ONI_MP.Networking.Packets.World
         /// </summary>
         private void RequestPacketResend(int sequenceNumber, string transferId)
         {
+            using var _ = Profiler.Scope();
+
             // TODO: Implement packet resend request
             // For now, request full file resend (existing behavior)
             DebugConsole.LogWarning($"[SecureTransfer] Requesting resend due to corrupted packet {sequenceNumber} in transfer {transferId}");
@@ -125,6 +138,8 @@ namespace ONI_MP.Networking.Packets.World
         /// </summary>
         private void SendChunkAck(int sequenceNumber, string transferId)
         {
+            using var _ = Profiler.Scope();
+
             var ackPacket = new ChunkAckPacket
             {
                 SequenceNumber = sequenceNumber,

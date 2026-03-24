@@ -2,6 +2,7 @@ using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -23,6 +24,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(Chores.Count);
 			foreach (var c in Chores)
 			{
@@ -33,6 +36,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			int count = reader.ReadInt32();
 			Chores = new List<ChoreData>(count);
 			for (int i = 0; i < count; i++)
@@ -47,6 +52,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.IsHost) return;
 
 			WorldStateSyncer.Instance?.OnChoreStateReceived(this);

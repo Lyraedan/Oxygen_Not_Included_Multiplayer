@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.LoadingOverlayPatch
 {
@@ -6,6 +7,8 @@ namespace ONI_MP.Patches.LoadingOverlayPatch
 	{
 		public static LoadingOverlay GetSingleton()
 		{
+			using var _ = Profiler.Scope();
+
 			var type = typeof(LoadingOverlay);
 			var field = type.GetField("instance", BindingFlags.NonPublic | BindingFlags.Static);
 			return (LoadingOverlay)field.GetValue(null);

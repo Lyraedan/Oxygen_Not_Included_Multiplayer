@@ -9,6 +9,7 @@ using ONI_MP.Networking.Packets.Core;
 using ONI_MP.Networking.Packets.DuplicantActions;
 using System;
 using System.Linq;
+using Shared.Profiling;
 using static STRINGS.UI.CLUSTERMAP.ROCKETS;
 
 namespace ONI_MP.Patches.KleiPatches
@@ -24,11 +25,13 @@ namespace ONI_MP.Patches.KleiPatches
 
 
 
-		///Play() has internal calls to "Queue", prevent duplicate entries 
+		///Play() has internal calls to "Queue", prevent duplicate entries
 		static bool LockAnimSending = false;
 		static void Unlock() => LockAnimSending = false;
 		static void SendAnimPacketToClients(KAnimControllerBase __instance, bool queueing, HashedString[] anims, KAnim.PlayMode mode = KAnim.PlayMode.Once, float speed = 1f, float time_offset = 0f)
 		{
+			using var _ = Profiler.Scope();
+
 			if (!MultiplayerSession.InSession || MultiplayerSession.IsClient)
 				return;
 			if (__instance.gameObject.IsNullOrDestroyed() || !__instance.gameObject.TryGetComponent<KPrefabID>(out var id))
@@ -56,6 +59,8 @@ namespace ONI_MP.Patches.KleiPatches
 		{
 			public static bool Prefix(KAnimControllerBase __instance, HashedString anim_name, KAnim.PlayMode mode, float speed, float time_offset)
 			{
+				using var _ = Profiler.Scope();
+
 				if (!MultiplayerSession.InSession)
 					return true;
 				if (__instance.IsNullOrDestroyed() || !__instance.enabled) return CanPlayAnims;
@@ -73,6 +78,8 @@ namespace ONI_MP.Patches.KleiPatches
 		{
 			public static bool Prefix(KAnimControllerBase __instance, HashedString[] anim_names, KAnim.PlayMode mode)
 			{
+				using var _ = Profiler.Scope();
+
 				if (!MultiplayerSession.InSession)
 					return true;
 				if (__instance.IsNullOrDestroyed() || !__instance.enabled) return CanPlayAnims;
@@ -89,6 +96,8 @@ namespace ONI_MP.Patches.KleiPatches
 		{
 			public static bool Prefix(KAnimControllerBase __instance, HashedString anim_name, KAnim.PlayMode mode, float speed, float time_offset)
 			{
+				using var _ = Profiler.Scope();
+
 				if (!MultiplayerSession.InSession)
 					return true;
 				if (__instance.IsNullOrDestroyed() || !__instance.enabled) return CanPlayAnims;
@@ -105,6 +114,8 @@ namespace ONI_MP.Patches.KleiPatches
 		private static bool TogglingOverrideFromPacket = false;
 		internal static void AddKanimOverride(KAnimControllerBase kbac, string kanim, float priority)
 		{
+			using var _ = Profiler.Scope();
+
 			TogglingOverrideFromPacket = true;
 			if (Assets.TryGetAnim(kanim, out var anim))
 			{
@@ -119,6 +130,8 @@ namespace ONI_MP.Patches.KleiPatches
 
 		internal static void RemoveKanimOverride(KAnimControllerBase kbac, string kanim)
 		{
+			using var _ = Profiler.Scope();
+
 			TogglingOverrideFromPacket = true;
 			if (Assets.TryGetAnim(kanim, out var anim))
 			{
@@ -136,6 +149,8 @@ namespace ONI_MP.Patches.KleiPatches
 		{
 			public static bool Prefix(KAnimControllerBase __instance, KAnimFile kanim_file, float priority = 0f)
 			{
+				using var _ = Profiler.Scope();
+
 				if (!MultiplayerSession.InSession) return kanim_file != null;
 
 				//leave to minions for now, potentially remove later
@@ -156,6 +171,8 @@ namespace ONI_MP.Patches.KleiPatches
 		{
 			public static bool Prefix(KAnimControllerBase __instance, KAnimFile kanim_file)
 			{
+				using var _ = Profiler.Scope();
+
 				if (!MultiplayerSession.InSession) return kanim_file != null;
 
 				//leave to minions for now, potentially remove later
@@ -178,6 +195,8 @@ namespace ONI_MP.Patches.KleiPatches
 		{
 			public static void Prefix(KAnimControllerBase __instance, KAnimHashedString symbol, bool is_visible)
 			{
+				using var _ = Profiler.Scope();
+
 				if (!Utils.IsHostMinion(__instance))
 					return;
 

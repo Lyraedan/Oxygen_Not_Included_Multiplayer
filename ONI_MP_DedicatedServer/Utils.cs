@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ONI_MP.Networking.Packets.Architecture;
+using Shared.Profiling;
 
 namespace ONI_MP_DedicatedServer
 {
@@ -13,6 +14,8 @@ namespace ONI_MP_DedicatedServer
 
         public static string FormatBytes(long bytes)
         {
+            using var _ = Profiler.Scope();
+
             string[] sizes = { "B", "KB", "MB", "GB", "TB" };
             double len = bytes;
             int order = 0;
@@ -26,6 +29,8 @@ namespace ONI_MP_DedicatedServer
 
         public static byte[] SerializePacketForSending(int packetType, Action<System.IO.BinaryWriter> serialize)
         {
+            using var _ = Profiler.Scope();
+
             using (var ms = new System.IO.MemoryStream())
             using (var writer = new System.IO.BinaryWriter(ms))
             {

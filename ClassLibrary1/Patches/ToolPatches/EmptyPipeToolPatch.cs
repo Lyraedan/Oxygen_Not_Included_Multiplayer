@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.ToolPatches
 {
@@ -17,6 +18,8 @@ namespace ONI_MP.Patches.ToolPatches
 		{
 			public static void Postfix(int cell, int distFromOrigin)
 			{
+				using var _ = Profiler.Scope();
+
 				if (!MultiplayerSession.InSession)
 					return;
 

@@ -2,6 +2,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
+using Shared.Profiling;
 using UnityEngine;
 
 [HarmonyPatch(typeof(Movable), "OnSpawn")]
@@ -9,11 +10,15 @@ public static class MoveablePatch
 {
 	public static void Postfix(Movable __instance)
 	{
+		using var _ = Profiler.Scope();
+
 		__instance.onPickupComplete += OnPickup;
 		DebugConsole.Log($"[Movable.OnSpawn] Attached to: {STRINGS.UI.StripLinkFormatting(__instance.gameObject.GetProperName())} ({__instance.GetInstanceID()})");
 	}
 	static void OnPickup(GameObject go)
 	{
+		using var _ = Profiler.Scope();
+
 		DebugConsole.Log($"[Movable.onPickupComplete] Picked up {go.name}");
 
 		if (!MultiplayerSession.IsHost)

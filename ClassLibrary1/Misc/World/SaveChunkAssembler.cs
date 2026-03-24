@@ -5,6 +5,7 @@ using ONI_MP.Networking.Packets.World;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Misc.World
@@ -27,6 +28,8 @@ namespace ONI_MP.Misc.World
 
 			public InProgressSave(int totalSize, int chunkSize)
 			{
+				using var _ = Profiler.Scope();
+
 				TotalSize = totalSize;
 				ChunkSize = chunkSize;
 				TotalChunks = (int)Math.Ceiling((double)totalSize / chunkSize);
@@ -36,6 +39,8 @@ namespace ONI_MP.Misc.World
 
 			public int GetReceivedChunks()
 			{
+				using var _ = Profiler.Scope();
+
 				int count = 0;
 				for (int i = 0; i < ChunkReceived.Length; i++)
 				{
@@ -46,6 +51,8 @@ namespace ONI_MP.Misc.World
 
 			public List<int> GetMissingChunks()
 			{
+				using var _ = Profiler.Scope();
+
 				var missing = new List<int>();
 				for (int i = 0; i < ChunkReceived.Length; i++)
 				{
@@ -56,6 +63,8 @@ namespace ONI_MP.Misc.World
 
 			public bool IsComplete()
 			{
+				using var _ = Profiler.Scope();
+
 				for (int i = 0; i < ChunkReceived.Length; i++)
 				{
 					if (!ChunkReceived[i]) return false;
@@ -66,6 +75,8 @@ namespace ONI_MP.Misc.World
 			// Checks how many sequential chunks we have from the beginning
 			public int GetMaxContiguousChunks()
 			{
+				using var _ = Profiler.Scope();
+
 				for (int i = 0; i < ChunkReceived.Length; i++)
 				{
 					if (!ChunkReceived[i]) return i; // Stops at first gap
@@ -78,6 +89,8 @@ namespace ONI_MP.Misc.World
 
 		public static void ReceiveChunk(SaveFileChunkPacket chunk)
 		{
+			using var _ = Profiler.Scope();
+
 			if (!InProgress.TryGetValue(chunk.FileName, out var save))
 			{
 				// Determine chunk size from first received chunk
@@ -165,6 +178,8 @@ namespace ONI_MP.Misc.World
 
 		private static void CheckForMissingChunks(string fileName, InProgressSave save)
 		{
+			using var _ = Profiler.Scope();
+
 			// MUCH more patience - wait substantial time for chunks to arrive
 			double waitTime = 30.0; // Always wait 30 seconds between checks
 
@@ -210,6 +225,8 @@ namespace ONI_MP.Misc.World
 
 		private static void RequestSpecificChunks(string fileName, List<int> missingChunks)
 		{
+			using var _ = Profiler.Scope();
+
 			// CURRENT IMPLEMENTATION: For now request full resend - future improvement = request specific chunks
 			DebugConsole.LogWarning($"[ChunkAssembler] Requesting full resend due to missing chunks");
 
@@ -234,6 +251,8 @@ namespace ONI_MP.Misc.World
 		/// </summary>
 		public static void CheckInactiveTransfers()
 		{
+			using var _ = Profiler.Scope();
+
 			foreach (var kvp in InProgress.ToArray())
 			{
 				string fileName = kvp.Key;
@@ -255,6 +274,8 @@ namespace ONI_MP.Misc.World
 		/// </summary>
 		private static string CreateClientProgressBar(int percent)
 		{
+			using var _ = Profiler.Scope();
+
 			int barLength = 30;  // Larger bar for the client
 			int filled = (percent * barLength) / 100;
 			string bar = "";
@@ -275,6 +296,8 @@ namespace ONI_MP.Misc.World
 		/// </summary>
 		private static void SendProgressToHost(string fileName, int receivedChunks, int totalChunks, int percent)
 		{
+			using var _ = Profiler.Scope();
+
 			try
 			{
 				// Get local player name to display on host
@@ -301,6 +324,8 @@ namespace ONI_MP.Misc.World
 
 		private static System.Collections.IEnumerator DelayedLoad(WorldSave save)
 		{
+			using var _ = Profiler.Scope();
+
             yield return new WaitForSecondsRealtime(1f);
 			SaveHelper.RequestWorldLoad(save);
 		}

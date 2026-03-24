@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace ONI_MP_API.Networking
 {
@@ -14,9 +15,11 @@ namespace ONI_MP_API.Networking
 	{
 		static bool Init()
 		{
+			using var _ = Profiler.Scope();
+
 			if (typesInitialized)
 				return true;
-						
+
 			if (!ReflectionHelper.TryCreateDelegate<TryRegisterPacketDelegate>("ONI_MP.Networking.Packets.Architecture.PacketRegistry, ONI_MP", "TryRegister", [typeof(Type), typeof(string)], out _TryRegister))
 				return false;
 			typesInitialized = true;
@@ -35,6 +38,8 @@ namespace ONI_MP_API.Networking
 		/// <param name="packetType"></param>
 		public static void TryRegister(Type packetType, string nameOverride = null)
 		{
+			using var _ = Profiler.Scope();
+
 			if (!Init())
 				return;
 			_TryRegister(packetType, nameOverride);
@@ -46,6 +51,8 @@ namespace ONI_MP_API.Networking
 		/// <param name="assembly"></param>
 		public static void AutoRegisterAll(Assembly? assembly = null)
 		{
+			using var _ = Profiler.Scope();
+
 			if(assembly == null)
 				assembly = Assembly.GetExecutingAssembly();
 

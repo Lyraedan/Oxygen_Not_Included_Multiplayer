@@ -5,6 +5,7 @@ using ONI_MP.Networking.Packets.Social;
 using Steamworks;
 using System;
 using System.Collections.Generic;
+using Shared.Profiling;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -35,6 +36,8 @@ namespace ONI_MP.UI
 
 		public static void Show()
 		{
+			using var _ = Profiler.Scope();
+
 			if (Instance != null)
 				return;
 
@@ -53,6 +56,8 @@ namespace ONI_MP.UI
 		}
         private void SetupUI()
         {
+	        using var _ = Profiler.Scope();
+
             var chatWindowRoot = new GameObject("ChatWindowRoot", typeof(RectTransform));
             chatWindowRoot.transform.SetParent(transform, false);
             var rootRT = chatWindowRoot.GetComponent<RectTransform>();
@@ -141,6 +146,8 @@ namespace ONI_MP.UI
 
         public void ProcessMessageQueue()
 		{
+			using var _ = Profiler.Scope();
+
 			foreach (var pending in pendingMessages)
 				QueueMessage(pending);
 			pendingMessages.Clear();
@@ -148,11 +155,15 @@ namespace ONI_MP.UI
 
 		public static void QueueMessage(PendingMessage message)
 		{
+			using var _ = Profiler.Scope();
+
 			QueueMessage(message.timestamp, message.message);
 		}
 
 		private static void QueueMessage(long timestamp, string msg)
 		{
+			using var _ = Profiler.Scope();
+
 			if (string.IsNullOrEmpty(msg))
 			{
 				return;
@@ -173,6 +184,8 @@ namespace ONI_MP.UI
 
 		private System.Collections.IEnumerator FixInputFieldDisplay()
 		{
+			using var _ = Profiler.Scope();
+
 			// Fixes the Caret and the text highlighting because without this they don't show
 			yield return new WaitForEndOfFrame();
 			inputField.gameObject.SetActive(false);
@@ -182,6 +195,8 @@ namespace ONI_MP.UI
 
 		public void AddMessage(long timestamp, string text)
 		{
+			using var _ = Profiler.Scope();
+
 			DebugConsole.Log($"Adding chat message with timestamp {timestamp} : {text}");
 			// We have a message with this timestamp already. Skip (Handles recieveing multiple of the same chat packet)
 			if (messages.ContainsKey(timestamp))
@@ -229,11 +244,15 @@ namespace ONI_MP.UI
 		}
 		public static bool IsFocused()
 		{
+			using var _ = Profiler.Scope();
+
 			return Instance != null && Instance.inputField != null && Instance.inputField.isFocused;
 		}
 
 		private void Update()
 		{
+			using var _ = Profiler.Scope();
+
 			header.SetActive(MultiplayerSession.InSession);
 			chatbox.SetActive(MultiplayerSession.InSession && expanded);
 			if (!MultiplayerSession.InSession)
@@ -256,6 +275,8 @@ namespace ONI_MP.UI
 
 		public GameObject CreatePanel(string name, Transform parent, Vector2 size)
 		{
+			using var _ = Profiler.Scope();
+
 			var panel = new GameObject(name, typeof(Image));
 			panel.transform.SetParent(parent, false);
 
@@ -271,6 +292,8 @@ namespace ONI_MP.UI
 
 		public TMP_InputField CreateInputField(string name, Transform parent, Vector2 position, Vector2 size)
 		{
+			using var _ = Profiler.Scope();
+
 			// Container with background
 			var go = new GameObject(name, typeof(Image), typeof(TMP_InputField));
 			go.transform.SetParent(parent, false);
@@ -328,6 +351,8 @@ namespace ONI_MP.UI
 
 		public GameObject CreateScrollArea(string name, Transform parent, out RectTransform content)
 		{
+			using var _ = Profiler.Scope();
+
 			var scrollGO = new GameObject(name, typeof(RectTransform), typeof(ScrollRect));
 			scrollGO.transform.SetParent(parent, false);
 			var scrollRT = scrollGO.GetComponent<RectTransform>();
@@ -381,6 +406,8 @@ namespace ONI_MP.UI
 
 		public static bool IsMouseOverChatPanel()
 		{
+			using var _ = Profiler.Scope();
+
 			if (Instance == null || Instance.panelRectTransform == null)
 				return false;
 
@@ -390,6 +417,8 @@ namespace ONI_MP.UI
 
 		private void OnInputSubmitted(string text)
 		{
+			using var _ = Profiler.Scope();
+
 			if (!Input.GetKeyDown(KeyCode.Return)) return;
 
 			if (!string.IsNullOrWhiteSpace(text))
@@ -417,6 +446,8 @@ namespace ONI_MP.UI
 
 		public static PendingMessage GeneratePendingMessage(string message)
 		{
+			using var _ = Profiler.Scope();
+
 			PendingMessage pendingMessage = new PendingMessage()
 			{
 				timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),

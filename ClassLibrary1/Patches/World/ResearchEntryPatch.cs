@@ -1,6 +1,7 @@
 using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.World;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -9,6 +10,8 @@ namespace ONI_MP.Patches.World
 	{
 		public static bool Prefix(ResearchEntry __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (!MultiplayerSession.InSession) return true; // Offline, operate normally
 			if (MultiplayerSession.IsHost) return true; // Host operates normally
 
@@ -26,7 +29,7 @@ namespace ONI_MP.Patches.World
 
 			// Suppress local sound/state change until confirmed?
 			// Existing method plays sound and calls Research.Instance.SetActiveResearch.
-			// If we assume latency, we might want to let it run locally if we trust it, 
+			// If we assume latency, we might want to let it run locally if we trust it,
 			// OR suppress and wait for ResearchStatePacket to confirm active research.
 			// Let's suppress to prevent desync (e.g. invalid research).
 

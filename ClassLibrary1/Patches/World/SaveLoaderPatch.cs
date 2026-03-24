@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using HarmonyLib;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Transport.Steamworks;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -14,6 +15,8 @@ namespace ONI_MP.Patches.World
 		[HarmonyPatch(typeof(SaveLoader), nameof(SaveLoader.LoadFromWorldGen))]
 		public static void Postfix_LoadFromWorldGen(bool __result)
 		{
+			using var _ = Profiler.Scope();
+
 			if (__result)
 				TryCreateLobbyAfterLoad("[Multiplayer] Lobby created after new world gen.");
 
@@ -25,6 +28,8 @@ namespace ONI_MP.Patches.World
 					  new Type[] { typeof(IReader) })]
         public static void Postfix(IReader reader, ref bool __result)
         {
+	        using var _ = Profiler.Scope();
+
             // __result == true means the save loaded successfully
             if (!__result)
                 return;
@@ -34,6 +39,8 @@ namespace ONI_MP.Patches.World
 
         private static void OnSaveLoaded()
         {
+	        using var _ = Profiler.Scope();
+
             // Your logic here
             TryCreateLobbyAfterLoad("[Multiplayer] Lobby created after world load.");
             if (MultiplayerSession.InSession)
@@ -45,6 +52,8 @@ namespace ONI_MP.Patches.World
 
         private static void TryCreateLobbyAfterLoad(string logMessage)
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.ShouldHostAfterLoad)
 			{
 				MultiplayerSession.ShouldHostAfterLoad = false;
@@ -59,3 +68,4 @@ namespace ONI_MP.Patches.World
 		}
 	}
 }
+

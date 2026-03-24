@@ -1,6 +1,7 @@
 ﻿using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Core;
 using ONI_MP.Networking.States;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Components
@@ -19,6 +20,8 @@ namespace ONI_MP.Networking.Components
 
 		private void Awake()
 		{
+			using var _ = Profiler.Scope();
+
 			if (Instance != null)
 			{
 				Destroy(this);
@@ -31,16 +34,22 @@ namespace ONI_MP.Networking.Components
 
 		private void Start()
 		{
+			using var _ = Profiler.Scope();
+
 			AssignColor();
         }
 
 		public void ResetColor()
 		{
+			using var _ = Profiler.Scope();
+
 			color = Color.white;
 		}
 
 		public void AssignColor()
 		{
+			using var _ = Profiler.Scope();
+
             bool useRandom = Configuration.GetClientProperty<bool>("UseRandomPlayerColor");
             if (useRandom)
                 color = UnityEngine.Random.ColorHSV(0f, 1f, 0.6f, 1f, 0.8f, 1f);
@@ -53,6 +62,8 @@ namespace ONI_MP.Networking.Components
 
 		private void Update()
 		{
+			using var _ = Profiler.Scope();
+
 			if (!Utils.IsInGame())
 				return;
 
@@ -68,6 +79,8 @@ namespace ONI_MP.Networking.Components
 		}
 		private void SendCursorPosition()
 		{
+			using var _ = Profiler.Scope();
+
 			Vector3 cursorWorldPos = GetCursorWorldPosition();
 
 			// We do not want to lock cursor sending to a threshold as this updates the cursor position relative to the clients viewport
@@ -117,6 +130,8 @@ namespace ONI_MP.Networking.Components
 
 		private Vector3 GetCursorWorldPosition()
 		{
+			using var _ = Profiler.Scope();
+
 			var camera = GameScreenManager.Instance.GetCamera(GameScreenManager.UIRenderTarget.ScreenSpaceCamera);
 			if (camera == null) return Vector3.zero;
 

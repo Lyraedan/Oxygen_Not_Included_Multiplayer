@@ -4,6 +4,7 @@ using System.Threading;
 using ONI_MP_DedicatedServer;
 using ONI_MP_DedicatedServer.ONI;
 using ONI_MP_DedicatedServer.Transports;
+using Shared.Profiling;
 
 namespace ONI_MP.DedicatedServer
 {
@@ -42,13 +43,15 @@ namespace ONI_MP.DedicatedServer
         /// If a save action happens on the master, upload it to the dedi, if the master disconnects with clients present, the next client sends the save state to the dedi and it overwrites it with that one
         ///
         /// This is purely conceptual
-        /// 
+        ///
         /// Maybe it'll be better to hold the save file in Memory and use that then only save locally if the server shuts down
-        /// 
+        ///
         /// </summary>
         /// <param name="args"></param>
         static void Main(string[] args)
         {
+            using var _ = Profiler.Scope();
+
             Console.WriteLine("ONI Together: Dedicated Server starting...");
 
             server = SetupTransport();
@@ -72,6 +75,8 @@ namespace ONI_MP.DedicatedServer
 
                 while (server.IsRunning())
                 {
+                    using var scope = Profiler.Scope();
+
                     server.Update();
 
                     if (stopped)
@@ -91,6 +96,8 @@ namespace ONI_MP.DedicatedServer
 
         static void ReadConsole()
         {
+            using var _ = Profiler.Scope();
+
             if (server == null)
                 return;
 
@@ -127,6 +134,8 @@ namespace ONI_MP.DedicatedServer
 
         static void RegisterCommands()
         {
+            using var _ = Profiler.Scope();
+
             RegisterCommand(new Command
             {
                 Name = "quit",
@@ -251,11 +260,15 @@ namespace ONI_MP.DedicatedServer
 
         public static void RegisterCommand(Command command)
         {
+            using var _ = Profiler.Scope();
+
             commands[command.Name.ToLowerInvariant()] = command;
         }
 
         public static void BindExistingCommandTo(string newBinding, string commandToBindTo)
         {
+            using var _ = Profiler.Scope();
+
             if (!commands.TryGetValue(commandToBindTo.ToLowerInvariant(), out var existing))
             {
                 Console.WriteLine($"Failed to bind {newBinding} to {commandToBindTo}");
@@ -272,6 +285,8 @@ namespace ONI_MP.DedicatedServer
 
         public static DedicatedTransportServer SetupTransport()
         {
+            using var _ = Profiler.Scope();
+
             switch (transport) {
                 case Transports.Riptide:
                     return new DedicatedRiptideServer();

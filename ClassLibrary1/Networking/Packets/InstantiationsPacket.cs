@@ -3,6 +3,7 @@ using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets
@@ -23,6 +24,8 @@ namespace ONI_MP.Networking.Packets
 
 		public void Serialize(BinaryWriter w)
 		{
+			using var _ = Profiler.Scope();
+
 			using (var ms = new MemoryStream())
 			{
 				using (var deflate = new DeflateStream(ms, System.IO.Compression.CompressionLevel.Fastest, leaveOpen: true))
@@ -50,6 +53,8 @@ namespace ONI_MP.Networking.Packets
 
 		public void Deserialize(BinaryReader r)
 		{
+			using var _ = Profiler.Scope();
+
 			int compressedLength = r.ReadInt32();
 			byte[] compressedData = r.ReadBytes(compressedLength);
 
@@ -81,6 +86,8 @@ namespace ONI_MP.Networking.Packets
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.IsHost) return;
 
 			foreach (var e in Entries)
@@ -89,6 +96,8 @@ namespace ONI_MP.Networking.Packets
 
 		private void Instantiate(InstantiationEntry e)
 		{
+			using var _ = Profiler.Scope();
+
 			GameObject prefab = Assets.GetPrefab(e.PrefabName);
 			if (prefab == null)
 			{

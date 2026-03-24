@@ -11,6 +11,7 @@ using Shared.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP
@@ -29,6 +30,8 @@ namespace ONI_MP
 
         public override void OnLoad(Harmony harmony)
 		{
+			using var _ = Profiler.Scope();
+
 			Harmony = harmony;
 			base.OnLoad(harmony);
 
@@ -47,7 +50,6 @@ namespace ONI_MP
                 // CHECKPOINT 1
                 System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 1: Pre-DebugMenu\n");
 				DebugMenu.Init();
-				NetworkStatisticsMenu.Init();
 
                 // CHECKPOINT 2
                 System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 2: Pre-SteamLobby\n");
@@ -102,6 +104,8 @@ namespace ONI_MP
 
 		void LoadAssetBundles()
 		{
+			using var _ = Profiler.Scope();
+
 			// Load custom asset bundles
 			string cursor_bundle = GetBundleBasedOnPlatform("ONI_MP.Assets.bundles.playercursor_win.bundle",
 															"ONI_MP.Assets.bundles.playercursor_mac.bundle",
@@ -116,6 +120,8 @@ namespace ONI_MP
 
 		private void SetupListeners()
 		{
+			using var _ = Profiler.Scope();
+
 			App.OnPostLoadScene += () =>
 			{
 				OnPostSceneLoaded?.Invoke();
@@ -125,6 +131,8 @@ namespace ONI_MP
 		}
 		public static AssetBundle LoadAssetBundle(string bundleKey, string resourceName)
 		{
+			using var _ = Profiler.Scope();
+
 			if (LoadedBundles.TryGetValue(bundleKey, out var bundle))
 			{
 				DebugConsole.Log($"LoadAssetBundle: Reusing cached AssetBundle '{bundleKey}'.");
@@ -164,6 +172,8 @@ namespace ONI_MP
 
 		public string GetBundleBasedOnPlatform(string windows_bundle, string mac_bundle, string linux_bundle)
 		{
+			using var _ = Profiler.Scope();
+
 			switch (Application.platform)
 			{
 				case RuntimePlatform.OSXPlayer:
@@ -177,15 +187,20 @@ namespace ONI_MP
 
 		private static void RegisterDevTools()
 		{
+			using var _ = Profiler.Scope();
+
 #if DEBUG // DevTool is not accessible on mac.
 			var baseMethod = AccessTools.Method(typeof(DevToolManager), "RegisterDevTool");
 			var twitchDevToolRegister = baseMethod.MakeGenericMethod(typeof(DevToolMultiplayer));
 			twitchDevToolRegister.Invoke(DevToolManager.Instance, new object[] { "Mods/MultiplayerMod" });
+			DevToolManager.Instance.showImGui = true;
 #endif
 		}
 
         public override void OnAllModsLoaded(Harmony harmony, IReadOnlyList<Mod> mods)
         {
+	        using var _ = Profiler.Scope();
+
             base.OnAllModsLoaded(harmony, mods);
 			ModUpdater.Updater.CheckForUpdate();
             // For now default to the steam transport

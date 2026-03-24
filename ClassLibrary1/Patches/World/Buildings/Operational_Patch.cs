@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World.Buildings
 {
@@ -20,6 +21,8 @@ namespace ONI_MP.Patches.World.Buildings
 		{
 			public static void Postfix(Operational __instance)
 			{
+				using var _ = Profiler.Scope();
+
 				if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
 					return;
 				PacketSender.SendToAllClients(new OperationalStatePacket(__instance));
@@ -30,6 +33,8 @@ namespace ONI_MP.Patches.World.Buildings
 		{
 			public static void Postfix(Operational __instance)
 			{
+				using var _ = Profiler.Scope();
+
 				if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
 					return;
 				PacketSender.SendToAllClients(new OperationalStatePacket(__instance));
@@ -40,6 +45,8 @@ namespace ONI_MP.Patches.World.Buildings
 		{
 			public static void Postfix(Operational __instance)
 			{
+				using var _ = Profiler.Scope();
+
 				if (!MultiplayerSession.InSession || !MultiplayerSession.IsHost)
 					return;
 				PacketSender.SendToAllClients(new OperationalStatePacket(__instance));
@@ -51,13 +58,15 @@ namespace ONI_MP.Patches.World.Buildings
 		/// <summary>
 		/// Clients receive their states from the server
 		/// </summary>
-		/// 
+		///
 
 		[HarmonyPatch(typeof(Operational), nameof(Operational.IsOperational), MethodType.Getter)]
         public class Operational_IsOperational_Patch
         {
             public static bool Prefix(Operational __instance, ref bool __result)
             {
+	            using var _ = Profiler.Scope();
+
                 if (!MultiplayerSession.IsClient)
                     return true;
 
@@ -76,6 +85,8 @@ namespace ONI_MP.Patches.World.Buildings
         {
 			public static bool Prefix(Operational __instance, ref bool __result)
 			{
+				using var _ = Profiler.Scope();
+
 				if (!MultiplayerSession.IsClient)
 					return true;
 
@@ -92,6 +103,8 @@ namespace ONI_MP.Patches.World.Buildings
 		{
 			public static bool Prefix(Operational __instance, ref bool __result)
 			{
+				using var _ = Profiler.Scope();
+
 				if (!MultiplayerSession.IsClient)
 					return true;
 

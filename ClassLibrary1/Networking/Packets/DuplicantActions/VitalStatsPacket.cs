@@ -3,6 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
+using Shared.Profiling;
 using UnityEngine;
 using static STRINGS.UI.OUTFITS;
 
@@ -19,6 +20,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 		public VitalStatsPacket() { }
 		public VitalStatsPacket(int netId, Amounts amounts, PrimaryElement element)
 		{
+			using var _ = Profiler.Scope();
+
 			NetId = netId;
 			TargetDiseaseIdx = element.DiseaseIdx;
 			TargetDiseaseCount = element.DiseaseCount;
@@ -32,6 +35,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(NetId);
 			writer.Write(TargetDiseaseIdx);
 			writer.Write(TargetDiseaseCount);
@@ -46,6 +51,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			NetId = reader.ReadInt32();
 			TargetDiseaseIdx = reader.ReadByte();
 			TargetDiseaseCount = reader.ReadInt32();
@@ -61,6 +68,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			// Only Clients apply this
 			if (MultiplayerSession.IsHost) return;
 			Apply();
@@ -68,6 +77,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		private void Apply()
 		{
+			using var _ = Profiler.Scope();
+
 			if (!NetworkIdentityRegistry.TryGet(NetId, out var identity))
 			{
 				DebugConsole.LogWarning("[VitalStatsPacket] Could not find minion with netid " + NetId);

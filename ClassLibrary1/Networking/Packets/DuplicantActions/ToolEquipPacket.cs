@@ -3,6 +3,7 @@ using ONI_MP.Networking.Packets.Architecture;
 using System;
 using System.IO;
 using System.Linq;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.DuplicantActions
@@ -18,6 +19,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(TargetNetId);
 			writer.Write(PrefabName ?? "");
 			writer.Write(ParentBoneName ?? "");
@@ -28,6 +31,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			TargetNetId = reader.ReadInt32();
 			PrefabName = reader.ReadString();
 			ParentBoneName = reader.ReadString();
@@ -38,6 +43,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (!NetworkIdentityRegistry.TryGet(TargetNetId, out var target))
 			{
 				DebugConsole.LogWarning($"[ToolEquipPacket] Unknown NetId: {TargetNetId}");
@@ -84,6 +91,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		private string GetAnimFileFor(string prefabId)
 		{
+			using var _ = Profiler.Scope();
+
 			switch (prefabId)
 			{
 				case "DigEffect": return "laser_kanim";
@@ -106,6 +115,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public static Transform FindHandTransform(Transform root)
 		{
+			using var _ = Profiler.Scope();
+
 			// Common ONI rigs use a KBatchedAnimTracker with symbol snapTo_rgtHand
 			var trackers = root.GetComponentsInChildren<KBatchedAnimTracker>(true);
 			foreach (var tracker in trackers)
@@ -123,6 +134,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		private Transform FindBoneTransform(GameObject go, string boneName)
 		{
+			using var _ = Profiler.Scope();
+
 			var trackers = go.GetComponentsInChildren<KBatchedAnimTracker>(true);
 			foreach (var tracker in trackers)
 			{

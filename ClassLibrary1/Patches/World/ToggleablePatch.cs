@@ -2,6 +2,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Patches.World.SideScreen;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -10,6 +11,8 @@ namespace ONI_MP.Patches.World
     {
         static void Postfix(Toggleable __instance, int targetIdx)
         {
+            using var _ = Profiler.Scope();
+
             if (!MultiplayerSession.InSession) return;
 
             bool expectedQueue = __instance.IsToggleQueued(targetIdx);
@@ -22,7 +25,9 @@ namespace ONI_MP.Patches.World
     {
         static void Prefix(Toggleable __instance, out IToggleHandler __state, WorkerBase worker)
         {
-            // Get the toggle handler for the completed work. 
+            using var _ = Profiler.Scope();
+
+            // Get the toggle handler for the completed work.
             int targetForWorker = __instance.GetTargetForWorker(worker);
             __state = targetForWorker != -1 ? __instance.targets[targetForWorker].Key : null;
 
@@ -31,6 +36,8 @@ namespace ONI_MP.Patches.World
 
         static void Postfix(Toggleable __instance, IToggleHandler __state)
         {
+            using var _ = Profiler.Scope();
+
             if (!MultiplayerSession.InSession) return;
 
             if (__state != null)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Newtonsoft.Json;
+using Shared.Profiling;
 
 namespace ONI_MP_DedicatedServer
 {
@@ -25,6 +26,8 @@ namespace ONI_MP_DedicatedServer
 
         public static ServerConfiguration LoadOrCreate()
         {
+            using var _ = Profiler.Scope();
+
             if (!Directory.Exists(ConfigDirectory))
                 Directory.CreateDirectory(ConfigDirectory);
 
@@ -46,12 +49,16 @@ namespace ONI_MP_DedicatedServer
 
         public void Save()
         {
+            using var _ = Profiler.Scope();
+
             string json = JsonConvert.SerializeObject(this, Formatting.Indented);
             File.WriteAllText(ConfigPath, json);
         }
 
         public void Reload()
         {
+            using var _ = Profiler.Scope();
+
             if (!File.Exists(ConfigPath))
                 throw new FileNotFoundException("Configuration file not found.", ConfigPath);
 

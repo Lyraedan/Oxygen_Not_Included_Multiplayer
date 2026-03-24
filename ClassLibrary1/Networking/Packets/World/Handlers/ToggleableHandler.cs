@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.World.Handlers
@@ -26,6 +27,8 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 
         public bool TryApplyConfig(GameObject go, BuildingConfigPacket packet)
         {
+            using var _ = Profiler.Scope();
+
             if (go == null)
             {
                 DebugConsole.LogError($"[ToggleableHandler] HUGE Nope!");

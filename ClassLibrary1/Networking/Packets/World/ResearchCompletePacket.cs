@@ -2,6 +2,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System;
 using System.IO;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -14,16 +15,22 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(TechId ?? string.Empty);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			TechId = reader.ReadString();
 		}
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.IsHost) return;
 			if (Research.Instance == null) return;
 			if (string.IsNullOrEmpty(TechId)) return;
@@ -40,7 +47,7 @@ namespace ONI_MP.Networking.Packets.World
 				techInstance.Purchased();
 
 				DebugConsole.Log($"[ResearchCompletePacket] Completed research: {tech.Name}");
-				
+
 				// Trigger the game event to notify all listeners (PlanScreen, etc.)
 				// This is what normally happens when research completes on host
 				try
@@ -59,7 +66,7 @@ namespace ONI_MP.Networking.Packets.World
 							.Field("researchScreen")
 							.GetValue();
 					}
-					
+
 					if (researchScreen != null)
 					{
 						// Call OnActiveResearchChanged to update visuals

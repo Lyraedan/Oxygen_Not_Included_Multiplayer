@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Core
 {
@@ -17,6 +18,8 @@ namespace ONI_MP.Networking.Packets.Core
 		public BulkSenderPacket() { }
 		public BulkSenderPacket(int packetId, List<byte[]> innerData)
 		{
+			using var _ = Profiler.Scope();
+
 			InnerPacketId = packetId;
 			SerializedInnerPackets = innerData;
 		}
@@ -26,6 +29,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(InnerPacketId);
 			int packetCount = SerializedInnerPackets.Count();
 			writer.Write(packetCount);
@@ -40,6 +45,8 @@ namespace ONI_MP.Networking.Packets.Core
 		}
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			InnerPacketId = reader.ReadInt32();
 			int packetCount = reader.ReadInt32();
 			SerializedInnerPackets = new List<byte[]>(packetCount);
@@ -52,6 +59,8 @@ namespace ONI_MP.Networking.Packets.Core
 		}
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (!PacketRegistry.HasRegisteredPacket(InnerPacketId))
 			{
 				DebugConsole.LogWarning("[BulkSenderPacket] unknown inner packet id found, cannot unpack: " + InnerPacketId);

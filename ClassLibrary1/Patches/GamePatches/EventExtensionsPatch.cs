@@ -4,6 +4,7 @@ using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Events;
 using System;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.GamePatches
@@ -19,6 +20,8 @@ namespace ONI_MP.Patches.GamePatches
 		[HarmonyPatch(nameof(EventExtensions.Trigger), new Type[] { typeof(GameObject), typeof(int), typeof(object) })]
 		public static void Postfix(GameObject go, int hash, object data)
 		{
+			using var _ = Profiler.Scope();
+
 			// Prevent recursive sync that could cause infinite loops
 			if (isSyncing) return;
 
@@ -46,13 +49,13 @@ namespace ONI_MP.Patches.GamePatches
 							safeData = null; // Don't try to serialize Unity objects
 						}
 						// Skip any type from Assembly-CSharp that inherits from UnityEngine.Object
-						else if (dataType.Assembly.GetName().Name == "Assembly-CSharp" && 
+						else if (dataType.Assembly.GetName().Name == "Assembly-CSharp" &&
 								 typeof(UnityEngine.Object).IsAssignableFrom(dataType.BaseType))
 						{
 							safeData = null;
 						}
 					}
-					
+
 					try
 					{
 						var packet = new EventTriggeredPacket(identity.NetId, hash, safeData);

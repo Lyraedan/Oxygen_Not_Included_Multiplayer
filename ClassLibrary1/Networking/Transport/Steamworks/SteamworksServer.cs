@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Networking.Profiling;
+using Shared.Profiling;
 using ONI_MP.Networking.States;
 using ONI_MP.UI;
 using Steamworks;
@@ -21,6 +21,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void Prepare()
         {
+            using var _ = Profiler.Scope();
+
             if (!SteamManager.Initialized)
             {
                 OnError.Invoke();
@@ -31,6 +33,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void Start()
         {
+            using var _ = Profiler.Scope();
+
             ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_SERVER_STARTED, $"Steam"));
             ChatScreen.QueueMessage(pending);
 
@@ -65,6 +69,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void Stop()
         {
+            using var _ = Profiler.Scope();
+
             ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_SERVER_STOPPED, $"Steam"));
             ChatScreen.QueueMessage(pending);
 
@@ -79,6 +85,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void CloseConnections()
         {
+            using var _ = Profiler.Scope();
+
             // Close all client connections and clean up
             foreach (var player in MultiplayerSession.ConnectedPlayers.Values)
             {
@@ -96,13 +104,17 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void Update()
         {
+            using var _ = Profiler.Scope();
+
             SteamAPI.RunCallbacks();
             SteamNetworkingSockets.RunCallbacks();
         }
 
         public override void OnMessageRecieved()
         {
-            long t0 = GameServerProfiler.Begin();
+            using var _ = Profiler.Scope();
+
+            var scope = Profiler.Scope();
             int totalBytes = 0;
 
             int maxMessagesPerPoll = Configuration.GetHostProperty<int>("MaxMessagesPerPoll");
@@ -120,11 +132,13 @@ namespace ONI_MP.Networking.Transport.Steam
 
                 SteamNetworkingMessage_t.Release(messages[i]);
             }
-            GameServerProfiler.End(t0, msgCount, totalBytes);
+            scope.End(msgCount, totalBytes);
         }
 
         private static void OnConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t data)
         {
+            using var _ = Profiler.Scope();
+
             var conn = data.m_hConn;
             var clientId = data.m_info.m_identityRemote.GetSteamID();
             var state = data.m_info.m_eState;
@@ -150,6 +164,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         private static void TryAcceptConnection(HSteamNetConnection conn, CSteamID clientId)
         {
+            using var _ = Profiler.Scope();
+
             // Get connection info to check actual state
             SteamNetConnectionInfo_t info = default;
             if (!SteamNetworkingSockets.GetConnectionInfo(conn, out info))
@@ -190,12 +206,16 @@ namespace ONI_MP.Networking.Transport.Steam
 
         private static void RejectConnection(HSteamNetConnection conn, CSteamID clientId, string reason)
         {
+            using var _ = Profiler.Scope();
+
             DebugConsole.LogError($"[GameServer] Rejecting connection from {clientId}: {reason}", false);
             SteamNetworkingSockets.CloseConnection(conn, 0, reason, false);
         }
 
         private static void OnClientConnected(HSteamNetConnection conn, CSteamID clientId)
         {
+            using var _ = Profiler.Scope();
+
             MultiplayerPlayer player;
             if (!MultiplayerSession.ConnectedPlayers.TryGetValue(clientId.m_SteamID, out player))
             {
@@ -212,6 +232,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         private static void OnClientClosed(HSteamNetConnection conn, CSteamID clientId)
         {
+            using var _ = Profiler.Scope();
+
             SteamNetworkingSockets.CloseConnection(conn, 0, null, false);
 
             if (MultiplayerSession.ConnectedPlayers.TryGetValue(clientId.m_SteamID, out var playerToRemove))

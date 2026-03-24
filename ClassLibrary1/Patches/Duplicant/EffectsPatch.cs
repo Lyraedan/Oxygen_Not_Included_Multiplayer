@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.Duplicant
 {
@@ -17,6 +18,8 @@ namespace ONI_MP.Patches.Duplicant
 
 		public static void AddEffect(Effects minionEffects, string effectId, bool shouldSave)
 		{
+			using var _ = Profiler.Scope();
+
 			TogglingEffectFromPacket = true;
 
 			Effect newEffect = Db.Get().effects.TryGet(effectId);
@@ -31,6 +34,8 @@ namespace ONI_MP.Patches.Duplicant
 		}
 		public static void RemoveEffect(Effects minionEffects, HashedString effectId)
 		{
+			using var _ = Profiler.Scope();
+
 			TogglingEffectFromPacket = true;
 
 			minionEffects.Remove(effectId);
@@ -45,6 +50,8 @@ namespace ONI_MP.Patches.Duplicant
 		{
 			public static bool Prefix(Effects __instance, Effect newEffect, bool should_save)
 			{
+				using var _ = Profiler.Scope();
+
 				if (!MultiplayerSession.InSession) return true;
 
 				if (!__instance.HasTag(GameTags.BaseMinion))
@@ -65,6 +72,8 @@ namespace ONI_MP.Patches.Duplicant
 		{
 			public static bool Prefix(Effects __instance, HashedString effect_id)
 			{
+				using var _ = Profiler.Scope();
+
 				if (!MultiplayerSession.InSession) return true;
 				if (MultiplayerSession.IsClient && !TogglingEffectFromPacket)
 					return false;

@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 using UI.lib.UIcmp;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,6 +29,8 @@ namespace ONI_MP.UI
 	{
 		public static void OnSceneChanged()
 		{
+			using var _ = Profiler.Scope();
+
 			if (Instance != null)
 			{
 				UnityEngine.Object.Destroy(Instance.gameObject);
@@ -50,6 +53,8 @@ namespace ONI_MP.UI
 
 		public void Init()
 		{
+			using var _ = Profiler.Scope();
+
 			if (init) { return; }
 
 			TopbarClose = transform.Find("TopBar/CloseButton").gameObject.AddOrGet<FButton>();
@@ -72,6 +77,8 @@ namespace ONI_MP.UI
 		}
 		void VerifyPasswordInput()
 		{
+			using var _ = Profiler.Scope();
+
 			string password = PasswortInput.Text;
 			if (SteamLobby.ValidateLobbyPassword(LobbyId, password))
 			{
@@ -79,8 +86,8 @@ namespace ONI_MP.UI
 				SteamLobby.JoinLobby(LobbyId.AsCSteamID(), (lobbyId) =>
 				{
 					DebugConsole.Log($"[LobbyBrowser] Successfully joined lobby: {lobbyId}");
-					
-				}); 
+
+				});
 				Show(false);
 			}
 			else
@@ -92,6 +99,8 @@ namespace ONI_MP.UI
 
 		public static void ShowPasswordDialogueFor(ulong lobby)
 		{
+			using var _ = Profiler.Scope();
+
 			ShowWindow();
 			Instance.PasswortInput.Text = string.Empty;
 			Instance.HidePw();
@@ -102,6 +111,8 @@ namespace ONI_MP.UI
 
 		static void ShowWindow()
 		{
+			using var _ = Profiler.Scope();
+
 			string currentScene = App.GetCurrentSceneName();
 			if (currentScene != lastScene)
 				OnSceneChanged();

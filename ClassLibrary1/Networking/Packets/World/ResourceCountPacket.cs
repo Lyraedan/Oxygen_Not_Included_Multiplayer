@@ -2,6 +2,7 @@ using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Synchronization;
 using System.Collections.Generic;
 using System.IO;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -14,6 +15,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(Resources.Count);
 			foreach (var kvp in Resources)
 			{
@@ -24,6 +27,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			int count = reader.ReadInt32();
 			Resources.Clear();
 			for (int i = 0; i < count; i++)
@@ -36,12 +41,16 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.IsHost) return;
 			Apply();
 		}
 
 		private void Apply()
 		{
+			using var _ = Profiler.Scope();
+
 			// Update local cache for the patch to use
 			ResourceSyncer.ClientResources = Resources;
 
@@ -51,7 +60,7 @@ namespace ONI_MP.Networking.Packets.World
 				foreach (var kvp in Resources)
 				{
 					Tag tag = TagManager.Create(kvp.Key);
-					// DiscoveredResources.Instance.Discover(tag); 
+					// DiscoveredResources.Instance.Discover(tag);
 					// To avoid spamming notifications or issues, we can check if already discovered.
 					if (!DiscoveredResources.Instance.IsDiscovered(tag))
 					{

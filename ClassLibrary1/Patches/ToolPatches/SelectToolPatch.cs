@@ -2,6 +2,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.ToolPatches
@@ -11,6 +12,8 @@ namespace ONI_MP.Patches.ToolPatches
 	{
 		static void Postfix()
 		{
+			using var _ = Profiler.Scope();
+
 			// Only apply if SelectTool is the currently active tool
 			if (PlayerController.Instance.ActiveTool != SelectTool.Instance)
 				return;
@@ -19,6 +22,8 @@ namespace ONI_MP.Patches.ToolPatches
 
 		public static void UpdateColor()
 		{
+			using var _ = Profiler.Scope();
+
 			Texture2D cursor = Assets.GetTexture("cursor_arrow") as Texture2D;
 			if (cursor == null)
 			{
@@ -40,6 +45,8 @@ namespace ONI_MP.Patches.ToolPatches
 
 		private static Texture2D TintTexture(Texture2D src, Color tint)
 		{
+			using var _ = Profiler.Scope();
+
 			Texture2D tex = new Texture2D(src.width, src.height, src.format, false);
 			Color[] pixels = src.GetPixels();
 			for (int i = 0; i < pixels.Length; i++)

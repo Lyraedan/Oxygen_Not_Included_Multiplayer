@@ -4,6 +4,7 @@ using ONI_MP.Networking.Transport.Steamworks;
 using Steamworks;
 using System.Collections.Generic;
 using System.Linq;
+using Shared.Profiling;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -36,6 +37,8 @@ namespace ONI_MP.Menus
 
         public static void Show(Transform parent)
         {
+            using var _ = Profiler.Scope();
+
             if (_instance != null)
             {
                 DebugConsole.Log("[LobbyBrowserScreen] Screen already open.");
@@ -50,6 +53,8 @@ namespace ONI_MP.Menus
 
         public static void Close()
         {
+            using var _ = Profiler.Scope();
+
             if (_screenGO != null)
             {
                 Destroy(_screenGO);
@@ -60,6 +65,8 @@ namespace ONI_MP.Menus
 
         private static GameObject CreateScreen(Transform parent)
         {
+            using var _ = Profiler.Scope();
+
             GameObject screen = new GameObject("LobbyBrowserScreen", typeof(RectTransform), typeof(CanvasGroup), typeof(Image));
             screen.transform.SetParent(parent, false);
 
@@ -81,6 +88,8 @@ namespace ONI_MP.Menus
 
         private void Initialize()
         {
+            using var _ = Profiler.Scope();
+
             // Initialize Steam relay network for ping estimation
             try { Steamworks.SteamNetworkingUtils.InitRelayNetworkAccess(); }
             catch { /* Ignore if not available */ }
@@ -114,6 +123,8 @@ namespace ONI_MP.Menus
 
         private void CreateHeader()
         {
+            using var _ = Profiler.Scope();
+
             var headerGO = new GameObject("Header", typeof(RectTransform), typeof(HorizontalLayoutGroup));
             headerGO.transform.SetParent(_screenGO.transform, false);
 
@@ -151,6 +162,8 @@ namespace ONI_MP.Menus
 
         private void CreateSearchField(Transform parent)
         {
+            using var _ = Profiler.Scope();
+
             var inputGO = new GameObject("SearchInput", typeof(RectTransform), typeof(Image), typeof(TMP_InputField));
             inputGO.transform.SetParent(parent, false);
 
@@ -205,6 +218,8 @@ namespace ONI_MP.Menus
 
         private void OnSearchChanged(string query)
         {
+            using var _ = Profiler.Scope();
+
             _searchQuery = query?.ToLower() ?? "";
             ApplyFiltersAndSort();
             int lobbyCount;
@@ -213,6 +228,8 @@ namespace ONI_MP.Menus
 
         private void CreateColumnHeaders()
         {
+            using var _ = Profiler.Scope();
+
             var headerContainer = new GameObject("ColumnHeaders", typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(Image));
             headerContainer.transform.SetParent(_screenGO.transform, false);
 
@@ -242,6 +259,8 @@ namespace ONI_MP.Menus
 
         private void CreateHeaderCell(Transform parent, string text, float minWidth, float flexibleWidth)
         {
+            using var _ = Profiler.Scope();
+
             var cellGO = new GameObject("HeaderCell", typeof(RectTransform), typeof(TextMeshProUGUI), typeof(LayoutElement));
             cellGO.transform.SetParent(parent, false);
 
@@ -270,6 +289,8 @@ namespace ONI_MP.Menus
 
         private void CreateLobbyList()
         {
+            using var _ = Profiler.Scope();
+
             // Scroll view container
             var scrollViewGO = new GameObject("ScrollView", typeof(RectTransform), typeof(ScrollRect), typeof(Image), typeof(Mask));
             scrollViewGO.transform.SetParent(_screenGO.transform, false);
@@ -311,6 +332,8 @@ namespace ONI_MP.Menus
 
         private void CreateBottomButtons()
         {
+            using var _ = Profiler.Scope();
+
             var buttonContainer = new GameObject("ButtonContainer", typeof(RectTransform), typeof(HorizontalLayoutGroup));
             buttonContainer.transform.SetParent(_screenGO.transform, false);
 
@@ -336,6 +359,8 @@ namespace ONI_MP.Menus
 
         private void RefreshLobbyList()
         {
+            using var _ = Profiler.Scope();
+
             _statusText.text = STRINGS.UI.SERVERBROWSER.LOADING_LOBBIES;
             ClearLobbyRows();
 
@@ -344,6 +369,8 @@ namespace ONI_MP.Menus
 
         private void OnLobbyListReceived(List<LobbyListEntry> lobbies)
         {
+            using var _ = Profiler.Scope();
+
             _allLobbies = lobbies ?? new List<LobbyListEntry>();
 
             ApplyFiltersAndSort();
@@ -362,6 +389,8 @@ namespace ONI_MP.Menus
 
         private void ApplyFiltersAndSort()
         {
+            using var _ = Profiler.Scope();
+
             // First, filter by search query
             var filtered = _allLobbies.AsEnumerable();
 
@@ -402,6 +431,8 @@ namespace ONI_MP.Menus
 
         private void ClearLobbyRows()
         {
+            using var _ = Profiler.Scope();
+
             foreach (var row in _lobbyRowObjects)
             {
                 if (row != null)
@@ -412,6 +443,8 @@ namespace ONI_MP.Menus
 
         private void PopulateLobbyList(out int lobbyCount)
         {
+            using var _ = Profiler.Scope();
+
             ClearLobbyRows();
 
             foreach (var lobby in _filteredLobbies)
@@ -428,6 +461,8 @@ namespace ONI_MP.Menus
 
         private GameObject CreateLobbyRow(LobbyListEntry lobby)
         {
+            using var _ = Profiler.Scope();
+
             var rowGO = new GameObject("LobbyRow", typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(Image));
             rowGO.transform.SetParent(_lobbyListContainer, false);
 
@@ -456,7 +491,7 @@ namespace ONI_MP.Menus
 
             // Join button
             bool join_interactable = !lobby.IsPrivate || SteamFriends.HasFriend(lobby.HostSteamId.AsCSteamID(), EFriendFlags.k_EFriendFlagImmediate);
-            string label = join_interactable ? STRINGS.UI.SERVERBROWSER.JOIN_BUTTON : STRINGS.UI.SERVERBROWSER.FRIEND_ONLY; 
+            string label = join_interactable ? STRINGS.UI.SERVERBROWSER.JOIN_BUTTON : STRINGS.UI.SERVERBROWSER.FRIEND_ONLY;
             CreateButton(rowGO.transform, label, () => JoinLobby(lobby), 70, 30, join_interactable);
 
             return rowGO;
@@ -464,6 +499,8 @@ namespace ONI_MP.Menus
 
         private void CreateCell(Transform parent, string text, float minWidth, float flexibleWidth)
         {
+            using var _ = Profiler.Scope();
+
             var cellGO = new GameObject("Cell", typeof(RectTransform), typeof(TextMeshProUGUI), typeof(LayoutElement));
             cellGO.transform.SetParent(parent, false);
 
@@ -492,6 +529,8 @@ namespace ONI_MP.Menus
 
         private void JoinLobby(LobbyListEntry lobby)
         {
+            using var _ = Profiler.Scope();
+
             DebugConsole.Log($"[LobbyBrowser] Joining lobby: {lobby.ColonyDisplay}");
 
             if (lobby.HasPassword)
@@ -513,11 +552,15 @@ namespace ONI_MP.Menus
 
         public static void ShowPasswordDialog(Transform parent, LobbyListEntry lobby)
         {
+            using var _ = Profiler.Scope();
+
             ShowPasswordDialog(parent, lobby.LobbyId);
         }
 
         public static void ShowPasswordDialog(Transform parent, ulong lobbyID)
         {
+            using var _ = Profiler.Scope();
+
             // Create password dialog
             var dialogGO = new GameObject("PasswordDialog", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
             dialogGO.transform.SetParent(parent, false);
@@ -637,6 +680,8 @@ namespace ONI_MP.Menus
 
         private TextMeshProUGUI CreateLabel(Transform parent, string text, int fontSize, float height)
         {
+            using var _ = Profiler.Scope();
+
             var labelGO = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
             labelGO.transform.SetParent(parent, false);
 
@@ -654,6 +699,8 @@ namespace ONI_MP.Menus
 
         public static void CreateButton(Transform parent, string text, System.Action onClick, float width, float height, bool is_button_interactable = true)
         {
+            using var _ = Profiler.Scope();
+
             var mainMenu = FindObjectOfType<MainMenu>();
             var templateButton = mainMenu?.Button_NewGame;
 

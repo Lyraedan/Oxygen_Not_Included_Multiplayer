@@ -1,6 +1,7 @@
 using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -11,9 +12,11 @@ namespace ONI_MP.Patches.World
 	{
 		public static void Postfix(Building __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			var go = __instance.gameObject;
-			
-			// We skip construction for configuration sync usually, 
+
+			// We skip construction for configuration sync usually,
 			// but having an ID early doesn't hurt.
 			// Let's focus on BuildingComplete for settings sync.
 			if (!(__instance is BuildingComplete)) return;
@@ -40,7 +43,7 @@ namespace ONI_MP.Patches.World
 			if (needsIdentity)
 			{
 				var identity = go.AddOrGet<NetworkIdentity>();
-				// We call RegisterIdentity explicitly to ensure it happens 
+				// We call RegisterIdentity explicitly to ensure it happens
 				// even if the component was already there but not registered.
 				identity.RegisterIdentity();
 			}

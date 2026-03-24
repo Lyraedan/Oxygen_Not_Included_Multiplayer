@@ -410,6 +410,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+.idea/
 
 # AI Agent notes (private, not uploaded to GitHub)
 .agent/

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.UI
@@ -18,6 +19,8 @@ namespace ONI_MP.UI
 		{
 			public static void Prefix(KScreen __instance, KButtonEvent e)
 			{
+				using var _ = Profiler.Scope();
+
 				if (__instance is LoadScreen && (e.IsAction(Action.Escape) || e.IsAction(Action.MouseRight)))
 				{
 					DebugConsole.Log("On LoadScreen deactivate");
@@ -36,6 +39,8 @@ namespace ONI_MP.UI
 		{
 			public static void Postfix(NewGameFlow __instance)
 			{
+				using var _ = Profiler.Scope();
+
 				if (__instance.currentScreenIndex < 0)
 				{
 					MultiplayerSession.ShouldHostAfterLoad = false;

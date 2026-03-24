@@ -2,6 +2,7 @@
 using ONI_MP.Menus;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Core
 {
@@ -19,6 +20,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.IsHost)
 				return;
 
@@ -34,6 +37,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public static void Sync()
 		{
+			using var _ = Profiler.Scope();
+
 			GameClient.IsHardSyncInProgress = true;
 			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.SYNC.HARDSYNC_INPROGRESS);
 			DebugConsole.Log("[HardSync] Client entering in-place sync, staying connected for save transfer");

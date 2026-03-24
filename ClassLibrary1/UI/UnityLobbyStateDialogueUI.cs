@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 using UI.lib.UIcmp;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,6 +31,8 @@ namespace ONI_MP.UI
 	{
 		public static void OnSceneChanged()
 		{
+			using var _ = Profiler.Scope();
+
 			if (Instance != null)
 			{
 				UnityEngine.Object.Destroy(Instance.gameObject);
@@ -54,6 +57,8 @@ namespace ONI_MP.UI
 
 		public void Init()
 		{
+			using var _ = Profiler.Scope();
+
 			if (init) { return; }
 
 			Debug.Log("Initializing UnityLobbyStateDialogueUI");
@@ -76,17 +81,23 @@ namespace ONI_MP.UI
 		}
 		void DoEndSession()
 		{
+			using var _ = Profiler.Scope();
+
 			SteamLobby.LeaveLobby();
 			Show(false);
 			//SpeedControlScreen.Instance?.Unpause(false);
 		}
 		void CopyLobbyCodeToClipboard()
 		{
+			using var _ = Profiler.Scope();
+
 			GUIUtility.systemCopyBuffer = SteamLobby.CurrentLobbyCode;
 			SetLobbyCodeConfirmationIcon(true);
 		}
 		void DoHardSync()
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.ConnectedPlayers.Count > 0)
 			{
 				GameServerHardSync.PerformHardSync();
@@ -99,12 +110,16 @@ namespace ONI_MP.UI
 		}
 		void RefreshHardSyncLabel()
 		{
+			using var _ = Profiler.Scope();
+
 			bool hardSyncAlreadyDone = GameServerHardSync.hardSyncDoneThisCycle;
 			HardSyncText.SetText(hardSyncAlreadyDone ? HARDSYNCNOTAVAILABLE.LABEL : DOHARDSYNC.LABEL);
 			PerformHardSync.SetInteractable(!hardSyncAlreadyDone);
 		}
 		void SetLobbyCodeConfirmationIcon(bool confirmed)
 		{
+			using var _ = Profiler.Scope();
+
 			if (ResettingCopyButton != null)
 				StopCoroutine(ResettingCopyButton);
 
@@ -115,6 +130,8 @@ namespace ONI_MP.UI
 		}
 		IEnumerator RestoreCopyButtonIconAfterDelay()
 		{
+			using var _ = Profiler.Scope();
+
 			yield return new WaitForSecondsRealtime(1);
 			SetLobbyCodeConfirmationIcon(false);
 		}
@@ -122,12 +139,16 @@ namespace ONI_MP.UI
 
 		public static void ShowLobbyStateWindow()
 		{
+			using var _ = Profiler.Scope();
+
 			ShowWindow();
 			Instance.SetLobbyStateInfo();
 		}
 
 		void SetLobbyStateInfo()
 		{
+			using var _ = Profiler.Scope();
+
 			LobbyCode.SetTextFromData((SteamLobby.CurrentLobbyCode));
 			SetLobbyCodeConfirmationIcon(false);
 			RefreshHardSyncLabel();
@@ -136,6 +157,8 @@ namespace ONI_MP.UI
 
 		static void ShowWindow()
 		{
+			using var _ = Profiler.Scope();
+
 			string currentScene = App.GetCurrentSceneName();
 			if (currentScene != lastScene)
 				OnSceneChanged();

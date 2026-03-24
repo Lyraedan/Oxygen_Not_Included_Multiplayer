@@ -4,6 +4,7 @@ using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
 using System.Collections.Generic;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World.SideScreen
@@ -24,6 +25,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(PlayerControlledToggleSideScreen __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 			if (__instance.target == null) return;
@@ -68,8 +71,10 @@ namespace ONI_MP.Patches.World.SideScreen
 		// Prefix: Check if there's a pending toggle BEFORE Toggle executes
 		public static void Prefix(PlayerControlledToggleSideScreen __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (__instance.target == null) return;
-			
+
 			try
 			{
 				var selectable = __instance.target.GetSelectable();
@@ -95,6 +100,8 @@ namespace ONI_MP.Patches.World.SideScreen
 		// Postfix: Only sync if this wasn't from a pending toggle (already synced in RequestToggle)
 		public static void Postfix(PlayerControlledToggleSideScreen __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 			if (__instance.target == null) return;

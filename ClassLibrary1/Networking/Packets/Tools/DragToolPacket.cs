@@ -7,13 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
+using Shared.Profiling;
 using UnityEngine;
 using static STRINGS.INPUT_BINDINGS;
-using Shared.Interfaces.Networking;
 
 namespace ONI_MP.Networking.Packets.Tools
 {
-	public abstract class DragToolPacket : IBulkablePacket
+	public abstract class DragToolPacket : IPacket
 	{
 		/// <summary>
 		/// Gets a value indicating whether incoming messages are currently being processed.
@@ -21,11 +21,7 @@ namespace ONI_MP.Networking.Packets.Tools
 		/// </summary>
 		public static bool ProcessingIncoming { get; private set; } = false;
 
-        public int MaxPackSize => 500; // 50 packs
-
-        public uint IntervalMs => 50; // 50 ms
-
-        public enum DragToolMode
+		public enum DragToolMode
 		{
 			Invalid = -1,
 			OnDragTool = 0,
@@ -43,6 +39,8 @@ namespace ONI_MP.Networking.Packets.Tools
 
 		public virtual void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			if(ToolInstance is FilteredDragTool filteredToolInstance)
 				StoreFilterData(filteredToolInstance);
 
@@ -73,6 +71,8 @@ namespace ONI_MP.Networking.Packets.Tools
 
 		public virtual void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			if (ToolInstance is FilteredDragTool)
 			{
 				var count = reader.ReadInt32();
@@ -100,6 +100,8 @@ namespace ONI_MP.Networking.Packets.Tools
 
 		public virtual void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (ToolInstance == null)
 			{
 				DebugConsole.LogWarning("[FilteredDragToolPacket] ToolInstance is null in OnDispatched");
@@ -146,6 +148,8 @@ namespace ONI_MP.Networking.Packets.Tools
 		}
 		public void ApplyFilterData(FilteredDragTool tool, HashSet<string> targets)
 		{
+			using var _ = Profiler.Scope();
+
 			var currentFilterKeys = tool.currentFilterTargets.Keys.ToList();
 
 			foreach (var target in currentFilterKeys)
@@ -160,6 +164,8 @@ namespace ONI_MP.Networking.Packets.Tools
 
 		public void StoreFilterData(FilteredDragTool tool)
 		{
+			using var _ = Profiler.Scope();
+
 			foreach (var target in tool.currentFilterTargets)
 			{
 				if (target.Value == ToolParameterMenu.ToggleState.On)

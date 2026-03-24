@@ -4,6 +4,7 @@ using ONI_MP.Menus;
 using ONI_MP.Misc.World;
 using ONI_MP.Networking;
 using ONI_MP.Networking.States;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.GamePatches
 {
@@ -15,6 +16,8 @@ namespace ONI_MP.Patches.GamePatches
   {
     public static void Postfix()
     {
+      using var _ = Profiler.Scope();
+
       if (MultiplayerSession.IsHost)
       {
         InstantiationBatcher.Update();
@@ -31,6 +34,8 @@ namespace ONI_MP.Patches.GamePatches
   {
     public static void Postfix()
     {
+      using var _ = Profiler.Scope();
+
       DebugConsole.Log($"[GamePatch] Game.OnSpawn fired. ClientState={GameClient.State}, HasCachedConnection={GameClient.HasCachedConnection()}, IsHost={MultiplayerSession.IsHost}, HardSync={GameClient.IsHardSyncInProgress}");
 
       // Handle client reconnection after world is fully loaded

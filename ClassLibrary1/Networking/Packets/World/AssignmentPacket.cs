@@ -2,6 +2,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.World
@@ -21,6 +22,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(BuildingNetId);
 			writer.Write(Cell);
 			writer.Write(AssigneeNetId);
@@ -29,6 +32,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			BuildingNetId = reader.ReadInt32();
 			Cell = reader.ReadInt32();
 			AssigneeNetId = reader.ReadInt32();
@@ -37,10 +42,12 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			DebugConsole.Log($"[AssignmentPacket] Received: BuildingNetId={BuildingNetId}, Cell={Cell}, AssigneeNetId={AssigneeNetId}, GroupId={GroupId}");
 
 			NetworkIdentity buildingIdentity = null;
-			
+
 			// Try to find by NetID first
 			if (!NetworkIdentityRegistry.TryGet(BuildingNetId, out buildingIdentity) || buildingIdentity == null)
 			{
@@ -91,6 +98,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		private void ApplyAssignment(Assignable assignable)
 		{
+			using var _ = Profiler.Scope();
+
 			// Unassign case
 			if (AssigneeNetId == -1 && string.IsNullOrEmpty(GroupId))
 			{
@@ -133,7 +142,7 @@ namespace ONI_MP.Networking.Packets.World
 					DebugConsole.Log($"[AssignmentPacket] Assigned {assignable.name} to {minionIdentity.name} via proxy");
 					return;
 				}
-				
+
 				// Try direct assignment if proxy not found
 				assignable.Assign(minionIdentity);
 				DebugConsole.Log($"[AssignmentPacket] Assigned {assignable.name} to {minionIdentity.name}");

@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using ONI_MP.DebugTools;
 using Shared.Helpers;
+using Shared.Profiling;
 using Steamworks;
 using UnityEngine;
 using YamlDotNet.RepresentationModel;
@@ -18,6 +19,8 @@ namespace ONI_MP.ModUpdater
 
         public static void CheckForUpdate()
         {
+            using var _ = Profiler.Scope();
+
             CURRENT_VERSION = GetVersion();
 
             if (!SteamAPI.IsSteamRunning() || !SteamAPI.Init())
@@ -37,6 +40,8 @@ namespace ONI_MP.ModUpdater
 
         private static void OnUGCQueryCompleted(SteamUGCQueryCompleted_t data, bool bIOFailure)
         {
+            using var _ = Profiler.Scope();
+
             if (bIOFailure || data.m_eResult != EResult.k_EResultOK)
             {
                 DebugConsole.LogError("[Updater] Workshop query failed!", false);
@@ -61,6 +66,8 @@ namespace ONI_MP.ModUpdater
 
         private static void CompareLocalModVersion(ulong fileId, System.DateTime workshopUpdated)
         {
+            using var _ = Profiler.Scope();
+
             string SteamPath = Path.Combine(KMod.Manager.GetDirectory(), "Steam");
             string localPath = Path.Combine(SteamPath, fileId.ToString());
 #if DEBUG
@@ -99,6 +106,8 @@ namespace ONI_MP.ModUpdater
 
         public static string GetVersion()
         {
+            using var _ = Profiler.Scope();
+
             try
             {
                 string path = Path.Combine(Path.GetDirectoryName(typeof(Updater).Assembly.Location), "mod_info.yaml");
@@ -133,9 +142,11 @@ namespace ONI_MP.ModUpdater
                 return "Unknown";
             }
         }
-    
+
         public static string GetWorkshopVersion(string description)
         {
+            using var _ = Profiler.Scope();
+
             if (string.IsNullOrEmpty(description))
                 return "Unknown";
 
@@ -159,6 +170,8 @@ namespace ONI_MP.ModUpdater
 
         public static void OnUpdateAvailable()
         {
+            using var _ = Profiler.Scope();
+
             string mod_updater_workshop_url = "https://steamcommunity.com/sharedfiles/filedetails/?id=2018291283";
             DialogUtil.CreateConfirmDialogFrontend(STRINGS.UI.MP_SCREEN.UPDATER.MOD_UPDATE_TITLE, string.Format(STRINGS.UI.MP_SCREEN.UPDATER.MOD_UPDATE_TEXT, WORKSHOP_VERSION, CURRENT_VERSION, mod_updater_workshop_url));
         }

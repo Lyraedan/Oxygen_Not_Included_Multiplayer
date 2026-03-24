@@ -1,4 +1,6 @@
-﻿namespace ONI_MP.Networking.Components
+﻿using Shared.Profiling;
+
+namespace ONI_MP.Networking.Components
 {
 	using ONI_MP.DebugTools;
 	using System;
@@ -14,6 +16,8 @@
 
 		private void Awake()
 		{
+			using var _ = Profiler.Scope();
+
 			if (dispatcher == null)
 				dispatcher = this;
 			else
@@ -22,6 +26,8 @@
 
 		private void Start()
 		{
+			using var _ = Profiler.Scope();
+
 			StartCoroutine(Execute());
 		}
 
@@ -31,6 +37,8 @@
 
 		IEnumerator WaitAndExecute(bool condition, Action action)
 		{
+			using var _ = Profiler.Scope();
+
 			// Wait for condition to be true
 			yield return new WaitUntil(() => condition);
 			action?.Invoke();
@@ -39,6 +47,8 @@
 		// I know that this is terrible... Too bad
 		IEnumerator Execute()
 		{
+			using var _ = Profiler.Scope();
+
 			yield return new WaitUntil(() => events.Count > 0);
 			events[0]?.Invoke();
 			DebugConsole.Log("[Main/Thread] Executor executing next event @ " + DateTime.Now.ToString("hh:mm:ss"));

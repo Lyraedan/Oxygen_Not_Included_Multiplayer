@@ -6,6 +6,7 @@ using ONI_MP.Networking.Transport.Lan;
 using ONI_MP.UI;
 using Steamworks;
 using System.IO;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Core
 {
@@ -19,12 +20,16 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public ClientReadyStatusPacket(ulong senderId, ClientReadyState status)
 		{
+			using var _ = Profiler.Scope();
+
 			SenderId = senderId;
 			Status = status;
 		}
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write((int)Status);
 			writer.Write(SenderId);
 			writer.Write(PlayerName ?? string.Empty);
@@ -32,6 +37,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			Status = (ClientReadyState)reader.ReadInt32();
 			SenderId = reader.ReadUInt64();
 			PlayerName = reader.ReadString();
@@ -39,6 +46,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (!MultiplayerSession.IsHost)
 			{
 				if (string.IsNullOrEmpty(PlayerName))

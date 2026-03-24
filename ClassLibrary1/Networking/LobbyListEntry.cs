@@ -1,3 +1,4 @@
+using Shared.Profiling;
 using Steamworks;
 
 namespace ONI_MP.Networking
@@ -84,6 +85,8 @@ namespace ONI_MP.Networking
 		/// ------------------
 		public bool Equals(LobbyListEntry other)
 		{
+			using var _ = Profiler.Scope();
+
 			return other?.HostSteamId == this.HostSteamId && other?.LobbyId == this.LobbyId;
 		}
 		public override bool Equals(object obj) => obj is LobbyListEntry other && Equals(other);
@@ -92,6 +95,8 @@ namespace ONI_MP.Networking
 		public static bool operator !=(LobbyListEntry a, LobbyListEntry b) => !(a == b);
 		public override int GetHashCode()
 		{
+			using var _ = Profiler.Scope();
+
 			return LobbyId.GetHashCode() ^ HostSteamId.GetHashCode();
 		}
 	}

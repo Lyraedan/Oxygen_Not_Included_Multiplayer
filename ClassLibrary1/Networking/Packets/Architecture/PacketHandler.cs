@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using ONI_MP.DebugTools;
+using ONI_MP.Networking;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Architecture
 {
@@ -11,6 +13,8 @@ namespace ONI_MP.Networking.Packets.Architecture
 
 		public static void HandleIncoming(byte[] data)
 		{
+			using var _ = Profiler.Scope();
+
 			if (!readyToProcess)
 			{
 				return;
@@ -27,9 +31,13 @@ namespace ONI_MP.Networking.Packets.Architecture
                         return;
                     }
 
+                    using var scope = Profiler.Scope();
+
                     var packet = PacketRegistry.Create(type);
 					packet.Deserialize(reader);
 					Dispatch(packet);
+
+                    scope.End(packet.GetType().Name, data.Length);
 
                     PacketTracker.TrackIncoming(new PacketTracker.PacketTrackData
                     {
@@ -42,6 +50,8 @@ namespace ONI_MP.Networking.Packets.Architecture
 
 		private static void Dispatch(IPacket packet)
 		{
+			using var _ = Profiler.Scope();
+
 			packet.OnDispatched();
 		}
 	}

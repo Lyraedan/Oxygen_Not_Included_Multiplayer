@@ -6,7 +6,7 @@ using Riptide.Utils;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Social;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Networking.Profiling;
+using Shared.Profiling;
 using static ONI_MP.STRINGS.UI.MP_OVERLAY;
 using System.Net.Sockets;
 
@@ -20,6 +20,8 @@ namespace ONI_MP.Tests
 
         public static void Run(string ip = "127.0.0.1", ushort port = 7777)
         {
+            using var _ = Profiler.Scope();
+
             DebugConsole.Log("[RiptideSmokeTest] Starting");
 
             try
@@ -63,12 +65,16 @@ namespace ONI_MP.Tests
 
         private static void OnClientDisconnected(object sender, DisconnectedEventArgs e)
         {
+            using var _ = Profiler.Scope();
+
             //MultiplayerSession.InSession = false;
             DebugConsole.Log("[RiptideSmokeTest] Client disconnected");
         }
 
         private static void OnClientConnected(object sender, EventArgs e)
         {
+            using var _ = Profiler.Scope();
+
             DebugConsole.Log("[RiptideSmokeTest] Client connected");
 
             //MultiplayerSession.InSession = true;
@@ -81,6 +87,8 @@ namespace ONI_MP.Tests
 
         private static void SendPacket(IPacket packet)
         {
+            using var _ = Profiler.Scope();
+
             byte[] bytes = PacketSender.SerializePacketForSending(packet);
 
             Riptide.Message msg = Riptide.Message.Create(MessageSendMode.Reliable, 1); // dummy ID
@@ -91,6 +99,8 @@ namespace ONI_MP.Tests
 
         private static void OnServerMessageReceived(object sender, MessageReceivedEventArgs e)
         {
+            using var _ = Profiler.Scope();
+
             ulong clientId = e.FromConnection.Id;
             byte[] rawData = e.Message.GetBytes();
             int size = rawData.Length;
@@ -107,7 +117,7 @@ namespace ONI_MP.Tests
 
             DebugConsole.Log($"[RiptideSmokeTest] Handling packet: " + packetType);
 
-            long t0 = GameServerProfiler.Begin();
+            var scope = Profiler.Scope();
 
             try
             {
@@ -119,7 +129,7 @@ namespace ONI_MP.Tests
                 Debug.LogWarning($"[LanServer] Failed to handle packet {packetType}: {ex}");
             }
 
-            GameServerProfiler.End(t0, 1, size);
+            scope.End(1, size);
 
             _packetReceived = true;
         }

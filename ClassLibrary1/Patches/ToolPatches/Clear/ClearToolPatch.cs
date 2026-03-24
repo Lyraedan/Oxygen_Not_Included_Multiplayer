@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Tools.Clear;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.ToolPatches.Clear
 {
@@ -9,6 +10,8 @@ namespace ONI_MP.Patches.ToolPatches.Clear
 	{
 		public static void Prefix(int cell, int distFromOrigin)
 		{
+			using var _ = Profiler.Scope();
+
 			if (!MultiplayerSession.InSession)
 				return;
 

@@ -2,6 +2,7 @@ using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.World;
 using System.Collections.Generic;
+using Shared.Profiling;
 using UnityEngine;
 
 [HarmonyPatch(typeof(Workable), nameof(Workable.WorkTick))]
@@ -12,6 +13,8 @@ public static class WorkProgressPatch
 
 	public static void Postfix(Workable __instance)
 	{
+		using var _ = Profiler.Scope();
+
 		if (!MultiplayerSession.IsHost || !MultiplayerSession.InSession)
 			return;
 
@@ -40,6 +43,8 @@ public static class WorkProgressPatch
 
 	public static void ClearTracking()
 	{
+		using var _ = Profiler.Scope();
+
 		nextSendTime.Clear();
 	}
 }

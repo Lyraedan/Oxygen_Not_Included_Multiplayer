@@ -4,7 +4,7 @@ using Riptide.Utils;
 using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Networking.Profiling;
+using Shared.Profiling;
 using ONI_MP.Networking.Transfer;
 using System.Collections.Generic;
 using ONI_MP.UI;
@@ -41,11 +41,15 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Prepare()
         {
+            using var _ = Profiler.Scope();
+
             RiptideLogger.Initialize(DebugConsole.Log, false);
         }
 
         public override void Start()
         {
+            using var _ = Profiler.Scope();
+
             if (_server != null)
                 return;
 
@@ -76,6 +80,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         private void OnClientConnectionFailed(object sender, ServerConnectionFailedEventArgs e)
         {
+            using var _ = Profiler.Scope();
+
             int id = e.Client.Id;
             DebugConsole.Log("[RiptideServer] A client failed to connect to the server.");
             ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_FAILED, "A client"));
@@ -84,6 +90,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         private void OnLocalClientConnected(object sender, EventArgs e)
         {
+            using var _ = Profiler.Scope();
+
             CLIENT_ID = _client.Id;
             //AddClientToList(CLIENT_ID);
             DebugConsole.Log("[RiptideServer] Host client connected to server!");
@@ -98,6 +106,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         private void OnLocalClientDisconnected(object sender, DisconnectedEventArgs e)
         {
+            using var _ = Profiler.Scope();
+
             CLIENT_ID = Utils.NilUlong();
             //RemoveClientFromList(CLIENT_ID);
             DebugConsole.Log("[RiptideServer] Host client disconnected from server!");
@@ -107,6 +117,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         private void ServerOnClientConnected(object sender, ServerConnectedEventArgs e)
         {
+            using var _ = Profiler.Scope();
+
             ulong clientId = e.Client.Id;
             MultiplayerPlayer player;
             if (!MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out player))
@@ -132,6 +144,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         private void ServerOnClientDisconnected(object sender, ServerDisconnectedEventArgs e)
         {
+            using var _ = Profiler.Scope();
+
             ulong clientId = e.Client.Id;
 
             RemoveClientFromList(clientId);
@@ -151,6 +165,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         private void OnServerMessageReceived(object sender, MessageReceivedEventArgs e)
         {
+            using var _ = Profiler.Scope();
+
             ulong clientId = e.FromConnection.Id;
             byte[] rawData = e.Message.GetBytes();
             int size = rawData.Length;
@@ -164,7 +180,7 @@ namespace ONI_MP.Networking.Transport.Lan
                 $"PacketType={packetType}, Size={size} bytes"
             );
 
-            long t0 = GameServerProfiler.Begin();
+            var scope = Profiler.Scope();
 
             try
             {
@@ -175,11 +191,13 @@ namespace ONI_MP.Networking.Transport.Lan
                 Debug.LogWarning($"[LanServer] Failed to handle packet {packetType}: {ex}");
             }
 
-            GameServerProfiler.End(t0, 1, size);
+            scope.End(1, size);
         }
 
         public override void Stop()
         {
+            using var _ = Profiler.Scope();
+
             if (_server == null)
                 return;
 
@@ -205,6 +223,8 @@ namespace ONI_MP.Networking.Transport.Lan
         // The server is shutting down so disconnect everyone
         public override void CloseConnections()
         {
+            using var _ = Profiler.Scope();
+
             if (_server == null || !_server.IsRunning)
                 return;
 
@@ -229,6 +249,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Update()
         {
+            using var _ = Profiler.Scope();
+
             _server?.Update();
             _client?.Update();
 
@@ -262,6 +284,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void AddClientToList(ulong id)
         {
+            using var _ = Profiler.Scope();
+
             if (ClientList.Contains(id))
                 return;
 
@@ -280,6 +304,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void RemoveClientFromList(ulong id)
         {
+            using var _ = Profiler.Scope();
+
             if (!ClientList.Contains(id))
                 return;
 
@@ -295,6 +321,8 @@ namespace ONI_MP.Networking.Transport.Lan
         }
         public ulong GetClientID()
         {
+            using var _ = Profiler.Scope();
+
             if (_client == null || _client.IsNotConnected)
                 return Utils.NilUlong();
 

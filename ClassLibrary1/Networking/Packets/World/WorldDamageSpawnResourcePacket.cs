@@ -2,6 +2,7 @@
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.World
@@ -20,6 +21,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public WorldDamageSpawnResourcePacket(int netId, Vector3 pos, float mass, float temp, ushort elementIdx, byte diseaseIdx, int diseaseCount)
 		{
+			using var _ = Profiler.Scope();
+
 			NetId = netId;
 			Position = pos;
 			Mass = mass;
@@ -31,6 +34,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(NetId);
 			writer.Write(Position.x);
 			writer.Write(Position.y);
@@ -44,6 +49,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			NetId = reader.ReadInt32();
 			Position = new Vector3(
 					reader.ReadSingle(),
@@ -59,6 +66,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			Element element = ElementLoader.elements[ElementIndex];
 
 			InvokePlaySoundForSubstance(element, Position);
@@ -85,6 +94,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		private static void InvokePlaySoundForSubstance(Element element, Vector3 position)
 		{
+			using var _ = Profiler.Scope();
+
 			var method = typeof(WorldDamage).GetMethod("PlaySoundForSubstance", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
 			if (method == null)

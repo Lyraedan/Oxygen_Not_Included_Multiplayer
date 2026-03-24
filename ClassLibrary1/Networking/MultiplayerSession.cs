@@ -1,6 +1,7 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using System.Collections.Generic;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking
@@ -38,6 +39,8 @@ namespace ONI_MP.Networking
 
 		public static void Clear()
 		{
+			using var _ = Profiler.Scope();
+
 			ConnectedPlayers.Clear();
 			KnownPlayerNames.Clear();
 			HostUserID = Utils.NilUlong();
@@ -47,12 +50,16 @@ namespace ONI_MP.Networking
 
 		public static void SetHost(ulong host)
 		{
+			using var _ = Profiler.Scope();
+
 			HostUserID = host;
 			DebugConsole.Log($"[MultiplayerSession] Host set to: {host}");
 		}
 
 		public static MultiplayerPlayer GetPlayer(ulong id)
 		{
+			using var _ = Profiler.Scope();
+
 			return ConnectedPlayers.TryGetValue(id, out var player) ? player : null;
 		}
 
@@ -62,6 +69,8 @@ namespace ONI_MP.Networking
 
 		public static void CreateNewPlayerCursor(ulong steamID)
 		{
+			using var _ = Profiler.Scope();
+
 			if (PlayerCursors.ContainsKey(steamID))
 				return;
 
@@ -87,6 +96,8 @@ namespace ONI_MP.Networking
 
 		public static void CreateConnectedPlayerCursors()
 		{
+			using var _ = Profiler.Scope();
+
             var members = NetworkConfig.GetConnectedClients();
             foreach (var playerId in members)
 			{
@@ -102,6 +113,8 @@ namespace ONI_MP.Networking
 
 		public static void RemovePlayerCursor(ulong steamID)
 		{
+			using var _ = Profiler.Scope();
+
 			if (!PlayerCursors.TryGetValue(steamID, out var cursor))
 				return;
 
@@ -117,6 +130,8 @@ namespace ONI_MP.Networking
 
 		public static void RemoveAllPlayerCursors()
 		{
+			using var _ = Profiler.Scope();
+
 			foreach (var kvp in PlayerCursors)
 			{
 				var cursor = kvp.Value;
@@ -133,6 +148,8 @@ namespace ONI_MP.Networking
 
 		public static bool TryGetCursorObject(ulong steamID, out PlayerCursor cursorGO)
 		{
+			using var _ = Profiler.Scope();
+
 			if (PlayerCursors.TryGetValue(steamID, out var cursor) && cursor != null)
 			{
 				cursorGO = cursor;

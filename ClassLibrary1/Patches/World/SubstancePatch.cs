@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using ONI_MP.Networking.Components;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World
@@ -9,6 +10,8 @@ namespace ONI_MP.Patches.World
 	{
 		public static void Postfix(GameObject __result)
 		{
+			using var _ = Profiler.Scope();
+
 			if (__result == null)
 				return;
 

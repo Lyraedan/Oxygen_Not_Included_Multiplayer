@@ -3,6 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World.SideScreen
@@ -19,6 +20,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(CounterSideScreen __instance, int newValue)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 			if (__instance.targetLogicCounter == null) return;
@@ -48,6 +51,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(CounterSideScreen __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 			if (__instance.targetLogicCounter == null) return;
@@ -77,6 +82,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(CounterSideScreen __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 			if (__instance.targetLogicCounter == null) return;
@@ -106,6 +113,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(Storage __instance, bool is_set)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 
@@ -134,10 +143,12 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 	public static void Postfix(ComplexFabricator __instance, ComplexRecipe recipe, int count)
 		{
+			using var _ = Profiler.Scope();
+
 			try
 			{
 				DebugConsole.Log($"[ComplexFabricator] SetRecipeQueueCount Postfix called: recipe={recipe?.id ?? "null"}, count={count}");
-				
+
 				if (BuildingConfigPacket.IsApplyingPacket)
 				{
 					DebugConsole.Log($"[ComplexFabricator] Ignoring sync - IsApplyingPacket=true");
@@ -182,6 +193,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(FoodStorage __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 
@@ -210,6 +223,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(FoodStorage __instance, bool value)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 

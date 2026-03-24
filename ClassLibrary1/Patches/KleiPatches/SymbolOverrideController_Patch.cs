@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.KleiPatches
 {
@@ -18,6 +19,8 @@ namespace ONI_MP.Patches.KleiPatches
         {
             public static void Prefix(SymbolOverrideController __instance, HashedString target_symbol, KAnim.Build.Symbol source_symbol, int priority = 0)
             {
+	            using var _ = Profiler.Scope();
+
                 if(!Utils.IsHostMinion(__instance))
                     return;
                 PacketSender.SendToAllClients(new SymbolOverridePacket(__instance, SymbolOverridePacket.Mode.AddSymbolOverride, target_symbol,source_symbol,priority));
@@ -29,6 +32,8 @@ namespace ONI_MP.Patches.KleiPatches
         {
             public static void Prefix(SymbolOverrideController __instance, HashedString target_symbol, int priority)
 			{
+				using var _ = Profiler.Scope();
+
 				if (!Utils.IsHostMinion(__instance))
 					return;
 				PacketSender.SendToAllClients(new SymbolOverridePacket(__instance, SymbolOverridePacket.Mode.RemoveSymbolOverride, target_symbol, priority: priority));
@@ -40,6 +45,8 @@ namespace ONI_MP.Patches.KleiPatches
         {
             public static void Prefix(SymbolOverrideController __instance, int priority)
 			{
+				using var _ = Profiler.Scope();
+
 				if (!Utils.IsHostMinion(__instance))
 					return;
 				PacketSender.SendToAllClients(new SymbolOverridePacket(__instance, SymbolOverridePacket.Mode.RemoveAllSymbolsOverrides, priority: priority));

@@ -1,6 +1,7 @@
 using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Events
 {
@@ -17,6 +18,8 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(Title ?? string.Empty);
 			writer.Write(Text ?? string.Empty);
 			writer.Write(TypeName ?? "Bad");
@@ -24,6 +27,8 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			Title = reader.ReadString();
 			Text = reader.ReadString();
 			TypeName = reader.ReadString();
@@ -31,12 +36,16 @@ namespace ONI_MP.Networking.Packets.Events
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.IsHost) return;
 			Apply();
 		}
 
 		private void Apply()
 		{
+			using var _ = Profiler.Scope();
+
 			// Create a local notification
 			// Notification(string title, NotificationType type, HashedString? tooltip = null, object tooltip_data = null, bool expires = true, float delay = 0f, Notification.ClickCallback custom_click_callback = null, object custom_click_data = null, Transform click_focus = null, bool volume_attenuation = true)
 

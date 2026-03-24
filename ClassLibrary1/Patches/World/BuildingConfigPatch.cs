@@ -3,6 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World
@@ -19,10 +20,12 @@ namespace ONI_MP.Patches.World
 		{
 			public static void Postfix(LogicSwitch __instance)
 			{
+				using var _ = Profiler.Scope();
+
 				try
 				{
 					DebugConsole.Log($"[LogicSwitch] Toggle Postfix called on {__instance?.name ?? "null"}");
-					
+
 					if (IgnoreEvents)
 					{
 						DebugConsole.Log($"[LogicSwitch] Ignoring sync - IsApplyingPacket=true");
@@ -52,7 +55,7 @@ namespace ONI_MP.Patches.World
 					};
 
 					DebugConsole.Log($"[LogicSwitch] Sending state={switchedOn} for {__instance.name} (NetId={identity.NetId})");
-					
+
 					if (MultiplayerSession.IsHost)
 						PacketSender.SendToAllClients(packet);
 					else
@@ -71,6 +74,8 @@ namespace ONI_MP.Patches.World
 		{
 			public static void Postfix(Valve __instance, float amount)
 			{
+				using var _ = Profiler.Scope();
+
 				if (IgnoreEvents) return;
 				SyncBuildingConfig(__instance, "Rate", amount);
 			}
@@ -91,6 +96,8 @@ namespace ONI_MP.Patches.World
 		// Helper
 		private static void SyncBuildingConfig(Component component, string configId, float value)
 		{
+			using var _ = Profiler.Scope();
+
 			if (component == null) return;
 			if (!MultiplayerSession.InSession) return;
 
