@@ -58,6 +58,8 @@ namespace ONI_MP.DebugTools
 
         public DevToolMultiplayer()
         {
+            Profiler.Scope();
+
             Name = "Multiplayer";
             RequiresGameRunning = false;
             console = DebugConsole.Init();
@@ -388,6 +390,8 @@ namespace ONI_MP.DebugTools
 
         private void DrawPlayerList()
         {
+            Profiler.Scope();
+
             if(!MultiplayerSession.SessionHasPlayers)
             {
                 ImGui.Text("No other players connected.");
@@ -410,6 +414,8 @@ namespace ONI_MP.DebugTools
 
         void SteamworksPlayerList()
         {
+            Profiler.Scope();
+
             var players = SteamLobby.GetAllLobbyMembers();
             string self = $"[You] {SteamFriends.GetPersonaName()} | {MultiplayerSession.LocalUserID}";
 
@@ -459,6 +465,8 @@ namespace ONI_MP.DebugTools
 
         void RiptidePlayerList()
         {
+            Profiler.Scope();
+
             if(MultiplayerSession.IsHost)
             {
                 var players = MultiplayerSession.ConnectedPlayers;

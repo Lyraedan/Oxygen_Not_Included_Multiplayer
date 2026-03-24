@@ -366,6 +366,8 @@ namespace ONI_MP.Misc
 
         public static string GetLocalPlayerName()
         {
+	        Profiler.Scope();
+
             if (SteamManager.Initialized)
             {
                 return Steamworks.SteamFriends.GetPersonaName();
