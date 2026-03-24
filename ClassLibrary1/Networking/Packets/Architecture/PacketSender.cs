@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking
@@ -35,6 +36,8 @@ namespace ONI_MP.Networking
 			}
 			public bool CanDispatchNext(HSteamNetConnection connection)
 			{
+				Profiler.Scope();
+
 				var currentTime = Time.unscaledTime;
 
 				if (!LastDispatchTime.ContainsKey(connection))
@@ -59,6 +62,8 @@ namespace ONI_MP.Networking
 
 		public static byte[] SerializePacketForSending(IPacket packet)
 		{
+			Profiler.Scope();
+
 			using (var ms = new System.IO.MemoryStream())
 			using (var writer = new System.IO.BinaryWriter(ms))
 			{
@@ -73,6 +78,8 @@ namespace ONI_MP.Networking
 		static Dictionary<object, Dictionary<int, List<byte[]>>> WaitingBulkPacketsPerReceiver = [];
 		public static void DispatchPendingBulkPackets()
 		{
+			Profiler.Scope();
+
 			foreach (var kvp in WaitingBulkPacketsPerReceiver)
 			{
 				var conn = kvp.Key;
@@ -85,6 +92,8 @@ namespace ONI_MP.Networking
 
 		static void DispatchPendingBulkPacketOfType(object conn, int packetId, bool intervalRun = false)
 		{
+			Profiler.Scope();
+
 			if (!WaitingBulkPacketsPerReceiver.TryGetValue(conn, out var allPendingPackets)
 				|| !allPendingPackets.TryGetValue(packetId, out var pendingPackets)
 				|| !pendingPackets.Any())
@@ -101,6 +110,8 @@ namespace ONI_MP.Networking
 		}
 		public static void AppendPendingBulkPacket(object conn, IPacket packet, IBulkablePacket bp)
 		{
+			Profiler.Scope();
+
 			int packetId = PacketRegistry.GetPacketId(packet);
 			int maxPacketNumberPerPacket = bp.MaxPackSize;
 
@@ -139,6 +150,8 @@ namespace ONI_MP.Networking
 		}
 		public static byte[] SerializeToByteArray(this IPacket packet)
 		{
+			Profiler.Scope();
+
 			using var ms = new System.IO.MemoryStream();
 			using var writer = new System.IO.BinaryWriter(ms);
 			packet.Serialize(writer);
@@ -152,6 +165,8 @@ namespace ONI_MP.Networking
 
 		public static bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
 		{
+			Profiler.Scope();
+
 			if (packet is IBulkablePacket bp)
 			{
 				AppendPendingBulkPacket(conn, packet, bp);
@@ -166,6 +181,8 @@ namespace ONI_MP.Networking
 		/// </summary>
 		public static bool SendToPlayer(ulong steamID, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
 		{
+			Profiler.Scope();
+
 			// Prevent host from sending packets to itself (can cause loops and errors)
 			if (MultiplayerSession.IsHost && steamID == MultiplayerSession.HostUserID)
 			{
@@ -184,6 +201,8 @@ namespace ONI_MP.Networking
 
 		public static void SendToHost(IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
 		{
+			Profiler.Scope();
+
 			if (!MultiplayerSession.HostUserID.IsValid())
 			{
 				DebugConsole.LogWarning($"[PacketSender] Failed to send to host. Host is invalid.");
@@ -195,6 +214,8 @@ namespace ONI_MP.Networking
 		/// Original single-exclude overload
 		public static void SendToAll(IPacket packet, ulong? exclude = null, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
 		{
+			Profiler.Scope();
+
 			foreach (var player in MultiplayerSession.ConnectedPlayers.Values)
 			{
 				if (exclude.HasValue && player.PlayerId == exclude.Value)
@@ -207,6 +228,8 @@ namespace ONI_MP.Networking
 
 		public static void SendToAllClients(IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
 		{
+			Profiler.Scope();
+
 			if (!MultiplayerSession.IsHost)
 			{
 				DebugConsole.LogWarning("[PacketSender] Only the host can send to all clients. Tried sending: " + packet.GetType());
@@ -217,6 +240,8 @@ namespace ONI_MP.Networking
 
 		public static void SendToAllExcluding(IPacket packet, HashSet<ulong> excludedIds, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
 		{
+			Profiler.Scope();
+
 			foreach (var player in MultiplayerSession.ConnectedPlayers.Values)
 			{
 				if (excludedIds != null && excludedIds.Contains(player.PlayerId))
@@ -237,6 +262,8 @@ namespace ONI_MP.Networking
 		/// <param name="packet"></param>
 		public static void SendToAllOtherPeersFromHost(IPacket packet)
 		{
+			Profiler.Scope();
+
 			if (!MultiplayerSession.InSession)
 			{
 				DebugConsole.LogWarning("[PacketSender] Not in a multiplayer session, cannot send to other peers");
@@ -252,6 +279,8 @@ namespace ONI_MP.Networking
 
 		public static void SendToAllOtherPeersFromHost_API(object api_packet)
 		{
+			Profiler.Scope();
+
 			var type = api_packet.GetType();
 			if (!PacketRegistry.HasRegisteredPacket(type))
 			{
@@ -275,6 +304,8 @@ namespace ONI_MP.Networking
 		/// <param name="packet"></param>
 		public static void SendToAllOtherPeers(IPacket packet)
 		{
+			Profiler.Scope();
+
 			if (!MultiplayerSession.InSession)
 			{
 				DebugConsole.LogWarning("[PacketSender] Not in a multiplayer session, cannot send to other peers");
@@ -290,6 +321,8 @@ namespace ONI_MP.Networking
 
 		public static void SendToAllOtherPeers_API(object api_packet)
 		{
+			Profiler.Scope();
+
 			var type = api_packet.GetType();
 			if (!PacketRegistry.HasRegisteredPacket(type))
 			{
@@ -312,6 +345,8 @@ namespace ONI_MP.Networking
 		/// <param name="sendType"></param>
 		public static void SendToAll_API(object api_packet, ulong? exclude = null, int sendType = (int)SteamNetworkingSend.Reliable)
 		{
+			Profiler.Scope();
+
 			var type = api_packet.GetType();
 			if (!PacketRegistry.HasRegisteredPacket(type))
 			{
@@ -328,6 +363,8 @@ namespace ONI_MP.Networking
 
 		public static void SendToAllClients_API(object api_packet, int sendType = (int)SteamNetworkingSend.Reliable)
 		{
+			Profiler.Scope();
+
 			var type = api_packet.GetType();
 			if (!PacketRegistry.HasRegisteredPacket(type))
 			{
@@ -345,6 +382,8 @@ namespace ONI_MP.Networking
 
 		public static void SendToAllExcluding_API(object api_packet, HashSet<ulong> excludedIds, int sendType = (int)SteamNetworkingSend.Reliable)
 		{
+			Profiler.Scope();
+
 			var type = api_packet.GetType();
 			if (!PacketRegistry.HasRegisteredPacket(type))
 			{
@@ -362,6 +401,8 @@ namespace ONI_MP.Networking
 
 		public static void SendToPlayer_API(ulong steamID, object api_packet, int sendType = (int)SteamNetworkingSend.ReliableNoNagle)
 		{
+			Profiler.Scope();
+
 			var type = api_packet.GetType();
 			if (!PacketRegistry.HasRegisteredPacket(type))
 			{
@@ -379,6 +420,8 @@ namespace ONI_MP.Networking
 
 		public static void SendToHost_API(object api_packet, int sendType = (int)SteamNetworkingSend.ReliableNoNagle)
 		{
+			Profiler.Scope();
+
 			var type = api_packet.GetType();
 			if (!PacketRegistry.HasRegisteredPacket(type))
 			{

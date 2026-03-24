@@ -17,6 +17,8 @@ namespace ONI_MP.Networking
 
 		private static void SetState(ServerState newState)
 		{
+			Profiler.Scope();
+
 			if (_state != newState)
 			{
 				_state = newState;
@@ -27,6 +29,8 @@ namespace ONI_MP.Networking
 
 		public static void Start()
 		{
+			Profiler.Scope();
+
 			SetState(ServerState.Preparing);
 
             NetworkConfig.TransportServer.OnError = () => SetState(ServerState.Error);
@@ -48,6 +52,8 @@ namespace ONI_MP.Networking
 
 		public static void Shutdown()
 		{
+			Profiler.Scope();
+
 			SetState(ServerState.Stopped);
 
             NetworkConfig.TransportServer.CloseConnections();
@@ -61,6 +67,8 @@ namespace ONI_MP.Networking
 
 		public static void Update()
 		{
+			Profiler.Scope();
+
 			switch (State)
 			{
 				case ServerState.Started:

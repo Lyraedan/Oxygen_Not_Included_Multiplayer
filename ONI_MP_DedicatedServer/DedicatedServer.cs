@@ -4,6 +4,7 @@ using System.Threading;
 using ONI_MP_DedicatedServer;
 using ONI_MP_DedicatedServer.ONI;
 using ONI_MP_DedicatedServer.Transports;
+using Shared.Profiling;
 
 namespace ONI_MP.DedicatedServer
 {
@@ -49,6 +50,8 @@ namespace ONI_MP.DedicatedServer
         /// <param name="args"></param>
         static void Main(string[] args)
         {
+            Profiler.Scope();
+
             Console.WriteLine("ONI Together: Dedicated Server starting...");
 
             server = SetupTransport();
@@ -72,6 +75,8 @@ namespace ONI_MP.DedicatedServer
 
                 while (server.IsRunning())
                 {
+                    Profiler.Scope();
+
                     server.Update();
 
                     if (stopped)
@@ -91,6 +96,8 @@ namespace ONI_MP.DedicatedServer
 
         static void ReadConsole()
         {
+            Profiler.Scope();
+
             if (server == null)
                 return;
 
@@ -127,6 +134,8 @@ namespace ONI_MP.DedicatedServer
 
         static void RegisterCommands()
         {
+            Profiler.Scope();
+
             RegisterCommand(new Command
             {
                 Name = "quit",
@@ -251,11 +260,15 @@ namespace ONI_MP.DedicatedServer
 
         public static void RegisterCommand(Command command)
         {
+            Profiler.Scope();
+
             commands[command.Name.ToLowerInvariant()] = command;
         }
 
         public static void BindExistingCommandTo(string newBinding, string commandToBindTo)
         {
+            Profiler.Scope();
+
             if (!commands.TryGetValue(commandToBindTo.ToLowerInvariant(), out var existing))
             {
                 Console.WriteLine($"Failed to bind {newBinding} to {commandToBindTo}");
@@ -272,6 +285,8 @@ namespace ONI_MP.DedicatedServer
 
         public static DedicatedTransportServer SetupTransport()
         {
+            Profiler.Scope();
+
             switch (transport) {
                 case Transports.Riptide:
                     return new DedicatedRiptideServer();

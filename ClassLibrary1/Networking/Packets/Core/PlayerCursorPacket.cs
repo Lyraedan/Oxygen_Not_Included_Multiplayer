@@ -6,6 +6,7 @@ using Steamworks;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Core
@@ -22,6 +23,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Scope();
+
 			writer.Write(PlayerID);
 			writer.Write(Position);
 			writer.Write(Color);
@@ -34,6 +37,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Scope();
+
 			PlayerID = reader.ReadUInt64();
 			Position = reader.ReadVector3();
 			Color = reader.ReadColor();
@@ -46,6 +51,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void OnDispatched()
 		{
+			Profiler.Scope();
+
 			if (PlayerID == MultiplayerSession.LocalUserID)
 				return;
 
@@ -84,6 +91,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		private IEnumerator InterpolateCursorPosition(Transform target, Vector3 targetPos)
 		{
+			Profiler.Scope();
+
 			Vector3 start = target.position;
 			float duration = CursorManager.SendInterval;
 			float elapsed = 0f;

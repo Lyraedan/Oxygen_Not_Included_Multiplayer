@@ -6,6 +6,7 @@ using Steamworks;
 #endif
 using ONI_MP.Patches.ToolPatches;
 using System;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.DebugTools
@@ -36,6 +37,8 @@ namespace ONI_MP.DebugTools
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
 		public static void Init()
 		{
+            Profiler.Scope();
+
 			if (_instance != null) return;
 
 			GameObject go = new GameObject("ONI_MP_DebugMenu");
@@ -45,12 +48,16 @@ namespace ONI_MP.DebugTools
 
 		private void Awake()
 		{
+            Profiler.Scope();
+
 			hierarchyViewer = gameObject.AddComponent<HierarchyViewer>();
 			//debugConsole = gameObject.AddComponent<DebugConsole>();
 		}
 
 		private void Update()
 		{
+            Profiler.Scope();
+
             if (Input.GetKeyDown(KeyCode.F2) && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
 			{
 				showMenu = !showMenu;
@@ -59,6 +66,8 @@ namespace ONI_MP.DebugTools
 
 		private void OnGUI()
 		{
+            Profiler.Scope();
+
 			if (!showMenu) return;
 
 			GUIStyle windowStyle = new GUIStyle(GUI.skin.window) { padding = new RectOffset(10, 10, 20, 20) };
@@ -67,6 +76,8 @@ namespace ONI_MP.DebugTools
 
         private void DrawMenuContents(int windowID)
         {
+            Profiler.Scope();
+
             scrollPosition = GUILayout.BeginScrollView(
                 scrollPosition,
                 false,
@@ -176,6 +187,8 @@ namespace ONI_MP.DebugTools
 
         void StartServer()
         {
+            Profiler.Scope();
+
             MultiplayerSession.Clear();
             try
             {
@@ -193,6 +206,8 @@ namespace ONI_MP.DebugTools
 
         void Stop()
         {
+            Profiler.Scope();
+
             if (MultiplayerSession.IsHost)
                 Networking.GameServer.Shutdown();
 
@@ -207,6 +222,8 @@ namespace ONI_MP.DebugTools
 
         void Join(string ip, int port)
         {
+            Profiler.Scope();
+
             GameClient.ConnectToHost(ip: ip, port: port);
         }
 	}

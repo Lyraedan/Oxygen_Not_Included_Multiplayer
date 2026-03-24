@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Riptide;
+using Shared.Profiling;
 
 namespace ONI_MP_DedicatedServer.ONI
 {
@@ -16,12 +17,16 @@ namespace ONI_MP_DedicatedServer.ONI
 
         public Player(Connection conn, bool IsMaster)
         {
+            Profiler.Scope();
+
             Connection = conn;
             UpdateMasterState(IsMaster);
         }
 
         public void UpdateMasterState(bool state)
         {
+            Profiler.Scope();
+
             IsMaster = state;
         }
     }

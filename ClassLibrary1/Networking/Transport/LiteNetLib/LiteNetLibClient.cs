@@ -44,6 +44,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Prepare()
         {
+            Profiler.Scope();
+
             if (ConnectFromConfig)
             {
                 SERVER_PORT = Configuration.Instance.Client.LanSettings.Port;
@@ -66,6 +68,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void ConnectToHost(string ip, int port)
         {
+            Profiler.Scope();
+
             if (connected)
                 return;
 
@@ -87,6 +91,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Disconnect()
         {
+            Profiler.Scope();
+
             connected = false;
 
             if (serverPeer != null)
@@ -101,6 +107,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void ReconnectToSession()
         {
+            Profiler.Scope();
+
             string ip = host_ip;
             int port = host_port;
             Disconnect();
@@ -109,6 +117,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void OnMessageRecieved()
         {
+            Profiler.Scope();
+
             while (incomingPackets.TryDequeue(out var data))
             {
                 int size = data.Length;
@@ -129,11 +139,15 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Update()
         {
+            Profiler.Scope();
+
             netManager?.PollEvents();
         }
 
         public void OnPeerConnected(NetPeer peer)
         {
+            Profiler.Scope();
+
             DebugConsole.Log($"[LanClient] Connected to server: {Utils.GetClientId(peer)}");
 
             serverPeer = peer;
@@ -142,6 +156,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
         {
+            Profiler.Scope();
+
             DebugConsole.Log($"[LanClient] Disconnected from server ({disconnectInfo.Reason})");
             connected = false;
             host_ip = string.Empty;
@@ -150,6 +166,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void OnNetworkError(System.Net.IPEndPoint endPoint, System.Net.Sockets.SocketError socketError)
         {
+            Profiler.Scope();
+
             DebugConsole.LogError($"[LanClient] Network error: {socketError} from {endPoint}", false);
             connected = false;
             host_ip = string.Empty;
@@ -163,12 +181,16 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void OnConnectionRequest(ConnectionRequest request)
         {
+            Profiler.Scope();
+
             // This should not happen for a client
             request.Reject();
         }
 
         public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
         {
+            Profiler.Scope();
+
             byte[] data = reader.GetRemainingBytes();
             incomingPackets.Enqueue(data);
             reader.Recycle();
@@ -176,6 +198,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
         {
+            Profiler.Scope();
+
             // Only accept unconnected messages from the expected server
             if (serverPeer == null || !remoteEndPoint.Equals(serverPeer))
                 return;
@@ -199,6 +223,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override NetworkIndicatorsScreen.NetworkState GetJitterState()
         {
+            Profiler.Scope();
+
             if (!connected || serverPeer == null)
                 return NetworkIndicatorsScreen.NetworkState.BAD;
 
@@ -232,6 +258,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override NetworkIndicatorsScreen.NetworkState GetLatencyState()
         {
+            Profiler.Scope();
+
             if (!connected || serverPeer == null)
                 return NetworkIndicatorsScreen.NetworkState.BAD;
 
@@ -244,6 +272,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override NetworkIndicatorsScreen.NetworkState GetPacketlossState()
         {
+            Profiler.Scope();
+
             if (!connected || serverPeer == null)
                 return NetworkIndicatorsScreen.NetworkState.BAD;
 
@@ -257,6 +287,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override NetworkIndicatorsScreen.NetworkState GetServerPerformanceState()
         {
+            Profiler.Scope();
+
             var latency = GetLatencyState();
             var loss = GetPacketlossState();
 
@@ -273,6 +305,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         IEnumerator WaitForConnectionSuccess(float timeout)
         {
+            Profiler.Scope();
+
             float timer = 0f;
 
             while (timer < timeout)

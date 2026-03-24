@@ -2,6 +2,7 @@
 using ONI_MP.Networking.Packets.Architecture;
 using Steamworks;
 using System.IO;
+using Shared.Profiling;
 using Utils = ONI_MP.Misc.Utils;
 
 namespace ONI_MP.Networking.Packets.World
@@ -12,16 +13,22 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Scope();
+
 			writer.Write(SenderId);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Scope();
+
 			SenderId = reader.ReadUInt64();
 		}
 
 		public void OnDispatched()
 		{
+			Profiler.Scope();
+
 			if (!MultiplayerSession.IsHost)
 				return;
 
@@ -31,6 +38,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		private void SendWorldData(ulong target)
 		{
+			Profiler.Scope();
+
 			DebugConsole.Log($"[WorldDataRequestPacket] Sending world data to {target}");
 
 			var chunks = Utils.CollectChunks(

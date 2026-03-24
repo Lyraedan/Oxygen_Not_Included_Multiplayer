@@ -20,6 +20,8 @@ namespace ONI_MP.Tests
 
         public static void Run(string ip = "127.0.0.1", ushort port = 7777)
         {
+            Profiler.Scope();
+
             DebugConsole.Log("[RiptideSmokeTest] Starting");
 
             try
@@ -63,12 +65,16 @@ namespace ONI_MP.Tests
 
         private static void OnClientDisconnected(object sender, DisconnectedEventArgs e)
         {
+            Profiler.Scope();
+
             //MultiplayerSession.InSession = false;
             DebugConsole.Log("[RiptideSmokeTest] Client disconnected");
         }
 
         private static void OnClientConnected(object sender, EventArgs e)
         {
+            Profiler.Scope();
+
             DebugConsole.Log("[RiptideSmokeTest] Client connected");
 
             //MultiplayerSession.InSession = true;
@@ -81,6 +87,8 @@ namespace ONI_MP.Tests
 
         private static void SendPacket(IPacket packet)
         {
+            Profiler.Scope();
+
             byte[] bytes = PacketSender.SerializePacketForSending(packet);
 
             Riptide.Message msg = Riptide.Message.Create(MessageSendMode.Reliable, 1); // dummy ID
@@ -91,6 +99,8 @@ namespace ONI_MP.Tests
 
         private static void OnServerMessageReceived(object sender, MessageReceivedEventArgs e)
         {
+            Profiler.Scope();
+
             ulong clientId = e.FromConnection.Id;
             byte[] rawData = e.Message.GetBytes();
             int size = rawData.Length;

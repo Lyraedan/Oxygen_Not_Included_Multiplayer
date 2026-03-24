@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Core
 {
@@ -17,6 +18,8 @@ namespace ONI_MP.Networking.Packets.Core
 
         public void Serialize(BinaryWriter writer)
         {
+            Profiler.Scope();
+
             writer.Write(PacketID);
             writer.Write(SendType);
             writer.Write(PacketData.Length);
@@ -25,6 +28,8 @@ namespace ONI_MP.Networking.Packets.Core
 
         public void Deserialize(BinaryReader reader)
         {
+            Profiler.Scope();
+
             PacketID = reader.ReadInt32();
             SendType = reader.ReadInt32();
             int length = reader.ReadInt32();
@@ -33,6 +38,8 @@ namespace ONI_MP.Networking.Packets.Core
 
         public void OnDispatched()
         {
+            Profiler.Scope();
+
             if (!PacketRegistry.HasRegisteredPacket(PacketID))
             {
                 DebugConsole.LogWarning("Received a non-registered packet from the dedicated server");

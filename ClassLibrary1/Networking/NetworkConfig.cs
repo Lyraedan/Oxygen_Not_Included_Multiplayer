@@ -14,6 +14,7 @@ using SteamClient = ONI_MP.Networking.Transport.Steam.SteamworksClient;
 using ONI_MP.Networking.Transport.Steamworks;
 #endif
 using ONI_MP.DebugTools;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking
 {
@@ -33,6 +34,8 @@ namespace ONI_MP.Networking
 
         public static void UpdateTransport(NetworkTransport newTransport)
         {
+            Profiler.Scope();
+
             if (newTransport == NetworkTransport.STEAMWORKS)
             {
 #if !STEAM_WORKSHOP_VERSION
@@ -48,6 +51,8 @@ namespace ONI_MP.Networking
 
         public static TransportServer GetTransportServer()
         {
+            Profiler.Scope();
+
             switch (transport)
             {
 #if STEAM_WORKSHOP_VERSION
@@ -65,6 +70,8 @@ namespace ONI_MP.Networking
 
         public static TransportClient GetTransportClient()
         {
+            Profiler.Scope();
+
             switch (transport)
             {
 #if STEAM_WORKSHOP_VERSION
@@ -82,6 +89,8 @@ namespace ONI_MP.Networking
 
         public static TransportPacketSender GetTransportPacketSender()
         {
+            Profiler.Scope();
+
             switch (transport)
             {
 #if STEAM_WORKSHOP_VERSION
@@ -99,6 +108,8 @@ namespace ONI_MP.Networking
     
         public static ulong GetLocalID()
         {
+            Profiler.Scope();
+
             switch (transport)
             {
 #if STEAM_WORKSHOP_VERSION
@@ -130,16 +141,22 @@ namespace ONI_MP.Networking
 
         public static bool IsSteamConfig()
         {
+            Profiler.Scope();
+
             return transport.Equals(NetworkTransport.STEAMWORKS);
         }
 
         public static bool IsLanConfig()
         {
+            Profiler.Scope();
+
             return transport.Equals(NetworkTransport.RIPTIDE) || transport.Equals(NetworkTransport.LITENETLIB);
         }
     
         public static List<ulong> GetConnectedClients()
         {
+            Profiler.Scope();
+
             List<ulong> clients = new List<ulong>();
             switch(transport)
             {

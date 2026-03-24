@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using ONI_MP.DebugTools;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Transfer
 {
@@ -24,6 +25,8 @@ namespace ONI_MP.Networking.Transfer
 
 		public void Start(int riptidePort)
 		{
+			Profiler.Scope();
+
 			int tcpPort = riptidePort + 1;
 			_listener = new TcpListener(IPAddress.Any, tcpPort);
 			_listener.Start();
@@ -41,6 +44,8 @@ namespace ONI_MP.Networking.Transfer
 
 		public void QueueTransfer(ulong clientId, string fileName, byte[] data)
 		{
+			Profiler.Scope();
+
 			_pending[clientId] = new PendingTransfer { FileName = fileName, Data = data };
 			DebugConsole.Log($"[TcpFileTransfer] Queued transfer '{fileName}' ({data.Length} bytes) for client {clientId}");
 		}
@@ -49,6 +54,8 @@ namespace ONI_MP.Networking.Transfer
 		{
 			while (_running)
 			{
+				Profiler.Scope();
+
 				try
 				{
 					TcpClient client = _listener.AcceptTcpClient();
@@ -73,6 +80,8 @@ namespace ONI_MP.Networking.Transfer
 
 		private void HandleClient(TcpClient client)
 		{
+			Profiler.Scope();
+
 			try
 			{
 				using (client)
@@ -122,6 +131,8 @@ namespace ONI_MP.Networking.Transfer
 
 		public void Stop()
 		{
+			Profiler.Scope();
+
 			_running = false;
 
 			try

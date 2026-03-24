@@ -59,6 +59,8 @@ namespace ONI_MP.Networking
 		/// </summary>
 		public static bool HasCachedConnection()
 		{
+			Profiler.Scope();
+
 			return _cachedConnectionInfo.HasValue;
 		}
 
@@ -67,11 +69,15 @@ namespace ONI_MP.Networking
 		/// </summary>
 		public static void ClearCachedConnection()
 		{
+			Profiler.Scope();
+
 			_cachedConnectionInfo = null;
 		}
 
 		public static void SetState(ClientState newState)
 		{
+			Profiler.Scope();
+
 			if (_state != newState)
 			{
 				_state = newState;
@@ -81,6 +87,8 @@ namespace ONI_MP.Networking
 
 		public static void Init()
 		{
+			Profiler.Scope();
+
 			// I fucking hate this, maybe replace this with hashes?
 			NetworkConfig.TransportClient.OnClientDisconnected = () => SetState(ClientState.Disconnected);
 			NetworkConfig.TransportClient.OnClientConnected = () => SetState(ClientState.Connected);
@@ -96,6 +104,8 @@ namespace ONI_MP.Networking
 
 		public static void ConnectToHost(bool showLoadingScreen = true, string ip = "", int port = 7777)
 		{
+			Profiler.Scope();
+
             Init();
 
             // Reset mod verification for new connection attempts
@@ -121,16 +131,22 @@ namespace ONI_MP.Networking
 
 		public static void Disconnect()
 		{
+			Profiler.Scope();
+
 			NetworkConfig.TransportClient.Disconnect();
 		}
 
 		public static void ReconnectToSession()
 		{
+			Profiler.Scope();
+
 			NetworkConfig.TransportClient.ReconnectToSession();
 		}
 
 		public static void Poll()
 		{
+			Profiler.Scope();
+
 			if (_pollingPaused)
 				return;
 
@@ -152,6 +168,8 @@ namespace ONI_MP.Networking
 
 		public static void OnHostResponseReceived(GameStateRequestPacket packet)
 		{
+			Profiler.Scope();
+
 			DebugConsole.Log("Gamestate packet received");
 			MP_Timer.Instance.Abort();
 			if (!SaveHelper.SavegameDlcListValid(packet.ActiveDlcIds, out var errorMsg))
@@ -187,6 +205,8 @@ namespace ONI_MP.Networking
 		}
 		static void BackToMainMenu()
 		{
+			Profiler.Scope();
+
 			MultiplayerOverlay.Close();
 			NetworkIdentityRegistry.Clear();
 			SteamLobby.LeaveLobby();
@@ -195,6 +215,8 @@ namespace ONI_MP.Networking
 
         private static void ContinueConnectionFlow()
 		{
+			Profiler.Scope();
+
 			// CRITICAL: Only execute on client, never on server
 			if (MultiplayerSession.IsHost)
 			{
@@ -270,6 +292,8 @@ namespace ONI_MP.Networking
 
 		private static IEnumerator ShowMessageAndReturnToTitle()
 		{
+			Profiler.Scope();
+
 			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.CLIENT.LOST_CONNECTION);
 			//SaveHelper.CaptureWorldSnapshot();
 			yield return new WaitForSeconds(3f);
@@ -290,6 +314,8 @@ namespace ONI_MP.Networking
 
 		public static void CacheCurrentServer()
 		{
+			Profiler.Scope();
+
 			if(NetworkConfig.IsSteamConfig())
 			{
                 if (MultiplayerSession.HostUserID != Utils.NilUlong())
@@ -310,6 +336,8 @@ namespace ONI_MP.Networking
 
 		public static void ReconnectFromCache()
 		{
+			Profiler.Scope();
+
 			if (_cachedConnectionInfo.HasValue)
 			{
 				if(NetworkConfig.IsSteamConfig())

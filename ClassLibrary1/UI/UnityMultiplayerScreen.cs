@@ -296,6 +296,8 @@ namespace ONI_MP.UI
 
 		void OnLobbyDataUpdateReceived(LobbyDataUpdate_t data)
 		{
+			Profiler.Scope();
+
 			if (data.m_ulSteamIDLobby != _pendingLobbyId)
 				return;
 
@@ -308,6 +310,8 @@ namespace ONI_MP.UI
 
 		void JoinOrOpenPasswordDialogue(ulong lobbyId)
 		{
+			Profiler.Scope();
+
 			bool hasPassword = SteamMatchmaking.GetLobbyData(lobbyId.AsCSteamID(), "has_password") == "1";
 
 			if (!hasPassword)
@@ -318,6 +322,8 @@ namespace ONI_MP.UI
 		}
 		void JoinSteamLobby(ulong lobbyId)
 		{
+			Profiler.Scope();
+
 			SteamLobby.JoinLobby(lobbyId.AsCSteamID(), (lobbyId) =>
 			{
 				DebugConsole.Log($"[LobbyBrowser] Successfully joined lobby: {lobbyId}");

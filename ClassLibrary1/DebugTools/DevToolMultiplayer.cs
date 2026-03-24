@@ -99,6 +99,8 @@ namespace ONI_MP.DebugTools
 
         public override void RenderTo(DevPanel panel)
         {
+            Profiler.Scope();
+
             ImGui.BeginChild("ScrollRegion", new Vector2(0, 0), true);
 
             if (ImGui.BeginTabBar("MultiplayerTabs"))
@@ -151,6 +153,8 @@ namespace ONI_MP.DebugTools
 
         private void DrawGeneralTab()
         {
+            Profiler.Scope();
+
             if (ImGui.Button("Open Mod Directory"))
             {
                 Process.Start(new ProcessStartInfo
@@ -181,6 +185,8 @@ namespace ONI_MP.DebugTools
 
         private void DrawSessionTab()
         {
+            Profiler.Scope();
+
             if(MultiplayerSession.InSession)
                 ImGui.TextColored(new Vector4(0.3f, 1f, 0.3f, 1f), "Multiplayer Active");
             else
@@ -269,6 +275,8 @@ namespace ONI_MP.DebugTools
 
         private void DrawNetworkTab()
         {
+            Profiler.Scope();
+
             DrawNetworkTransportDetails();
             if (!MultiplayerSession.InSession)
             {
@@ -297,6 +305,8 @@ namespace ONI_MP.DebugTools
 
         private void DrawDebugTab()
         {
+            Profiler.Scope();
+
             DisplayProfilers();
             ImGui.Separator();
             DisplayNetIdHolders();
@@ -304,6 +314,8 @@ namespace ONI_MP.DebugTools
 
         private void DrawTestsTab()
         {
+            Profiler.Scope();
+
             if (ImGui.Button("Riptide Smoke Test"))
             {
                 RiptideSmokeTest.Run();
@@ -346,6 +358,8 @@ namespace ONI_MP.DebugTools
 
         private void DrawConsoleTab()
         {
+            Profiler.Scope();
+
             if (ImGui.Button("Popout"))
                 console?.Toggle();
             ImGui.SameLine();
@@ -354,6 +368,8 @@ namespace ONI_MP.DebugTools
 
         public void DisplaySessionDetails()
         {
+            Profiler.Scope();
+
             ImGui.Text("Session details:");
             ImGui.Text($"Connected clients: {(MultiplayerSession.InSession ? (MultiplayerSession.PlayerCursors.Count + 1) : 0)}");
             ImGui.Text($"Is Host: {MultiplayerSession.IsHost}");
@@ -365,6 +381,8 @@ namespace ONI_MP.DebugTools
 
         private void DrawPlayerList()
         {
+            Profiler.Scope();
+
             var players = SteamLobby.GetAllLobbyMembers();
 
             ImGui.Separator();
@@ -414,6 +432,8 @@ namespace ONI_MP.DebugTools
 
         public void DisplayNetworkStatistics()
         {
+            Profiler.Scope();
+
             if(!MultiplayerSession.InSession)
                 return;
 
@@ -459,6 +479,8 @@ namespace ONI_MP.DebugTools
         private string netIdFilter = string.Empty;
 		public void DisplayNetIdHolders()
 		{
+            Profiler.Scope();
+
 			if (ImGui.CollapsingHeader("Net Id Holders"))
 			{
 				var all_identities = NetworkIdentityRegistry.AllIdentities;
@@ -509,11 +531,15 @@ namespace ONI_MP.DebugTools
 	
         public void DisplayProfilers()
         {
+            Profiler.Scope();
+
             Profiler.DrawImGuiInline();
         }
 
         public void DrawNetworkTransportDetails()
         {
+            Profiler.Scope();
+
             ImGui.Text("Network Transport Settings");
 
             string[] display_options = new string[] { "Steam", "LAN/Riptide", "Lan/LiteNetLib" };

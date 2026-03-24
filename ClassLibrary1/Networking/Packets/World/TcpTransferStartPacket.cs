@@ -4,6 +4,7 @@ using ONI_MP.Menus;
 using ONI_MP.Misc.World;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Transfer;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -15,6 +16,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Scope();
+
 			writer.Write(TcpPort);
 			writer.Write(FileName);
 			writer.Write(FileSize);
@@ -22,6 +25,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Scope();
+
 			TcpPort = reader.ReadInt32();
 			FileName = reader.ReadString();
 			FileSize = reader.ReadInt32();
@@ -29,6 +34,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
+			Profiler.Scope();
+
 			if (MultiplayerSession.IsHost)
 				return;
 

@@ -2,6 +2,7 @@
 using ONI_MP.Misc;
 using ONI_MP.Networking.States;
 using ONI_MP.Networking.Transport.Steamworks;
+using Shared.Profiling;
 using Steamworks;
 using UnityEngine;
 
@@ -29,6 +30,8 @@ namespace ONI_MP.Networking.Components
 
 		private void Update()
 		{
+			Profiler.Scope();
+
 			scheduler.Tick();
 
 			if (NetworkConfig.transport.Equals(NetworkConfig.NetworkTransport.STEAMWORKS))
@@ -55,6 +58,8 @@ namespace ONI_MP.Networking.Components
 
         private void OnApplicationQuit()
 		{
+			Profiler.Scope();
+
 			if (!MultiplayerSession.InSession)
 				return;
 

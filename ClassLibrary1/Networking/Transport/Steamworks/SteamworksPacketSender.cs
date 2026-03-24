@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using ClipperLib;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
+using Shared.Profiling;
 using Steamworks;
 
 namespace ONI_MP.Networking.Transport.Steam
@@ -16,6 +17,8 @@ namespace ONI_MP.Networking.Transport.Steam
     {
         public override bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
         {
+            Profiler.Scope();
+
             if (conn is not HSteamNetConnection)
                 return false;
 

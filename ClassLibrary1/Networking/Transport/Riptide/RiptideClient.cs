@@ -39,11 +39,15 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Prepare()
         {
+            Profiler.Scope();
+
             RiptideLogger.Initialize(DebugConsole.Log, false);
         }
 
         public override void ConnectToHost(string ip, int port)
         {
+            Profiler.Scope();
+
             if (_client != null)
             {
                 if (!_client.IsNotConnected)
@@ -68,22 +72,30 @@ namespace ONI_MP.Networking.Transport.Lan
 
         private void OnOtherClientDisconnected(object sender, ClientDisconnectedEventArgs e)
         {
+            Profiler.Scope();
+
             RemoveClientFromList(e.Id);
         }
 
         private void OnOtherClientConnected(object sender, ClientConnectedEventArgs e)
         {
+            Profiler.Scope();
+
             AddClientToList(e.Id);
         }
 
         private void OnMessageRecievedFromServer(object sender, MessageReceivedEventArgs e)
         {
+            Profiler.Scope();
+
             byte[] rawData = e.Message.GetBytes();
             _incomingPackets.Enqueue(rawData);
         }
 
         private void OnConnectedToServer(object sender, EventArgs e)
         {
+            Profiler.Scope();
+
             CLIENT_ID = GetClientID();
             AddClientToList(CLIENT_ID);
 
@@ -119,6 +131,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         private void OnDisconnectedFromServer(object sender, DisconnectedEventArgs e)
         {
+            Profiler.Scope();
+
             RemoveClientFromList(CLIENT_ID);
             CLIENT_ID = Utils.NilUlong();
 
@@ -130,6 +144,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Disconnect()
         {
+            Profiler.Scope();
+
             if (_client == null)
                 return;
 
@@ -141,6 +157,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void OnMessageRecieved()
         {
+            Profiler.Scope();
+
             while (_incomingPackets.TryDequeue(out var rawData))
             {
                 int size = rawData.Length;
@@ -166,6 +184,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void ReconnectToSession()
         {
+            Profiler.Scope();
+
             string ip = MultiplayerSession.ServerIp;
             int port = MultiplayerSession.ServerPort;
             Disconnect();
@@ -174,11 +194,15 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Update()
         {
+            Profiler.Scope();
+
             _client?.Update();
         }
 
         private ulong GetClientID()
         {
+            Profiler.Scope();
+
             if (_client == null || _client.IsNotConnected)
                 return Utils.NilUlong();
 
@@ -187,6 +211,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void AddClientToList(ulong id)
         {
+            Profiler.Scope();
+
             if (ClientList.Contains(id))
                 return;
 
@@ -199,6 +225,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void RemoveClientFromList(ulong id)
         {
+            Profiler.Scope();
+
             if (!ClientList.Contains(id))
                 return;
 
@@ -211,6 +239,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override NetworkIndicatorsScreen.NetworkState GetJitterState()
         {
+            Profiler.Scope();
+
             if (_client == null || !_client.IsConnected)
                 return NetworkIndicatorsScreen.NetworkState.BAD;
 
@@ -250,6 +280,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override NetworkIndicatorsScreen.NetworkState GetLatencyState()
         {
+            Profiler.Scope();
+
             if (_client == null || !_client.IsConnected)
                 return NetworkIndicatorsScreen.NetworkState.BAD;
 
@@ -268,6 +300,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override NetworkIndicatorsScreen.NetworkState GetPacketlossState()
         {
+            Profiler.Scope();
+
             var metrics = Metrics;
             if (metrics == null)
                 return NetworkIndicatorsScreen.NetworkState.BAD;
@@ -286,6 +320,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override NetworkIndicatorsScreen.NetworkState GetServerPerformanceState()
         {
+            Profiler.Scope();
+
             if (_client == null || !_client.IsConnected)
                 return NetworkIndicatorsScreen.NetworkState.BAD;
 
@@ -321,6 +357,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         IEnumerator WaitForConnectionSuccess(int timeout)
         {
+            Profiler.Scope();
+
             float timer = 0f;
 
             bool wasSuccessful = false;
@@ -354,6 +392,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         void CleanupRiptide()
         {
+            Profiler.Scope();
+
             // Timeout reached — double check we didn't connect at the last frame
             if (_client != null && !_client.IsConnected)
             {

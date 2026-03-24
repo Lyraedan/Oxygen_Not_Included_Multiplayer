@@ -5,6 +5,7 @@ using ONI_MP.Menus;
 using Steamworks;
 using System.Collections.Generic;
 using System.IO;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -35,6 +36,8 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Serialize(BinaryWriter writer)
         {
+            Profiler.Scope();
+
             writer.Write(ClientSteamID);
             writer.Write(ClientName);
             writer.Write(FileName);
@@ -45,6 +48,8 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Deserialize(BinaryReader reader)
         {
+            Profiler.Scope();
+
             ClientSteamID = reader.ReadUInt64();
             ClientName = reader.ReadString();
             FileName = reader.ReadString();
@@ -55,6 +60,8 @@ namespace ONI_MP.Networking.Packets.World
 
         public void OnDispatched()
         {
+            Profiler.Scope();
+
             // Only host processes client progress
             if (!MultiplayerSession.IsHost)
                 return;
@@ -78,6 +85,8 @@ namespace ONI_MP.Networking.Packets.World
 
         private static void UpdateHostProgressDisplay()
         {
+            Profiler.Scope();
+
             try
             {
                 var progressLines = new List<string>();
@@ -144,6 +153,8 @@ namespace ONI_MP.Networking.Packets.World
 
         private static string CreateProgressBar(int percent)
         {
+            Profiler.Scope();
+
             int barLength = 20;
             int filled = (percent * barLength) / 100;
             string bar = "";
@@ -164,6 +175,8 @@ namespace ONI_MP.Networking.Packets.World
         /// </summary>
         public static void RemoveClientProgress(ulong clientId)
         {
+            Profiler.Scope();
+
             ClientProgress.Remove(clientId);
             if (ClientProgress.Count == 0)
             {

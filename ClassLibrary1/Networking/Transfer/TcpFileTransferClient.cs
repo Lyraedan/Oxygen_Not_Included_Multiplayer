@@ -6,6 +6,7 @@ using System.Threading;
 using ONI_MP.DebugTools;
 using ONI_MP.Menus;
 using ONI_MP.Networking.Components;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Transfer
 {
@@ -13,6 +14,8 @@ namespace ONI_MP.Networking.Transfer
 	{
 		public static void Download(string hostIp, int tcpPort, ulong clientId, Action<string, byte[]> onComplete, Action<string> onError)
 		{
+			Profiler.Scope();
+
 			Thread thread = new Thread(() => DownloadThread(hostIp, tcpPort, clientId, onComplete, onError))
 			{
 				IsBackground = true,
@@ -23,6 +26,8 @@ namespace ONI_MP.Networking.Transfer
 
 		private static void DownloadThread(string hostIp, int tcpPort, ulong clientId, Action<string, byte[]> onComplete, Action<string> onError)
 		{
+			Profiler.Scope();
+
 			try
 			{
 				using (TcpClient client = new TcpClient())
@@ -114,6 +119,8 @@ namespace ONI_MP.Networking.Transfer
 
 		private static byte[] ReadExact(NetworkStream stream, int count)
 		{
+			Profiler.Scope();
+
 			byte[] buf = new byte[count];
 			int read = 0;
 			while (read < count)
@@ -128,6 +135,8 @@ namespace ONI_MP.Networking.Transfer
 
         private static string CreateClientProgressBar(int percent)
         {
+	        Profiler.Scope();
+
             int barLength = 30;  // Larger bar for the client
             int filled = (percent * barLength) / 100;
             string bar = "";
@@ -145,6 +154,8 @@ namespace ONI_MP.Networking.Transfer
 
         private static string FormatTime(double seconds)
         {
+	        Profiler.Scope();
+
             if (double.IsInfinity(seconds) || seconds < 0)
                 return "--";
 

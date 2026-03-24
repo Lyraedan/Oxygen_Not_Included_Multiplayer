@@ -1,6 +1,7 @@
 ﻿using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -19,6 +20,8 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Serialize(BinaryWriter writer)
         {
+            Profiler.Scope();
+
             writer.Write(ChunkIndex);
             writer.Write(TotalChunks);
 
@@ -32,6 +35,8 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Deserialize(BinaryReader reader)
         {
+            Profiler.Scope();
+
             ChunkIndex = reader.ReadInt32();
             TotalChunks = reader.ReadInt32();
 
@@ -50,6 +55,8 @@ namespace ONI_MP.Networking.Packets.World
 
         public void OnDispatched()
         {
+            Profiler.Scope();
+
             if (MultiplayerSession.IsHost)
                 return;
 

@@ -32,6 +32,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void Prepare()
         {
+            Profiler.Scope();
+
             if (_connectionStatusChangedCallback == null)
             {
                 _connectionStatusChangedCallback = Callback<SteamNetConnectionStatusChangedCallback_t>.Create(OnConnectionStatusChanged);
@@ -42,6 +44,8 @@ namespace ONI_MP.Networking.Transport.Steam
         // Connects to the host using Steam P2P networking. IP and port are ignored since Steamworks uses host steam id to connect.
         public override void ConnectToHost(string ip, int port)
         {
+            Profiler.Scope();
+
             ulong hostSteamId = MultiplayerSession.HostUserID;
             DebugConsole.Log($"[GameClient] Attempting ConnectP2P to host {hostSteamId}...");
 
@@ -54,6 +58,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void Disconnect()
         {
+            Profiler.Scope();
+
             if (Connection.HasValue)
             {
                 DebugConsole.Log("[GameClient] Disconnecting from host...");
@@ -79,6 +85,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void ReconnectToSession()
         {
+            Profiler.Scope();
+
             if (Connection.HasValue || GameClient.State == ClientState.Connected || GameClient.State == ClientState.Connecting) // TODO FIX, f*ck me why didn't I put what was wrong with it
             {
                 DebugConsole.Log("[GameClient] Reconnecting: First disconnecting existing connection.");
@@ -100,12 +108,16 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void Update()
         {
+            Profiler.Scope();
+
             SteamNetworkingSockets.RunCallbacks();
             EvaluateConnectionHealth();
         }
 
         public override void OnMessageRecieved()
         {
+            Profiler.Scope();
+
             if (Connection.HasValue)
                 ProcessIncomingMessages(Connection.Value);
             //else
@@ -114,6 +126,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         private static void ProcessIncomingMessages(HSteamNetConnection conn)
         {
+            Profiler.Scope();
+
             var scope = Profiler.Scope();
             int totalBytes = 0;
 
@@ -150,6 +164,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         private static void OnConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t data)
         {
+            Profiler.Scope();
+
             var state = data.m_info.m_eState;
             var remote = data.m_info.m_identityRemote.GetSteamID();
 
@@ -174,6 +190,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         private static void OnConnected()
         {
+            Profiler.Scope();
+
             //MultiplayerOverlay.Close();
 
             // We've reconnected in game
@@ -213,6 +231,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         private static void OnDisconnected(string reason, CSteamID remote, ESteamNetworkingConnectionState state)
         {
+            Profiler.Scope();
+
             DebugConsole.LogWarning($"[GameClient] Connection closed or failed ({state}) for {remote}. Reason: {reason}");
 
             // If we're intentionally disconnecting for world loading, don't show error or return to title
@@ -242,6 +262,8 @@ namespace ONI_MP.Networking.Transport.Steam
         #region Connection Health
         public static SteamNetConnectionRealTimeStatus_t? QueryConnectionHealth()
         {
+            Profiler.Scope();
+
             if (Connection.HasValue)
             {
                 SteamNetConnectionRealTimeStatus_t status = default;
@@ -264,16 +286,22 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public static void EvaluateConnectionHealth()
         {
+            Profiler.Scope();
+
             connectionHealth = QueryConnectionHealth();
         }
 
         public static SteamNetConnectionRealTimeStatus_t? GetConnectionHealth()
         {
+            Profiler.Scope();
+
             return connectionHealth;
         }
 
         public static float GetLocalPacketQuality()
         {
+            Profiler.Scope();
+
             if (!connectionHealth.HasValue)
                 return 0f;
 
@@ -282,6 +310,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public static float GetRemotePacketQuality()
         {
+            Profiler.Scope();
+
             if (!connectionHealth.HasValue)
                 return 0f;
 
@@ -290,6 +320,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public static int GetPingToHost()
         {
+            Profiler.Scope();
+
             if (!connectionHealth.HasValue)
                 return -1;
 
@@ -298,6 +330,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public static int GetUnackedReliable()
         {
+            Profiler.Scope();
+
             if (!connectionHealth.HasValue)
                 return -1;
 
@@ -306,6 +340,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public static int GetPendingUnreliable()
         {
+            Profiler.Scope();
+
             if (!connectionHealth.HasValue)
                 return -1;
 
@@ -314,6 +350,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public static long GetUsecQueueTime()
         {
+            Profiler.Scope();
+
             if (!connectionHealth.HasValue)
                 return -1;
 
@@ -322,6 +360,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override NetworkState GetJitterState()
         {
+            Profiler.Scope();
+
             var connhealth = GetConnectionHealth();
             if (!connhealth.HasValue)
                 return NetworkState.BAD;
@@ -366,6 +406,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override NetworkState GetLatencyState()
         {
+            Profiler.Scope();
+
             var connhealth = GetConnectionHealth();
             if (!connhealth.HasValue)
                 return NetworkState.BAD;
@@ -387,6 +429,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override NetworkState GetPacketlossState()
         {
+            Profiler.Scope();
+
             var connhealth = GetConnectionHealth();
             if (!connhealth.HasValue)
                 return NetworkState.BAD;
@@ -404,6 +448,8 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override NetworkState GetServerPerformanceState()
         {
+            Profiler.Scope();
+
             if (!Connection.HasValue)
                 return NetworkState.BAD;
 

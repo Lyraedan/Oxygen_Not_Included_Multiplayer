@@ -2,6 +2,7 @@
 using ONI_MP.Misc.World;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -14,6 +15,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			Profiler.Scope();
+
 			writer.Write(FileName);
 			writer.Write(Offset);
 			writer.Write(TotalSize);
@@ -23,6 +26,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
+			Profiler.Scope();
+
 			FileName = reader.ReadString();
 			Offset = reader.ReadInt32();
 			TotalSize = reader.ReadInt32();
@@ -32,6 +37,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
+			Profiler.Scope();
+
 			if (Utils.IsInGame() && !GameClient.IsHardSyncInProgress)
 			{
 				return;
