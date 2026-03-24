@@ -100,7 +100,7 @@ namespace ONI_MP.Networking.Transport.Lan
 
             // The clients MultiplayerSession.ConnectedPlayers should only ever contain the host
             MultiplayerPlayer host = new MultiplayerPlayer(1);
-            host.Connection = _client.Connection;
+            host.Connection = conn;
             MultiplayerSession.ConnectedPlayers.Add(1, host);
 
             DebugConsole.Log($"[Riptide] Connected to server with Client ID: {CLIENT_ID}");
