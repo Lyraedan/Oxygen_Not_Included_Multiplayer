@@ -207,7 +207,6 @@ namespace ONI_MP.Networking.Transport.Lan
             Game.Instance?.Trigger(MP_HASHES.OnPlayerJoined);
         }
 
-        // TODO: Distinguish between real disconnects and loading disconnects
         public void RemoveClientFromList(ulong id)
         {
             if (!ClientList.Contains(id))
