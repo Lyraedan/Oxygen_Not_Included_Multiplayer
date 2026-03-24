@@ -71,7 +71,7 @@ public static class DuplicantSpawnPatch
 	{
 		using var _ = Profiler.Scope();
 
-		yield return new WaitForSeconds(1f);
+		yield return new WaitForSecondsRealtime(1f);
 
         if (!go.HasTag(GameTags.BaseMinion)) yield return null;
 

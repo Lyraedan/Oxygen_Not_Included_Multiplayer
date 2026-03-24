@@ -44,7 +44,7 @@ namespace ONI_MP.Networking.Packets.Core
 			using var _ = Profiler.Scope();
 
 			MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.SYNC.FINALIZING_SYNC);
-			yield return new WaitForSeconds(1f);
+			yield return new WaitForSecondsRealtime(1f);
             MultiplayerOverlay.Close();
             SpeedControlScreen.Instance?.Unpause(false);
 		}

@@ -342,7 +342,7 @@ namespace ONI_MP.Networking.Transport.Lan
             Disconnect();
 
             MultiplayerOverlay.Show(STRINGS.UI.MP_OVERLAY.CLIENT.CONNECTION_FAILED);
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSecondsRealtime(3f);
             MultiplayerOverlay.Close();
         }
 

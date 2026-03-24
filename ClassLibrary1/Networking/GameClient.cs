@@ -294,7 +294,7 @@ namespace ONI_MP.Networking
 		{
             MultiplayerOverlay.Show(string.Format(STRINGS.UI.MP_OVERLAY.CLIENT.LOST_CONNECTION, reason, message));
 			//SaveHelper.CaptureWorldSnapshot();
-			yield return new WaitForSeconds(3f);
+			yield return new WaitForSecondsRealtime(3f);
 			//PauseScreen.TriggerQuitGame(); // Force exit to frontend, getting a crash here
 			if (Utils.IsInGame())
 			{

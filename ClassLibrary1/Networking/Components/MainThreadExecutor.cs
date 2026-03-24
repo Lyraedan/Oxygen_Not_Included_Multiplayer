@@ -52,7 +52,7 @@ namespace ONI_MP.Networking.Components
 			yield return new WaitUntil(() => events.Count > 0);
 			events[0]?.Invoke();
 			DebugConsole.Log("[Main/Thread] Executor executing next event @ " + DateTime.Now.ToString("hh:mm:ss"));
-			yield return new WaitForSeconds(0.5f);
+			yield return new WaitForSecondsRealtime(0.5f);
 			events.RemoveAt(0);
 			StartCoroutine(Execute());
 		}

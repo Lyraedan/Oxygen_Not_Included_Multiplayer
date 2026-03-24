@@ -75,7 +75,7 @@ namespace ONI_MP.Patches.GamePatches
 		{
 			using var _ = Profiler.Scope();
 
-			yield return new WaitForSeconds(5f); // wait to ensure ONI's autosave completes (generous wait time)
+			yield return new WaitForSecondsRealtime(5f); // wait to ensure ONI's autosave completes (generous wait time)
 			GameServerHardSync.PerformHardSync();
 		}
 	}
