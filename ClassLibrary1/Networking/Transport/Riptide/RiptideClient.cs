@@ -4,7 +4,7 @@ using Riptide;
 using Riptide.Utils;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Networking.Profiling;
+using Shared.Profiling;
 using ONI_MP.Misc;
 using System.Collections.Concurrent;
 using ONI_MP.Menus;
@@ -149,7 +149,7 @@ namespace ONI_MP.Networking.Transport.Lan
                     ? BitConverter.ToInt32(rawData, 0)
                     : 0;
 
-                long t0 = GameServerProfiler.Begin();
+                var scope = Profiler.Scope();
 
                 try
                 {
@@ -160,7 +160,7 @@ namespace ONI_MP.Networking.Transport.Lan
                     Debug.LogWarning($"[LanClient] Failed to handle packet {packetType}: {ex}");
                 }
 
-                GameServerProfiler.End(t0, 1, size);
+                scope.End(1, size);
             }
         }
 

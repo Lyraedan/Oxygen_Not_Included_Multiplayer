@@ -3,7 +3,7 @@ using LiteNetLib;
 using LiteNetLib.Utils;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Networking.Profiling;
+using Shared.Profiling;
 using ONI_MP.Misc;
 using System.Net;
 using ONI_MP.Menus;
@@ -112,7 +112,7 @@ namespace ONI_MP.Networking.Transport.Lan
             while (incomingPackets.TryDequeue(out var data))
             {
                 int size = data.Length;
-                long t0 = GameClientProfiler.Begin();
+                var scope = Profiler.Scope();
 
                 try
                 {
@@ -123,7 +123,7 @@ namespace ONI_MP.Networking.Transport.Lan
                     DebugConsole.LogWarning($"[LanClient] Failed packet: {ex}");
                 }
 
-                GameClientProfiler.End(t0, 1, size);
+                scope.End(1, size);
             }
         }
 
@@ -181,7 +181,7 @@ namespace ONI_MP.Networking.Transport.Lan
                 return;
 
             int totalBytes = reader.AvailableBytes;
-            long t0 = GameClientProfiler.Begin();
+            var scope = Profiler.Scope();
             byte[] data = reader.GetRemainingBytes();
 
             try
@@ -193,7 +193,7 @@ namespace ONI_MP.Networking.Transport.Lan
                 DebugConsole.LogWarning($"[LanClient] Failed to handle unconnected packet: {ex}");
             }
 
-            GameClientProfiler.End(t0, 1, totalBytes);
+            scope.End(1, totalBytes);
             reader.Recycle();
         }
 

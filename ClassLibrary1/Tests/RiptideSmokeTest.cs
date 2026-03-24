@@ -6,7 +6,7 @@ using Riptide.Utils;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Social;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Networking.Profiling;
+using Shared.Profiling;
 using static ONI_MP.STRINGS.UI.MP_OVERLAY;
 using System.Net.Sockets;
 
@@ -107,7 +107,7 @@ namespace ONI_MP.Tests
 
             DebugConsole.Log($"[RiptideSmokeTest] Handling packet: " + packetType);
 
-            long t0 = GameServerProfiler.Begin();
+            var scope = Profiler.Scope();
 
             try
             {
@@ -119,7 +119,7 @@ namespace ONI_MP.Tests
                 Debug.LogWarning($"[LanServer] Failed to handle packet {packetType}: {ex}");
             }
 
-            GameServerProfiler.End(t0, 1, size);
+            scope.End(1, size);
 
             _packetReceived = true;
         }

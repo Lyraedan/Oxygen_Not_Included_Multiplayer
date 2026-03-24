@@ -6,7 +6,7 @@ using LiteNetLib;
 using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Networking.Profiling;
+using Shared.Profiling;
 using System.Collections.Concurrent;
 
 namespace ONI_MP.Networking.Transport.Lan
@@ -115,7 +115,7 @@ namespace ONI_MP.Networking.Transport.Lan
                 ulong clientId = Utils.GetClientId(peer);
                 int size = data.Length;
 
-                long t0 = GameServerProfiler.Begin();
+                var scope = Profiler.Scope();
 
                 try
                 {
@@ -126,7 +126,7 @@ namespace ONI_MP.Networking.Transport.Lan
                     Debug.LogWarning($"[LanServer] Failed to handle packet from {clientId}: {ex}");
                 }
 
-                GameServerProfiler.End(t0, 1, size);
+                scope.End(1, size);
             }
         }
 

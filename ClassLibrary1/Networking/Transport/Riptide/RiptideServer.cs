@@ -4,7 +4,7 @@ using Riptide.Utils;
 using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Networking.Profiling;
+using Shared.Profiling;
 using ONI_MP.Networking.Transfer;
 using System.Collections.Generic;
 using ONI_MP.UI;
@@ -145,7 +145,7 @@ namespace ONI_MP.Networking.Transport.Lan
                 $"PacketType={packetType}, Size={size} bytes"
             );
 
-            long t0 = GameServerProfiler.Begin();
+            var scope = Profiler.Scope();
 
             try
             {
@@ -156,7 +156,7 @@ namespace ONI_MP.Networking.Transport.Lan
                 Debug.LogWarning($"[LanServer] Failed to handle packet {packetType}: {ex}");
             }
 
-            GameServerProfiler.End(t0, 1, size);
+            scope.End(1, size);
         }
 
         public override void Stop()

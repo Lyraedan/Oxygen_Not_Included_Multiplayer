@@ -14,7 +14,7 @@ using static STRINGS.UI;
 using Steamworks;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
-using ONI_MP.Networking.Profiling;
+using Shared.Profiling;
 using System.Text;
 using ONI_MP.Patches.ToolPatches;
 using ONI_MP.Tests;
@@ -146,8 +146,7 @@ namespace ONI_MP.DebugTools
 
             console?.ShowWindow();
             packetTracker?.ShowWindow();
-            GameClientProfiler.DrawImGuiPopout();
-            GameServerProfiler.DrawImGuiPopout();
+            Profiler.DrawImGuiPopout();
         }
 
         private void DrawGeneralTab()
@@ -510,20 +509,7 @@ namespace ONI_MP.DebugTools
 	
         public void DisplayProfilers()
         {
-            if (ImGui.BeginTable("profilers", 2))
-            {
-                ImGui.TableNextColumn();
-                ImGui.Text("Server");
-                GameServerProfiler.DrawImGuiInTab();
-
-                // Why can I never interact with the toggles or buttons of the second one even if I saw them around
-
-                ImGui.TableNextColumn();
-                ImGui.Text("Client");
-                GameClientProfiler.DrawImGuiInTab();
-
-                ImGui.EndTable();
-            }
+            Profiler.DrawImGuiInline();
         }
 
         public void DrawNetworkTransportDetails()

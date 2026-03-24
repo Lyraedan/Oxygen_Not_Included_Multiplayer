@@ -9,7 +9,7 @@ using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Social;
-using ONI_MP.Networking.Profiling;
+using Shared.Profiling;
 
 namespace ONI_MP.Tests
 {
@@ -89,7 +89,7 @@ namespace ONI_MP.Tests
             byte[] data = reader.GetRemainingBytes();
 
             ulong clientId = Utils.GetClientId(peer);
-            long t0 = GameServerProfiler.Begin();
+            var scope = Profiler.Scope();
 
             try
             {
@@ -101,7 +101,7 @@ namespace ONI_MP.Tests
                 DebugConsole.LogWarning($"[LiteNetLibSmokeTest] Failed to handle packet from {clientId}: {ex}");
             }
 
-            GameServerProfiler.End(t0, 1, size);
+            scope.End(1, size);
             reader.Recycle();
 
             _packetReceived = true; // Mark packet received for the loop

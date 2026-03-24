@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Networking.Profiling;
+using Shared.Profiling;
 using ONI_MP.Networking.States;
 using ONI_MP.UI;
 using Steamworks;
@@ -103,7 +103,7 @@ namespace ONI_MP.Networking.Transport.Steam
 
         public override void OnMessageRecieved()
         {
-            long t0 = GameServerProfiler.Begin();
+            var scope = Profiler.Scope();
             int totalBytes = 0;
 
             int maxMessagesPerPoll = Configuration.GetHostProperty<int>("MaxMessagesPerPoll");
@@ -121,7 +121,7 @@ namespace ONI_MP.Networking.Transport.Steam
 
                 SteamNetworkingMessage_t.Release(messages[i]);
             }
-            GameServerProfiler.End(t0, msgCount, totalBytes);
+            scope.End(msgCount, totalBytes);
         }
 
         private static void OnConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t data)
