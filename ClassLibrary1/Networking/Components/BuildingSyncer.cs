@@ -19,12 +19,6 @@ namespace ONI_MP.Networking.Components
         private float _initializationTime;
         private const float INITIAL_DELAY = 5f;
 
-        // Chunk reassembly
-        private Dictionary<int, List<BuildingState>> _chunkBuffer = new();
-        private int _expectedChunks = -1;
-        private float _lastChunkTime;
-        private const float CHUNK_TIMEOUT = 5f;
-
         private void Awake()
         {
             using var _ = Profiler.Scope();
@@ -58,13 +52,6 @@ namespace ONI_MP.Networking.Components
                 SendSyncPacket();
             }
 
-            // Timeout protection (client-side safety)
-            if (_chunkBuffer.Count > 0 && Time.time - _lastChunkTime > CHUNK_TIMEOUT)
-            {
-                DebugConsole.Log("[BuildingSyncer] Chunk timeout - clearing buffer");
-                _chunkBuffer.Clear();
-                _expectedChunks = -1;
-            }
         }
 
         private void SendSyncPacket()
@@ -73,11 +60,6 @@ namespace ONI_MP.Networking.Components
 
             var buildings = global::Components.BuildingCompletes.Items;
             var stateList = new List<BuildingState>(buildings.Count);
-
-            bool isLan = NetworkConfig.IsLanConfig();
-            float maxPacketSize = isLan
-                ? PacketSender.MAX_PACKET_SIZE_LAN * 1024f
-                : PacketSender.MAX_PACKET_SIZE_UNRELIABLE;
 
             foreach (var building in buildings)
             {
@@ -96,49 +78,9 @@ namespace ONI_MP.Networking.Components
                 });
             }
 
-            // Build chunks
-            List<List<BuildingState>> chunks = new();
-            List<BuildingState> currentBatch = new();
-
-            foreach (var state in stateList)
-            {
-                currentBatch.Add(state);
-
-                var testPacket = new BuildingStatePacket
-                {
-                    Buildings = currentBatch
-                };
-
-                int size = testPacket.SerializeToByteArray().Length + 4;
-
-                if (size > maxPacketSize)
-                {
-                    currentBatch.RemoveAt(currentBatch.Count - 1);
-
-                    chunks.Add(currentBatch);
-                    currentBatch = new List<BuildingState> { state };
-                }
-            }
-
-            if (currentBatch.Count > 0)
-                chunks.Add(currentBatch);
-
-            // Send chunks with metadata
-            for (int i = 0; i < chunks.Count; i++)
-            {
-                SendBatch(chunks[i], i, chunks.Count);
-            }
-        }
-
-        private void SendBatch(List<BuildingState> batch, int chunkIndex, int totalChunks)
-        {
-            using var _ = Profiler.Scope();
-
             var packet = new BuildingStatePacket
             {
-                Buildings = batch,
-                ChunkIndex = chunkIndex,
-                TotalChunks = totalChunks
+                Buildings = stateList
             };
 
             PacketSender.SendToAllClients(packet, SteamNetworkingSend.Unreliable);
@@ -151,25 +93,7 @@ namespace ONI_MP.Networking.Components
             if (MultiplayerSession.IsHost) return;
             if (Grid.WidthInCells == 0) return;
 
-            _chunkBuffer[packet.ChunkIndex] = packet.Buildings;
-            _expectedChunks = packet.TotalChunks;
-            _lastChunkTime = Time.time;
-
-            if (_chunkBuffer.Count < _expectedChunks)
-                return;
-
-            // Reassemble full dataset
-            var fullList = new List<BuildingState>();
-            for (int i = 0; i < _expectedChunks; i++)
-            {
-                if (_chunkBuffer.TryGetValue(i, out var chunk))
-                    fullList.AddRange(chunk);
-            }
-
-            _chunkBuffer.Clear();
-            _expectedChunks = -1;
-
-            StartCoroutine(Reconcile(fullList));
+            StartCoroutine(Reconcile(packet.Buildings));
         }
 
         private IEnumerator Reconcile(List<BuildingState> remoteBuildings)

@@ -15,15 +15,9 @@ namespace ONI_MP.Networking.Packets.World
     {
         public List<BuildingState> Buildings = new List<BuildingState>();
 
-        public int ChunkIndex;
-        public int TotalChunks;
-
         public void Serialize(BinaryWriter writer)
         {
             using var _ = Profiler.Scope();
-
-            writer.Write(ChunkIndex);
-            writer.Write(TotalChunks);
 
             writer.Write(Buildings.Count);
             foreach (var b in Buildings)
@@ -36,9 +30,6 @@ namespace ONI_MP.Networking.Packets.World
         public void Deserialize(BinaryReader reader)
         {
             using var _ = Profiler.Scope();
-
-            ChunkIndex = reader.ReadInt32();
-            TotalChunks = reader.ReadInt32();
 
             int count = reader.ReadInt32();
             Buildings = new List<BuildingState>(count);
