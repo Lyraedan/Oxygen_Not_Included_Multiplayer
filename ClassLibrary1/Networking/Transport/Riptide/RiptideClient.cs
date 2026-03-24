@@ -90,8 +90,8 @@ namespace ONI_MP.Networking.Transport.Lan
             var conn = _client.Connection;
             conn.CanQualityDisconnect = false; // prevents auto‑disconnect due to poor delivery
             conn.MaxSendAttempts = 30;         // 15 is default so we'll double it
-            conn.MaxAvgSendAttempts = 12;
-            conn.AvgSendAttemptsResilience = 5;
+            conn.MaxAvgSendAttempts = 12;      // Was 5, we'll double it and add a buffer
+            conn.AvgSendAttemptsResilience = 128; // was 64, doubled
 
             OnClientConnected.Invoke();
             MultiplayerSession.SetHost(1); // Host's client is always 1
