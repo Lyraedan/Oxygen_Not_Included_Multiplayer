@@ -5,6 +5,7 @@ using ONI_MP.UI;
 using Steamworks;
 using System;
 using System.IO;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Social
@@ -23,6 +24,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public ChatMessagePacket(string message)
 		{
+			using var _ = Profiler.Scope();
+
 			SenderId = MultiplayerSession.LocalUserID;
             SenderName = Utils.GetLocalPlayerName();
             Message = message;
@@ -32,6 +35,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(SenderId);
 			writer.Write(SenderName);
 			writer.Write(Message);
@@ -44,6 +49,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			SenderId = reader.ReadUInt64();
 			SenderName = reader.ReadString();
 			Message = reader.ReadString();
@@ -57,6 +64,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (SenderId == MultiplayerSession.LocalUserID)
 				return;
 

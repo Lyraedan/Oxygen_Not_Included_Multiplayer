@@ -2,6 +2,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Menus;
 using ONI_MP.Networking;
+using Shared.Profiling;
 using Steamworks;
 using UnityEngine;
 
@@ -11,6 +12,8 @@ public static class MultiplayerPopup
 
 	public static void Show(Transform parent)
 	{
+		using var _ = Profiler.Scope();
+
 		if (currentPopup != null)
 		{
 			DebugConsole.Log("[MultiplayerPopup] Popup already open.");
@@ -67,6 +70,8 @@ public static class MultiplayerPopup
 
 	private static void Close()
 	{
+		using var _ = Profiler.Scope();
+
 		if (currentPopup != null)
 		{
 			Object.Destroy(currentPopup);
@@ -76,6 +81,8 @@ public static class MultiplayerPopup
 
 	private static void HostLastSave()
 	{
+		using var _ = Profiler.Scope();
+
 		MultiplayerOverlay.Show(ONI_MP.STRINGS.UI.MP_OVERLAY.HOST.STARTINGHOSTING);
 		string text;
 		if (!KPlayerPrefs.HasKey("AutoResumeSaveFile"))
@@ -99,6 +106,8 @@ public static class MultiplayerPopup
 
 	private static void AddPopupButton(Transform parent, string text, Vector2 position, System.Action onClick)
 	{
+		using var _ = Profiler.Scope();
+
 		var template = UnityEngine.Object.FindObjectOfType<MainMenu>()?.Button_ResumeGame;
 		if (template == null)
 		{

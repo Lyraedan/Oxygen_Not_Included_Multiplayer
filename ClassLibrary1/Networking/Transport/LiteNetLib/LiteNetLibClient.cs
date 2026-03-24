@@ -3,7 +3,7 @@ using LiteNetLib;
 using LiteNetLib.Utils;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Networking.Profiling;
+using Shared.Profiling;
 using ONI_MP.Misc;
 using System.Net;
 using ONI_MP.Menus;
@@ -14,10 +14,10 @@ using System.Collections;
 using System.Collections.Concurrent;
 
 /*
- 
+
     This implementation is unfinished and currently not used, but it serves as a reference for how to implement a LAN client using LiteNetLib.
     LAN Implementation finished via Riptide
- 
+
  */
 namespace ONI_MP.Networking.Transport.Lan
 {
@@ -44,6 +44,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Prepare()
         {
+            using var _ = Profiler.Scope();
+
             if (ConnectFromConfig)
             {
                 SERVER_PORT = Configuration.Instance.Client.LanSettings.Port;
@@ -66,6 +68,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void ConnectToHost(string ip, int port)
         {
+            using var _ = Profiler.Scope();
+
             if (connected)
                 return;
 
@@ -87,6 +91,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Disconnect()
         {
+            using var _ = Profiler.Scope();
+
             connected = false;
 
             if (serverPeer != null)
@@ -101,6 +107,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void ReconnectToSession()
         {
+            using var _ = Profiler.Scope();
+
             string ip = host_ip;
             int port = host_port;
             Disconnect();
@@ -109,10 +117,12 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void OnMessageRecieved()
         {
+            using var _ = Profiler.Scope();
+
             while (incomingPackets.TryDequeue(out var data))
             {
                 int size = data.Length;
-                long t0 = GameClientProfiler.Begin();
+                var scope = Profiler.Scope();
 
                 try
                 {
@@ -123,17 +133,21 @@ namespace ONI_MP.Networking.Transport.Lan
                     DebugConsole.LogWarning($"[LanClient] Failed packet: {ex}");
                 }
 
-                GameClientProfiler.End(t0, 1, size);
+                scope.End(1, size);
             }
         }
 
         public override void Update()
         {
+            using var _ = Profiler.Scope();
+
             netManager?.PollEvents();
         }
 
         public void OnPeerConnected(NetPeer peer)
         {
+            using var _ = Profiler.Scope();
+
             DebugConsole.Log($"[LanClient] Connected to server: {Utils.GetClientId(peer)}");
 
             serverPeer = peer;
@@ -142,6 +156,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
         {
+            using var _ = Profiler.Scope();
+
             DebugConsole.Log($"[LanClient] Disconnected from server ({disconnectInfo.Reason})");
             connected = false;
             host_ip = string.Empty;
@@ -150,6 +166,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void OnNetworkError(System.Net.IPEndPoint endPoint, System.Net.Sockets.SocketError socketError)
         {
+            using var _ = Profiler.Scope();
+
             DebugConsole.LogError($"[LanClient] Network error: {socketError} from {endPoint}", false);
             connected = false;
             host_ip = string.Empty;
@@ -163,12 +181,16 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void OnConnectionRequest(ConnectionRequest request)
         {
+            using var _ = Profiler.Scope();
+
             // This should not happen for a client
             request.Reject();
         }
 
         public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
         {
+            using var _ = Profiler.Scope();
+
             byte[] data = reader.GetRemainingBytes();
             incomingPackets.Enqueue(data);
             reader.Recycle();
@@ -176,12 +198,14 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
         {
+            using var _ = Profiler.Scope();
+
             // Only accept unconnected messages from the expected server
             if (serverPeer == null || !remoteEndPoint.Equals(serverPeer))
                 return;
 
             int totalBytes = reader.AvailableBytes;
-            long t0 = GameClientProfiler.Begin();
+            var scope = Profiler.Scope();
             byte[] data = reader.GetRemainingBytes();
 
             try
@@ -193,12 +217,14 @@ namespace ONI_MP.Networking.Transport.Lan
                 DebugConsole.LogWarning($"[LanClient] Failed to handle unconnected packet: {ex}");
             }
 
-            GameClientProfiler.End(t0, 1, totalBytes);
+            scope.End(1, totalBytes);
             reader.Recycle();
         }
 
         public override NetworkIndicatorsScreen.NetworkState GetJitterState()
         {
+            using var _ = Profiler.Scope();
+
             if (!connected || serverPeer == null)
                 return NetworkIndicatorsScreen.NetworkState.BAD;
 
@@ -232,6 +258,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override NetworkIndicatorsScreen.NetworkState GetLatencyState()
         {
+            using var _ = Profiler.Scope();
+
             if (!connected || serverPeer == null)
                 return NetworkIndicatorsScreen.NetworkState.BAD;
 
@@ -244,6 +272,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override NetworkIndicatorsScreen.NetworkState GetPacketlossState()
         {
+            using var _ = Profiler.Scope();
+
             if (!connected || serverPeer == null)
                 return NetworkIndicatorsScreen.NetworkState.BAD;
 
@@ -257,6 +287,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override NetworkIndicatorsScreen.NetworkState GetServerPerformanceState()
         {
+            using var _ = Profiler.Scope();
+
             var latency = GetLatencyState();
             var loss = GetPacketlossState();
 
@@ -273,6 +305,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         IEnumerator WaitForConnectionSuccess(float timeout)
         {
+            using var _ = Profiler.Scope();
+
             float timer = 0f;
 
             while (timer < timeout)

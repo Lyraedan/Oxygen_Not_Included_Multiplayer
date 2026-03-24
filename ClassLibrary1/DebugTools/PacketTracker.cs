@@ -8,6 +8,7 @@ using ImGuiNET;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Architecture;
+using Shared.Profiling;
 using Steamworks;
 
 namespace ONI_MP.DebugTools
@@ -33,6 +34,8 @@ namespace ONI_MP.DebugTools
 
         public static PacketTracker Init()
         {
+            using var _ = Profiler.Scope();
+
             if (_instance != null)
                 return _instance;
 
@@ -42,6 +45,8 @@ namespace ONI_MP.DebugTools
 
         public static void TrackSent(PacketTrackData data)
         {
+            using var _ = Profiler.Scope();
+
             _instance.outgoing_tracked.Add(data);
 
             if (_instance.outgoing_tracked.Count > MAX_TRACKED_LIMIT)
@@ -53,6 +58,8 @@ namespace ONI_MP.DebugTools
 
         public static void TrackIncoming(PacketTrackData data)
         {
+            using var _ = Profiler.Scope();
+
             _instance.incoming_tracked.Add(data);
 
             if (_instance.incoming_tracked.Count > MAX_TRACKED_LIMIT)
@@ -64,17 +71,23 @@ namespace ONI_MP.DebugTools
 
         public void Clear()
         {
+            using var _ = Profiler.Scope();
+
             _instance.outgoing_tracked.Clear();
             _instance.incoming_tracked.Clear();
         }
 
         public void Toggle()
         {
+            using var _ = Profiler.Scope();
+
             showWindow = !showWindow;
         }
 
         public void ShowWindow()
         {
+            using var _ = Profiler.Scope();
+
             if (!showWindow)
                 return;
 
@@ -112,6 +125,8 @@ namespace ONI_MP.DebugTools
 
         public void ShowInTab()
         {
+            using var _ = Profiler.Scope();
+
             if (!MultiplayerSession.InSession)
             {
                 if (outgoing_tracked.Count > 0)
@@ -150,6 +165,8 @@ namespace ONI_MP.DebugTools
 
         private void AddTable(string str_id, List<PacketTrackData> dataset, string filter)
         {
+            using var _ = Profiler.Scope();
+
             if (ImGui.BeginTable(str_id, 3,
                         ImGuiTableFlags.Borders |
                         ImGuiTableFlags.RowBg |

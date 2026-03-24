@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 using static RancherChore;
 using static WorkerBase;
 
@@ -20,7 +21,7 @@ namespace ONI_MP.Patches.DuplicantActions
 		[HarmonyPatch(typeof(StandardWorker), nameof(StandardWorker.StartWork))]
 		public class StandardWorker_StartWork_Patch
 		{
-			private static Type[] workablesToSkip = 
+			private static Type[] workablesToSkip =
 			{
                 typeof(DefragmentationZone), // Bionic sleeping
                 typeof(RancherWorkable) // Ranching
@@ -28,7 +29,9 @@ namespace ONI_MP.Patches.DuplicantActions
 
 			public static void Postfix(StandardWorker __instance, StartWorkInfo start_work_info)
 			{
-				if (__instance.IsNullOrDestroyed()) 
+				using var _ = Profiler.Scope();
+
+				if (__instance.IsNullOrDestroyed())
 					return;
 
 				if (start_work_info.IsNullOrDestroyed())
@@ -57,7 +60,9 @@ namespace ONI_MP.Patches.DuplicantActions
 		{
 			public static void Postfix(StandardWorker __instance)
 			{
-				if (__instance.IsNullOrDestroyed()) 
+				using var _ = Profiler.Scope();
+
+				if (__instance.IsNullOrDestroyed())
 					return;
 
 				if (!Utils.IsHostMinion(__instance))

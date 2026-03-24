@@ -2,6 +2,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
+using Shared.Profiling;
 using static LogicGateBase;
 
 namespace ONI_MP.Networking.Packets.Social
@@ -13,6 +14,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(Options.Count);
 			foreach (var opt in Options)
 			{
@@ -22,6 +25,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			int count = reader.ReadInt32();
 			Options = new List<ImmigrantOptionEntry>();
 			for (int i = 0; i < count; i++)
@@ -33,6 +38,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			DebugConsole.Log($"[ImmigrantOptionsPacket] Received {Options.Count} options");
 
 			// Log each option for debugging

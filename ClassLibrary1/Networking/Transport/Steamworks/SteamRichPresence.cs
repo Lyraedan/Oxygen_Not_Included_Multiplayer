@@ -1,4 +1,5 @@
 ﻿using ONI_MP.DebugTools;
+using Shared.Profiling;
 using Steamworks;
 
 namespace ONI_MP.Networking.Transport.Steamworks
@@ -7,6 +8,8 @@ namespace ONI_MP.Networking.Transport.Steamworks
 	{
 		public static void SetStatus(string status)
 		{
+			using var _ = Profiler.Scope();
+
 			if (!SteamManager.Initialized)
 			{
 				DebugConsole.LogWarning("SteamRichPresence: Not initialized.");
@@ -19,6 +22,8 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 		public static void Clear()
 		{
+			using var _ = Profiler.Scope();
+
 			if (!SteamManager.Initialized)
 			{
 				DebugConsole.LogWarning("SteamRichPresence: Not initialized.");
@@ -31,6 +36,8 @@ namespace ONI_MP.Networking.Transport.Steamworks
 
 		public static void SetLobbyInfo(CSteamID lobby, string status)
 		{
+			using var _ = Profiler.Scope();
+
 			SteamFriends.ClearRichPresence();
 
 			SteamFriends.SetRichPresence("gamestatus", "In Multiplayer Lobby");

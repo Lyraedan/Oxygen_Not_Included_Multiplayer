@@ -3,6 +3,7 @@ using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Patches.Chores;
 using System.IO;
+using Shared.Profiling;
 using UnityEngine;
 
 public class ChoreAssignmentPacket : IPacket
@@ -16,6 +17,8 @@ public class ChoreAssignmentPacket : IPacket
 
 	public void Serialize(BinaryWriter writer)
 	{
+		using var _ = Profiler.Scope();
+
 		writer.Write(NetId);
 		writer.Write(ChoreTypeId ?? string.Empty);
 		writer.Write(TargetPosition.x);
@@ -27,6 +30,8 @@ public class ChoreAssignmentPacket : IPacket
 
 	public void Deserialize(BinaryReader reader)
 	{
+		using var _ = Profiler.Scope();
+
 		NetId = reader.ReadInt32();
 		ChoreTypeId = reader.ReadString();
 		TargetPosition = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
@@ -36,6 +41,8 @@ public class ChoreAssignmentPacket : IPacket
 
 	public void OnDispatched()
 	{
+		using var _ = Profiler.Scope();
+
 		// Disabled for now
 		return;
 

@@ -8,6 +8,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using Shared.Interfaces.Networking;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -31,6 +32,8 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Serialize(BinaryWriter writer)
         {
+            using var _ = Profiler.Scope();
+
             writer.Write(NetId);
             writer.Write((int)Action);
             writer.Write(StatusItemId);
@@ -44,6 +47,8 @@ namespace ONI_MP.Networking.Packets.World
 
         public void Deserialize(BinaryReader reader)
         {
+            using var _ = Profiler.Scope();
+
             NetId = reader.ReadInt32();
             Action = (ItemGroupPacketAction)reader.ReadInt32();
             StatusItemId = reader.ReadString() ?? string.Empty;
@@ -57,6 +62,8 @@ namespace ONI_MP.Networking.Packets.World
 
         public void OnDispatched()
         {
+            using var _ = Profiler.Scope();
+
             if (!NetworkIdentityRegistry.TryGet(NetId, out NetworkIdentity identity))
             {
                 DebugConsole.LogWarning($"[StatusItemGroupPacket] No network identity for {NetId}");
@@ -76,7 +83,7 @@ namespace ONI_MP.Networking.Packets.World
 
         public void AddStatusItemGroup(NetworkIdentity identity)
         {
-            
+
         }
 
         public void RemoveStatusItemGroup(NetworkIdentity identity)

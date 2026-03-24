@@ -1,7 +1,7 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Handshake;
-using ONI_MP.Networking.Profiling;
+using Shared.Profiling;
 using ONI_MP.Networking.States;
 using Shared;
 using Steamworks;
@@ -17,6 +17,8 @@ namespace ONI_MP.Networking
 
 		private static void SetState(ServerState newState)
 		{
+			using var _ = Profiler.Scope();
+
 			if (_state != newState)
 			{
 				_state = newState;
@@ -27,6 +29,8 @@ namespace ONI_MP.Networking
 
 		public static void Start()
 		{
+			using var _ = Profiler.Scope();
+
 			SetState(ServerState.Preparing);
 
             NetworkConfig.TransportServer.OnError = () => SetState(ServerState.Error);
@@ -48,6 +52,8 @@ namespace ONI_MP.Networking
 
 		public static void Shutdown()
 		{
+			using var _ = Profiler.Scope();
+
 			SetState(ServerState.Stopped);
 
             NetworkConfig.TransportServer.CloseConnections();
@@ -61,6 +67,8 @@ namespace ONI_MP.Networking
 
 		public static void Update()
 		{
+			using var _ = Profiler.Scope();
+
 			switch (State)
 			{
 				case ServerState.Started:

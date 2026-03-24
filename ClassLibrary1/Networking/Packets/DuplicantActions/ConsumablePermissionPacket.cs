@@ -1,6 +1,7 @@
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
 using ONI_MP.Networking.Components;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.DuplicantActions
 {
@@ -17,6 +18,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
         public ConsumablePermissionPacket(TableRow.RowType rowType, string consumableID, TableScreen.ResultValues newValue, int netId)
         {
+            using var _ = Profiler.Scope();
+
             RowType      = rowType;
             ConsumableID = consumableID;
             NewValue     = newValue;
@@ -25,6 +28,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
         public void Serialize(BinaryWriter writer)
         {
+            using var _ = Profiler.Scope();
+
             writer.Write((int)RowType);
             writer.Write(ConsumableID);
             writer.Write((int)NewValue);
@@ -35,6 +40,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
         public void Deserialize(BinaryReader reader)
         {
+            using var _ = Profiler.Scope();
+
             RowType      = (TableRow.RowType)reader.ReadInt32();
             ConsumableID = reader.ReadString();
             NewValue     = (TableScreen.ResultValues)reader.ReadInt32();
@@ -45,6 +52,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
         public void OnDispatched()
         {
+            using var _ = Profiler.Scope();
+
             switch (RowType)
             {
                 case TableRow.RowType.Default:

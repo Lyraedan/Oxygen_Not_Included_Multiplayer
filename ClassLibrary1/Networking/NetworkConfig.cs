@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +12,7 @@ using SteamServer = ONI_MP.Networking.Transport.Steam.SteamworksServer;
 using SteamClient = ONI_MP.Networking.Transport.Steam.SteamworksClient;
 using ONI_MP.Networking.Transport.Steamworks;
 using ONI_MP.DebugTools;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking
 {
@@ -40,6 +41,8 @@ namespace ONI_MP.Networking
 
         public static TransportServer GetTransportServer()
         {
+            using var _ = Profiler.Scope();
+
             switch (transport)
             {
                 case NetworkTransport.STEAMWORKS:
@@ -55,6 +58,8 @@ namespace ONI_MP.Networking
 
         public static TransportClient GetTransportClient()
         {
+            using var _ = Profiler.Scope();
+
             switch (transport)
             {
                 case NetworkTransport.STEAMWORKS:
@@ -70,6 +75,8 @@ namespace ONI_MP.Networking
 
         public static TransportPacketSender GetTransportPacketSender()
         {
+            using var _ = Profiler.Scope();
+
             switch (transport)
             {
                 case NetworkTransport.STEAMWORKS:
@@ -82,9 +89,11 @@ namespace ONI_MP.Networking
                     return new RiptidePacketSender(); // Use riptide by default now
             }
         }
-    
+
         public static ulong GetLocalID()
         {
+            using var _ = Profiler.Scope();
+
             switch (transport)
             {
                 case NetworkTransport.STEAMWORKS:
@@ -114,16 +123,22 @@ namespace ONI_MP.Networking
 
         public static bool IsSteamConfig()
         {
+            using var _ = Profiler.Scope();
+
             return transport.Equals(NetworkTransport.STEAMWORKS);
         }
 
         public static bool IsLanConfig()
         {
+            using var _ = Profiler.Scope();
+
             return transport.Equals(NetworkTransport.RIPTIDE) || transport.Equals(NetworkTransport.LITENETLIB);
         }
-    
+
         public static List<ulong> GetConnectedClients()
         {
+            using var _ = Profiler.Scope();
+
             List<ulong> clients = new List<ulong>();
             switch(transport)
             {
@@ -152,3 +167,4 @@ namespace ONI_MP.Networking
         }
     }
 }
+

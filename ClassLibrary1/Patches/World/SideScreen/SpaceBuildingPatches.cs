@@ -3,6 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World.SideScreen
@@ -16,6 +17,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(GeoTuner.Instance __instance, Geyser newFutureGeyser)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 
@@ -35,7 +38,7 @@ namespace ONI_MP.Patches.World.SideScreen
 
 			if (MultiplayerSession.IsHost) PacketSender.SendToAllClients(packet);
 			else PacketSender.SendToHost(packet);
-			
+
 			DebugConsole.Log($"[GeoTuner] Synced geyser assignment: cell={geyserCell}");
 		}
 	}
@@ -45,6 +48,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(GeoTunerSideScreen __instance, GameObject target)
 		{
+			using var _ = Profiler.Scope();
+
 			if (__instance.targetGeotuner == null) return;
 			__instance.RefreshOptions();
 		}
@@ -55,6 +60,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(MissileLauncher.Instance __instance, Tag tag, bool allowed)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 
@@ -73,7 +80,7 @@ namespace ONI_MP.Patches.World.SideScreen
 
 			if (MultiplayerSession.IsHost) PacketSender.SendToAllClients(packet);
 			else PacketSender.SendToHost(packet);
-			
+
 			DebugConsole.Log($"[MissileLauncher] Synced ammo: tag={tag.Name}, allowed={allowed}");
 		}
 	}
@@ -83,6 +90,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(MissileSelectionSideScreen __instance, GameObject target)
 		{
+			using var _ = Profiler.Scope();
+
 			if (__instance.targetMissileLauncher == null) return;
 			__instance.Refresh();
 		}
@@ -93,6 +102,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(Gantry __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 

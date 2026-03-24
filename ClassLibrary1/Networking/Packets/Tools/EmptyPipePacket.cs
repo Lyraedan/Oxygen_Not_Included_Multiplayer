@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Tools
 {
@@ -10,6 +11,8 @@ namespace ONI_MP.Networking.Packets.Tools
 	{
 		public EmptyPipePacket() : base()
 		{
+			using var _ = Profiler.Scope();
+
 			ToolInstance = EmptyPipeTool.Instance;
 			ToolMode = DragToolMode.OnDragTool;
 		}

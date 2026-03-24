@@ -1,4 +1,4 @@
-﻿// Keep this to only windows, Mac is not built with the Devtool framework so it doesn't have access to the DevTool class and just crashes
+// Keep this to only windows, Mac is not built with the Devtool framework so it doesn't have access to the DevTool class and just crashes
 #if DEBUG //OS_WINDOWS || DEBUG
 
 using System;
@@ -13,7 +13,7 @@ using UnityEngine;
 using static STRINGS.UI;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
-using ONI_MP.Networking.Profiling;
+using Shared.Profiling;
 using System.Text;
 using ONI_MP.Patches.ToolPatches;
 using ONI_MP.Tests;
@@ -58,6 +58,8 @@ namespace ONI_MP.DebugTools
 
         public DevToolMultiplayer()
         {
+            using var _ = Profiler.Scope();
+
             Name = "Multiplayer";
             RequiresGameRunning = false;
             console = DebugConsole.Init();
@@ -100,6 +102,8 @@ namespace ONI_MP.DebugTools
 
         public override void RenderTo(DevPanel panel)
         {
+            using var _ = Profiler.Scope();
+
             ImGui.BeginChild("ScrollRegion", new Vector2(0, 0), true);
 
             if (ImGui.BeginTabBar("MultiplayerTabs"))
@@ -140,6 +144,12 @@ namespace ONI_MP.DebugTools
                     ImGui.EndTabItem();
                 }
 
+                if (ImGui.BeginTabItem("Profiler"))
+                {
+                    DisplayProfilers();
+                    ImGui.EndTabItem();
+                }
+
                 ImGui.EndTabBar();
             }
 
@@ -147,12 +157,13 @@ namespace ONI_MP.DebugTools
 
             console?.ShowWindow();
             packetTracker?.ShowWindow();
-            GameClientProfiler.DrawImGuiPopout();
-            GameServerProfiler.DrawImGuiPopout();
+            Profiler.DrawImGuiPopout();
         }
 
         private void DrawGeneralTab()
         {
+            using var _ = Profiler.Scope();
+
             if (ImGui.Button("Open Mod Directory"))
             {
                 Process.Start(new ProcessStartInfo
@@ -183,13 +194,15 @@ namespace ONI_MP.DebugTools
 
         private void DrawSessionTab()
         {
+            using var _ = Profiler.Scope();
+
             if(MultiplayerSession.InSession)
                 ImGui.TextColored(new Vector4(0.3f, 1f, 0.3f, 1f), "Multiplayer Active");
             else
                 ImGui.TextColored(new Vector4(1f, 0.3f, 0.3f, 1f), "Multiplayer Not Active");
             ImGui.Separator();
 
-            switch (NetworkConfig.transport) 
+            switch (NetworkConfig.transport)
             {
                 case NetworkConfig.NetworkTransport.STEAMWORKS:
                     if (ImGui.Button("Create Lobby"))
@@ -271,6 +284,8 @@ namespace ONI_MP.DebugTools
 
         private void DrawNetworkTab()
         {
+            using var _ = Profiler.Scope();
+
             DrawNetworkTransportDetails();
             if (!MultiplayerSession.InSession)
             {
@@ -299,6 +314,8 @@ namespace ONI_MP.DebugTools
 
         private void DrawDebugTab()
         {
+            using var _ = Profiler.Scope();
+
             DisplayProfilers();
             ImGui.Separator();
             DisplayNetIdHolders();
@@ -306,6 +323,8 @@ namespace ONI_MP.DebugTools
 
         private void DrawTestsTab()
         {
+            using var _ = Profiler.Scope();
+
             if (ImGui.Button("Riptide Smoke Test"))
             {
                 RiptideSmokeTest.Run();
@@ -348,6 +367,8 @@ namespace ONI_MP.DebugTools
 
         private void DrawConsoleTab()
         {
+            using var _ = Profiler.Scope();
+
             if (ImGui.Button("Popout"))
                 console?.Toggle();
             ImGui.SameLine();
@@ -356,6 +377,8 @@ namespace ONI_MP.DebugTools
 
         public void DisplaySessionDetails()
         {
+            using var _ = Profiler.Scope();
+
             ImGui.Text("Session details:");
             ImGui.Text($"Connected clients: {(MultiplayerSession.InSession ? (MultiplayerSession.PlayerCursors.Count + 1) : 0)}");
             ImGui.Text($"Is Host: {MultiplayerSession.IsHost}");
@@ -367,6 +390,8 @@ namespace ONI_MP.DebugTools
 
         private void DrawPlayerList()
         {
+            using var _ = Profiler.Scope();
+
             if(!MultiplayerSession.SessionHasPlayers)
             {
                 ImGui.Text("No other players connected.");
@@ -389,6 +414,8 @@ namespace ONI_MP.DebugTools
 
         void SteamworksPlayerList()
         {
+            using var _ = Profiler.Scope();
+
             var players = SteamLobby.GetAllLobbyMembers();
             string self = $"[You] {SteamFriends.GetPersonaName()} | {MultiplayerSession.LocalUserID}";
 
@@ -438,6 +465,8 @@ namespace ONI_MP.DebugTools
 
         void RiptidePlayerList()
         {
+            using var _ = Profiler.Scope();
+
             if(MultiplayerSession.IsHost)
             {
                 var players = MultiplayerSession.ConnectedPlayers;
@@ -486,6 +515,8 @@ namespace ONI_MP.DebugTools
 
         public void DisplayNetworkStatistics()
         {
+            using var _ = Profiler.Scope();
+
             if(!MultiplayerSession.InSession)
                 return;
 
@@ -527,10 +558,12 @@ namespace ONI_MP.DebugTools
                 }
             }
         }
-		
+
         private string netIdFilter = string.Empty;
 		public void DisplayNetIdHolders()
 		{
+            using var _ = Profiler.Scope();
+
 			if (ImGui.CollapsingHeader("Net Id Holders"))
 			{
 				var all_identities = NetworkIdentityRegistry.AllIdentities;
@@ -578,27 +611,18 @@ namespace ONI_MP.DebugTools
 				}
 			}
 		}
-	
+
         public void DisplayProfilers()
         {
-            if (ImGui.BeginTable("profilers", 2))
-            {
-                ImGui.TableNextColumn();
-                ImGui.Text("Server");
-                GameServerProfiler.DrawImGuiInTab();
+            using var _ = Profiler.Scope();
 
-                // Why can I never interact with the toggles or buttons of the second one even if I saw them around
-
-                ImGui.TableNextColumn();
-                ImGui.Text("Client");
-                GameClientProfiler.DrawImGuiInTab();
-
-                ImGui.EndTable();
-            }
+            Profiler.DrawImGuiInline();
         }
 
         public void DrawNetworkTransportDetails()
         {
+            using var _ = Profiler.Scope();
+
             ImGui.Text("Network Transport Settings");
 
             string[] display_options = new string[] { "Steam", "LAN/Riptide", "Lan/LiteNetLib" };

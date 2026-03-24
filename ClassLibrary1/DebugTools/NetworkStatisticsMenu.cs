@@ -5,6 +5,7 @@ using ONI_MP.Networking.States;
 using ONI_MP.Networking.Transport.Lan;
 using Steamworks;
 using System;
+using Shared.Profiling;
 using UnityEngine;
 using SteamworksClient = ONI_MP.Networking.Transport.Steam.SteamworksClient;
 
@@ -23,6 +24,8 @@ namespace ONI_MP.DebugTools
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
 		public static void Init()
 		{
+			using var _ = Profiler.Scope();
+
 			if (_instance != null) return;
 
 			GameObject go = new GameObject("ONI_MP_NetworkStatisticsMenu");
@@ -37,6 +40,8 @@ namespace ONI_MP.DebugTools
 
 		private void Update()
 		{
+			using var _ = Profiler.Scope();
+
 			if (Input.GetKeyDown(KeyCode.F1) && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
 			{
 				showMenu = !showMenu;
@@ -45,6 +50,8 @@ namespace ONI_MP.DebugTools
 
 		private void OnGUI()
 		{
+			using var _ = Profiler.Scope();
+
 			if (!showMenu) return;
 
 			GUIStyle windowStyle = new GUIStyle(GUI.skin.window) { padding = new RectOffset(10, 10, 20, 20) };
@@ -53,6 +60,8 @@ namespace ONI_MP.DebugTools
 
 		private void DrawMenuContents(int windowID)
 		{
+			using var _ = Profiler.Scope();
+
 			scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.Width(windowRect.width - 20), GUILayout.Height(windowRect.height - 40));
 
 			int ping = -1;

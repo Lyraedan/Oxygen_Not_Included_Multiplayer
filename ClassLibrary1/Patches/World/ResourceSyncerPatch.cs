@@ -1,6 +1,7 @@
 using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Synchronization;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -10,6 +11,8 @@ namespace ONI_MP.Patches.World
 	{
 		public static void Postfix(Game __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.IsHost)
 			{
 				// Attach to Game.Instance.gameObject (Global helper)

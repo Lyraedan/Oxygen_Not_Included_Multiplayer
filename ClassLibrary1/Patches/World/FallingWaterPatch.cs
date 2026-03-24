@@ -1,6 +1,7 @@
 using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.World;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -23,6 +24,8 @@ namespace ONI_MP.Patches.World
 				bool debug_track,
 				bool disable_randomness)
 		{
+			using var _ = Profiler.Scope();
+
 			if (!MultiplayerSession.InSession) return true;
 
 			if (FallingObjectPacket.IsApplying) return true; // Allow packet application

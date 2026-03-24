@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace ONI_MP_API.Networking
 {
@@ -15,6 +16,8 @@ namespace ONI_MP_API.Networking
 	{
 		static bool Init()
 		{
+			using var _ = Profiler.Scope();
+
 			if (typesInitialized)
 				return true;
 
@@ -63,6 +66,8 @@ namespace ONI_MP_API.Networking
 		/// Original single-exclude overload
 		public static void SendToAll(IPacket packet, ulong? exclude = null, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
 		{
+			using var _ = Profiler.Scope();
+
 			Init();
 			if (_SendToAll == null)
 				return;
@@ -71,6 +76,8 @@ namespace ONI_MP_API.Networking
 
 		public static void SendToAllClients(IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
 		{
+			using var _ = Profiler.Scope();
+
 			Init();
 			if (_SendToAllClients == null)
 				return;
@@ -79,6 +86,8 @@ namespace ONI_MP_API.Networking
 
 		public static void SendToAllExcluding(IPacket packet, HashSet<ulong> excludedIds, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
 		{
+			using var _ = Profiler.Scope();
+
 			Init();
 			if (_SendToAllExcluding == null)
 				return;
@@ -87,6 +96,8 @@ namespace ONI_MP_API.Networking
 
 		public static void SendToPlayer(ulong steamId, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
 		{
+			using var _ = Profiler.Scope();
+
 			Init();
 			if (_SendToPlayer == null)
 				return;
@@ -95,6 +106,8 @@ namespace ONI_MP_API.Networking
 
 		public static void SendToHost(IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
 		{
+			using var _ = Profiler.Scope();
+
 			Init();
 			if (_SendToHost == null)
 				return;
@@ -102,6 +115,8 @@ namespace ONI_MP_API.Networking
 		}
 		public static void SendToAllOtherPeers(IPacket packet)
 		{
+			using var _ = Profiler.Scope();
+
 			Init();
 			if (_SendToAllOtherPeers == null)
 				return;

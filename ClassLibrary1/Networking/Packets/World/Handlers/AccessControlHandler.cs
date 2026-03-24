@@ -1,5 +1,6 @@
 using UnityEngine;
 using ONI_MP.DebugTools;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World.Handlers
 {
@@ -22,6 +23,8 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 
 		public bool TryApplyConfig(GameObject go, BuildingConfigPacket packet)
 		{
+			using var _ = Profiler.Scope();
+
 			int hash = packet.ConfigHash;
 
 			var accessControl = go.GetComponent<AccessControl>();
@@ -45,7 +48,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 			{
 				int minionNetId = packet.SliderIndex;
 				AccessControl.Permission permission = (AccessControl.Permission)(int)packet.Value;
-				
+
 				// Find the minion by NetID using the registry
 				if (NetworkIdentityRegistry.TryGet(minionNetId, out var minionIdentity) && minionIdentity != null)
 				{
@@ -70,7 +73,7 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 			if (hash == "AccessControlClear".GetHashCode())
 			{
 				int minionNetId = packet.SliderIndex;
-				
+
 				if (NetworkIdentityRegistry.TryGet(minionNetId, out var minionIdentity) && minionIdentity != null)
 				{
 					var minionGO = minionIdentity.gameObject;

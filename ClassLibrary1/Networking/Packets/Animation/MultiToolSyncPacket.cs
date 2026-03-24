@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Animation
 {
@@ -18,6 +19,8 @@ namespace ONI_MP.Networking.Packets.Animation
 		public MultiToolSyncPacket() { }
 		public MultiToolSyncPacket(StandardWorker worker, MultitoolController.Instance smi)
 		{
+			using var _ = Profiler.Scope();
+
 			WorkerNetId = worker.GetNetId();
 			WorkableNetId = smi.workable?.GetNetId() ?? 0;
 			HitEffectPrefabId = smi.hitEffectPrefab.PrefabID().ToString();
@@ -27,6 +30,8 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(WorkerNetId);
 			writer.Write(WorkableNetId);
 			writer.Write(HitEffectPrefabId);
@@ -34,6 +39,8 @@ namespace ONI_MP.Networking.Packets.Animation
 		}
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			WorkerNetId = reader.ReadInt32();
 			WorkableNetId = reader.ReadInt32();
 			HitEffectPrefabId = reader.ReadString();
@@ -42,6 +49,8 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.IsHost)
 				return;
 

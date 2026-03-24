@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -12,12 +13,14 @@ namespace ONI_MP.Networking.Packets.World
 		public List<string> UnlockedTechIds = new List<string>();
 		public List<string> QueuedTechIds = new List<string>(); // Full queue from host
 		public string ActiveTechId; // Current research selection
-		
+
 		// Flag to prevent infinite loop: when applying state, don't send new packets
 		public static bool IsApplying = false;
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(UnlockedTechIds.Count);
 			foreach (var id in UnlockedTechIds)
 			{
@@ -35,6 +38,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			int count = reader.ReadInt32();
 			UnlockedTechIds = new List<string>(count);
 			for (int i = 0; i < count; i++)
@@ -54,6 +59,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.IsHost) return;
 
 			// Set flag to prevent ResearchPatch from sending packets while we apply state
@@ -70,9 +77,11 @@ namespace ONI_MP.Networking.Packets.World
 
 		private void ProcessResearchState(List<string> unlockedIds, List<string> queuedIds, string activeTechId)
 		{
-				if (Research.Instance == null) return;
+			using var _ = Profiler.Scope();
 
-				try
+			if (Research.Instance == null) return;
+
+			try
 			{
 				// Get the ResearchScreen for visual updates (use Traverse since field is not public)
 				object researchScreen = null;
@@ -82,7 +91,7 @@ namespace ONI_MP.Networking.Packets.World
 						.Field("researchScreen")
 						.GetValue();
 				}
-				
+
 				// First, explicitly clear the visual state for all queued research
 				try
 				{
@@ -100,7 +109,7 @@ namespace ONI_MP.Networking.Packets.World
 								if (techInstance?.tech != null)
 								{
 									techNames.Add(techInstance.tech.Id);
-									
+
 									// Deselect visually using ResearchScreen
 									if (researchScreen != null)
 									{
@@ -115,7 +124,7 @@ namespace ONI_MP.Networking.Packets.World
 								}
 							}
 							DebugConsole.Log($"[ResearchLog] Clearing queue of {localQueue.Count} items: {string.Join(", ", techNames)}");
-							
+
 							// Clear the queue
 							localQueue.Clear();
 						}
@@ -125,7 +134,7 @@ namespace ONI_MP.Networking.Packets.World
 				{
 					DebugConsole.LogWarning($"[ResearchLog] Failed to clear queue: {ex.Message}");
 				}
-				
+
 				// Now set the host's active research
 				if (!string.IsNullOrEmpty(activeTechId))
 				{
@@ -134,7 +143,7 @@ namespace ONI_MP.Networking.Packets.World
 					{
 						DebugConsole.Log($"[ResearchLog] Setting active research to: {tech.Name}");
 						Research.Instance.SetActiveResearch(tech, true);
-						
+
 						// Select visually using ResearchScreen
 						if (researchScreen != null)
 						{
@@ -160,14 +169,14 @@ namespace ONI_MP.Networking.Packets.World
 					if (techInst != null && !techInst.IsComplete())
 					{
 						techInst.Purchased();
-						
+
 						// Trigger the game event to notify all listeners (PlanScreen, etc.)
 						try
 						{
 							Game.Instance?.Trigger((int)GameHashes.ResearchComplete, tech);
 						}
 						catch { }
-						
+
 						unlockedCount++;
 					}
 				}

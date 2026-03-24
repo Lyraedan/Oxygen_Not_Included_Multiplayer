@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World
 {
@@ -20,6 +21,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter w)
 		{
+			using var _ = Profiler.Scope();
+
 			using (var ms = new MemoryStream())
 			{
 				using (var deflate = new DeflateStream(ms, CompressionLevel.Fastest, true))
@@ -45,6 +48,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Deserialize(BinaryReader r)
 		{
+			using var _ = Profiler.Scope();
+
 			int compressedLength = r.ReadInt32();
 			byte[] compressedData = r.ReadBytes(compressedLength);
 
@@ -71,6 +76,8 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.IsHost) return;
 
 			// Minimum simulation temperature - cells with mass must have temperature above this

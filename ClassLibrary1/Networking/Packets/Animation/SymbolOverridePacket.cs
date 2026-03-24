@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Animation
 {
@@ -33,6 +34,8 @@ namespace ONI_MP.Networking.Packets.Animation
         public SymbolOverridePacket() { }
 		public SymbolOverridePacket(SymbolOverrideController soc, Mode mode, HashedString? target_symbol = null, KAnim.Build.Symbol source_symbol = null, int priority = 0)
 		{
+			using var _ = Profiler.Scope();
+
 			NetId = soc.GetNetId();
 			PacketMode = mode;
 			if (target_symbol != null)
@@ -49,6 +52,8 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(NetId);
 			writer.Write((int)PacketMode);
 			if (PacketMode == Mode.AddSymbolOverride || PacketMode == Mode.RemoveSymbolOverride)
@@ -62,6 +67,8 @@ namespace ONI_MP.Networking.Packets.Animation
 		}
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			NetId = reader.ReadInt32();
 			PacketMode = (Mode)reader.ReadInt32();
 			if (PacketMode == Mode.AddSymbolOverride || PacketMode == Mode.RemoveSymbolOverride)
@@ -77,6 +84,8 @@ namespace ONI_MP.Networking.Packets.Animation
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.IsHost)
 				return;
 			if (!NetworkIdentityRegistry.TryGetComponent<SymbolOverrideController>(NetId, out var soc))
@@ -102,7 +111,7 @@ namespace ONI_MP.Networking.Packets.Animation
 					return;
 				}
 			}
-			
+
 			switch (PacketMode)
 			{
 				case Mode.AddSymbolOverride:

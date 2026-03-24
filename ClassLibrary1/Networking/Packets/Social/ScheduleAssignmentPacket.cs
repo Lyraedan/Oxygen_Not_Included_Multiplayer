@@ -2,6 +2,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Social
 {
@@ -12,18 +13,24 @@ namespace ONI_MP.Networking.Packets.Social
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(NetId);
 			writer.Write(ScheduleIndex);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			NetId = reader.ReadInt32();
 			ScheduleIndex = reader.ReadInt32();
 		}
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (IsApplying)
 				return;
 
@@ -32,6 +39,8 @@ namespace ONI_MP.Networking.Packets.Social
 
 		private void Apply()
 		{
+			using var _ = Profiler.Scope();
+
 			if (!NetworkIdentityRegistry.TryGet(NetId, out var identity) || identity == null)
 			{
 				DebugConsole.LogWarning($"[ScheduleAssignmentPacket] NetId {NetId} not found or identity is null.");

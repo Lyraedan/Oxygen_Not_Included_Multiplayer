@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace Shared
@@ -27,6 +28,8 @@ namespace Shared
 		System.Action OnTimerEnd = null;
 		public void Update()
 		{
+			using var _ = Profiler.Scope();
+
 			if (targetTime == System.DateTime.MinValue)
 			{
 				return;
@@ -41,20 +44,28 @@ namespace Shared
 
 		public void StartDelayedAction(int seconds, System.Action action)
 		{
+			using var _ = Profiler.Scope();
+
 			SetAction(action);
 			SetTimer(seconds);
 		}
 		public void SetTimer(int seconds)
 		{
+			using var _ = Profiler.Scope();
+
 			targetTime = System.DateTime.Now.AddSeconds(seconds);
 		}
 		public void SetAction(System.Action action)
 		{
+			using var _ = Profiler.Scope();
+
 			OnTimerEnd = action;
 		}
 
 		public void Abort()
 		{
+			using var _ = Profiler.Scope();
+
 			targetTime = System.DateTime.MinValue;
 		}
 	}

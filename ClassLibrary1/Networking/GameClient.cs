@@ -1,11 +1,11 @@
-﻿using ONI_MP.DebugTools;
+using ONI_MP.DebugTools;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Packets.Handshake;
 using ONI_MP.Networking.Packets.World;
-using ONI_MP.Networking.Profiling;
+using Shared.Profiling;
 using ONI_MP.Networking.States;
 using ONI_MP.Networking.Transport.Steamworks;
 using ONI_MP.Patches.ToolPatches;
@@ -59,6 +59,8 @@ namespace ONI_MP.Networking
 		/// </summary>
 		public static bool HasCachedConnection()
 		{
+			using var _ = Profiler.Scope();
+
 			return _cachedConnectionInfo.HasValue;
 		}
 
@@ -67,20 +69,26 @@ namespace ONI_MP.Networking
 		/// </summary>
 		public static void ClearCachedConnection()
 		{
+			using var _ = Profiler.Scope();
+
 			_cachedConnectionInfo = null;
 		}
 
 		public static void SetState(ClientState newState)
 		{
+			using var _ = Profiler.Scope();
+
 			if (_state != newState)
 			{
 				_state = newState;
-				DebugConsole.Log($"[GameClient] State changed to: {_state}");					
+				DebugConsole.Log($"[GameClient] State changed to: {_state}");
 			}
 		}
 
 		public static void Init()
 		{
+			using var _ = Profiler.Scope();
+
 			// I fucking hate this, maybe replace this with hashes?
 			NetworkConfig.TransportClient.OnClientDisconnected = () => SetState(ClientState.Disconnected);
 			NetworkConfig.TransportClient.OnClientConnected = () => SetState(ClientState.Connected);
@@ -96,6 +104,8 @@ namespace ONI_MP.Networking
 
 		public static void ConnectToHost(bool showLoadingScreen = true, string ip = "", int port = 7777)
 		{
+			using var _ = Profiler.Scope();
+
             Init();
 
             // Reset mod verification for new connection attempts
@@ -121,16 +131,22 @@ namespace ONI_MP.Networking
 
 		public static void Disconnect()
 		{
+			using var _ = Profiler.Scope();
+
 			NetworkConfig.TransportClient.Disconnect();
 		}
 
 		public static void ReconnectToSession()
 		{
+			using var _ = Profiler.Scope();
+
 			NetworkConfig.TransportClient.ReconnectToSession();
 		}
 
 		public static void Poll()
 		{
+			using var _ = Profiler.Scope();
+
 			if (_pollingPaused)
 				return;
 
@@ -152,6 +168,8 @@ namespace ONI_MP.Networking
 
 		public static void OnHostResponseReceived(GameStateRequestPacket packet)
 		{
+			using var _ = Profiler.Scope();
+
 			DebugConsole.Log("Gamestate packet received");
 			MP_Timer.Instance.Abort();
 			if (!SaveHelper.SavegameDlcListValid(packet.ActiveDlcIds, out var errorMsg))
@@ -187,6 +205,8 @@ namespace ONI_MP.Networking
 		}
 		static void BackToMainMenu()
 		{
+			using var _ = Profiler.Scope();
+
 			MultiplayerOverlay.Close();
 			NetworkIdentityRegistry.Clear();
 			SteamLobby.LeaveLobby();
@@ -195,6 +215,8 @@ namespace ONI_MP.Networking
 
         private static void ContinueConnectionFlow()
 		{
+			using var _ = Profiler.Scope();
+
 			// CRITICAL: Only execute on client, never on server
 			if (MultiplayerSession.IsHost)
 			{
@@ -287,6 +309,8 @@ namespace ONI_MP.Networking
 
 		public static void CacheCurrentServer()
 		{
+			using var _ = Profiler.Scope();
+
 			if(NetworkConfig.IsSteamConfig())
 			{
                 if (MultiplayerSession.HostUserID != Utils.NilUlong())
@@ -295,7 +319,7 @@ namespace ONI_MP.Networking
                             MultiplayerSession.HostUserID
                     );
                 }
-            } 
+            }
 			else if(NetworkConfig.IsLanConfig())
 			{
 				_cachedConnectionInfo = new CachedConnectionInfo(
@@ -307,6 +331,8 @@ namespace ONI_MP.Networking
 
 		public static void ReconnectFromCache()
 		{
+			using var _ = Profiler.Scope();
+
 			if (_cachedConnectionInfo.HasValue)
 			{
 				if(NetworkConfig.IsSteamConfig())
@@ -316,7 +342,7 @@ namespace ONI_MP.Networking
                     _cachedConnectionInfo = null; // Clear cache to prevent re-triggering
                     MultiplayerSession.HostUserID = hostId;
                     ConnectToHost(false);
-                } 
+                }
 				else if(NetworkConfig.IsLanConfig())
 				{
                     DebugConsole.Log($"[GameClient] Reconnecting to cached server: {_cachedConnectionInfo.Value.ServerPort}:{_cachedConnectionInfo.Value.ServerPort}");
@@ -329,3 +355,4 @@ namespace ONI_MP.Networking
 		}
 	}
 }
+

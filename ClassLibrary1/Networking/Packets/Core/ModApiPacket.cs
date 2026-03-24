@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Core
 {
@@ -22,27 +23,37 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public ModApiPacket()
 		{
+			using var _ = Profiler.Scope();
+
 			WrappedInstance = Activator.CreateInstance<T>();
 			Traverse = Traverse.Create(WrappedInstance);
 		}
 		public void SetWrappedInstance(object instance)
 		{
+			using var _ = Profiler.Scope();
+
 			WrappedInstance = (T)instance;
 			Traverse = Traverse.Create(WrappedInstance);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			Traverse.Method("Deserialize", reader).GetValue();
 		}
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			Traverse.Method("OnDispatched").GetValue();
 		}
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			Traverse.Method("Serialize", writer).GetValue();
 		}
 	}

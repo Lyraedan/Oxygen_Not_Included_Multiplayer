@@ -1,6 +1,7 @@
 ﻿using Riptide;
 using Riptide.Utils;
 using ONI_MP_DedicatedServer.ONI;
+using Shared.Profiling;
 
 namespace ONI_MP_DedicatedServer.Transports
 {
@@ -12,11 +13,15 @@ namespace ONI_MP_DedicatedServer.Transports
 
         public DedicatedRiptideServer()
         {
+            using var _ = Profiler.Scope();
+
             RiptideLogger.Initialize(Console.WriteLine, false);
         }
 
         public override void Start()
         {
+            using var _ = Profiler.Scope();
+
             if (IsRunning())
                 return;
 
@@ -34,6 +39,8 @@ namespace ONI_MP_DedicatedServer.Transports
 
         private void OnClientConnected(object? sender, ServerConnectedEventArgs e)
         {
+            using var _ = Profiler.Scope();
+
             ulong clientId = e.Client.Id;
             if(!ConnectedPlayers.ContainsKey(clientId))
             {
@@ -45,6 +52,8 @@ namespace ONI_MP_DedicatedServer.Transports
 
         private void OnClientDisconnected(object? sender, ServerDisconnectedEventArgs e)
         {
+            using var _ = Profiler.Scope();
+
             ulong clientId = e.Client.Id;
             bool wasMaster = false;
             if(ConnectedPlayers.TryGetValue(clientId, out ONI.Player? player))
@@ -79,6 +88,8 @@ namespace ONI_MP_DedicatedServer.Transports
 
         private void OnServerMessageReceived(object sender, MessageReceivedEventArgs e)
         {
+            using var _ = Profiler.Scope();
+
             ulong clientId = e.FromConnection.Id;
             byte[] rawData = e.Message.GetBytes();
             int size = rawData.Length;
@@ -137,6 +148,8 @@ namespace ONI_MP_DedicatedServer.Transports
 
         public override void Stop()
         {
+            using var _ = Profiler.Scope();
+
             if (!IsRunning())
                 return;
 
@@ -146,6 +159,8 @@ namespace ONI_MP_DedicatedServer.Transports
 
         public override bool IsRunning()
         {
+            using var _ = Profiler.Scope();
+
             if (_server == null)
                 return false;
 
@@ -154,11 +169,15 @@ namespace ONI_MP_DedicatedServer.Transports
 
         public override void Update()
         {
+            using var _ = Profiler.Scope();
+
             _server?.Update();
         }
 
         public override Dictionary<ulong, ONI.Player> GetPlayers()
         {
+            using var _ = Profiler.Scope();
+
             return ConnectedPlayers;
         }
     }

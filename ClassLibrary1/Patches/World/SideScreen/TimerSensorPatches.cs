@@ -2,6 +2,7 @@ using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World.SideScreen
@@ -18,6 +19,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(CritterSensorSideScreen __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (__instance.targetSensor == null) return;
 
@@ -43,6 +46,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(CritterSensorSideScreen __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (__instance.targetSensor == null) return;
 
@@ -71,6 +76,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(LogicTimerSensor __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 
@@ -116,6 +123,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(TimerSideScreen __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 			if (__instance.targetTimedSwitch == null) return;
@@ -162,6 +171,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(LogicTimeOfDaySensor __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 
@@ -206,6 +217,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(TimeRangeSideScreen __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 			if (__instance.targetTimedSwitch == null) return;
@@ -251,8 +264,10 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(TimeRangeSideScreen __instance, GameObject target)
 		{
+			using var _ = Profiler.Scope();
+
 			if (__instance.targetTimedSwitch == null) return;
-			
+
 			// Force update sliders from current component values
 			__instance.startTime.value = __instance.targetTimedSwitch.startTime;
 			__instance.duration.value = __instance.targetTimedSwitch.duration;

@@ -1,5 +1,6 @@
 ﻿using System;
 using ONI_MP.DebugTools;
+using Shared.Profiling;
 using TMPro;
 using UnityEngine;
 
@@ -14,7 +15,7 @@ namespace ONI_MP.Networking.Components
 		private Vector3 previousPosition;
 		private float timer;
 		public static float SendIntervalMoving = 0.05f; // 50ms
-        public static float SendIntervalStationary = 2.0f; // 2 seconds 
+        public static float SendIntervalStationary = 2.0f; // 2 seconds
 
 		private Vector3 velocity;
 
@@ -60,6 +61,8 @@ namespace ONI_MP.Networking.Components
 
         public override void OnSpawn()
 		{
+			using var _ = Profiler.Scope();
+
 			base.OnSpawn();
 
 			lastSentPosition = transform.position;
@@ -70,6 +73,8 @@ namespace ONI_MP.Networking.Components
 
 		private void Update()
 		{
+			using var _ = Profiler.Scope();
+
 			if (this.GetNetId() == 0)
 				return;
 
@@ -92,6 +97,8 @@ namespace ONI_MP.Networking.Components
         // Ported this from my own Godot game, its not perfect. But it feels better
         private void UpdatePosition()
         {
+	        using var _ = Profiler.Scope();
+
             if (serverTimestamp == 0)
                 return;
 
@@ -129,6 +136,8 @@ namespace ONI_MP.Networking.Components
 
         private void SendPositionPacket()
 		{
+			using var _ = Profiler.Scope();
+
 			try
 			{
 				timer += Time.unscaledDeltaTime;

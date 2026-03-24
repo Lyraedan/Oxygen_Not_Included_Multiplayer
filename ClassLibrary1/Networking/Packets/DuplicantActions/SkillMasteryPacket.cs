@@ -1,6 +1,7 @@
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System.IO;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.DuplicantActions
@@ -12,18 +13,24 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(NetId);
 			writer.Write(SkillId ?? string.Empty);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			NetId = reader.ReadInt32();
 			SkillId = reader.ReadString();
 		}
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.IsHost)
 			{
 				Apply();
@@ -37,6 +44,8 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 		private void Apply()
 		{
+			using var _ = Profiler.Scope();
+
 			if (!NetworkIdentityRegistry.TryGet(NetId, out var identity) || identity == null)
 			{
 				DebugConsole.LogWarning($"[SkillMasteryPacket] NetId {NetId} not found.");
@@ -78,7 +87,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 				// resume.MasterSkill(SkillId); // This deducts points and triggers effects.
 
 				// If points are desynced, this might fail or create negative points.
-				// Ideally we sync experience/points too. 
+				// Ideally we sync experience/points too.
 				// But for now, let's call the game method.
 
 				resume.MasterSkill(SkillId); // This deducts points and triggers effects.

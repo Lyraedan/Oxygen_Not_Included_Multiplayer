@@ -1,6 +1,7 @@
 using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.World;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -13,9 +14,11 @@ namespace ONI_MP.Patches.World
 	{
 		public static void Postfix(TechInstance __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (!MultiplayerSession.IsHost) return;
 			if (__instance?.tech == null) return;
-			
+
 			// Prevent sending completion if we're applying state from a received packet
 			if (ResearchStatePacket.IsApplying) return;
 

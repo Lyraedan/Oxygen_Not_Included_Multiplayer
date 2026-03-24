@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace ONI_MP_DedicatedServer.ONI
 {
@@ -13,12 +14,16 @@ namespace ONI_MP_DedicatedServer.ONI
 
         public SaveFile(string name, byte[] data)
         {
+            using var _ = Profiler.Scope();
+
             Name = name;
             Data = data;
         }
 
         public static SaveFile FromFile(string filePath)
         {
+            using var _ = Profiler.Scope();
+
             if (!File.Exists(filePath))
                 throw new FileNotFoundException($"Save file not found: {filePath}");
 

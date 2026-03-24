@@ -2,6 +2,7 @@ using HarmonyLib;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -24,6 +25,8 @@ namespace ONI_MP.Patches.World
 		// Helper method for sending button press changes
 		public static void SyncButtonPress(UnityEngine.Component component, string configId, float value)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 			if (component == null) return;

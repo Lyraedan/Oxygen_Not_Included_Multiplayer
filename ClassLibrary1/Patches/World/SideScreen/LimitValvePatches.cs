@@ -3,6 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.World.SideScreen
@@ -16,6 +17,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(LimitValve __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 
@@ -41,6 +44,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(LimitValveSideScreen __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 			if (__instance.targetLimitValve == null) return;
@@ -69,6 +74,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(LimitValveSideScreen __instance, float input)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 			if (__instance.targetLimitValve == null) return;
@@ -97,27 +104,29 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(LimitValveSideScreen __instance, GameObject target)
 		{
+			using var _ = Profiler.Scope();
+
 			if (__instance.targetLimitValve == null) return;
-			
+
 			float currentLimit = __instance.targetLimitValve.Limit;
 			__instance.limitSlider.value = __instance.limitSlider.GetPercentageFromValue(currentLimit);
 			__instance.targetLimit = currentLimit;
-			
+
 			if (__instance.targetLimitValve.displayUnitsInsteadOfMass)
 			{
 				__instance.numberInput.SetDisplayValue(GameUtil.GetFormattedUnits(
-					Mathf.Max(0f, currentLimit), 
-					GameUtil.TimeSlice.None, 
-					displaySuffix: false, 
+					Mathf.Max(0f, currentLimit),
+					GameUtil.TimeSlice.None,
+					displaySuffix: false,
 					LimitValveSideScreen.FLOAT_FORMAT));
 			}
 			else
 			{
 				__instance.numberInput.SetDisplayValue(GameUtil.GetFormattedMass(
-					Mathf.Max(0f, currentLimit), 
-					GameUtil.TimeSlice.None, 
-					GameUtil.MetricMassFormat.Kilogram, 
-					includeSuffix: false, 
+					Mathf.Max(0f, currentLimit),
+					GameUtil.TimeSlice.None,
+					GameUtil.MetricMassFormat.Kilogram,
+					includeSuffix: false,
 					LimitValveSideScreen.FLOAT_FORMAT));
 			}
 		}

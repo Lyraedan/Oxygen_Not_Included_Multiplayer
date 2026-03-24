@@ -1,5 +1,6 @@
 using UnityEngine;
 using ONI_MP.DebugTools;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World.Handlers
 {
@@ -18,6 +19,8 @@ namespace ONI_MP.Networking.Packets.World.Handlers
 
 		public bool TryApplyConfig(GameObject go, BuildingConfigPacket packet)
 		{
+			using var _ = Profiler.Scope();
+
 			int hash = packet.ConfigHash;
 
 			// Handle single slider control

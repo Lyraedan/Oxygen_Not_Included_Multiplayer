@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.Core
 {
@@ -18,6 +19,8 @@ namespace ONI_MP.Networking.Packets.Core
 		public HostBroadcastPacket() { }
 		public HostBroadcastPacket(IPacket innerPacket, ulong sender)
 		{
+			using var _ = Profiler.Scope();
+
 			InnerPacketId = API_Helper.GetHashCode(innerPacket.GetType());
 			using var ms = new MemoryStream();
 			using var writer = new BinaryWriter(ms);
@@ -33,6 +36,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(InnerPacketId);
 			writer.Write(SenderId);
 			writer.Write(InnerPacketData.Length);
@@ -40,6 +45,8 @@ namespace ONI_MP.Networking.Packets.Core
 		}
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			InnerPacketId = reader.ReadInt32();
 			SenderId = reader.ReadUInt64();
 			int dataLength = reader.ReadInt32();
@@ -48,6 +55,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (!PacketRegistry.HasRegisteredPacket(InnerPacketId))
 			{
 				DebugConsole.LogWarning("[HostBroadcastPacket] unknown inner packet id found, cannot rebroadcast: "+InnerPacketId);

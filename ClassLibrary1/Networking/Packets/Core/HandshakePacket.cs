@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
+using Shared.Profiling;
 
 namespace ONI_MP.Tests
 {
@@ -20,11 +21,15 @@ namespace ONI_MP.Tests
 
         public void Serialize(BinaryWriter writer)
         {
+            using var _ = Profiler.Scope();
+
             writer.Write(ClientID);
         }
 
         public void Deserialize(BinaryReader reader)
         {
+            using var _ = Profiler.Scope();
+
             ClientID = reader.ReadUInt64();
         }
 

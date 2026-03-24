@@ -3,17 +3,20 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.World;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World.SideScreen
 {
     /// <summary>
     /// Patches for SingleEntityReceptacle synchronization (planters, incubators selecting items)
-    /// </summary> 
+    /// </summary>
     [HarmonyPatch(typeof(SingleEntityReceptacle), nameof(SingleEntityReceptacle.OnSpawn))]
     public static class SingleEntityReceptacle_OnSpawn_Patch
     {
         public static void Postfix(SingleEntityReceptacle __instance)
         {
+	        using var _ = Profiler.Scope();
+
             var receptacleIdentity = __instance.gameObject.AddOrGet<NetworkIdentity>();
             receptacleIdentity.RegisterIdentity();
         }
@@ -24,6 +27,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(SingleEntityReceptacle __instance, Tag entityTag, Tag additionalFilterTag)
 		{
+			using var _ = Profiler.Scope();
+
             if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 			if (__instance.IsNullOrDestroyed()) return;
@@ -70,6 +75,8 @@ namespace ONI_MP.Patches.World.SideScreen
 	{
 		public static void Postfix(SingleEntityReceptacle __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (BuildingConfigPacket.IsApplyingPacket) return;
 			if (!MultiplayerSession.InSession) return;
 			if (__instance.IsNullOrDestroyed()) return;

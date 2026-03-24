@@ -3,6 +3,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Core;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.Navigation
@@ -12,6 +13,8 @@ namespace ONI_MP.Patches.Navigation
 	{
 		static bool Prefix(Navigator __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (!__instance.path.IsValid() || __instance.path.nodes == null || __instance.path.nodes.Count == 0)
 				return true;
 
@@ -43,6 +46,8 @@ namespace ONI_MP.Patches.Navigation
 
 		private static void SendNavigationPacket(Navigator __instance, NetworkIdentity identity)
 		{
+			using var _ = Profiler.Scope();
+
 			var packet = new NavigatorPathPacket
 			{
 				NetId = identity.NetId
@@ -63,6 +68,8 @@ namespace ONI_MP.Patches.Navigation
 
 		private static void DebugNavigationPath(Navigator __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			string log = $"[Navigator AdvancePath] Sent path for {__instance.name} with {__instance.path.nodes.Count} steps.";
 			for (int i = 0; i < __instance.path.nodes.Count; i++)
 			{
@@ -82,6 +89,8 @@ namespace ONI_MP.Patches.Navigation
 	{
 		static bool Prefix(Navigator __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (!MultiplayerSession.InSession)
 			{
 				return true; // Not in a multiplayer session, allow

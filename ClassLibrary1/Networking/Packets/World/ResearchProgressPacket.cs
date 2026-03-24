@@ -2,6 +2,7 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.World
@@ -18,18 +19,24 @@ namespace ONI_MP.Networking.Packets.World
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(TechId ?? string.Empty);
 			writer.Write(Progress);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			TechId = reader.ReadString();
 			Progress = reader.ReadSingle();
 		}
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.IsHost) return;
 			if (Research.Instance == null) return;
 			if (string.IsNullOrEmpty(TechId)) return;
@@ -44,18 +51,18 @@ namespace ONI_MP.Networking.Packets.World
 			try
 			{
 				var pointsDict = techInstance.progressInventory.PointsByTypeID;
-				
+
 				if (pointsDict != null)
 				{
 					foreach (var researchType in tech.costsByResearchTypeID.Keys)
 					{
 						float cost = tech.costsByResearchTypeID[researchType];
 						float newPoints = cost * Progress;
-						
+
 						pointsDict[researchType] = Mathf.RoundToInt(newPoints);
 					}
 				}
-				
+
 				// Refresh the research screen if open
 				try
 				{
@@ -64,7 +71,7 @@ namespace ONI_MP.Networking.Packets.World
 					{
 						researchScreen = ManagementMenu.Instance.researchScreen;
 					}
-					
+
 					if (researchScreen != null)
 					{
 						HarmonyLib.Traverse.Create(researchScreen)

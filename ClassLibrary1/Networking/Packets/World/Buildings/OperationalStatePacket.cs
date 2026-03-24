@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Packets.World.Buildings
 {
@@ -15,6 +16,8 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 		public OperationalStatePacket() { }
 		public OperationalStatePacket(Operational o)
 		{
+			using var _ = Profiler.Scope();
+
 			NetId = o.GetNetId();
 			IsOperational = o.IsOperational;
 			IsFunctional = o.IsFunctional;
@@ -25,6 +28,8 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 		public bool IsActive, IsOperational, IsFunctional;
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			NetId = reader.ReadInt32();
 			IsOperational = reader.ReadBoolean();
 			IsFunctional = reader.ReadBoolean();
@@ -33,6 +38,8 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(NetId);
 			writer.Write(IsOperational);
 			writer.Write(IsFunctional);
@@ -41,6 +48,8 @@ namespace ONI_MP.Networking.Packets.World.Buildings
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.IsHost)
 				return;
 

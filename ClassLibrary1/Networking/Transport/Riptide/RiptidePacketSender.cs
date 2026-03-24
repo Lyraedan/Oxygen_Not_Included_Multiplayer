@@ -2,6 +2,7 @@
 using Riptide;
 using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
+using Shared.Profiling;
 
 namespace ONI_MP.Networking.Transport.Lan
 {
@@ -9,6 +10,8 @@ namespace ONI_MP.Networking.Transport.Lan
     {
         public override bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
         {
+            using var _ = Profiler.Scope();
+
             if (conn is not Connection connection)
                 return false;
 
@@ -48,6 +51,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         private static MessageSendMode ConvertSendType(SteamNetworkingSend sendType)
         {
+            using var _ = Profiler.Scope();
+
             switch (sendType)
             {
                 case SteamNetworkingSend.Reliable:

@@ -6,6 +6,7 @@ using ONI_MP.Networking.Packets.Social;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Patches.GamePatches
@@ -16,7 +17,7 @@ namespace ONI_MP.Patches.GamePatches
 	public static class ImmigrantScreenPatch
 	{
 		public static List<ImmigrantOptionEntry> AvailableOptions;
-		
+
 		// Flag to prevent re-syncing once options are locked for this cycle
 		public static bool OptionsLocked = false;
 
@@ -26,10 +27,12 @@ namespace ONI_MP.Patches.GamePatches
 		// Clear the lock when the screen closes or duplicant is printed
 		public static void ClearOptionsLock()
 		{
+			using var _ = Profiler.Scope();
+
 			OptionsLocked = false;
 			ContainersCreatedByPatch = false;
 			AvailableOptions = null;
-			
+
 			// Also clear selectedDeliverables to prevent "add beyond limit" errors on reopen
 			try
 			{
@@ -39,11 +42,13 @@ namespace ONI_MP.Patches.GamePatches
 				}
 			}
 			catch { }
-			
+
 			DebugConsole.Log("[ImmigrantScreen] Options lock cleared");
 		}
 		static IEnumerator SetMinionDelayed(CharacterContainer container, MinionStartingStats stats)
 		{
+			using var _ = Profiler.Scope();
+
 			// Wait for end of frame to ensure proper initialization
 			yield return SequenceUtil.WaitForNextFrame;
 			container.SetMinion(stats);
@@ -51,6 +56,8 @@ namespace ONI_MP.Patches.GamePatches
 		}
 		static IEnumerator SetCarePackageInfoDelayed(CarePackageContainer carePackageContainer, CarePackageInfo pkg)
 		{
+			using var _ = Profiler.Scope();
+
 			// Wait for end of frame to ensure proper initialization
 			yield return SequenceUtil.WaitForNextFrame;
 			carePackageContainer.info = pkg;
@@ -78,6 +85,8 @@ namespace ONI_MP.Patches.GamePatches
 
 		public static void ApplyOptionsToScreen(ImmigrantScreen instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (AvailableOptions == null || AvailableOptions.Count == 0 || instance == null)
 			{
 				DebugConsole.LogWarning($"[ImmigrantScreen] ApplyOptionsToScreen: Cannot apply - Options:{AvailableOptions?.Count ?? 0}, Screen:{(instance != null ? "valid" : "null")}");
@@ -86,7 +95,7 @@ namespace ONI_MP.Patches.GamePatches
 
 			bool canRerollCarePackages = false, canRerollMinions = false;
 			foreach (var cont in instance.containers)
-			{ 
+			{
 				if(cont is CharacterContainer cc)
 					if(cc.reshuffleButton.gameObject.activeSelf)
 						canRerollMinions = true;
@@ -136,6 +145,8 @@ namespace ONI_MP.Patches.GamePatches
 	{
 		public static void Postfix(ImmigrantScreen __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (!MultiplayerSession.InSession) return;
 
 			DebugConsole.Log("[ImmigrantScreen] Initialize postfix triggered");
@@ -156,9 +167,11 @@ namespace ONI_MP.Patches.GamePatches
 
 		private static System.Collections.IEnumerator DelayedCaptureAndBroadcast(ImmigrantScreen screen)
 		{
+			using var _ = Profiler.Scope();
+
 			// Wait for end of frame (let containers populate their data)
 			yield return null;
-			
+
 			// Check again if locked (in case another player's packet arrived)
 			if (ImmigrantScreenPatch.OptionsLocked)
 			{
@@ -175,11 +188,13 @@ namespace ONI_MP.Patches.GamePatches
 
 		private static void CaptureAndBroadcastOptions(ImmigrantScreen __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			string role = MultiplayerSession.IsHost ? "Host" : "Client";
 			DebugConsole.Log($"[ImmigrantScreen] {role}: Capturing options from containers...");
 
 			// Get containers from ImmigrantScreen (inherited from CharacterSelectionController)
-			
+
 			DebugConsole.Log($"[ImmigrantScreen] Found {__instance.containers.Count} containers");
 
 			var packet = new ImmigrantOptionsPacket();
@@ -206,9 +221,9 @@ namespace ONI_MP.Patches.GamePatches
 				// Lock options for this cycle
 				ImmigrantScreenPatch.AvailableOptions = packet.Options;
 				ImmigrantScreenPatch.OptionsLocked = true;
-				
+
 				DebugConsole.Log($"[ImmigrantScreen] {role}: Broadcasting {packet.Options.Count} options (first-opener-wins)");
-				
+
 				if (MultiplayerSession.IsHost)
 				{
 					// Host sends to all clients
@@ -232,6 +247,8 @@ namespace ONI_MP.Patches.GamePatches
 	{
 		public static bool Prefix(ImmigrantScreen __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (!MultiplayerSession.InSession) return true;
 
 			if (MultiplayerSession.IsHost)
@@ -257,17 +274,19 @@ namespace ONI_MP.Patches.GamePatches
 
 		public static void Postfix()
 		{
+			using var _ = Profiler.Scope();
+
 			// Host: Clear the lock after printing and notify clients
 			if (MultiplayerSession.IsHost)
 			{
 				DebugConsole.Log("[ImmigrantScreen] Host: Selection made via screen, notifying clients to close");
-				
+
 				// Send -2 to close client screens
 				// NOTE: For host's own selections via OnProceed, the game spawns the entity normally
 				// Entity sync will be handled separately (e.g. via EntitySpawnPacket from a different hook)
 				var packet = new ImmigrantSelectionPacket { PrintingPodWorldIndex = -2 };
 				PacketSender.SendToAllClients(packet);
-				
+
 				ImmigrantScreenPatch.ClearOptionsLock();
 			}
 		}
@@ -279,43 +298,47 @@ namespace ONI_MP.Patches.GamePatches
 	{
 		public static bool Prefix(ImmigrantScreen __instance)
 		{
+			using var _ = Profiler.Scope();
+
 			if (!MultiplayerSession.InSession) return true;
-			
+
 			DebugConsole.Log("[ImmigrantScreen] Reject All clicked");
-			
+
 			if (MultiplayerSession.IsClient)
 			{
 				// Client: Send reject to host
 				DebugConsole.Log("[ImmigrantScreen] Client: Sending Reject All to host");
 				var packet = new ImmigrantSelectionPacket { PrintingPodWorldIndex = -1 };
 				PacketSender.SendToHost(packet);
-				
+
 				// Clear local options and close screen
 				ImmigrantScreenPatch.ClearOptionsLock();
 				if (ImmigrantScreen.instance != null)
 				{
 					ImmigrantScreen.instance.Deactivate();
 				}
-				
+
 				return false; // Don't execute original
 			}
-			
+
 			// Host: Let original execute, Postfix will notify clients
 			return true;
 		}
-		
+
 		public static void Postfix()
 		{
+			using var _ = Profiler.Scope();
+
 			if (!MultiplayerSession.InSession) return;
-			
+
 			if (MultiplayerSession.IsHost)
 			{
 				DebugConsole.Log("[ImmigrantScreen] Host: Reject All, notifying clients");
-				
+
 				// Notify clients to close their screens
 				var packet = new ImmigrantSelectionPacket { PrintingPodWorldIndex = -1 };
 				PacketSender.SendToAllClients(packet);
-				
+
 				ImmigrantScreenPatch.ClearOptionsLock();
 			}
 		}

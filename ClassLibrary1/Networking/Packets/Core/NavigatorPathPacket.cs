@@ -4,6 +4,7 @@ using ONI_MP.Patches.Navigation;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using Shared.Profiling;
 using UnityEngine;
 using CompressionLevel = System.IO.Compression.CompressionLevel;
 
@@ -21,6 +22,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 			public void Serialize(BinaryWriter writer)
 			{
+				using var _ = Profiler.Scope();
+
 				writer.Write(Cell);
 				writer.Write((byte)NavType);
 				writer.Write(TransitionId);
@@ -28,6 +31,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 			public static PathStep Deserialize(BinaryReader reader)
 			{
+				using var _ = Profiler.Scope();
+
 				return new PathStep
 				{
 					Cell = reader.ReadInt32(),
@@ -41,6 +46,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			using (var memStream = new MemoryStream())
 			{
 				using (var tempWriter = new BinaryWriter(memStream, System.Text.Encoding.Default, leaveOpen: true))
@@ -69,6 +76,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			int compressedLength = reader.ReadInt32();
 			byte[] compressedBytes = reader.ReadBytes(compressedLength);
 
@@ -93,6 +102,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (MultiplayerSession.IsHost)
 				return;
 
@@ -155,6 +166,8 @@ namespace ONI_MP.Networking.Packets.Core
 
 		private bool PassesPreliminaryChecks(out Component entity, out Navigator navigator)
 		{
+			using var _ = Profiler.Scope();
+
 			entity = null;
 			navigator = null;
 

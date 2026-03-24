@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Profiling;
 
 namespace ONI_MP.Patches.World
 {
@@ -16,6 +17,8 @@ namespace ONI_MP.Patches.World
 		{
             public static void Postfix(Operational __instance)
             {
+	            using var _ = Profiler.Scope();
+
                 __instance.gameObject.AddOrGet<ClientReceiver_Operational>();
             }
         }

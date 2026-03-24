@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using HarmonyLib;
 using ONI_MP.Networking.Packets.Architecture;
+using Shared.Profiling;
 using Steamworks;
 using UnityEngine;
 
@@ -19,12 +20,16 @@ public class CaptureToolPacket : IPacket
 
     public CaptureToolPacket(Vector2 min, Vector2 max)
     {
+        using var _ = Profiler.Scope();
+
         Min = min;
         Max = max;
     }
 
     public void Serialize(BinaryWriter writer)
     {
+        using var _ = Profiler.Scope();
+
         writer.Write(SenderId);
         writer.Write(Min);
         writer.Write(Max);
@@ -34,6 +39,8 @@ public class CaptureToolPacket : IPacket
 
     public void Deserialize(BinaryReader reader)
     {
+        using var _ = Profiler.Scope();
+
         SenderId = reader.ReadUInt64();
         Min      = reader.ReadVector2();
         Max      = reader.ReadVector2();
@@ -42,6 +49,8 @@ public class CaptureToolPacket : IPacket
 
     public void OnDispatched()
     {
+        using var _ = Profiler.Scope();
+
         Traverse        lastSelectedPriority = Traverse.Create(ToolMenu.Instance.PriorityScreen).Field("lastSelectedPriority");
         PrioritySetting prioritySetting      = lastSelectedPriority.GetValue<PrioritySetting>();
 

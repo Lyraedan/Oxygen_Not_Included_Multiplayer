@@ -3,6 +3,7 @@ using ONI_MP.Networking.Packets.Architecture;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Shared.Profiling;
 using UnityEngine;
 
 namespace ONI_MP.Networking.Packets.Tools.Build
@@ -24,6 +25,8 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
 		public void Serialize(BinaryWriter writer)
 		{
+			using var _ = Profiler.Scope();
+
 			writer.Write(Cell);
 			writer.Write(PrefabID);
 			writer.Write((int)Orientation);
@@ -43,6 +46,8 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
 		public void Deserialize(BinaryReader reader)
 		{
+			using var _ = Profiler.Scope();
+
 			Cell = reader.ReadInt32();
 			PrefabID = reader.ReadString();
 			Orientation = (Orientation)reader.ReadInt32();
@@ -63,6 +68,8 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 
 		public void OnDispatched()
 		{
+			using var _ = Profiler.Scope();
+
 			if (!Grid.IsValidCell(Cell))
 			{
 				DebugConsole.LogWarning($"[BuildCompletePacket] Invalid cell: {Cell}");
@@ -117,6 +124,8 @@ namespace ONI_MP.Networking.Packets.Tools.Build
 		/// </summary>
 		private void ApplyUtilityConnections(GameObject builtObj, int cell)
 		{
+			using var _ = Profiler.Scope();
+
 			// Apply connection state to the built object
 			var tileVis = builtObj.GetComponent<KAnimGraphTileVisualizer>();
 			if (tileVis != null)

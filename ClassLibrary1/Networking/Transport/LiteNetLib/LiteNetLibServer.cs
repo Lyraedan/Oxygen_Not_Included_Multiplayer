@@ -6,7 +6,7 @@ using LiteNetLib;
 using ONI_MP.DebugTools;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Networking.Profiling;
+using Shared.Profiling;
 using System.Collections.Concurrent;
 
 namespace ONI_MP.Networking.Transport.Lan
@@ -31,11 +31,15 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Prepare()
         {
+            using var _ = Profiler.Scope();
+
             writer = new NetDataWriter();
         }
 
         public override void Start()
         {
+            using var _ = Profiler.Scope();
+
             if (netManager != null)
                 return;
 
@@ -75,6 +79,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Stop()
         {
+            using var _ = Profiler.Scope();
+
             netManager?.Stop();
             netManager = null;
 
@@ -89,11 +95,15 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void Update()
         {
+            using var _ = Profiler.Scope();
+
             netManager?.PollEvents();
         }
 
         public override void CloseConnections()
         {
+            using var _ = Profiler.Scope();
+
             if (netManager == null)
                 return;
 
@@ -108,6 +118,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void OnMessageRecieved()
         {
+            using var _ = Profiler.Scope();
+
             while (incomingPackets.TryDequeue(out var packet))
             {
                 var (peer, data) = packet;
@@ -115,7 +127,7 @@ namespace ONI_MP.Networking.Transport.Lan
                 ulong clientId = Utils.GetClientId(peer);
                 int size = data.Length;
 
-                long t0 = GameServerProfiler.Begin();
+                var scope = Profiler.Scope();
 
                 try
                 {
@@ -126,12 +138,14 @@ namespace ONI_MP.Networking.Transport.Lan
                     Debug.LogWarning($"[LanServer] Failed to handle packet from {clientId}: {ex}");
                 }
 
-                GameServerProfiler.End(t0, 1, size);
+                scope.End(1, size);
             }
         }
 
         public void OnPeerConnected(NetPeer peer)
         {
+            using var _ = Profiler.Scope();
+
             ulong clientId = Utils.GetClientId(peer);
 
             if (!MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out var player))
@@ -147,6 +161,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
         {
+            using var _ = Profiler.Scope();
+
             ulong clientId = Utils.GetClientId(peer);
 
             if (MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out var player))
@@ -160,6 +176,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void OnNetworkError(IPEndPoint endPoint, System.Net.Sockets.SocketError socketError)
         {
+            using var _ = Profiler.Scope();
+
             DebugConsole.Log($"[LanServer] Network error {socketError} from {endPoint}");
         }
 
@@ -170,6 +188,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void OnConnectionRequest(ConnectionRequest request)
         {
+            using var _ = Profiler.Scope();
+
             int peer_limit = Configuration.Instance.Host.MaxLobbySize;
             if (netManager.GetPeersCount(ConnectionState.Any) >= peer_limit)
             {
@@ -182,6 +202,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
         {
+            using var _ = Profiler.Scope();
+
             byte[] data = reader.GetRemainingBytes();
             incomingPackets.Enqueue((peer, data));
 
@@ -190,6 +212,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
         {
+            using var _ = Profiler.Scope();
+
             byte[] data = reader.GetRemainingBytes();
 
             // Optional: handle initial handshake/hello from a client
@@ -207,6 +231,8 @@ namespace ONI_MP.Networking.Transport.Lan
         ///////////// STUN / NAT
         private void OnNatDeviceFound(object sender, DeviceEventArgs e)
         {
+            using var _ = Profiler.Scope();
+
             try
             {
                 DebugConsole.Log($"[LanServer] NAT device found: {e.Device.DeviceEndpoint}, Type:  {e.Device.NatProtocol.ToString()}");
@@ -225,7 +251,7 @@ namespace ONI_MP.Networking.Transport.Lan
 
         public override void KickClient(ulong clientId)
         {
-            
+
         }
     }
 }

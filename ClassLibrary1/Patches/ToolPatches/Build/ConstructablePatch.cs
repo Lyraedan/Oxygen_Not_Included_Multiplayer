@@ -3,12 +3,15 @@ using ONI_MP.DebugTools;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Packets.Tools.Build;
 using System.Linq;
+using Shared.Profiling;
 
 [HarmonyPatch(typeof(Constructable), "FinishConstruction")]
 public static class ConstructablePatch
 {
 	public static void Prefix(Constructable __instance)
 	{
+		using var _ = Profiler.Scope();
+
 		if (!MultiplayerSession.IsHost || !MultiplayerSession.InSession)
 			return;
 

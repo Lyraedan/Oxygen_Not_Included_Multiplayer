@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Shared.Profiling;
 using UnityEngine;
 
 public class PlayAnimPacket : IPacket, IBulkablePacket
@@ -17,6 +18,8 @@ public class PlayAnimPacket : IPacket, IBulkablePacket
 	public PlayAnimPacket() { }
 	public PlayAnimPacket(int targetNetId, HashedString[] anims, bool queue, KAnim.PlayMode mode, float speed, float offset)
 	{
+		using var _ = Profiler.Scope();
+
 		NetId = targetNetId;
 		AnimHashes = anims;
 		IsQueue = queue;
@@ -41,6 +44,8 @@ public class PlayAnimPacket : IPacket, IBulkablePacket
 
     public void Serialize(BinaryWriter writer)
 	{
+		using var _ = Profiler.Scope();
+
 		writer.Write(NetId);
 		writer.Write(TimeStamp);
 		writer.Write((int)Mode);
@@ -55,6 +60,8 @@ public class PlayAnimPacket : IPacket, IBulkablePacket
 
 	public void Deserialize(BinaryReader reader)
 	{
+		using var _ = Profiler.Scope();
+
 		NetId = reader.ReadInt32();
 		TimeStamp = reader.ReadSingle();
 		Mode = (KAnim.PlayMode)reader.ReadInt32();
@@ -72,6 +79,8 @@ public class PlayAnimPacket : IPacket, IBulkablePacket
 
 	public void OnDispatched()
 	{
+		using var _ = Profiler.Scope();
+
 		if (MultiplayerSession.IsHost)
 			return;
 
@@ -137,6 +146,8 @@ public class PlayAnimPacket : IPacket, IBulkablePacket
 
 	private void ForceAnimUpdate(KBatchedAnimController kbac)
 	{
+		using var _ = Profiler.Scope();
+
 		try
 		{
 			kbac.SetVisiblity(true);
