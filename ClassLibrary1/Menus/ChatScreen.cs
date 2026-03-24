@@ -394,7 +394,7 @@ namespace ONI_MP.UI
 
 			if (!string.IsNullOrWhiteSpace(text))
 			{
-				string senderName = SteamFriends.GetPersonaName();
+				string senderName = Utils.GetLocalPlayerName();
 
 				string colorHex = ColorUtility.ToHtmlStringRGB(CursorManager.Instance.color);
 				PendingMessage message = GeneratePendingMessage($"<color=#{colorHex}>{senderName}:</color> {text}");

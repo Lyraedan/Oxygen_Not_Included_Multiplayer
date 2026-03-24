@@ -1,4 +1,5 @@
 ﻿using ONI_MP.DebugTools;
+using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.States;
 using ONI_MP.Networking.Transport.Lan;
@@ -96,7 +97,7 @@ namespace ONI_MP.Networking.Packets.Core
 				PacketSender.SendToAllClients(new ClientReadyStatusPacket
 				{
 					SenderId = MultiplayerSession.HostUserID,
-					PlayerName = SteamFriends.GetPersonaName()
+					PlayerName = Utils.GetLocalPlayerName()
 				});
 
 				PacketSender.SendToAllClients(new ClientReadyStatusPacket

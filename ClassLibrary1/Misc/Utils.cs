@@ -315,6 +315,15 @@ namespace ONI_MP.Misc
             }
         }
 
+        public static string GetLocalPlayerName()
+        {
+            if (SteamManager.Initialized)
+            {
+                return Steamworks.SteamFriends.GetPersonaName();
+            }
+            return $"Player {NetworkConfig.GetLocalID()}";
+        }
+
         public static ulong NilUlong()
         {
             return 0uL;
