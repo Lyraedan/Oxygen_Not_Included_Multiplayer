@@ -105,7 +105,7 @@ namespace ONI_MP.Networking.Transport.Lan
             host.Connection = conn;
             MultiplayerSession.ConnectedPlayers.Add(1, host);
 
-            MultiplayerSession.KnownPlayerNames[CLIENT_ID] = SteamFriends.GetPersonaName();
+            MultiplayerSession.KnownPlayerNames[CLIENT_ID] = Utils.GetLocalPlayerName();
 
             DebugConsole.Log($"[Riptide] Connected to server with Client ID: {CLIENT_ID}");
 

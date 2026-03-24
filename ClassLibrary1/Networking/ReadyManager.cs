@@ -1,6 +1,7 @@
 ﻿using KSerialization;
 using ONI_MP.DebugTools;
 using ONI_MP.Menus;
+using ONI_MP.Misc;
 using ONI_MP.Networking.Packets.Core;
 using ONI_MP.Networking.States;
 using ONI_MP.Networking.Transport.Steamworks;
@@ -52,7 +53,7 @@ namespace ONI_MP.Networking
 			{
 				SenderId = NetworkConfig.GetLocalID(),
 				Status = state,
-				PlayerName = SteamFriends.GetPersonaName()
+				PlayerName = Utils.GetLocalPlayerName()
 			};
 			PacketSender.SendToHost(packet);
 		}

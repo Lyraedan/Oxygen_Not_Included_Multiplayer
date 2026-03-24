@@ -1,4 +1,5 @@
-﻿using ONI_MP.Networking.Components;
+﻿using ONI_MP.Misc;
+using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.UI;
 using Steamworks;
@@ -23,7 +24,7 @@ namespace ONI_MP.Networking.Packets.Social
 		public ChatMessagePacket(string message)
 		{
 			SenderId = MultiplayerSession.LocalUserID;
-            SenderName = SteamFriends.GetPersonaName();
+            SenderName = Utils.GetLocalPlayerName();
             Message = message;
 			PlayerColor = CursorManager.Instance.color;
 			Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();

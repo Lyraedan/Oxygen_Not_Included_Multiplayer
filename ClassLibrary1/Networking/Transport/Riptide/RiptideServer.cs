@@ -89,7 +89,7 @@ namespace ONI_MP.Networking.Transport.Lan
             MultiplayerSession.SetHost(GetClientID());
             MultiplayerSession.InSession = true;
 
-            string hostName = SteamFriends.GetPersonaName();
+            string hostName = Utils.GetLocalPlayerName();
             ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(
                 string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_JOINED, hostName));
             ChatScreen.QueueMessage(pending);
@@ -117,7 +117,7 @@ namespace ONI_MP.Networking.Transport.Lan
 
             if (clientId == CLIENT_ID)
             {
-                player.PlayerName = SteamFriends.GetPersonaName();
+                player.PlayerName = Utils.GetLocalPlayerName();
             }
 
             AddClientToList(e.Client.Id);
