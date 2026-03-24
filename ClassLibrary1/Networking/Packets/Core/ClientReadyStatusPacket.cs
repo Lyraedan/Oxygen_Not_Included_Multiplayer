@@ -1,8 +1,7 @@
 ﻿using ONI_MP.DebugTools;
-using ONI_MP.Menus;
 using ONI_MP.Networking.Packets.Architecture;
-using ONI_MP.Networking.Packets.World;
 using ONI_MP.Networking.States;
+using ONI_MP.UI;
 using Steamworks;
 using System.IO;
 
@@ -12,6 +11,7 @@ namespace ONI_MP.Networking.Packets.Core
 	{
 		public ulong SenderId;
 		public ClientReadyState Status = ClientReadyState.Unready;
+		public string PlayerName = string.Empty;
 
 		public ClientReadyStatusPacket() { }
 
@@ -25,19 +25,39 @@ namespace ONI_MP.Networking.Packets.Core
 		{
 			writer.Write((int)Status);
 			writer.Write(SenderId);
+			writer.Write(PlayerName ?? string.Empty);
 		}
 
 		public void Deserialize(BinaryReader reader)
 		{
 			Status = (ClientReadyState)reader.ReadInt32();
 			SenderId = reader.ReadUInt64();
+			PlayerName = reader.ReadString();
 		}
 
 		public void OnDispatched()
 		{
 			if (!MultiplayerSession.IsHost)
 			{
-				DebugConsole.LogWarning("[ClientReadyStatusPacket] Received on client — ignoring.");
+				if (string.IsNullOrEmpty(PlayerName))
+					return;
+
+				MultiplayerSession.KnownPlayerNames[SenderId] = PlayerName;
+
+				if (SenderId == MultiplayerSession.HostUserID)
+				{
+					var host = MultiplayerSession.GetPlayer(SenderId);
+					if (host != null)
+					{
+						host.PlayerName = PlayerName;
+					}
+				}
+				else if (SenderId != MultiplayerSession.LocalUserID)
+				{
+					var pending = ChatScreen.GeneratePendingMessage(
+						string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_JOINED, PlayerName));
+					ChatScreen.QueueMessage(pending);
+				}
 				return;
 			}
 
@@ -50,8 +70,33 @@ namespace ONI_MP.Networking.Packets.Core
 				return;
 			}
 
+			bool nameChanged = !string.IsNullOrEmpty(PlayerName) && player.PlayerName != PlayerName;
+			if (nameChanged)
+			{
+				player.PlayerName = PlayerName;
+			}
+
             ReadyManager.SetPlayerReadyState(player, Status);
 			DebugConsole.Log($"[ClientReadyStatusPacket] {SenderId} marked as {Status}");
+
+			if (NetworkConfig.IsLanConfig() && nameChanged)
+			{
+				var pending = ChatScreen.GeneratePendingMessage(
+					string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_JOINED, player.PlayerName));
+				ChatScreen.QueueMessage(pending);
+
+				PacketSender.SendToAllClients(new ClientReadyStatusPacket
+				{
+					SenderId = MultiplayerSession.HostUserID,
+					PlayerName = SteamFriends.GetPersonaName()
+				});
+
+				PacketSender.SendToAllClients(new ClientReadyStatusPacket
+				{
+					SenderId = SenderId,
+					PlayerName = player.PlayerName
+				});
+			}
 
 			ReadyManager.RefreshScreen();
 			bool allReady = ReadyManager.IsEveryoneReady();

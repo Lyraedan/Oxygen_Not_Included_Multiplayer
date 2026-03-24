@@ -8,6 +8,7 @@ using ONI_MP.Networking.Profiling;
 using ONI_MP.Networking.Transfer;
 using System.Collections.Generic;
 using ONI_MP.UI;
+using Steamworks;
 using static ResearchTypes;
 
 namespace ONI_MP.Networking.Transport.Lan
@@ -73,7 +74,7 @@ namespace ONI_MP.Networking.Transport.Lan
         {
             int id = e.Client.Id;
             DebugConsole.Log("[RiptideServer] A client failed to connect to the server.");
-            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_FAILED, $"Player {id}"));
+            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_FAILED, "A client"));
             ChatScreen.QueueMessage(pending);
         }
 
@@ -84,6 +85,11 @@ namespace ONI_MP.Networking.Transport.Lan
             DebugConsole.Log("[RiptideServer] Host client connected to server!");
             MultiplayerSession.SetHost(GetClientID());
             MultiplayerSession.InSession = true;
+
+            string hostName = SteamFriends.GetPersonaName();
+            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(
+                string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_JOINED, hostName));
+            ChatScreen.QueueMessage(pending);
         }
 
         private void OnLocalClientDisconnected(object sender, DisconnectedEventArgs e)
@@ -106,6 +112,11 @@ namespace ONI_MP.Networking.Transport.Lan
             }
             player.Connection = e.Client;
 
+            if (clientId == CLIENT_ID)
+            {
+                player.PlayerName = SteamFriends.GetPersonaName();
+            }
+
             AddClientToList(e.Client.Id);
             DebugConsole.Log($"New client connected: {clientId}");
         }
@@ -113,12 +124,13 @@ namespace ONI_MP.Networking.Transport.Lan
         private void ServerOnClientDisconnected(object sender, ServerDisconnectedEventArgs e)
         {
             ulong clientId = e.Client.Id;
+
+            RemoveClientFromList(clientId);
+
             if (MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out MultiplayerPlayer player))
             {
                 player.Connection = null;
-
                 MultiplayerSession.ConnectedPlayers.Remove(clientId);
-
                 DebugConsole.Log($"Player {clientId} disconnected.");
             }
             else
@@ -126,8 +138,6 @@ namespace ONI_MP.Networking.Transport.Lan
                 DebugConsole.LogWarning($"Disconnected client {clientId} was not found in ConnectedPlayers.");
             }
             ReadyManager.RefreshReadyState();
-
-            RemoveClientFromList(clientId);
         }
 
         private void OnServerMessageReceived(object sender, MessageReceivedEventArgs e)
@@ -220,12 +230,10 @@ namespace ONI_MP.Networking.Transport.Lan
                 return;
 
             ClientList.Add(id);
-
-            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_JOINED, $"Player {id}"));
-            ChatScreen.QueueMessage(pending);
             Game.Instance?.Trigger(MP_HASHES.OnPlayerJoined);
         }
 
+        // TODO: Distinguish between real disconnects and loading disconnects
         public void RemoveClientFromList(ulong id)
         {
             if (!ClientList.Contains(id))
@@ -233,7 +241,8 @@ namespace ONI_MP.Networking.Transport.Lan
 
             ClientList.Remove(id);
 
-            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, $"Player {id}"));
+            string name = MultiplayerSession.GetPlayer(id)?.PlayerName ?? $"Player {id}";
+            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, name));
             ChatScreen.QueueMessage(pending);
             Game.Instance?.Trigger(MP_HASHES.OnPlayerLeft);
         }

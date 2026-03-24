@@ -87,7 +87,7 @@ namespace ONI_MP.Networking
 			gameObject.SetLayerRecursively(LayerMask.NameToLayer("UI"));
 
 			playerName = NetworkConfig.IsLanConfig()
-				? $"Player {assignedPlayer}"
+				? (MultiplayerSession.GetPlayer(assignedPlayer)?.PlayerName ?? $"Player {assignedPlayer}")
 				: SteamFriends.GetFriendPersonaName(assignedPlayer.AsCSteamID());
 			cursorText.text = $"{playerName}";
 

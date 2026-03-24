@@ -6,7 +6,7 @@ using Steamworks;
 public class MultiplayerPlayer
 {
 	public ulong PlayerId { get; private set; }
-	public string PlayerName { get; private set; }
+	public string PlayerName { get; set; }
 	public bool IsLocal => PlayerId == NetworkConfig.GetLocalID();
 
 	public int AvatarImageId { get; private set; } = -1;
