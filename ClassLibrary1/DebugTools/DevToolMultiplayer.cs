@@ -141,6 +141,12 @@ namespace ONI_MP.DebugTools
                     ImGui.EndTabItem();
                 }
 
+                if (ImGui.BeginTabItem("Profiler"))
+                {
+                    DisplayProfilers();
+                    ImGui.EndTabItem();
+                }
+
                 ImGui.EndTabBar();
             }
 
