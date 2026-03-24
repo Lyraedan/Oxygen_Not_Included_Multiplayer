@@ -233,7 +233,16 @@ namespace ONI_MP
 					public static LocString MENU_LOST_CONNECTION = "Connection to the host was lost!";
                     public static LocString LOST_CONNECTION = "Connection to the host was lost: {0}\n{1}";
 
-					public class RIPTIDE
+					public class STEAMWORKS
+					{
+						public static LocString HOST_DISCONNECTED = "Host disconnected";
+                        public static LocString HOST_DISCONNECTED_DESC = "The host has ended the game or returned to the menu.";
+
+						public static LocString LOCAL_PROBLEM = "Connection lost";
+                        public static LocString LOCAL_PROBLEM_DESC = "A network error occurred or the connection timed out.";
+                    }
+
+                    public class RIPTIDE
 					{
                         public static LocString CONNECTION_FAILED = "Connection failed";
                         public static LocString CONNECTION_FAILED_DESC = "Could not establish a connection to the server.";

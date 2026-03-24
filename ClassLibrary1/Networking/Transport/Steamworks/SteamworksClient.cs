@@ -230,12 +230,12 @@ namespace ONI_MP.Networking.Transport.Steam
                     if (remote.m_SteamID == MultiplayerSession.HostUserID)
                     {
                         // Invoke(reason, message)
-                        NetworkConfig.TransportClient.OnReturnToMenu.Invoke("Host disconnected", "The host has ended the game or returned to the menu.");
+                        NetworkConfig.TransportClient.OnReturnToMenu.Invoke(STRINGS.UI.MP_OVERLAY.CLIENT.STEAMWORKS.HOST_DISCONNECTED, STRINGS.UI.MP_OVERLAY.CLIENT.STEAMWORKS.HOST_DISCONNECTED_DESC);
                     }
                     break;
                 case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
                     // Something went wrong locally
-                    NetworkConfig.TransportClient.OnReturnToMenu.Invoke("Connection lost", "A network error occurred or the connection timed out.");
+                    NetworkConfig.TransportClient.OnReturnToMenu.Invoke(STRINGS.UI.MP_OVERLAY.CLIENT.STEAMWORKS.LOCAL_PROBLEM, STRINGS.UI.MP_OVERLAY.CLIENT.STEAMWORKS.LOCAL_PROBLEM_DESC);
                     break;
             }
         }
