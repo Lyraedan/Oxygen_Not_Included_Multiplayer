@@ -11,8 +11,8 @@ using ONI_MP.Menus;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
-using static STRINGS.UI.DEVELOPMENTBUILDS.ALPHA;
 using ONI_MP.UI;
+
 using static ONI_MP.STRINGS.UI.MP_OVERLAY;
 
 namespace ONI_MP.Networking.Transport.Lan
@@ -124,6 +124,17 @@ namespace ONI_MP.Networking.Transport.Lan
 
             OnClientDisconnected?.Invoke();
             MultiplayerSession.ConnectedPlayers.Clear();
+
+            DisconnectReason disconnectReason = e.Reason;
+            var (reason, message) = GetDisconnectInfo(e);
+            switch (disconnectReason) {
+                case DisconnectReason.Disconnected:
+                    // Initiated by client do nothing
+                    break;
+                default:
+                    NetworkConfig.TransportClient.OnReturnToMenu.Invoke(reason, message);
+                    break;
+            }
 
             CleanupRiptide();
         }
@@ -359,11 +370,13 @@ namespace ONI_MP.Networking.Transport.Lan
             {
                 DebugConsole.LogWarning("[LanClient] Connection timed out");
 
+                /*
                 if (MultiplayerSession.IsClient)
                 {
                     // Display lost connection to host and return to the main menu
-                    NetworkConfig.TransportClient.OnReturnToMenu.Invoke();
+                    NetworkConfig.TransportClient.OnReturnToMenu.Invoke("Connection lost.", "Timed out");
                 }
+                */
 
                 try
                 {
@@ -416,5 +429,63 @@ namespace ONI_MP.Networking.Transport.Lan
             }
             yield return null;
         }*/
+
+        private (string reason, string message) GetDisconnectInfo(DisconnectedEventArgs e)
+        {
+            switch (e.Reason)
+            {
+                case DisconnectReason.NeverConnected:
+                    return (
+                        CLIENT.RIPTIDE.CONNECTION_FAILED,
+                        CLIENT.RIPTIDE.CONNECTION_FAILED_DESC
+                    );
+
+                case DisconnectReason.ConnectionRejected:
+                    return (
+                        CLIENT.RIPTIDE.CONNECTION_REJECTED,
+                        CLIENT.RIPTIDE.CONNECTION_REJECTED_DESC
+                    );
+
+                case DisconnectReason.TransportError:
+                    return (
+                        CLIENT.RIPTIDE.NETWORK_ERROR,
+                        CLIENT.RIPTIDE.NETWORK_ERROR_DESC
+                    );
+
+                case DisconnectReason.TimedOut:
+                    return (
+                        CLIENT.RIPTIDE.CONNECTION_TIMED_OUT,
+                        CLIENT.RIPTIDE.CONNECTION_TIMED_OUT_DESC
+                    );
+
+                case DisconnectReason.Kicked:
+                    return (
+                        CLIENT.RIPTIDE.KICKED,
+                        CLIENT.RIPTIDE.KICKED_DESC
+                    );
+
+                case DisconnectReason.ServerStopped:
+                    return (
+                        CLIENT.RIPTIDE.SERVER_CLOSED,
+                        CLIENT.RIPTIDE.SERVER_CLOSED_DESC
+                    );
+
+                case DisconnectReason.PoorConnection:
+                    return (
+                        CLIENT.RIPTIDE.CONNECTION_UNSTABLE,
+                        CLIENT.RIPTIDE.CONNECTION_UNSTABLE_DESC
+                    );
+
+                case DisconnectReason.Disconnected:
+                    return ("", ""); // client initiated
+
+                default:
+                    return (
+                        CLIENT.RIPTIDE.UNKNOWN,
+                        CLIENT.RIPTIDE.UNKNOWN_DESC
+                    );
+            }
+        }
+
     }
 }

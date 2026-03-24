@@ -74,7 +74,9 @@ public static class SaveHelper
 		try
 		{
 			if (msg == null)
-				msg = ONI_MP.STRINGS.UI.MP_OVERLAY.CLIENT.LOST_CONNECTION;
+			{
+				msg = ONI_MP.STRINGS.UI.MP_OVERLAY.CLIENT.MENU_LOST_CONNECTION;
+			}
 
 			MultiplayerOverlay.Show(msg);
 		}

@@ -229,7 +229,37 @@ namespace ONI_MP
 				public class CLIENT
 				{
 					public static LocString DOWNLOADING_GAME = "Downloading world: {0}%";
-					public static LocString LOST_CONNECTION = "Connection to the host was lost!";
+					public static LocString DEFAULT_LOST_CONNECTION = "";
+					public static LocString MENU_LOST_CONNECTION = "Connection to the host was lost!";
+                    public static LocString LOST_CONNECTION = "Connection to the host was lost: {0}\n{1}";
+
+					public class RIPTIDE
+					{
+                        public static LocString CONNECTION_FAILED = "Connection failed";
+                        public static LocString CONNECTION_FAILED_DESC = "Could not establish a connection to the server.";
+
+                        public static LocString CONNECTION_REJECTED = "Connection rejected";
+                        public static LocString CONNECTION_REJECTED_DESC = "The server refused the connection.";
+
+                        public static LocString NETWORK_ERROR = "Network error";
+                        public static LocString NETWORK_ERROR_DESC = "A network error occurred.";
+
+                        public static LocString CONNECTION_TIMED_OUT = "Connection timed out";
+                        public static LocString CONNECTION_TIMED_OUT_DESC = "The server did not respond in time.";
+
+                        public static LocString KICKED = "Kicked from server";
+                        public static LocString KICKED_DESC = "You were removed from the session.";
+
+                        public static LocString SERVER_CLOSED = "Server closed";
+                        public static LocString SERVER_CLOSED_DESC = "The host has stopped the server.";
+
+                        public static LocString CONNECTION_UNSTABLE = "Connection unstable";
+                        public static LocString CONNECTION_UNSTABLE_DESC = "The connection quality was too poor to continue.";
+
+                        public static LocString UNKNOWN = "Disconnected";
+                        public static LocString UNKNOWN_DESC = "An unknown network error occurred.";
+                    }
+
 					public static LocString MISSING_SAVE_FILE = "Downloaded save file not found.";
 					public static LocString CONNECTING_TO_HOST = "Connecting to {0}!";
 					public static LocString WAITING_FOR_PLAYER = "Waiting for {0}...";

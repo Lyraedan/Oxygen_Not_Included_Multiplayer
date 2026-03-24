@@ -30,7 +30,7 @@ namespace ONI_MP.Networking.Transport
         /// <summary>
         /// Request the client to return to the menu
         /// </summary>
-        public System.Action OnReturnToMenu;
+        public System.Action<string, string> OnReturnToMenu;
 
         public abstract void Prepare();
 
