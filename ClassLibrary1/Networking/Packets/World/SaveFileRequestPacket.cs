@@ -65,7 +65,8 @@ namespace ONI_MP.Networking.Packets.World
 					{
 						TcpPort = tcpPort,
 						FileName = fileName,
-						FileSize = data.Length
+						FileSize = data.Length,
+						ClientId = requester
 					};
 					PacketSender.SendToPlayer(requester, startPacket);
 					DebugConsole.Log($"[SaveFileRequest] Initiated TCP transfer for '{fileName}' to {requester}");

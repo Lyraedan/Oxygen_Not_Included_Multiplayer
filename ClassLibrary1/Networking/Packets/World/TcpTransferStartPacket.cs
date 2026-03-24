@@ -13,6 +13,7 @@ namespace ONI_MP.Networking.Packets.World
 		public int TcpPort;
 		public string FileName;
 		public int FileSize;
+		public ulong ClientId;
 
 		public void Serialize(BinaryWriter writer)
 		{
@@ -21,6 +22,7 @@ namespace ONI_MP.Networking.Packets.World
 			writer.Write(TcpPort);
 			writer.Write(FileName);
 			writer.Write(FileSize);
+			writer.Write(ClientId);
 		}
 
 		public void Deserialize(BinaryReader reader)
@@ -30,6 +32,7 @@ namespace ONI_MP.Networking.Packets.World
 			TcpPort = reader.ReadInt32();
 			FileName = reader.ReadString();
 			FileSize = reader.ReadInt32();
+			ClientId = reader.ReadUInt64();
 		}
 
 		public void OnDispatched()
@@ -40,13 +43,12 @@ namespace ONI_MP.Networking.Packets.World
 				return;
 
 			string hostIp = Configuration.Instance.Client.LanSettings.Ip;
-			ulong clientId = NetworkConfig.GetLocalID();
 
-			DebugConsole.Log($"[TcpTransferStart] Starting TCP download from {hostIp}:{TcpPort}, file '{FileName}' ({FileSize} bytes)");
+			DebugConsole.Log($"[TcpTransferStart] Starting TCP download from {hostIp}:{TcpPort}, file '{FileName}' ({FileSize} bytes), clientId={ClientId}");
 
 			MultiplayerOverlay.Show("Connecting for save download...");
 
-			TcpFileTransferClient.Download(hostIp, TcpPort, clientId,
+			TcpFileTransferClient.Download(hostIp, TcpPort, ClientId,
 				(fileName, data) =>
 				{
 					DebugConsole.Log($"[TcpTransferStart] TCP download complete: '{fileName}' ({data.Length} bytes)");
