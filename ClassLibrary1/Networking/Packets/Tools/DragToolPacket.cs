@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 using HarmonyLib;
 using UnityEngine;
 using static STRINGS.INPUT_BINDINGS;
+using Shared.Interfaces.Networking;
 
 namespace ONI_MP.Networking.Packets.Tools
 {
-	public abstract class DragToolPacket : IPacket
+	public abstract class DragToolPacket : IBulkablePacket
 	{
 		/// <summary>
 		/// Gets a value indicating whether incoming messages are currently being processed.
@@ -20,7 +21,11 @@ namespace ONI_MP.Networking.Packets.Tools
 		/// </summary>
 		public static bool ProcessingIncoming { get; private set; } = false;
 
-		public enum DragToolMode
+        public int MaxPackSize => 500; // 50 packs
+
+        public uint IntervalMs => 50; // 50 ms
+
+        public enum DragToolMode
 		{
 			Invalid = -1,
 			OnDragTool = 0,

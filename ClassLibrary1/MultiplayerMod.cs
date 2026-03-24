@@ -50,10 +50,8 @@ namespace ONI_MP
 				NetworkStatisticsMenu.Init();
 
                 // CHECKPOINT 2
-#if STEAM_WORKSHOP_VERSION
                 System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 2: Pre-SteamLobby\n");
 				SteamLobby.Initialize();
-#endif
 
 				// CHECKPOINT 3
 				System.IO.File.AppendAllText(logPath, "[Trace] Checkpoint 3: Pre-GameObjects\n");
@@ -189,11 +187,9 @@ namespace ONI_MP
         public override void OnAllModsLoaded(Harmony harmony, IReadOnlyList<Mod> mods)
         {
             base.OnAllModsLoaded(harmony, mods);
-#if STEAM_WORKSHOP_VERSION
 			ModUpdater.Updater.CheckForUpdate();
             // For now default to the steam transport
             NetworkConfig.UpdateTransport(NetworkConfig.NetworkTransport.STEAMWORKS);
-#endif
         }
     }
 }

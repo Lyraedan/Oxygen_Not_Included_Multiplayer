@@ -6,9 +6,7 @@ using ONI_MP.Networking.Transport.Lan;
 using Steamworks;
 using System;
 using UnityEngine;
-#if STEAM_WORKSHOP_VERSION
 using SteamworksClient = ONI_MP.Networking.Transport.Steam.SteamworksClient;
-#endif
 
 namespace ONI_MP.DebugTools
 {
@@ -63,13 +61,11 @@ namespace ONI_MP.DebugTools
 
 			switch (NetworkConfig.transport)
 			{
-#if STEAM_WORKSHOP_VERSION
 				case NetworkConfig.NetworkTransport.STEAMWORKS:
 					ping = SteamworksClient.GetPingToHost();
 					qualityL = SteamworksClient.GetLocalPacketQuality();
 					qualityR = SteamworksClient.GetRemotePacketQuality();
 					break;
-#endif
 				case NetworkConfig.NetworkTransport.RIPTIDE:
 					var metrics = RiptideClient.Client?.Connection?.Metrics;
 

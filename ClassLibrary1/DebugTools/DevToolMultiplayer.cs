@@ -20,13 +20,8 @@ using ONI_MP.Tests;
 using ONI_MP.Networking.Transport.Lan;
 using static STRINGS.BUILDINGS.PREFABS;
 using Riptide;
-
-
-
-#if STEAM_WORKSHOP_VERSION
 using Steamworks;
 using ONI_MP.Networking.Transport.Steamworks;
-#endif
 
 namespace ONI_MP.DebugTools
 {

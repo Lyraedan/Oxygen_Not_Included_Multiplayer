@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Transport;
 using ONI_MP.Networking.Transport.Lan;
-#if STEAM_WORKSHOP_VERSION
 using ONI_MP.Networking.Transport.Steam;
 using Steamworks;
 using SteamServer = ONI_MP.Networking.Transport.Steam.SteamworksServer;
 using SteamClient = ONI_MP.Networking.Transport.Steam.SteamworksClient;
 using ONI_MP.Networking.Transport.Steamworks;
-#endif
 using ONI_MP.DebugTools;
 
 namespace ONI_MP.Networking
@@ -25,7 +23,7 @@ namespace ONI_MP.Networking
             RIPTIDE = 1,
             LITENETLIB = 2, // Non functional right now
         }
-        public static NetworkTransport transport { get; private set; } = NetworkTransport.STEAMWORKS;
+        public static NetworkTransport transport { get; private set; } = NetworkTransport.RIPTIDE;
 
         public static TransportServer TransportServer { get; set; } = new RiptideServer();
         public static TransportClient TransportClient { get; set; } = new RiptideClient();
@@ -33,12 +31,6 @@ namespace ONI_MP.Networking
 
         public static void UpdateTransport(NetworkTransport newTransport)
         {
-            if (newTransport == NetworkTransport.STEAMWORKS)
-            {
-#if !STEAM_WORKSHOP_VERSION
-                newTransport = NetworkTransport.RIPTIDE; // Steam workshop is not enabled. Fallback to Riptide
-#endif
-            }
             transport = newTransport;
             TransportServer = GetTransportServer();
             TransportClient = GetTransportClient();
@@ -50,10 +42,8 @@ namespace ONI_MP.Networking
         {
             switch (transport)
             {
-#if STEAM_WORKSHOP_VERSION
                 case NetworkTransport.STEAMWORKS:
                     return new SteamServer();
-#endif
                 case NetworkTransport.RIPTIDE:
                     return new RiptideServer();
                 case NetworkTransport.LITENETLIB:
@@ -67,10 +57,8 @@ namespace ONI_MP.Networking
         {
             switch (transport)
             {
-#if STEAM_WORKSHOP_VERSION
                 case NetworkTransport.STEAMWORKS:
                     return new SteamClient();
-#endif
                 case NetworkTransport.RIPTIDE:
                     return new RiptideClient();
                 case NetworkTransport.LITENETLIB:
@@ -84,10 +72,8 @@ namespace ONI_MP.Networking
         {
             switch (transport)
             {
-#if STEAM_WORKSHOP_VERSION
                 case NetworkTransport.STEAMWORKS:
                     return new SteamworksPacketSender();
-#endif
                 case NetworkTransport.RIPTIDE:
                     return new RiptidePacketSender();
                 case NetworkTransport.LITENETLIB:
@@ -101,10 +87,8 @@ namespace ONI_MP.Networking
         {
             switch (transport)
             {
-#if STEAM_WORKSHOP_VERSION
                 case NetworkTransport.STEAMWORKS:
                     return SteamUser.GetSteamID().m_SteamID;
-#endif
                 case NetworkTransport.RIPTIDE:
                     if (MultiplayerSession.IsClient)
                     {
@@ -143,7 +127,6 @@ namespace ONI_MP.Networking
             List<ulong> clients = new List<ulong>();
             switch(transport)
             {
-#if STEAM_WORKSHOP_VERSION
                 case NetworkTransport.STEAMWORKS:
                     List<CSteamID> members = SteamLobby.GetAllLobbyMembers();
                     foreach(CSteamID member in members)
@@ -151,7 +134,6 @@ namespace ONI_MP.Networking
                         clients.Add(member.m_SteamID);
                     }
                     break;
-#endif
                 case NetworkTransport.RIPTIDE:
                     if (MultiplayerSession.IsClient)
                     {

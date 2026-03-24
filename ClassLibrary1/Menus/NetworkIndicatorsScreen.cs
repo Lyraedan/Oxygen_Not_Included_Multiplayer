@@ -6,11 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using ONI_MP.Misc;
 using ONI_MP.Networking;
-#if STEAM_WORKSHOP_VERSION
 using ONI_MP.Networking.Transport.Steam;
 using Steamworks;
 using SteamClient = ONI_MP.Networking.Transport.Steam.SteamworksClient;
-#endif
 using UnityEngine;
 
 namespace ONI_MP.Menus
