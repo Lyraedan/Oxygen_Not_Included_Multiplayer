@@ -11,14 +11,20 @@ using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Components;
 using UnityEngine;
 using static STRINGS.UI;
-using Steamworks;
 using ONI_MP.Menus;
 using ONI_MP.Misc;
 using ONI_MP.Networking.Profiling;
 using System.Text;
 using ONI_MP.Patches.ToolPatches;
 using ONI_MP.Tests;
+using ONI_MP.Networking.Transport.Lan;
+using static STRINGS.BUILDINGS.PREFABS;
+using Riptide;
+
+
+
 #if STEAM_WORKSHOP_VERSION
+using Steamworks;
 using ONI_MP.Networking.Transport.Steamworks;
 #endif
 
@@ -366,49 +372,119 @@ namespace ONI_MP.DebugTools
 
         private void DrawPlayerList()
         {
-            var players = SteamLobby.GetAllLobbyMembers();
+            if(!MultiplayerSession.SessionHasPlayers)
+            {
+                ImGui.Text("No other players connected.");
+                return;
+            }
 
             ImGui.Separator();
             ImGui.Text("Players in Lobby:");
 
-            string self = $"[YOU] {SteamFriends.GetPersonaName()} ({MultiplayerSession.LocalUserID})";
-
-            if (players.Count == 0)
+            switch (NetworkConfig.transport)
             {
-                ImGui.TextColored(new Vector4(0.3f, 1f, 0.3f, 1f), self);
-                return;
+                case NetworkConfig.NetworkTransport.STEAMWORKS:
+                    SteamworksPlayerList();
+                    break;
+                case NetworkConfig.NetworkTransport.RIPTIDE:
+                    RiptidePlayerList();
+                    break;
             }
+        }
 
-            if (MultiplayerSession.HostUserID == MultiplayerSession.LocalUserID)
-                self = $"[YOU|HOST] {SteamFriends.GetPersonaName()} ({MultiplayerSession.LocalUserID})";
+        void SteamworksPlayerList()
+        {
+            var players = SteamLobby.GetAllLobbyMembers();
+            string self = $"[You] {SteamFriends.GetPersonaName()} | {MultiplayerSession.LocalUserID}";
 
-            ImGui.TextColored(new Vector4(0.3f, 1f, 0.3f, 1f), self);
+            RiptideServer server = null;
 
-            foreach (var playerId in players)
+            foreach (CSteamID player in players)
             {
-                string playerName = SteamFriends.GetFriendPersonaName(playerId);
-                bool isHost = MultiplayerSession.HostUserID == playerId.m_SteamID;
+                bool isTheHost = player.m_SteamID == MultiplayerSession.HostUserID;
 
-                string label = isHost
-                    ? $"[HOST] {playerName} ({playerId})"
-                    : $"{playerName} ({playerId})";
-
-                bool isSelected = selectedPlayer.HasValue && selectedPlayer.Value == playerId.m_SteamID;
-
-                if (ImGui.Selectable(label, isSelected))
+                string displayName;
+                Vector4 color = new Vector4(1f, 1f, 1f, 1f); // default white
+                if (MultiplayerSession.IsHost && isTheHost)
                 {
-                    selectedPlayer = playerId.m_SteamID;
+                    displayName = $"[Host/You] {SteamFriends.GetPersonaName()}";
+                    color = new Vector4(0.3f, 1f, 0.3f, 1f);
+                }
+                else if (MultiplayerSession.IsClient && isTheHost)
+                {
+                    displayName = $"[Host] {SteamFriends.GetFriendPersonaName(player)}";
+                    color = new Vector4(1f, 1f, 0f, 1f);
+                }
+                else if (player.m_SteamID == MultiplayerSession.LocalUserID)
+                {
+                    displayName = $"[You] {SteamFriends.GetPersonaName()}";
+                }
+                else
+                {
+                    displayName = SteamFriends.GetFriendPersonaName(player);
                 }
 
-                // Right-click context menu
-                if (ImGui.BeginPopupContextItem(playerId.ToString()))
+                if (ImGui.Selectable(displayName))
                 {
-                    if (ImGui.MenuItem("Open Steam Profile"))
-                    {
-                        SteamFriends.ActivateGameOverlayToUser("steamid", playerId);
-                    }
+                    SteamFriends.ActivateGameOverlayToUser("steamid", player);
+                }
 
-                    ImGui.EndPopup();
+                if (MultiplayerSession.IsHost && !isTheHost)
+                {
+                    ImGui.SameLine();
+                    if (ImGui.Button($"Kick##{player.m_SteamID}")) // ensure unique ID
+                    {
+                        server = NetworkConfig.GetTransportServer() as RiptideServer;
+                        server?.KickClient(player.m_SteamID);
+                    }
+                }
+            }
+        }
+
+        void RiptidePlayerList()
+        {
+            if(MultiplayerSession.IsHost)
+            {
+                var players = MultiplayerSession.ConnectedPlayers;
+                var server = NetworkConfig.GetTransportServer() as RiptideServer;
+
+                foreach (var player in players)
+                {
+                    if (player.Value.PlayerId != MultiplayerSession.HostUserID)
+                    {
+                        if (ImGui.Button("Kick"))
+                        {
+                            server.KickClient(player.Value.PlayerId);
+                        }
+                        ImGui.SameLine();
+                        ImGui.Text($"{player.Value.PlayerName}");
+                    } else
+                    {
+                        ImGui.TextColored(new Vector4(0.3f, 1f, 0.3f, 1f), $"[Host/You] {player.Value.PlayerName}");
+                    }
+                }
+            }
+            else if(MultiplayerSession.IsClient)
+            {
+                var client = NetworkConfig.GetTransportClient() as RiptideClient;
+                var players = client.ClientList;
+                foreach(ulong player in players)
+                {
+                    if(player == MultiplayerSession.LocalUserID)
+                    {
+                        ImGui.TextColored(new Vector4(0.3f, 1f, 0.3f, 1f), $"[You] Player {player}");
+                    }
+                    else
+                    {
+                        if (player == MultiplayerSession.HostUserID)
+                        {
+                            ImGui.TextColored(new Vector4(1f, 1f, 0f, 1f), $"[Host] Player {player}");
+                        }
+                        else
+                        {
+                            ImGui.Text($"{player}");
+                        }
+                    }
                 }
             }
         }
