@@ -1,6 +1,7 @@
 ﻿using ONI_MP.DebugTools;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.States;
+using ONI_MP.Networking.Transport.Lan;
 using ONI_MP.UI;
 using Steamworks;
 using System.IO;
@@ -67,6 +68,13 @@ namespace ONI_MP.Networking.Packets.Core
 			if (player == null)
 			{
 				DebugConsole.LogError("Tried to update ready state for a null player", false);
+				return;
+			}
+
+			if (Status == ClientReadyState.Loading)
+			{
+				var server = NetworkConfig.TransportServer as RiptideServer;
+				server?.MarkClientLoading(SenderId);
 				return;
 			}
 

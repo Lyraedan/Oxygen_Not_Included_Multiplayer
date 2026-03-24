@@ -18,6 +18,9 @@ namespace ONI_MP.Networking.Transport.Lan
         private static Server _server;
         private static Client _client; // Server client (Other users will use GameClient)
         private TcpFileTransferServer _tcpTransfer;
+        private Dictionary<ulong, float> _loadingClients = new Dictionary<ulong, float>();
+        private List<ulong> _expiredLoadingClients = new List<ulong>();
+        private const float LOADING_TIMEOUT = 30f;
 
         public TcpFileTransferServer TcpTransfer => _tcpTransfer;
 
@@ -222,6 +225,28 @@ namespace ONI_MP.Networking.Transport.Lan
         {
             _server?.Update();
             _client?.Update();
+
+            if (_loadingClients.Count > 0)
+            {
+                float now = UnityEngine.Time.unscaledTime;
+                _expiredLoadingClients.Clear();
+                foreach (var kvp in _loadingClients)
+                {
+                    if (now - kvp.Value > LOADING_TIMEOUT)
+                    {
+                        _expiredLoadingClients.Add(kvp.Key);
+                    }
+                }
+                foreach (var id in _expiredLoadingClients)
+                {
+                    _loadingClients.Remove(id);
+                }
+            }
+        }
+
+        public void MarkClientLoading(ulong id)
+        {
+            _loadingClients[id] = UnityEngine.Time.unscaledTime;
         }
 
         public void AddClientToList(ulong id)
@@ -230,6 +255,14 @@ namespace ONI_MP.Networking.Transport.Lan
                 return;
 
             ClientList.Add(id);
+
+            // A loading client reconnects with a new Riptide ID, so we consume one loading entry
+            if (_loadingClients.Count > 0)
+            {
+                var enumerator = _loadingClients.GetEnumerator();
+                enumerator.MoveNext();
+                _loadingClients.Remove(enumerator.Current.Key);
+            }
             Game.Instance?.Trigger(MP_HASHES.OnPlayerJoined);
         }
 
@@ -240,9 +273,12 @@ namespace ONI_MP.Networking.Transport.Lan
 
             ClientList.Remove(id);
 
-            string name = MultiplayerSession.GetPlayer(id)?.PlayerName ?? $"Player {id}";
-            ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, name));
-            ChatScreen.QueueMessage(pending);
+            if (!_loadingClients.ContainsKey(id))
+            {
+                string name = MultiplayerSession.GetPlayer(id)?.PlayerName ?? $"Player {id}";
+                ChatScreen.PendingMessage pending = ChatScreen.GeneratePendingMessage(string.Format(STRINGS.UI.MP_CHATWINDOW.CHAT_CLIENT_LEFT, name));
+                ChatScreen.QueueMessage(pending);
+            }
             Game.Instance?.Trigger(MP_HASHES.OnPlayerLeft);
         }
         public ulong GetClientID()
