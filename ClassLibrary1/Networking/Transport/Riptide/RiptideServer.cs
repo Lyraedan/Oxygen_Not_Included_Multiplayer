@@ -244,5 +244,40 @@ namespace ONI_MP.Networking.Transport.Lan
 
             return _client.Id;
         }
+
+        public override void KickClient(ulong clientId)
+        {
+            if (_server == null || !_server.IsRunning)
+            {
+                DebugConsole.LogWarning("[RiptideServer] KickClient: Server is not running.");
+                return;
+            }
+
+            if (!MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out var player))
+            {
+                DebugConsole.LogWarning($"[RiptideServer] KickClient: Client {clientId} not found.");
+                return;
+            }
+
+            if (player.Connection is Connection conn)
+            {
+                if (conn.IsNotConnected)
+                {
+                    DebugConsole.LogWarning($"[RiptideServer] KickClient: Client {clientId} already disconnected.");
+                    return;
+                }
+
+                DebugConsole.Log($"[RiptideServer] Kicking client {clientId}");
+
+                // Disconnect via Riptide
+                _server.DisconnectClient(conn);
+
+                // OnClientDisconnected should disconnect so we shouldn't need to cleanup here
+            }
+            else
+            {
+                DebugConsole.LogError($"[RiptideServer] KickClient: Invalid connection type for {clientId}");
+            }
+        }
     }
 }

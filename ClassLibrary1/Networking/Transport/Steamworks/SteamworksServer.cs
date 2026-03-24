@@ -230,6 +230,33 @@ namespace ONI_MP.Networking.Transport.Steam
             //     Shutdown
             // }
         }
+
+        public override void KickClient(ulong clientId)
+        {
+            if (!MultiplayerSession.ConnectedPlayers.TryGetValue(clientId, out var player))
+            {
+                DebugConsole.LogWarning($"[GameServer] KickClient: Client {clientId} not found.");
+                return;
+            }
+
+            if (player.Connection == null)
+            {
+                DebugConsole.LogWarning($"[GameServer] KickClient: Client {clientId} has no active connection.");
+                return;
+            }
+
+            if (player.Connection is HSteamNetConnection conn)
+            {
+                DebugConsole.Log($"[GameServer] Kicking client {clientId}");
+
+                SteamNetworkingSockets.CloseConnection(conn, 0, "Kicked by host", false);
+                // The connection closed callback will handle cleanup
+            }
+            else
+            {
+                DebugConsole.LogError($"[GameServer] KickClient: Invalid connection type for {clientId}");
+            }
+        }
     }
 }
 #endif
