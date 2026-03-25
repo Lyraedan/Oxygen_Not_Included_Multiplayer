@@ -24,7 +24,7 @@ namespace ONI_MP.Networking.Transport.Steam
             HSteamNetConnection s_conn = (HSteamNetConnection)conn;
 
             var bytes = PacketSender.SerializePacketForSending(packet);
-            var _sendType = (int)sendType; //Immediate modes = NoNagle, PacketSendMode is functionally the same as what Steam uses for send flags.
+            var _sendType = ConvertSendType(sendType); //(int)sendType;
 
             IntPtr unmanagedPointer = Marshal.AllocHGlobal(bytes.Length);
             try
@@ -54,6 +54,27 @@ namespace ONI_MP.Networking.Transport.Steam
             {
                 Marshal.FreeHGlobal(unmanagedPointer);
             }
+        }
+
+        public int ConvertSendType(PacketSendMode mode)
+        {
+            int result = 0;
+
+            // Reliable / Unreliable
+            if ((mode & PacketSendMode.Reliable) == PacketSendMode.Reliable)
+                result |= 8;  // k_nSteamNetworkingSend_Reliable
+            else
+                result |= 0;  // k_nSteamNetworkingSend_Unreliable (implicitly 0)
+
+            // Immediate (flush) corresponds to NoNagle behavior
+            if ((mode & PacketSendMode.Immediate) == PacketSendMode.Immediate)
+                result |= 1;  // k_nSteamNetworkingSend_NoNagle
+
+            // NoDelay (drop if can't send soon)
+            if ((mode & PacketSendMode.NoDelay) == PacketSendMode.NoDelay)
+                result |= 4;  // k_nSteamNetworkingSend_NoDelay
+
+            return result;
         }
     }
 }
