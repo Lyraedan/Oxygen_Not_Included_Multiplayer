@@ -3,9 +3,10 @@
 namespace ONI_MP.Networking
 {
     /// <summary>
-    /// Based off steam networking types but made transport agnostic
+    /// Describes how a packet should be delivered across the network.
+    /// Transport-agnostic abstraction that maps to the underlying networking backend (e.g. Steam, Riptide).
     /// <para />
-    /// Reference: https://partner.steamgames.com/doc/api/steamnetworkingtypes
+    /// Based off Steam networking types: https://partner.steamgames.com/doc/api/steamnetworkingtypes
     /// </summary>
     [Flags]
 	public enum PacketSendMode
