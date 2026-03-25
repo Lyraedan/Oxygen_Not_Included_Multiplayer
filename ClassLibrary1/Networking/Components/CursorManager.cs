@@ -120,11 +120,11 @@ namespace ONI_MP.Networking.Components
 
 			if (MultiplayerSession.IsHost)
 			{
-				PacketSender.SendToAllClients(packet, SteamNetworkingSend.Unreliable);
+				PacketSender.SendToAllClients(packet, PacketSendMode.Unreliable);
 			}
 			else
 			{
-				PacketSender.SendToHost(packet, SteamNetworkingSend.Unreliable);
+				PacketSender.SendToHost(packet, PacketSendMode.Unreliable);
 			}
 		}
 

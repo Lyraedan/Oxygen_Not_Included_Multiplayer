@@ -4,7 +4,7 @@ namespace ONI_MP.Networking.Transport
 {
     public abstract class TransportPacketSender
     {
-        public abstract bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle);
+        public abstract bool SendToConnection(object conn, IPacket packet, PacketSendMode sendType = PacketSendMode.ReliableImmediate);
 
     }
 }

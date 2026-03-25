@@ -107,7 +107,7 @@ namespace ONI_MP.Networking.Components
 						Value = currentValue,
 						IsActive = currentActive
 					};
-					PacketSender.SendToAllClients(packet, SteamNetworkingSend.Unreliable);
+					PacketSender.SendToAllClients(packet, PacketSendMode.Unreliable);
 				}
 			}
 			catch (System.Exception)

@@ -83,7 +83,7 @@ namespace ONI_MP.Networking.Components
                 Buildings = stateList
             };
 
-            PacketSender.SendToAllClients(packet, SteamNetworkingSend.Unreliable);
+            PacketSender.SendToAllClients(packet, PacketSendMode.Unreliable);
         }
 
         public void OnPacketReceived(BuildingStatePacket packet)

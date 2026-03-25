@@ -46,25 +46,25 @@ namespace ONI_MP_API.Networking
 		static bool typesInitialized = false;
 
 		static SendToAllDelegate? _SendToAll = null;
-		delegate void SendToAllDelegate(object packet, ulong? exclude = null, int sendType = (int)SteamNetworkingSend.Reliable);
+		delegate void SendToAllDelegate(object packet, ulong? exclude = null, int sendType = (int)PacketSendMode.Reliable);
 
 		static SendToAllClientsDelegate? _SendToAllClients = null;
-		delegate void SendToAllClientsDelegate(object packet, int sendType = (int)SteamNetworkingSend.Reliable);
+		delegate void SendToAllClientsDelegate(object packet, int sendType = (int)PacketSendMode.Reliable);
 
 		static SendToAllExcludingDelegate? _SendToAllExcluding = null;
-		delegate void SendToAllExcludingDelegate(object packet, HashSet<ulong> excludedIds, int sendType = (int)SteamNetworkingSend.Reliable);
+		delegate void SendToAllExcludingDelegate(object packet, HashSet<ulong> excludedIds, int sendType = (int)PacketSendMode.Reliable);
 
 		static SendToPlayerDelegate? _SendToPlayer = null;
-		delegate void SendToPlayerDelegate(ulong steamID, object packet, int sendType = (int)SteamNetworkingSend.ReliableNoNagle);
+		delegate void SendToPlayerDelegate(ulong steamID, object packet, int sendType = (int)PacketSendMode.ReliableImmediate);
 
 		static SendToHostDelegate? _SendToHost = null;
-		delegate void SendToHostDelegate(object packet, int sendType = (int)SteamNetworkingSend.ReliableNoNagle);
+		delegate void SendToHostDelegate(object packet, int sendType = (int)PacketSendMode.ReliableImmediate);
 
 		static SendToAllOtherPeersDelegate? _SendToAllOtherPeers = null;
 		delegate void SendToAllOtherPeersDelegate(object packet);
 
 		/// Original single-exclude overload
-		public static void SendToAll(IPacket packet, ulong? exclude = null, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
+		public static void SendToAll(IPacket packet, ulong? exclude = null, PacketSendMode sendType = PacketSendMode.Reliable)
 		{
 			using var _ = Profiler.Scope();
 
@@ -74,7 +74,7 @@ namespace ONI_MP_API.Networking
 			_SendToAll(packet, exclude, (int)sendType);
 		}
 
-		public static void SendToAllClients(IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
+		public static void SendToAllClients(IPacket packet, PacketSendMode sendType = PacketSendMode.Reliable)
 		{
 			using var _ = Profiler.Scope();
 
@@ -84,7 +84,7 @@ namespace ONI_MP_API.Networking
 			_SendToAllClients(packet, (int)sendType);
 		}
 
-		public static void SendToAllExcluding(IPacket packet, HashSet<ulong> excludedIds, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
+		public static void SendToAllExcluding(IPacket packet, HashSet<ulong> excludedIds, PacketSendMode sendType = PacketSendMode.Reliable)
 		{
 			using var _ = Profiler.Scope();
 
@@ -94,7 +94,7 @@ namespace ONI_MP_API.Networking
 			_SendToAllExcluding(packet, excludedIds, (int)sendType);
 		}
 
-		public static void SendToPlayer(ulong steamId, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
+		public static void SendToPlayer(ulong steamId, IPacket packet, PacketSendMode sendType = PacketSendMode.ReliableImmediate)
 		{
 			using var _ = Profiler.Scope();
 
@@ -104,7 +104,7 @@ namespace ONI_MP_API.Networking
 			_SendToPlayer(steamId, packet, (int)sendType);
 		}
 
-		public static void SendToHost(IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
+		public static void SendToHost(IPacket packet, PacketSendMode sendType = PacketSendMode.ReliableImmediate)
 		{
 			using var _ = Profiler.Scope();
 

@@ -44,7 +44,7 @@ namespace ONI_MP.Misc.World
 				Entries = new List<InstantiationsPacket.InstantiationEntry>(queue)
 			};
 
-			PacketSender.SendToAll(packet, sendType: SteamNetworkingSend.Unreliable);
+			PacketSender.SendToAll(packet, sendType: PacketSendMode.Unreliable);
 			queue.Clear();
 		}
 	}

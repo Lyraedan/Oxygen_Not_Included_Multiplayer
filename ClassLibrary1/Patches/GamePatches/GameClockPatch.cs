@@ -53,7 +53,7 @@ namespace ONI_MP.Patches.GamePatches
 				{
 					Cycle = __instance.GetCycle(),
 					CycleTime = __instance.GetTimeSinceStartOfCycle()
-				}, SteamNetworkingSend.Unreliable);
+				}, PacketSendMode.Unreliable);
 			}
 
 			// 2. Trigger HardSync at the start of a new cycle

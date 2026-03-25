@@ -177,7 +177,7 @@ namespace ONI_MP.Networking.Components
                     Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
                 };
 
-                PacketSender.SendToAllClients(packet, sendType: SteamNetworkingSend.Unreliable);
+                PacketSender.SendToAllClients(packet, sendType: PacketSendMode.Unreliable);
 
             }
 			catch (System.Exception)

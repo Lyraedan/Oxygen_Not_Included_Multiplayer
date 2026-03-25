@@ -14,7 +14,7 @@ namespace ONI_MP.Networking.Transport.Steam
 {
     public class SteamworksPacketSender : TransportPacketSender
     {
-        public override bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
+        public override bool SendToConnection(object conn, IPacket packet, PacketSendMode sendType = PacketSendMode.ReliableImmediate)
         {
             using var _ = Profiler.Scope();
 

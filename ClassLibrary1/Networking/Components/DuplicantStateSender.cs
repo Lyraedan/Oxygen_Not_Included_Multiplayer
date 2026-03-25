@@ -113,7 +113,7 @@ namespace ONI_MP.Networking.Components
 					HeldItemSymbol = heldSymbol
 				};
 
-				PacketSender.SendToAllClients(packet, sendType: SteamNetworkingSend.Unreliable);
+				PacketSender.SendToAllClients(packet, sendType: PacketSendMode.Unreliable);
 			}
 			catch (System.Exception)
 			{

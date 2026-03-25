@@ -90,7 +90,7 @@ namespace ONI_MP.Misc.World
                             var packet = new WorldUpdatePacket();
                             packet.Updates.AddRange(currentBatch);
 
-                            PacketSender.SendToAllClients(packet, sendType: SteamNetworkingSend.Unreliable);
+                            PacketSender.SendToAllClients(packet, sendType: PacketSendMode.Unreliable);
 
                             currentBatch.Clear();
                             currentSize = PacketHeaderSize;
@@ -107,7 +107,7 @@ namespace ONI_MP.Misc.World
                     var packet = new WorldUpdatePacket();
                     packet.Updates.AddRange(currentBatch);
 
-                    PacketSender.SendToAllClients(packet, sendType: SteamNetworkingSend.Unreliable);
+                    PacketSender.SendToAllClients(packet, sendType: PacketSendMode.Unreliable);
                 }
 
                 pendingUpdates.Clear();

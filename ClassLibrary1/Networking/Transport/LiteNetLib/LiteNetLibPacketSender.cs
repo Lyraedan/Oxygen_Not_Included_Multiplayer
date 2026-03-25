@@ -8,7 +8,7 @@ namespace ONI_MP.Networking.Transport.Lan
 {
     public class LiteNetLibPacketSender : TransportPacketSender
     {
-        public override bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
+        public override bool SendToConnection(object conn, IPacket packet, PacketSendMode sendType = PacketSendMode.ReliableImmediate)
         {
             using var _ = Profiler.Scope();
 
@@ -39,24 +39,24 @@ namespace ONI_MP.Networking.Transport.Lan
             }
         }
 
-        private static DeliveryMethod ConvertSendType(SteamNetworkingSend sendType)
+        private static DeliveryMethod ConvertSendType(PacketSendMode sendType)
         {
             using var _ = Profiler.Scope();
 
             switch (sendType)
             {
-                case SteamNetworkingSend.Reliable:
-                case SteamNetworkingSend.ReliableNoNagle:
+                case PacketSendMode.Reliable:
+                case PacketSendMode.ReliableImmediate:
                     return DeliveryMethod.ReliableOrdered;
 
-                case SteamNetworkingSend.Unreliable:
-                case SteamNetworkingSend.UnreliableNoNagle:
-                case SteamNetworkingSend.UnreliableNoDelay:
+                case PacketSendMode.Unreliable:
+                case PacketSendMode.UnreliableImmediate:
+                case PacketSendMode.UnreliableNoDelay:
                     return DeliveryMethod.Unreliable;
 
                 default:
                     // Catch-all for any unexpected flag combos
-                    if ((sendType & SteamNetworkingSend.Reliable) != 0)
+                    if ((sendType & PacketSendMode.Reliable) != 0)
                         return DeliveryMethod.ReliableOrdered;
 
                     return DeliveryMethod.Unreliable;

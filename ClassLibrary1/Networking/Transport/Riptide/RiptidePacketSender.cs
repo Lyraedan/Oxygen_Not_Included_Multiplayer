@@ -11,7 +11,7 @@ namespace ONI_MP.Networking.Transport.Lan
     {
         private const int MAX_PAYLOAD_BYTES = 1000;
 
-        public override bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
+        public override bool SendToConnection(object conn, IPacket packet, PacketSendMode sendType = PacketSendMode.ReliableImmediate)
         {
             using var _ = Profiler.Scope();
 
@@ -31,7 +31,7 @@ namespace ONI_MP.Networking.Transport.Lan
             return SendRaw(connection, bytes, packet, sendType);
         }
 
-        private bool SendRaw(Connection connection, byte[] bytes, IPacket packet, SteamNetworkingSend sendType)
+        private bool SendRaw(Connection connection, byte[] bytes, IPacket packet, PacketSendMode sendType)
         {
             MessageSendMode sendMode = ConvertSendType(sendType);
             Riptide.Message msg = Riptide.Message.Create(sendMode, 1);
@@ -62,7 +62,7 @@ namespace ONI_MP.Networking.Transport.Lan
             return true;
         }
 
-        private bool SendChunked(Connection connection, byte[] fullData, SteamNetworkingSend sendType)
+        private bool SendChunked(Connection connection, byte[] fullData, PacketSendMode sendType)
         {
             int chunkDataSize = MAX_PAYLOAD_BYTES - 20; // overhead for ChunkedPacket header
             int totalChunks = (fullData.Length + chunkDataSize - 1) / chunkDataSize;
@@ -90,24 +90,24 @@ namespace ONI_MP.Networking.Transport.Lan
             return true;
         }
 
-        private static MessageSendMode ConvertSendType(SteamNetworkingSend sendType)
+        private static MessageSendMode ConvertSendType(PacketSendMode sendType)
         {
             using var _ = Profiler.Scope();
 
             switch (sendType)
             {
-                case SteamNetworkingSend.Reliable:
-                case SteamNetworkingSend.ReliableNoNagle:
+                case PacketSendMode.Reliable:
+                case PacketSendMode.ReliableImmediate:
                     return MessageSendMode.Reliable;
 
-                case SteamNetworkingSend.Unreliable:
-                case SteamNetworkingSend.UnreliableNoNagle:
-                case SteamNetworkingSend.UnreliableNoDelay:
+                case PacketSendMode.Unreliable:
+                case PacketSendMode.UnreliableImmediate:
+                case PacketSendMode.UnreliableNoDelay:
                     return MessageSendMode.Unreliable;
 
                 default:
                     // Catch-all for unexpected flag combinations
-                    if ((sendType & SteamNetworkingSend.Reliable) != 0)
+                    if ((sendType & PacketSendMode.Reliable) != 0)
                         return MessageSendMode.Reliable;
 
                     return MessageSendMode.Unreliable;

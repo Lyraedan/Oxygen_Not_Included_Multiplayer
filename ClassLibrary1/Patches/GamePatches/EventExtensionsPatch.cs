@@ -59,7 +59,7 @@ namespace ONI_MP.Patches.GamePatches
 					try
 					{
 						var packet = new EventTriggeredPacket(identity.NetId, hash, safeData);
-						PacketSender.SendToAllClients(packet, SteamNetworkingSend.Unreliable);
+						PacketSender.SendToAllClients(packet, PacketSendMode.Unreliable);
 					}
 					catch (Exception)
 					{

@@ -134,7 +134,7 @@ namespace ONI_MP.Networking.Components
 					}
 				}
 
-				PacketSender.SendToAllClients(digPacket, SteamNetworkingSend.Unreliable);
+				PacketSender.SendToAllClients(digPacket, PacketSendMode.Unreliable);
 
 				sw.Stop();
 				SyncStats.RecordSync(SyncStats.Digging, digPacket.DigCells.Count, digPacket.DigCells.Count * 4, sw.ElapsedMilliseconds);
@@ -227,7 +227,7 @@ namespace ONI_MP.Networking.Components
 					}
 				}
 
-				PacketSender.SendToAllClients(chorePacket, SteamNetworkingSend.Unreliable);
+				PacketSender.SendToAllClients(chorePacket, PacketSendMode.Unreliable);
 
 				sw.Stop();
 				SyncStats.RecordSync(SyncStats.Chores, chorePacket.Chores.Count, chorePacket.Chores.Count * 5, sw.ElapsedMilliseconds);
@@ -363,7 +363,7 @@ namespace ONI_MP.Networking.Components
 					}
 				}
 
-				PacketSender.SendToAllClients(packet, SteamNetworkingSend.Unreliable);
+				PacketSender.SendToAllClients(packet, PacketSendMode.Unreliable);
 			}
 			catch (System.Exception ex)
 			{
@@ -410,7 +410,7 @@ namespace ONI_MP.Networking.Components
 					Progress = progressPercent
 				};
 
-				PacketSender.SendToAllClients(packet, SteamNetworkingSend.Unreliable);
+				PacketSender.SendToAllClients(packet, PacketSendMode.Unreliable);
 
 				sw.Stop();
 				SyncStats.RecordSync(SyncStats.Research, 1, 20, sw.ElapsedMilliseconds);
@@ -449,7 +449,7 @@ namespace ONI_MP.Networking.Components
 				}
 
 				if (packet.Priorities.Count > 0)
-					PacketSender.SendToAllClients(packet, SteamNetworkingSend.Unreliable);
+					PacketSender.SendToAllClients(packet, PacketSendMode.Unreliable);
 			}
 			catch (System.Exception ex)
 			{
@@ -490,7 +490,7 @@ namespace ONI_MP.Networking.Components
 					}
 
 					if (packet.DisinfectCells.Count > 0)
-						PacketSender.SendToAllClients(packet, SteamNetworkingSend.Unreliable);
+						PacketSender.SendToAllClients(packet, PacketSendMode.Unreliable);
 				}
 			}
 			catch (System.Exception ex)

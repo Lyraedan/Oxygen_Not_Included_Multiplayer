@@ -105,7 +105,7 @@ namespace ONI_MP.Networking
 			//	if (!UpdateRunners[packetId].CanDispatchNext(conn))
 			//		return;
 			//}
-			SendToConnection(conn, new BulkSenderPacket(packetId, pendingPackets), SteamNetworkingSend.ReliableNoNagle);
+			SendToConnection(conn, new BulkSenderPacket(packetId, pendingPackets), PacketSendMode.ReliableImmediate);
 			pendingPackets.Clear();
 		}
 		public static void AppendPendingBulkPacket(object conn, IPacket packet, IBulkablePacket bp)
@@ -163,7 +163,7 @@ namespace ONI_MP.Networking
 		/// </summary>
 		///
 
-		public static bool SendToConnection(object conn, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
+		public static bool SendToConnection(object conn, IPacket packet, PacketSendMode sendType = PacketSendMode.ReliableImmediate)
 		{
 			using var _ = Profiler.Scope();
 
@@ -179,7 +179,7 @@ namespace ONI_MP.Networking
 		/// <summary>
 		/// Send a packet to a player by their SteamID.
 		/// </summary>
-		public static bool SendToPlayer(ulong steamID, IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
+		public static bool SendToPlayer(ulong steamID, IPacket packet, PacketSendMode sendType = PacketSendMode.ReliableImmediate)
 		{
 			using var _ = Profiler.Scope();
 
@@ -199,7 +199,7 @@ namespace ONI_MP.Networking
 			return SendToConnection(player.Connection, packet, sendType);
 		}
 
-		public static void SendToHost(IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.ReliableNoNagle)
+		public static void SendToHost(IPacket packet, PacketSendMode sendType = PacketSendMode.ReliableImmediate)
 		{
 			using var _ = Profiler.Scope();
 
@@ -212,7 +212,7 @@ namespace ONI_MP.Networking
 		}
 
 		/// Original single-exclude overload
-		public static void SendToAll(IPacket packet, ulong? exclude = null, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
+		public static void SendToAll(IPacket packet, ulong? exclude = null, PacketSendMode sendType = PacketSendMode.Reliable)
 		{
 			using var _ = Profiler.Scope();
 
@@ -226,7 +226,7 @@ namespace ONI_MP.Networking
 			}
 		}
 
-		public static void SendToAllClients(IPacket packet, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
+		public static void SendToAllClients(IPacket packet, PacketSendMode sendType = PacketSendMode.Reliable)
 		{
 			using var _ = Profiler.Scope();
 
@@ -238,7 +238,7 @@ namespace ONI_MP.Networking
 			SendToAll(packet, MultiplayerSession.HostUserID, sendType);
 		}
 
-		public static void SendToAllExcluding(IPacket packet, HashSet<ulong> excludedIds, SteamNetworkingSend sendType = SteamNetworkingSend.Reliable)
+		public static void SendToAllExcluding(IPacket packet, HashSet<ulong> excludedIds, PacketSendMode sendType = PacketSendMode.Reliable)
 		{
 			using var _ = Profiler.Scope();
 
@@ -345,7 +345,7 @@ namespace ONI_MP.Networking
 		/// <param name="api_packet">data object of the packet class that got registered with a ModApiPacket wrapper earlier</param>
 		/// <param name="exclude"></param>
 		/// <param name="sendType"></param>
-		public static void SendToAll_API(object api_packet, ulong? exclude = null, int sendType = (int)SteamNetworkingSend.Reliable)
+		public static void SendToAll_API(object api_packet, ulong? exclude = null, int sendType = (int)PacketSendMode.Reliable)
 		{
 			using var _ = Profiler.Scope();
 
@@ -360,10 +360,10 @@ namespace ONI_MP.Networking
 				DebugConsole.LogError($"[PacketSender] Failed to wrap API packet of type: {type.Name}");
 				return;
 			}
-			SendToAll(packet, exclude, (SteamNetworkingSend)sendType);
+			SendToAll(packet, exclude, (PacketSendMode)sendType);
 		}
 
-		public static void SendToAllClients_API(object api_packet, int sendType = (int)SteamNetworkingSend.Reliable)
+		public static void SendToAllClients_API(object api_packet, int sendType = (int)PacketSendMode.Reliable)
 		{
 			using var _ = Profiler.Scope();
 
@@ -379,10 +379,10 @@ namespace ONI_MP.Networking
 				DebugConsole.LogError($"[PacketSender] Failed to wrap API packet of type: {type.Name}");
 				return;
 			}
-			SendToAllClients(packet, (SteamNetworkingSend)sendType);
+			SendToAllClients(packet, (PacketSendMode)sendType);
 		}
 
-		public static void SendToAllExcluding_API(object api_packet, HashSet<ulong> excludedIds, int sendType = (int)SteamNetworkingSend.Reliable)
+		public static void SendToAllExcluding_API(object api_packet, HashSet<ulong> excludedIds, int sendType = (int)PacketSendMode.Reliable)
 		{
 			using var _ = Profiler.Scope();
 
@@ -398,10 +398,10 @@ namespace ONI_MP.Networking
 				DebugConsole.LogError($"[PacketSender] Failed to wrap API packet of type: {type.Name}");
 				return;
 			}
-			SendToAllExcluding(packet, excludedIds, (SteamNetworkingSend)sendType);
+			SendToAllExcluding(packet, excludedIds, (PacketSendMode)sendType);
 		}
 
-		public static void SendToPlayer_API(ulong steamID, object api_packet, int sendType = (int)SteamNetworkingSend.ReliableNoNagle)
+		public static void SendToPlayer_API(ulong steamID, object api_packet, int sendType = (int)PacketSendMode.ReliableImmediate)
 		{
 			using var _ = Profiler.Scope();
 
@@ -417,10 +417,10 @@ namespace ONI_MP.Networking
 				DebugConsole.LogError($"[PacketSender] Failed to wrap API packet of type: {type.Name}");
 				return;
 			}
-			SendToPlayer(steamID, packet, (SteamNetworkingSend)sendType);
+			SendToPlayer(steamID, packet, (PacketSendMode)sendType);
 		}
 
-		public static void SendToHost_API(object api_packet, int sendType = (int)SteamNetworkingSend.ReliableNoNagle)
+		public static void SendToHost_API(object api_packet, int sendType = (int)PacketSendMode.ReliableImmediate)
 		{
 			using var _ = Profiler.Scope();
 
@@ -436,7 +436,7 @@ namespace ONI_MP.Networking
 				DebugConsole.LogError($"[PacketSender] Failed to wrap API packet of type: {type.Name}");
 				return;
 			}
-			SendToHost(packet, (SteamNetworkingSend)sendType);
+			SendToHost(packet, (PacketSendMode)sendType);
 		}
 
 	}
