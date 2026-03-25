@@ -24,7 +24,7 @@ namespace ONI_MP.Networking.Transport.Steam
             HSteamNetConnection s_conn = (HSteamNetConnection)conn;
 
             var bytes = PacketSender.SerializePacketForSending(packet);
-            var _sendType = (int)sendType;
+            var _sendType = (int)sendType; //Immediate modes = NoNagle, PacketSendMode is functionally the same as what Steam uses for send flags.
 
             IntPtr unmanagedPointer = Marshal.AllocHGlobal(bytes.Length);
             try
