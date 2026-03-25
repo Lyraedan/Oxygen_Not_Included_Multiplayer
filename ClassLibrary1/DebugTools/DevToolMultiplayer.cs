@@ -270,16 +270,10 @@ namespace ONI_MP.DebugTools
             ImGui.Separator();
             DisplaySessionDetails();
 
-            if (NetworkConfig.transport.Equals(NetworkConfig.NetworkTransport.STEAMWORKS))
-            {
-                if (MultiplayerSession.InSession)
-                    DrawPlayerList();
-                else
-                    ImGui.TextDisabled("Not in a multiplayer session.");
-            } else
-            {
-                ImGui.TextDisabled("No access to a player list.");
-            }
+            if (MultiplayerSession.InSession)
+                DrawPlayerList();
+            else
+                ImGui.TextDisabled("Not in a multiplayer session.");
         }
 
         private void DrawNetworkTab()
@@ -529,6 +523,12 @@ namespace ONI_MP.DebugTools
             //ImGui.Text($"Pending Unreliable: {GameClient.GetPendingUnreliable()}");
             //ImGui.Text($"Queue Time: {GameClient.GetUsecQueueTime() / 1000}ms");
             ImGui.Spacing();
+            int ping = 0;
+            if (MultiplayerSession.IsClient)
+            {
+                ping = NetworkConfig.GetTransportClient().GetPing();
+            }
+            ImGui.Text($"Ping: {ping}");
             ImGui.Text($"Latency: {Utils.NetworkStateToString(NetworkIndicatorsScreen.latencyState)}");
             ImGui.Text($"Jitter: {Utils.NetworkStateToString(NetworkIndicatorsScreen.jitterState)}");
             ImGui.Text($"Packet Loss: {Utils.NetworkStateToString(NetworkIndicatorsScreen.packetlossState)}");

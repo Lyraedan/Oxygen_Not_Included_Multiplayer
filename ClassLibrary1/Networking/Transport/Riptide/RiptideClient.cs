@@ -359,6 +359,11 @@ namespace ONI_MP.Networking.Transport.Lan
             float remoteQuality = 1f - lossRate;
 
 
+            DebugConsole.Log(
+                $"[NET] Resends(mean={meanResends:F2}, std={resendStdDev:F2}) | " +
+                $"Loss={lossRate:P2} | Quality={remoteQuality:P2}"
+            );
+
             if (meanResends >= 2.0 ||           // On average needs 2+ sends per reliable
                 resendStdDev >= 1.0 ||          // Highly unstable resend behavior
                 remoteQuality <= 0.85f)         // Bad server quality
@@ -537,5 +542,14 @@ namespace ONI_MP.Networking.Transport.Lan
             }
         }
 
+        public override int GetPing()
+        {
+            using var _ = Profiler.Scope();
+
+            if (_client == null || !_client.IsConnected)
+                return -1;
+
+            return _client.RTT;
+        }
     }
 }

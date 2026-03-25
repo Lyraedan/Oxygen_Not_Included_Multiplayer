@@ -71,7 +71,7 @@ namespace ONI_MP.DebugTools
 			switch (NetworkConfig.transport)
 			{
 				case NetworkConfig.NetworkTransport.STEAMWORKS:
-					ping = SteamworksClient.GetPingToHost();
+					ping = NetworkConfig.GetTransportClient().GetPing();
 					qualityL = SteamworksClient.GetLocalPacketQuality();
 					qualityR = SteamworksClient.GetRemotePacketQuality();
 					break;
@@ -82,7 +82,7 @@ namespace ONI_MP.DebugTools
                     float quality = 1f - lossRate;
                     float remoteQuality = 1f - lossRate;
 
-                    ping = RiptideClient.Client.SmoothRTT;
+                    ping = NetworkConfig.GetTransportClient().GetPing();
                     qualityL = quality;
                     qualityR = remoteQuality;
                     break;

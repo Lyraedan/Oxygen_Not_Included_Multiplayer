@@ -46,6 +46,8 @@ namespace ONI_MP.Networking.Transport
 
         // Network health functions
 
+        public abstract int GetPing();
+
         public abstract NetworkState GetJitterState();
 
         public abstract NetworkState GetLatencyState();

@@ -318,16 +318,6 @@ namespace ONI_MP.Networking.Transport.Steam
             return connectionHealth.Value.m_flConnectionQualityRemote;
         }
 
-        public static int GetPingToHost()
-        {
-            using var _ = Profiler.Scope();
-
-            if (!connectionHealth.HasValue)
-                return -1;
-
-            return connectionHealth.Value.m_nPing;
-        }
-
         public static int GetUnackedReliable()
         {
             using var _ = Profiler.Scope();
@@ -484,6 +474,16 @@ namespace ONI_MP.Networking.Transport.Steam
             }
 
             return NetworkState.GOOD;
+        }
+
+        public override int GetPing()
+        {
+            using var _ = Profiler.Scope();
+
+            if (!connectionHealth.HasValue)
+                return -1;
+
+            return connectionHealth.Value.m_nPing;
         }
         #endregion
     }

@@ -346,6 +346,11 @@ namespace ONI_MP.Networking.Transport.Lan
             MultiplayerOverlay.Close();
         }
 
+        public override int GetPing()
+        {
+            return -1;
+        }
+
         //IEnumerator Handshake()
         //{
         //    HandshakePacket handshake = new HandshakePacket();
