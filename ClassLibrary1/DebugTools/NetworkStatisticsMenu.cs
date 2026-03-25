@@ -64,14 +64,13 @@ namespace ONI_MP.DebugTools
 
 			scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.Width(windowRect.width - 20), GUILayout.Height(windowRect.height - 40));
 
-			int ping = -1;
+			int ping = NetworkConfig.GetTransportClient().GetPing();
 			float qualityL = -1;
             float qualityR = -1;
 
 			switch (NetworkConfig.transport)
 			{
 				case NetworkConfig.NetworkTransport.STEAMWORKS:
-					ping = NetworkConfig.GetTransportClient().GetPing();
 					qualityL = SteamworksClient.GetLocalPacketQuality();
 					qualityR = SteamworksClient.GetRemotePacketQuality();
 					break;
@@ -82,7 +81,6 @@ namespace ONI_MP.DebugTools
                     float quality = 1f - lossRate;
                     float remoteQuality = 1f - lossRate;
 
-                    ping = NetworkConfig.GetTransportClient().GetPing();
                     qualityL = quality;
                     qualityR = remoteQuality;
                     break;
