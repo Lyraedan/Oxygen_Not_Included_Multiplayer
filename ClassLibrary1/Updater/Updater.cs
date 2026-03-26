@@ -23,9 +23,9 @@ namespace ONI_MP.ModUpdater
 
             CURRENT_VERSION = GetVersion();
 
-            if (!SteamAPI.IsSteamRunning() || !SteamAPI.Init())
+            if (!SteamManager.Initialized)
             {
-                DebugConsole.LogError("[Updater] Failed to initialize SteamAPI.", false);
+                DebugConsole.LogError("[Updater] Steam is not initialized.", false);
                 return;
             }
 
