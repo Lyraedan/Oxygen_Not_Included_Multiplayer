@@ -218,7 +218,6 @@ namespace ONI_MP.DebugTools
                     if (ImGui.Button("Leave Lobby"))
                         SteamLobby.LeaveLobby();
                     break;
-                case NetworkConfig.NetworkTransport.LITENETLIB:
                 case NetworkConfig.NetworkTransport.RIPTIDE:
                     if (ImGui.Button("Start Lan"))
                     {
@@ -324,11 +323,6 @@ namespace ONI_MP.DebugTools
                 RiptideSmokeTest.Run();
             }
             ImGui.SameLine();
-            if (ImGui.Button("LiteNetLib Smoke Test"))
-            {
-                LiteNetLibSmokeTest.Run(7777);
-            }
-
             if (ImGui.Button("Start Current Config Server"))
             {
                 NetworkConfig.TransportServer.Start();
@@ -625,7 +619,7 @@ namespace ONI_MP.DebugTools
 
             ImGui.Text("Network Transport Settings");
 
-            string[] display_options = new string[] { "Steam", "LAN/Riptide", "Lan/LiteNetLib" };
+            string[] display_options = new string[] { "Steam", "LAN/Riptide" };
             ImGui.Text($"Currently used transport: {display_options[(int)NetworkConfig.transport]}");
 
             string[] options = new string[] { "Steam", "LAN" };
@@ -638,7 +632,7 @@ namespace ONI_MP.DebugTools
                 ImGui.Indent();
                 ImGui.Separator();
 
-                string[] lan_options = new string[] { "Riptide", "LiteNetLib" };
+                string[] lan_options = new string[] { "Riptide" };
                 ImGui.Combo("Lan Type", ref selectedLanType, lan_options, lan_options.Length);
                 ImGui.Separator();
 
@@ -674,13 +668,7 @@ namespace ONI_MP.DebugTools
                 }
                 else
                 {
-                    if(selectedLanType == 0)
-                    {
-                        selected_transport = NetworkConfig.NetworkTransport.RIPTIDE;
-                    } else
-                    {
-                        selected_transport = NetworkConfig.NetworkTransport.LITENETLIB;
-                    }
+                    selected_transport = NetworkConfig.NetworkTransport.RIPTIDE;
                 }
                 Configuration.Instance.Host.NetworkTransport = (int)selected_transport;
                 NetworkConfig.UpdateTransport(selected_transport);
