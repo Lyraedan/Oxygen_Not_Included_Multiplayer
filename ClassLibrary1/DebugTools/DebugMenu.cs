@@ -42,7 +42,13 @@ namespace ONI_MP.DebugTools
 			GameObject go = new GameObject("ONI_MP_DebugMenu");
 			DontDestroyOnLoad(go);
 			_instance = go.AddComponent<DebugMenu>();
-		}
+
+            _instance.lanHostIP = Configuration.Instance.Host.LanSettings.Ip;
+            _instance.lanHostPort = Configuration.Instance.Host.LanSettings.Port.ToString();
+
+            _instance.lanJoinAddress = $"{Configuration.Instance.Client.LanSettings.Ip}:{Configuration.Instance.Client.LanSettings.Port}";
+
+        }
 
 		private void Awake()
 		{
