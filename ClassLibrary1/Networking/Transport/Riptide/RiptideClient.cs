@@ -549,7 +549,7 @@ namespace ONI_MP.Networking.Transport.Lan
             if (_client == null || !_client.IsConnected)
                 return -1;
 
-            return _client.RTT;
+            return _client.SmoothRTT;
         }
     }
 }
