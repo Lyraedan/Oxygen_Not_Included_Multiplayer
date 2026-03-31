@@ -68,8 +68,16 @@ namespace ONI_MP.Networking.Transport.Lan
             _server.Start((ushort)port, (ushort)maxClients, useMessageHandlers: false);
             DebugConsole.Log("[RiptideServer] Riptide server started!");
 
-            _tcpTransfer = new TcpFileTransferServer();
-            _tcpTransfer.Start(port);
+            try
+            {
+                _tcpTransfer = new TcpFileTransferServer();
+                _tcpTransfer.Start(port);
+            }
+            catch (Exception ex)
+            {
+                DebugConsole.LogWarning($"[RiptideServer] TCP file transfer server failed to start: {ex.Message}. Save transfers will use UDP fallback.");
+                _tcpTransfer = null;
+            }
 
             _client = new Client("Lan/Riptide/HostClient");
             _client.Connected += OnLocalClientConnected;

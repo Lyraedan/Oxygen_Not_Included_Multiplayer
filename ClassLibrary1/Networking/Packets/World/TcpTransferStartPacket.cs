@@ -57,8 +57,11 @@ namespace ONI_MP.Networking.Packets.World
 				},
 				(error) =>
 				{
-					DebugConsole.LogError($"[TcpTransferStart] TCP download failed: {error}");
-					MultiplayerOverlay.Show("Save download failed.");
+					DebugConsole.LogWarning($"[TcpTransferStart] TCP download failed: {error}. Requesting UDP fallback.");
+					MultiplayerOverlay.Show("TCP connection failed. Downloading save via UDP...");
+
+					var fallback = new TcpFallbackRequestPacket { Requester = ClientId };
+					PacketSender.SendToHost(fallback);
 				});
 		}
 	}
