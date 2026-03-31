@@ -90,16 +90,18 @@ namespace ONI_MP.Networking.Packets.Animation
 					return;
 				}
 
-				// StartWork can only trigger if the Working state is idle
-				if (worker.state.Equals(StandardWorker.State.Idle))
+				try
 				{
+					if (!worker.state.Equals(StandardWorker.State.Idle))
+					{
+						worker.StopWork();
+					}
 					worker.StartWork(new(workable));
-				} else
+				}
+				catch (System.Exception ex)
 				{
-					// We are not idle, stop whatever the hell we're doing and start the new workable
-					worker.StopWork();
-                    worker.StartWork(new(workable));
-                }
+					DebugConsole.LogWarning($"[StandardWorker_WorkingState_Packet] StartWork failed for {worker.name} on {workableGO.name}: {ex.GetType().Name}");
+				}
             }
 			else
 				worker.StopWork();

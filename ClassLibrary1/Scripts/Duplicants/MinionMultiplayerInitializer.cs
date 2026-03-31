@@ -62,7 +62,6 @@ namespace ONI_MP.Scripts.Duplicants
 				if (go.TryGetComponent<ChoreDriver>(out var driver)) driver.enabled = false;
 				if (go.TryGetComponent<ChoreConsumer>(out var consumer)) consumer.enabled = false;
 				if (go.TryGetComponent<MinionBrain>(out var brain)) brain.enabled = false;
-				if (go.TryGetComponent<Navigator>(out var nav)) nav.enabled = false;
 
 				// Disable sensors that might trigger behaviors
 				if (go.TryGetComponent<Sensors>(out var sensors)) sensors.enabled = false;

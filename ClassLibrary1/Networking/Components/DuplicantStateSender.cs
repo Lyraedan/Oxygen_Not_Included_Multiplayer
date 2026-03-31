@@ -262,7 +262,10 @@ namespace ONI_MP.Networking.Components
 			if (animController == null)
 				return string.Empty;
 
-			return animController.currentAnim.ToString();
+			if (animController.CurrentAnim != null)
+				return animController.CurrentAnim.name;
+
+			return string.Empty;
 		}
 
 		private bool IsCurrentlyWorking()
