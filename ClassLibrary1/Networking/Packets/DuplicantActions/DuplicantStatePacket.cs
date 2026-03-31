@@ -58,7 +58,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 				DebugConsole.LogWarning($"[DuplicantStatePacket] NetId {NetId} not found");
 				return;
 			}
-			controller.OnStateReceived(ActionState, TargetCell, CurrentAnimName, AnimElapsedTime, IsWorking, HeldItemSymbol);
+			controller.OnStateReceived(ActionState, TargetCell, CurrentAnimName, AnimElapsedTime, IsWorking);
 		}
 	}
 

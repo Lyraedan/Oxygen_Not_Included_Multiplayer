@@ -23,8 +23,9 @@ namespace ONI_MP.Patches.DuplicantActions
 		{
 			private static Type[] workablesToSkip =
 			{
-                typeof(DefragmentationZone), // Bionic sleeping
-                typeof(RancherWorkable) // Ranching
+                typeof(DefragmentationZone),
+                typeof(RancherWorkable),
+                typeof(LiquidPumpingStation)
             };
 
 			public static void Postfix(StandardWorker __instance, StartWorkInfo start_work_info)
@@ -40,11 +41,6 @@ namespace ONI_MP.Patches.DuplicantActions
 				if (!Utils.IsHostMinion(__instance))
 					return;
 
-				/// Skip deliverables for now
-				if (start_work_info.GetType() != typeof(WorkerBase.StartWorkInfo))
-					return;
-
-				/// Skip these workables for now
 				foreach (Type workableType in workablesToSkip)
 				{
                     if (start_work_info.workable.GetType() == workableType)

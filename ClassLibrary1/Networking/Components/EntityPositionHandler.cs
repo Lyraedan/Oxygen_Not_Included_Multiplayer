@@ -27,6 +27,11 @@ namespace ONI_MP.Networking.Components
         public bool serverFlipX;
         public bool serverFlipY;
 
+        public static float SendIntervalDuplicantMoving = 0.5f;
+        private bool? isDuplicantCached;
+        private DuplicantClientController cachedClientController;
+        private bool clientControllerChecked;
+
         #region Position Sync Tuning
 
         /// <summary>
@@ -102,6 +107,20 @@ namespace ONI_MP.Networking.Components
             if (serverTimestamp == 0)
                 return;
 
+            if (!clientControllerChecked)
+            {
+                cachedClientController = GetComponent<DuplicantClientController>();
+                clientControllerChecked = true;
+            }
+
+            if (cachedClientController != null && cachedClientController.enabled)
+            {
+                cachedClientController.OnPositionCorrection(serverPosition);
+                kbac.FlipX = serverFlipX;
+                kbac.FlipY = serverFlipY;
+                return;
+            }
+
             kbac.FlipX = serverFlipX;
             kbac.FlipY = serverFlipY;
 
@@ -128,9 +147,7 @@ namespace ONI_MP.Networking.Components
             float interpolationFactor = Mathf.Clamp(Time.unscaledDeltaTime * VELOCITY_SMOOTHING, MIN_INTERPOLATION, MAX_INTERPOLATION);
 
             Vector3 correctedVelocity = (predictedPosition - transform.position) / Mathf.Max(dt, MIN_DT);
-
             clientVelocity = Vector3.Lerp(clientVelocity, correctedVelocity, interpolationFactor);
-
             transform.SetPosition(transform.position + clientVelocity * Time.unscaledDeltaTime);
         }
 
@@ -144,7 +161,18 @@ namespace ONI_MP.Networking.Components
                 Vector3 currentPosition = transform.position;
 				bool hasMoved = Vector3.Distance(currentPosition, lastSentPosition) > 0.01f;
 
-                float SendInterval = hasMoved ? SendIntervalMoving : SendIntervalStationary;
+                if (!isDuplicantCached.HasValue)
+                    isDuplicantCached = GetComponent<DuplicantStateSender>() != null;
+
+                float SendInterval;
+                if (isDuplicantCached.Value)
+                {
+                    SendInterval = hasMoved ? SendIntervalDuplicantMoving : SendIntervalStationary;
+                }
+                else
+                {
+                    SendInterval = hasMoved ? SendIntervalMoving : SendIntervalStationary;
+                }
 				if (timer < SendInterval)
 					return;
 
