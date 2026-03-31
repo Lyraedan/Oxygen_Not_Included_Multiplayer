@@ -223,7 +223,7 @@ namespace ONI_MP.UI
 			tmp.text = text;
 			tmp.font = Utils.GetDefaultTMPFont();
 			tmp.fontSize = 18;
-			tmp.enableWordWrapping = true;
+			tmp.textWrappingMode = TMPro.TextWrappingModes.Normal;
 			tmp.richText = true;
 			tmp.alignment = TextAlignmentOptions.TopLeft;
 			tmp.color = new Color(0.9f, 0.9f, 0.9f, 1f);
@@ -327,7 +327,7 @@ namespace ONI_MP.UI
 			textGO.transform.SetParent(viewportGO.transform, false);
 			var tmp = textGO.GetComponent<TextMeshProUGUI>();
 			tmp.fontSize = 18;
-			tmp.enableWordWrapping = false;
+			tmp.textWrappingMode = TMPro.TextWrappingModes.NoWrap;
 			tmp.alignment = TextAlignmentOptions.MidlineLeft;
 			tmp.color = Color.white;
 

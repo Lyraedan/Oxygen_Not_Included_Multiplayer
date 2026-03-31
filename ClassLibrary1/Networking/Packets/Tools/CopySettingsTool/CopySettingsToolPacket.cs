@@ -46,7 +46,15 @@ public class CopySettingsToolPacket : IPacket
         if (!NetworkIdentityRegistry.TryGet(NetID, out identity))
             return;
 
-        CopyBuildingSettings.ApplyCopy(Cell, identity.gameObject);
-        Game.Instance.userMenu.Refresh(identity.gameObject);
+        var targetGO = Grid.Objects[Cell, (int)ObjectLayer.Building];
+        if (targetGO == null)
+            return;
+        var targetId = targetGO.GetComponent<KPrefabID>();
+        var sourceId = identity.gameObject.GetComponent<KPrefabID>();
+        var sourceSettings = identity.gameObject.GetComponent<CopyBuildingSettings>();
+        if (targetId == null || sourceId == null || sourceSettings == null)
+            return;
+        CopyBuildingSettings.ApplyCopy(targetId, identity.gameObject, sourceId, sourceSettings);
+        Game.Instance.userMenu.Refresh(targetGO);
     }
 }
