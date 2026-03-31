@@ -352,8 +352,6 @@ namespace ONI_MP.Networking.Transport.Lan
                 }
 
                 DebugConsole.Log($"[RiptideServer] Kicking client {clientId}");
-
-                // Disconnect via Riptide
                 _server.DisconnectClient(conn);
 
                 // OnClientDisconnected should disconnect so we shouldn't need to cleanup here

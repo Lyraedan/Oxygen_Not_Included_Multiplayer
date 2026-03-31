@@ -22,7 +22,6 @@ namespace ONI_MP.Networking
         {
             STEAMWORKS = 0,
             RIPTIDE = 1,
-            LITENETLIB = 2, // Non functional right now
         }
         public static NetworkTransport transport { get; private set; } = NetworkTransport.RIPTIDE;
 
@@ -49,8 +48,6 @@ namespace ONI_MP.Networking
                     return new SteamServer();
                 case NetworkTransport.RIPTIDE:
                     return new RiptideServer();
-                case NetworkTransport.LITENETLIB:
-                    return new LiteNetLibServer();
                 default:
                     return new RiptideServer(); // Use riptide by default now
             }
@@ -66,8 +63,6 @@ namespace ONI_MP.Networking
                     return new SteamClient();
                 case NetworkTransport.RIPTIDE:
                     return new RiptideClient();
-                case NetworkTransport.LITENETLIB:
-                    return new LiteNetLibClient();
                 default:
                     return new RiptideClient(); // Use riptide by default now
             }
@@ -83,8 +78,6 @@ namespace ONI_MP.Networking
                     return new SteamworksPacketSender();
                 case NetworkTransport.RIPTIDE:
                     return new RiptidePacketSender();
-                case NetworkTransport.LITENETLIB:
-                    return new LiteNetLibPacketSender();
                 default:
                     return new RiptidePacketSender(); // Use riptide by default now
             }
@@ -107,15 +100,6 @@ namespace ONI_MP.Networking
                     {
                         return RiptideServer.CLIENT_ID;
                     }
-                case NetworkTransport.LITENETLIB:
-                    if (MultiplayerSession.IsClient)
-                    {
-                        return LiteNetLibClient.MY_CLIENT_ID;
-                    }
-                    else
-                    {
-                        return LiteNetLibClient.MY_CLIENT_ID;
-                    }
                 default:
                     return Utils.NilUlong();
             }
@@ -132,7 +116,7 @@ namespace ONI_MP.Networking
         {
             using var _ = Profiler.Scope();
 
-            return transport.Equals(NetworkTransport.RIPTIDE) || transport.Equals(NetworkTransport.LITENETLIB);
+            return transport.Equals(NetworkTransport.RIPTIDE);
         }
 
         public static List<ulong> GetConnectedClients()
@@ -160,8 +144,6 @@ namespace ONI_MP.Networking
                         RiptideServer server = TransportServer as RiptideServer;
                         return server.ClientList;
                     }
-                case NetworkTransport.LITENETLIB:
-                    break;
             }
             return clients;
         }
