@@ -5,7 +5,7 @@
 //    public static void Load_Postfix()
 //    {
 
-//        var overlay = UnityEngine.Object.FindObjectOfType<LoadingOverlay>();
+//        var overlay = UnityEngine.Object.FindFirstObjectByType<LoadingOverlay>();
 //        if (overlay == null) return;
 
 //        var locText = overlay.GetComponentInChildren<LocText>();

@@ -143,7 +143,7 @@ namespace ONI_MP.UI.lib
 			{
 				byte[] data = TryReadFile(path);
 				texture = new Texture2D(customTextureWidth, customTextureHeight);
-				texture.LoadImage(data);
+				typeof(ImageConversion).GetMethod("LoadImage", new[] { typeof(Texture2D), typeof(byte[]) }).Invoke(null, new object[] { texture, data });
 			}
 			else if (warnIfFailed)
 			{

@@ -64,7 +64,7 @@ namespace ONI_MP.Patches
 						UnityMultiplayerScreen.OpenFromPauseScreen();
 						return;
 						// Show lobby config screen - it will handle lobby creation
-						var canvas = Object.FindObjectOfType<Canvas>();
+						var canvas = Object.FindFirstObjectByType<Canvas>();
 						if (canvas != null)
 						{
 							UnityMultiplayerScreen.OpenFromPauseScreen();
@@ -89,7 +89,7 @@ namespace ONI_MP.Patches
 					UnityLobbyStateDialogueUI.ShowLobbyStateWindow();
 					return;
 					// Show multiplayer info screen
-					var canvas = UnityEngine.Object.FindObjectOfType<Canvas>();
+					var canvas = UnityEngine.Object.FindFirstObjectByType<Canvas>();
 					if (canvas != null)
 					{
 						ONI_MP.Menus.MultiplayerInfoScreen.Show(canvas.transform);

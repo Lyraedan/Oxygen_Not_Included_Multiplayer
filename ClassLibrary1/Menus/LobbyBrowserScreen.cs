@@ -701,7 +701,7 @@ namespace ONI_MP.Menus
         {
             using var _ = Profiler.Scope();
 
-            var mainMenu = FindObjectOfType<MainMenu>();
+            var mainMenu = FindFirstObjectByType<MainMenu>();
             var templateButton = mainMenu?.Button_NewGame;
 
             if (templateButton != null)

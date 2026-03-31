@@ -297,7 +297,7 @@ namespace ONI_MP.Misc
 		{
 			using var _ = Profiler.Scope();
 
-			foreach (Workable workable in UnityEngine.Object.FindObjectsOfType<Workable>())
+			foreach (Workable workable in UnityEngine.Object.FindObjectsByType<Workable>(FindObjectsSortMode.None))
 			{
 				if (workable == null) continue;
 
@@ -318,7 +318,7 @@ namespace ONI_MP.Misc
 			GameObject closest = null;
 			float closestDistSq = radius * radius;
 
-			foreach (var go in GameObject.FindObjectsOfType<GameObject>())
+			foreach (var go in GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
 			{
 				if (!go.HasTag(tag))
 					continue;
@@ -338,7 +338,7 @@ namespace ONI_MP.Misc
 		{
 			using var _ = Profiler.Scope();
 
-			foreach (var go in GameObject.FindObjectsOfType<GameObject>())
+			foreach (var go in GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
 			{
 				if (go == null) continue;
 

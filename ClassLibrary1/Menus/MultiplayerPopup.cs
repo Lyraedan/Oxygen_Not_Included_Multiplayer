@@ -108,7 +108,7 @@ public static class MultiplayerPopup
 	{
 		using var _ = Profiler.Scope();
 
-		var template = UnityEngine.Object.FindObjectOfType<MainMenu>()?.Button_ResumeGame;
+		var template = UnityEngine.Object.FindFirstObjectByType<MainMenu>()?.Button_ResumeGame;
 		if (template == null)
 		{
 			DebugConsole.LogError("Cannot find template button to clone.");
