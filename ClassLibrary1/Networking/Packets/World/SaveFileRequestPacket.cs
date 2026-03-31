@@ -82,6 +82,28 @@ namespace ONI_MP.Networking.Packets.World
 			}
 		}
 
+		public static void SendSaveFileViaUdp(ulong requester)
+		{
+			using var _ = Profiler.Scope();
+
+			if (!MultiplayerSession.IsHost)
+				return;
+
+			try
+			{
+				string name = SaveHelper.WorldName;
+				byte[] data = SaveHelper.GetWorldSave();
+				string fileName = name + ".sav";
+
+				DebugConsole.Log($"[SaveFileRequest] Starting UDP fallback transfer for '{fileName}' to {requester}");
+				CoroutineRunner.RunOne(StreamChunks(data, fileName, requester));
+			}
+			catch (Exception ex)
+			{
+				DebugConsole.LogError($"[SaveFileRequest] Failed to send save file via UDP fallback: {ex}");
+			}
+		}
+
         public static void SendSaveFileToAll()
         {
 	        using var _ = Profiler.Scope();
