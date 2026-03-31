@@ -132,7 +132,7 @@ namespace ONI_MP.Menus
         private void CreateMenuButton(Transform parent, string title, string subtitle, System.Action onClick)
         {
             // Try to clone from MainMenu button
-            var mainMenu = FindObjectOfType<MainMenu>();
+            var mainMenu = FindFirstObjectByType<MainMenu>();
             var templateButton = mainMenu?.Button_NewGame;
 
             if (templateButton != null)
@@ -162,7 +162,7 @@ namespace ONI_MP.Menus
 
         private void CreateBackButton(Transform parent)
         {
-            var mainMenu = FindObjectOfType<MainMenu>();
+            var mainMenu = FindFirstObjectByType<MainMenu>();
             var templateButton = mainMenu?.Button_NewGame;
 
             if (templateButton != null)

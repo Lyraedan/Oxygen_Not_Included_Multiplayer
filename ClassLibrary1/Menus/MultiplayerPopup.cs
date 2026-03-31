@@ -99,7 +99,7 @@ public static class MultiplayerPopup
 
 	private static void AddPopupButton(Transform parent, string text, Vector2 position, System.Action onClick)
 	{
-		var template = UnityEngine.Object.FindObjectOfType<MainMenu>()?.Button_ResumeGame;
+		var template = UnityEngine.Object.FindFirstObjectByType<MainMenu>()?.Button_ResumeGame;
 		if (template == null)
 		{
 			DebugConsole.LogError("Cannot find template button to clone.");

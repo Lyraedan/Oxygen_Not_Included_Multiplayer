@@ -83,7 +83,7 @@ namespace ONI_MP.Networking.Packets.DuplicantActions
 
 				resume.MasterSkill(SkillId); // This deducts points and triggers effects.
 
-				SkillsScreen skillScreen = Object.FindObjectOfType< SkillsScreen >();
+				SkillsScreen skillScreen = Object.FindFirstObjectByType< SkillsScreen >();
 				if( skillScreen != null )
 					skillScreen.RefreshAll();
 

@@ -151,7 +151,7 @@ namespace ONI_MP.Networking
 			textComponent.font = Localization.FontAsset;
 			textComponent.color = Color.white;
 			textComponent.raycastTarget = false;
-			textComponent.enableWordWrapping = false;
+			textComponent.textWrappingMode = TextWrappingModes.Normal;
 
 			return textComponent;
 		}

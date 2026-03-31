@@ -250,7 +250,7 @@ namespace ONI_MP.Misc
 
 		public static GameObject FindNearbyWorkable(Vector3 position, float radius, Predicate<GameObject> predicate)
 		{
-			foreach (Workable workable in UnityEngine.Object.FindObjectsOfType<Workable>())
+			foreach (Workable workable in UnityEngine.Object.FindObjectsByType<Workable>(FindObjectsSortMode.None))
 			{
 				if (workable == null) continue;
 
@@ -269,7 +269,7 @@ namespace ONI_MP.Misc
 			GameObject closest = null;
 			float closestDistSq = radius * radius;
 
-			foreach (var go in GameObject.FindObjectsOfType<GameObject>())
+			foreach (var go in GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
 			{
 				if (!go.HasTag(tag))
 					continue;
@@ -287,7 +287,7 @@ namespace ONI_MP.Misc
 
 		public static GameObject FindEntityInRadius(Vector3 origin, float radius, Predicate<GameObject> predicate)
 		{
-			foreach (var go in GameObject.FindObjectsOfType<GameObject>())
+			foreach (var go in GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
 			{
 				if (go == null) continue;
 

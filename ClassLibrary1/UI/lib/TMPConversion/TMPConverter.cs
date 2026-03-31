@@ -50,8 +50,9 @@ namespace UI.lib
 					LT.fontStyle = data.FontStyle;
 					LT.fontSize = data.FontSize;
 					LT.maxVisibleLines = data.MaxVisibleLines;
-					LT.enableWordWrapping = data.EnableWordWrapping;
-					LT.text = "";
+					//LT.enableWordWrapping = data.EnableWordWrapping;
+					LT.textWrappingMode = data.AutoSizeTextContainer ? TextWrappingModes.NoWrap : TextWrappingModes.Normal;
+                    LT.text = "";
 					LT.overflowMode = data.Overflow;
 					LT.color = new Color(data.Color[0], data.Color[1], data.Color[2]);
 					LT.fontSizeMin = data.VariableFontSizeMinimum;

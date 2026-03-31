@@ -97,7 +97,7 @@ namespace ONI_MP.Menus
 
 			// Hide PlanScreen (building menu)
 			_planScreenGO = null;
-			var planScreen = UnityEngine.Object.FindObjectOfType<PlanScreen>();
+			var planScreen = UnityEngine.Object.FindFirstObjectByType<PlanScreen>();
 			if (planScreen != null)
 			{
 				_planScreenGO = planScreen.gameObject;
@@ -448,7 +448,7 @@ namespace ONI_MP.Menus
 				// Main menu flow - set flag and open Load Game
 				MultiplayerSession.ShouldHostAfterLoad = true;
 
-				var mainMenu = FindObjectOfType<MainMenu>();
+				var mainMenu = FindFirstObjectByType<MainMenu>();
 				if (mainMenu != null)
 				{
 					if (mainMenu.saveFileEntries.Count > 0)
@@ -495,7 +495,7 @@ namespace ONI_MP.Menus
 
 		private void CreateButton(Transform parent, string text, System.Action onClick, float width, float height)
 		{
-			var mainMenu = FindObjectOfType<MainMenu>();
+			var mainMenu = FindFirstObjectByType<MainMenu>();
 			var templateButton = mainMenu?.Button_NewGame;
 
 			if (templateButton != null)

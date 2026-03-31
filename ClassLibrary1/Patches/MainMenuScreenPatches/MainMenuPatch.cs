@@ -33,7 +33,7 @@ internal static class MainMenuPatch
 					UnityMultiplayerScreen.OpenFromMainMenu();
 					return;
 					// Open the multiplayer screen
-					var canvas = UnityEngine.Object.FindObjectOfType<Canvas>();
+					var canvas = UnityEngine.Object.FindFirstObjectByType<Canvas>();
 					if (canvas != null)
 					{
 						ONI_MP.Menus.MultiplayerScreen.Show(canvas.transform);

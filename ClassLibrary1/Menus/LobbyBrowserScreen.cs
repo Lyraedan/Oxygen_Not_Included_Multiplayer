@@ -653,7 +653,7 @@ namespace ONI_MP.Menus
 
         public static void CreateButton(Transform parent, string text, System.Action onClick, float width, float height, bool is_button_interactable = true)
         {
-            var mainMenu = FindObjectOfType<MainMenu>();
+            var mainMenu = FindFirstObjectByType<MainMenu>();
             var templateButton = mainMenu?.Button_NewGame;
 
             if (templateButton != null)
