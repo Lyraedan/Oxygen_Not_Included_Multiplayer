@@ -9,6 +9,8 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<!--gives access to fun newer c# syntax sugar-->
 		<LangVersion>preview</LangVersion>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -69,10 +71,6 @@
 		</Reference>
 		<Reference Include="Assembly-CSharp-firstpass">
 			<HintPath>$(AssemblyFirstpassPublicized)</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="netstandard">
-			<HintPath>$(GameLibsFolder)/netstandard.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="0Harmony">
@@ -148,39 +146,7 @@
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="ImGui.NET">
-t	<Reference Include="System.Memory">
-			<HintPath>$(GameLibsFolder)System.Memory.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="System.Runtime.CompilerServices.Unsafe">
-			<HintPath>$(GameLibsFolder)System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
 			<HintPath>$(GameLibsFolder)\ImGui.NET.dll</HintPath>
-t	<Reference Include="System.Memory">
-			<HintPath>$(GameLibsFolder)System.Memory.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="System.Runtime.CompilerServices.Unsafe">
-			<HintPath>$(GameLibsFolder)System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-			<Private>false</Private>
-t	<Reference Include="System.Memory">
-			<HintPath>$(GameLibsFolder)System.Memory.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="System.Runtime.CompilerServices.Unsafe">
-			<HintPath>$(GameLibsFolder)System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		</Reference>
-t	<Reference Include="System.Memory">
-			<HintPath>$(GameLibsFolder)System.Memory.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="System.Runtime.CompilerServices.Unsafe">
-			<HintPath>$(GameLibsFolder)System.Runtime.CompilerServices.Unsafe.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 	</ItemGroup>

@@ -18,7 +18,6 @@
 
 	<!-- Build Properties -->
 	<PropertyGroup>
-		<TargetFramework>net48</TargetFramework>
 		<ImplicitUsings>false</ImplicitUsings>
 		<!--exports the mod to the deployment folder-->
 		<IsMod>true</IsMod>
