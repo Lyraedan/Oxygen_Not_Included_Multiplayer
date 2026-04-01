@@ -34,10 +34,17 @@ public class CopySettingsToolPacket : IPacket
     public void OnDispatched()
     {
         NetworkIdentity identity;
-        if (!NetworkIdentityRegistry.TryGet(NetID, out identity))
+        if (!NetworkIdentityRegistry.TryGet(NetID, out identity) 
+            || identity.gameObject == null 
+            || !identity.TryGetComponent<CopyBuildingSettings>(out var sourceSettings)
+            || !identity.TryGetComponent<KPrefabID>(out var sourceId))
             return;
 
-        CopyBuildingSettings.ApplyCopy(Cell, identity.gameObject);
-        Game.Instance.userMenu.Refresh(identity.gameObject);
+		KPrefabID targetId = CopyBuildingSettings.ResolveTarget(CopyBuildingSettings.ResolveLayer(identity.gameObject), Cell);
+        if (targetId == null)
+            return;
+
+		CopyBuildingSettings.ApplyCopy(targetId, identity.gameObject, sourceId, sourceSettings);
+        Game.Instance.userMenu.Refresh(targetId.gameObject);
     }
 }
