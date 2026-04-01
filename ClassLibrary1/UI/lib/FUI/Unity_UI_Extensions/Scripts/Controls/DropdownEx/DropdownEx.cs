@@ -215,6 +215,7 @@ namespace UI.lib.UI.FUI.Unity_UI_Extensions.Scripts.Controls.DropdownEx
 
 		public string NothingSelectedText = "Nothing Selected";
 
+		[SerializeField]
 		public bool AllowMultiSelect
 		{
 			get { return _multiSelect; }
