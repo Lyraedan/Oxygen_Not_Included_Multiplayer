@@ -17,11 +17,11 @@ public class CopySettingsToolPatch
         if (!MultiplayerSession.InSession)
             return;
 
-        GameObject gameObject = Traverse.Create(__instance).Field("sourceGameObject").GetValue<GameObject>();
-        if (gameObject == null)
+        GameObject src = __instance.sourceGameObject;
+        if (src == null)
             return;
 
-        NetworkIdentity identity = gameObject.GetComponent<NetworkIdentity>();
+        NetworkIdentity identity = src.GetComponent<NetworkIdentity>();
         if (identity == null)
             return;
 

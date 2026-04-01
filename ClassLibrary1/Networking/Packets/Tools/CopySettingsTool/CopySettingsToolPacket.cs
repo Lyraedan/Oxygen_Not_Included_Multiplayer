@@ -43,18 +43,17 @@ public class CopySettingsToolPacket : IPacket
         using var _ = Profiler.Scope();
 
         NetworkIdentity identity;
-        if (!NetworkIdentityRegistry.TryGet(NetID, out identity))
+        if (!NetworkIdentityRegistry.TryGet(NetID, out identity) 
+            || identity.gameObject == null 
+            || !identity.TryGetComponent<CopyBuildingSettings>(out var sourceSettings)
+            || !identity.TryGetComponent<KPrefabID>(out var sourceId))
             return;
 
-        var targetGO = Grid.Objects[Cell, (int)ObjectLayer.Building];
-        if (targetGO == null)
+		KPrefabID targetId = CopyBuildingSettings.ResolveTarget(CopyBuildingSettings.ResolveLayer(identity.gameObject), Cell);
+        if (targetId == null)
             return;
-        var targetId = targetGO.GetComponent<KPrefabID>();
-        var sourceId = identity.gameObject.GetComponent<KPrefabID>();
-        var sourceSettings = identity.gameObject.GetComponent<CopyBuildingSettings>();
-        if (targetId == null || sourceId == null || sourceSettings == null)
-            return;
-        CopyBuildingSettings.ApplyCopy(targetId, identity.gameObject, sourceId, sourceSettings);
-        Game.Instance.userMenu.Refresh(targetGO);
+
+		CopyBuildingSettings.ApplyCopy(targetId, identity.gameObject, sourceId, sourceSettings);
+        Game.Instance.userMenu.Refresh(targetId.gameObject);
     }
 }
