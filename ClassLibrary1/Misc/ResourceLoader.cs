@@ -22,7 +22,7 @@ namespace ONI_MP.Misc
 				stream.Read(buffer, 0, buffer.Length);
 
 				Texture2D texture = new Texture2D(2, 2, TextureFormat.ARGB32, false);
-				typeof(ImageConversion).GetMethod("LoadImage", new[] { typeof(Texture2D), typeof(byte[]) }).Invoke(null, new object[] { texture, buffer });
+				texture.LoadImage(buffer);
 				return texture;
 			}
 		}
