@@ -68,7 +68,6 @@ namespace UI.lib.UI.FUI
 				: rectTransform.rect.height - paddingTop - paddingBottom + spacingY - 1;
 
 			DebugConsole.Log(referencedLayoutGroup.padding.left + "," + referencedLayoutGroup.padding.right + "," + rectTransform.rect.width);
-			DebugConsole.Log(SizeToFit.ToString());
 			List<Tuple<int, float>> outputValues = new List<Tuple<int, float>>();
 
 			for (int newSize = minSize; newSize <= maxSize; newSize++)

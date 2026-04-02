@@ -1,4 +1,5 @@
 ﻿using ONI_MP.UI.lib;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -13,6 +14,7 @@ namespace UI.lib.UIcmp
 		GameObject DropDownContent;
 
 		FToggle entryPrefab;
+		FButton buttonEntryPrefab;
 		Image backgroundImage;
 
 		public Color Inactive = UIUtils.rgb(62, 67, 87);
@@ -37,6 +39,13 @@ namespace UI.lib.UIcmp
 			public bool Enabled = true;
 			public FToggle Toggle;
 		}
+		public class FDropDownButtonEntry : FDropDownEntry
+		{
+			public FDropDownButtonEntry(string title, Action<bool> onToggled, string tooltip = "") : base(title, onToggled, true, tooltip)
+			{
+			}
+			public FButton Button;
+		}
 
 
 		public override void OnPrefabInit()
@@ -47,6 +56,8 @@ namespace UI.lib.UIcmp
 			DropDownContent = transform.Find("DropDownContent").gameObject;
 			entryPrefab = transform.Find("DropDownContent/Item").gameObject.AddOrGet<FToggle>();
 			entryPrefab.gameObject.SetActive(false);
+			buttonEntryPrefab = transform.Find("DropDownContent/ButtonItem")?.gameObject?.AddOrGet<FButton>();
+			buttonEntryPrefab?.gameObject?.SetActive(false);
 			InitializeDropDown();
 
 
@@ -58,23 +69,45 @@ namespace UI.lib.UIcmp
 				DropDownContent.SetActive(true);
 				foreach (var entry in DropDownEntries)
 				{
-					var toggle = Util.KInstantiateUI<FToggle>(entryPrefab.gameObject, DropDownContent, true);
-					toggle.SetCheckmark("Background/Checkmark");
-					toggle.SetOnFromCode(entry.Enabled);
-
-					toggle.OnClick += entry.OnToggled;
-					if (RefreshUI != null)
-						toggle.OnClick += (_) => RefreshUI();
-					toggle.transform.Find("Label").GetComponent<LocText>().text = entry.Title;
-					if (entry.Description != null && entry.Description.Length > 0)
-						UIUtils.AddSimpleTooltipToObject(toggle.transform, entry.Description);
-					entry.Toggle = toggle;
+					if (entry is FDropDownButtonEntry buttonEntry && buttonEntryPrefab != null)
+					{
+						InitializeButton(buttonEntry);
+					}
+					else if (entryPrefab != null)
+					{
+						InitializeToggle(entry);
+					}
 
 				}
 				DropDownContent.SetActive(false);
 			}
 		}
+		void InitializeButton(FDropDownButtonEntry entry)
+		{
+			var button = Util.KInstantiateUI<FButton>(buttonEntryPrefab.gameObject, DropDownContent, true);
 
+			button.OnClick += () => entry.OnToggled(true);
+			if (RefreshUI != null)
+				button.OnClick += () => RefreshUI();
+			button.GetComponentInChildren<LocText>().text = entry.Title;
+			if (entry.Description != null && entry.Description.Length > 0)
+				UIUtils.AddSimpleTooltipToObject(button.transform, entry.Description);
+			entry.Button = button;
+		}
+		void InitializeToggle(FDropDownEntry entry)
+		{
+			var toggle = Util.KInstantiateUI<FToggle>(entryPrefab.gameObject, DropDownContent, true);
+			toggle.SetCheckmark("Background/Checkmark");
+			toggle.SetOnFromCode(entry.Enabled);
+
+			toggle.OnClick += entry.OnToggled;
+			if (RefreshUI != null)
+				toggle.OnClick += (_) => RefreshUI();
+			toggle.GetComponentInChildren<LocText>().text = entry.Title;
+			if (entry.Description != null && entry.Description.Length > 0)
+				UIUtils.AddSimpleTooltipToObject(toggle.transform, entry.Description);
+			entry.Toggle = toggle;
+		}
 
 
 		public void OnPointerEnter(PointerEventData eventData)
