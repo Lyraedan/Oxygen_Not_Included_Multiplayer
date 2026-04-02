@@ -137,7 +137,7 @@ namespace ONI_MP.DebugTools
             }
             if (GUILayout.Button("Stop Hosting"))
             {
-                NetworkConfig.StopServer();
+                NetworkConfig.Stop();
             }
 
 

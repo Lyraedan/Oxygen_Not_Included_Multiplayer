@@ -63,10 +63,7 @@ namespace ONI_MP.Networking.Components
 			if (!MultiplayerSession.InSession)
 				return;
 
-			if (NetworkConfig.transport.Equals(NetworkConfig.NetworkTransport.STEAMWORKS))
-			{
-				SteamLobby.LeaveLobby();
-			}
+			NetworkConfig.Stop();
 		}
 	}
 }

@@ -209,7 +209,7 @@ namespace ONI_MP.Networking
 
 			MultiplayerOverlay.Close();
 			NetworkIdentityRegistry.Clear();
-			SteamLobby.LeaveLobby();
+			NetworkConfig.Stop();
 			App.LoadScene("frontend");
 		}
 
@@ -304,7 +304,7 @@ namespace ONI_MP.Networking
 
 			MultiplayerOverlay.Close();
 			NetworkIdentityRegistry.Clear();
-			SteamLobby.LeaveLobby();
+			NetworkConfig.Stop();
 		}
 
 		public static void CacheCurrentServer()

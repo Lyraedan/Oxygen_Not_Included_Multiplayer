@@ -105,7 +105,7 @@ public static class SaveHelper
 		{
 			MultiplayerOverlay.Close();
 			NetworkIdentityRegistry.Clear();
-			SteamLobby.LeaveLobby();
+			NetworkConfig.Stop();
 
 			App.LoadScene("frontend");
 		}

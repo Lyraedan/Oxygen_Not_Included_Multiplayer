@@ -87,25 +87,25 @@ namespace ONI_MP.Networking
         /// <summary>
         /// Stops the server based off the current transport
         /// </summary>
-        public static void StopServer()
+        public static void Stop()
         {
             switch(transport)
             {
                 case NetworkTransport.STEAMWORKS:
-                    StopSteamServer();
+                    StopSteamworks();
                     break;
                 case NetworkTransport.RIPTIDE:
-                    StopRawServer();
+                    StopRaw();
                     break;
             }
         }
 
-        private static void StopSteamServer()
+        private static void StopSteamworks()
         {
             SteamLobby.LeaveLobby();
         }
 
-        private static void StopRawServer()
+        private static void StopRaw()
         {
             if (MultiplayerSession.IsHost)
                 GameServer.Shutdown();

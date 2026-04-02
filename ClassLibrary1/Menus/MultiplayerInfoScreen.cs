@@ -342,8 +342,7 @@ namespace ONI_MP.Menus
                 CreateActionButton(container.transform, STRINGS.UI.PAUSESCREEN.ENDSESSION.LABEL, () =>
                 {
                     Close();
-                    SteamLobby.LeaveLobby();
-                    SpeedControlScreen.Instance?.Unpause(false);
+                    NetworkConfig.Stop();
                 }, false, new Color(0.7f, 0.3f, 0.3f));
             }
             else
@@ -352,7 +351,7 @@ namespace ONI_MP.Menus
                 CreateActionButton(container.transform, STRINGS.UI.PAUSESCREEN.LEAVESESSION.LABEL, () =>
                 {
                     Close();
-                    SteamLobby.LeaveLobby();
+                    NetworkConfig.Stop();
                 }, false, new Color(0.7f, 0.3f, 0.3f));
             }
         }

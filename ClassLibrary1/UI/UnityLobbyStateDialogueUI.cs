@@ -83,7 +83,7 @@ namespace ONI_MP.UI
 		{
 			using var _ = Profiler.Scope();
 
-			SteamLobby.LeaveLobby();
+			NetworkConfig.Stop();
 			Show(false);
 			//SpeedControlScreen.Instance?.Unpause(false);
 		}

@@ -26,7 +26,7 @@ namespace ONI_MP.Patches
 
 			if (MultiplayerSession.InSession)
 			{
-				SteamLobby.LeaveLobby();
+				NetworkConfig.Stop();
 				MultiplayerSession.Clear();
 			}
 		}
