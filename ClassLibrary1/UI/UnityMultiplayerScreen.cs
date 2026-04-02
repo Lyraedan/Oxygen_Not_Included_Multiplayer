@@ -155,7 +155,7 @@ namespace ONI_MP.UI
 			JoinIPInput = transform.Find("MainMenu/LanJoin/Inputs/IpInput").FindOrAddComponent<FInputField2>();
 			JoinIPInput.Text = string.Empty;
 			JoinPortInput = transform.Find("MainMenu/LanJoin/Inputs/Port").FindOrAddComponent<FInputField2>();
-			JoinPortInput.Text = string.Empty;
+			JoinPortInput.Text = "8080";
 			JoinViaLan = transform.Find("MainMenu/LanJoin/JoinLANButton").gameObject.AddOrGet<FButton>();
 			JoinViaLan.OnClick += JoinLanLobby;
 
@@ -167,7 +167,7 @@ namespace ONI_MP.UI
 			HostLanToggle.OnClick += () => SetHostVia(HostMode.LAN);
 
 			HostIPInput = transform.Find("HostMenu/LanHosting/IpTarget/Input").FindOrAddComponent<FInputField2>();
-			HostIPInput.Text = string.Empty;
+			HostIPInput.Text = "127.0.0.1";
 			HostPortInput = transform.Find("HostMenu/LanHosting/Port/Input").FindOrAddComponent<FInputField2>();
 			HostPortInput.Text = "8080";
 
