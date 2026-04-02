@@ -58,12 +58,7 @@ namespace ONI_MP.Patches.World
 			{
 				MultiplayerSession.ShouldHostAfterLoad = false;
 
-				SteamLobby.CreateLobby(onSuccess: () =>
-				{
-					SpeedControlScreen.Instance?.Unpause(false);
-					DebugConsole.Log(logMessage);
-					Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
-				});
+				NetworkConfig.StartServer();
 			}
 		}
 	}

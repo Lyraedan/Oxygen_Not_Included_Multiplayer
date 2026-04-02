@@ -71,11 +71,12 @@ namespace ONI_MP.Patches
 							ONI_MP.Menus.HostLobbyConfigScreen.Show(canvas.transform, () =>
 							{
 								// Config closed - create lobby with settings
-								SteamLobby.CreateLobby(onSuccess: () =>
-								{
-									SpeedControlScreen.Instance?.Unpause(false);
-									Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
-								});
+								//SteamLobby.CreateLobby(onSuccess: () =>
+								//{
+								//	SpeedControlScreen.Instance?.Unpause(false);
+								//	Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
+								//});
+								NetworkConfig.StartServer();
 							});
 						}
                     });

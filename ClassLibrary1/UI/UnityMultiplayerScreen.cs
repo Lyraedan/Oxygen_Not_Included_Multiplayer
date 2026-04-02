@@ -22,6 +22,7 @@ using static ONI_MP.STRINGS.UI.MP_SCREEN.HOSTMENU;
 using static ONI_MP.STRINGS.UI.MP_SCREEN.HOSTMENU.LOBBYSIZE;
 using static ONI_MP.STRINGS.UI.PAUSESCREEN;
 using static ONI_MP.UI.UnityMultiplayerScreen;
+using ONI_MP.Patches.ToolPatches;
 
 namespace ONI_MP.UI
 {
@@ -165,7 +166,11 @@ namespace ONI_MP.UI
 			JoinViaLan = transform.Find("MainMenu/LanJoin/JoinLANButton").gameObject.AddOrGet<FButton>();
 			JoinViaLan.OnClick += JoinLanLobby;
 
-			HostSteamTab = transform.Find("HostMenu/SteamHosting").gameObject;
+            // Load last used LAN settings
+            JoinIPInput.Text = Configuration.Instance.Client.LanSettings.Ip;
+            JoinPortInput.Text = Configuration.Instance.Client.LanSettings.Port.ToString();
+
+            HostSteamTab = transform.Find("HostMenu/SteamHosting").gameObject;
 			HostLanTab = transform.Find("HostMenu/LanHosting").gameObject;
 			HostSteamToggle = transform.Find("HostMenu/HostViaButtons/Steam").gameObject.AddOrGet<FToggleButton>();
 			HostSteamToggle.OnClick += () => SetHostVia(HostMode.Steam);
@@ -177,8 +182,11 @@ namespace ONI_MP.UI
 			HostPortInput = transform.Find("HostMenu/LanHosting/Port/Input").FindOrAddComponent<FInputField2>();
 			HostPortInput.Text = "8080";
 
+			HostIPInput.Text = Configuration.Instance.Host.LanSettings.Ip;
+			HostPortInput.Text = Configuration.Instance.Host.LanSettings.Port.ToString();
 
-			LobbySize = transform.Find("HostMenu/LobbySize/LobbySizeInput").gameObject.AddOrGet<FInputField2>();
+
+            LobbySize = transform.Find("HostMenu/LobbySize/LobbySizeInput").gameObject.AddOrGet<FInputField2>();
 			LobbySize.Text = SteamLobby.LOBBY_SIZE_DEFAULT.ToString();
 			LobbySize.OnValueChanged.AddListener(ClampLobbySize);
 			IncreaseSize = transform.Find("HostMenu/LobbySize/LobbySizeInput/Increase").gameObject.AddOrGet<FButton>();
@@ -232,6 +240,20 @@ namespace ONI_MP.UI
 
 			HostLanToggle.SetIsSelected(current == HostMode.LAN);
 			HostSteamToggle.SetIsSelected(current == HostMode.Steam);
+
+			// Update transport
+			switch(current) 
+			{
+				case HostMode.Steam:
+                    NetworkConfig.UpdateTransport(NetworkConfig.NetworkTransport.STEAMWORKS);
+					break;
+				case HostMode.LAN:
+                    NetworkConfig.UpdateTransport(NetworkConfig.NetworkTransport.RIPTIDE);
+                    break;
+				default:
+                    NetworkConfig.UpdateTransport(NetworkConfig.NetworkTransport.STEAMWORKS);
+					break;
+            }
 		}
 
 		private void SetJoinVia(JoinMode current)
@@ -245,6 +267,20 @@ namespace ONI_MP.UI
 			SteamTabToggle.SetIsSelected(current == JoinMode.Steam);
 			CodeTabToggle.SetIsSelected(current == JoinMode.Code);
 			LanTabToggle.SetIsSelected(current == JoinMode.LAN);
+
+			switch(current)
+			{
+				case JoinMode.Code:
+				case JoinMode.Steam:
+                    NetworkConfig.UpdateTransport(NetworkConfig.NetworkTransport.STEAMWORKS);
+					break;
+				case JoinMode.LAN:
+                    NetworkConfig.UpdateTransport(NetworkConfig.NetworkTransport.RIPTIDE);
+					break;
+				default:
+                    NetworkConfig.UpdateTransport(NetworkConfig.NetworkTransport.STEAMWORKS);
+					break;
+            }
 		}
 
 		void IncreaseLobbySize()
@@ -358,11 +394,21 @@ namespace ONI_MP.UI
 
 		void JoinLanLobby()
 		{
-			string ipAdress = JoinIPInput.Text;
+            using var _ = Profiler.Scope();
+
+            string ipAdress = JoinIPInput.Text;
 			string portText = JoinPortInput.Text;
-			Debug.Log("Trying to join LAN lobby with IP: " + ipAdress + " and Port: " + portText);
-			///TODO: Implement LAN joining
-		}
+
+			if (int.TryParse(portText, out int port)) {
+                Configuration.Instance.Client.LanSettings.Ip = ipAdress;
+                Configuration.Instance.Client.LanSettings.Port = int.Parse(portText);
+                Configuration.Instance.Save();
+
+                Debug.Log("Trying to join LAN lobby with IP: " + ipAdress + " and Port: " + portText);
+				GameClient.ConnectToHost(ip: ipAdress, port: port);
+            }
+
+        }
 
 		void JoinLobbyWithCode()
 		{
@@ -615,12 +661,57 @@ namespace ONI_MP.UI
 		}
 		private void StartHostingLanGame()
 		{
+			using var _ = Profiler.Scope();
+
 			string ipAdress = HostIPInput.Text;
 			string portText = HostPortInput.Text;
-			Debug.Log("Trying to start LAN lobby with IP: " + ipAdress + " and Port: " + portText);
-			///TODO: Implement LAN hosting hookup
-		}
 
+			if (int.TryParse(portText, out int port))
+			{
+                Configuration.Instance.Host.LanSettings.Ip = ipAdress;
+                Configuration.Instance.Host.LanSettings.Port = port;
+                Configuration.Instance.Save();
+
+                string lobbySize = LobbySize.Text;
+                if (lobbySize.Any())
+                {
+                    if (!int.TryParse(lobbySize, out int maxLobbySize))
+                        maxLobbySize = SteamLobby.LOBBY_SIZE_MIN;
+                    maxLobbySize = Mathf.Clamp(maxLobbySize, SteamLobby.LOBBY_SIZE_MIN, SteamLobby.LOBBY_SIZE_MAX);
+                    Configuration.Instance.Host.MaxLobbySize = maxLobbySize;
+                }
+                else
+                {
+                    Configuration.Instance.Host.MaxLobbySize = SteamLobby.LOBBY_SIZE_DEFAULT;
+                }
+
+                Debug.Log("Trying to start LAN lobby with IP: " + ipAdress + " and Port: " + portText);
+
+				if (Utils.IsInGame())
+				{
+					NetworkConfig.StartServer();
+				} 
+				else
+				{
+                    MultiplayerSession.ShouldHostAfterLoad = true; // Set flag to start hosting after loading
+
+                    string saveForCurrentDlc = SaveLoader.GetLatestSaveForCurrentDLC();
+                    bool hasVersionCompatibleSave = !string.IsNullOrEmpty(saveForCurrentDlc) && System.IO.File.Exists(saveForCurrentDlc);
+                    if (hasVersionCompatibleSave)
+                    {
+                        DebugConsole.Log($"[UnityMultiplayerScreen/StartHostingGame] Found existing compatible savefile. Opening load sequence");
+                        MainMenu.Instance?.LoadGame();
+                        RegisterOnExitLoadScreenTriggers();
+                    }
+                    else
+                    {
+                        DebugConsole.Log("$[UnityMultiplayerScreen/StartHostingGame] No saves found! Running new game sequence.");
+                        MainMenu.Instance?.NewGame();
+                    }
+                }
+                Show(false);
+            }
+        }
 
 		private void StartHostingSteamGame()
 		{
@@ -631,11 +722,7 @@ namespace ONI_MP.UI
 
 			if (Utils.IsInGame())
 			{
-				SteamLobby.CreateLobby(onSuccess: () =>
-				{
-					//SpeedControlScreen.Instance?.Unpause(false);
-					Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
-				});
+				NetworkConfig.StartServer();
 			}
 			else
 			{

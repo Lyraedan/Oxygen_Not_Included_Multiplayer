@@ -194,7 +194,8 @@ namespace ONI_MP.Networking.Transport.Steamworks
 			using var _ = Profiler.Scope();
 
 			DebugConsole.Log($"[SteamLobby] Joining lobby invited by {callback.m_steamIDFriend}");
-			CSteamID lobbyId = callback.m_steamIDLobby;
+			NetworkConfig.UpdateTransport(NetworkConfig.NetworkTransport.STEAMWORKS); // We're joining through the steam invite system so force steam transport
+            CSteamID lobbyId = callback.m_steamIDLobby;
 
             SteamMatchmaking.RequestLobbyData(lobbyId);
             CoroutineRunner.RunOne(CheckLobbyPasswordAfterDelay(lobbyId));

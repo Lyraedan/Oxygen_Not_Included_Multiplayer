@@ -111,11 +111,7 @@ namespace ONI_MP.DebugTools
                     NetworkConfig.UpdateTransport(selected_transport);
                     Configuration.Instance.Save();
 
-                    SteamLobby.CreateLobby(onSuccess: () =>
-                    {
-                        SpeedControlScreen.Instance?.Unpause(false);
-                        Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
-                    });
+                    NetworkConfig.StartServer();
                     return;
                 }
 
@@ -132,7 +128,7 @@ namespace ONI_MP.DebugTools
 
                     Configuration.Instance.Save();
 
-                    StartServer();
+                    NetworkConfig.StartServer();
                 }
                 else
                 {
@@ -141,12 +137,7 @@ namespace ONI_MP.DebugTools
             }
             if (GUILayout.Button("Stop Hosting"))
             {
-                if(selectedHostTransport == 0)
-                {
-                    SteamLobby.LeaveLobby();
-                    return;
-                }
-                Stop();
+                NetworkConfig.StopServer();
             }
 
 
@@ -182,41 +173,6 @@ namespace ONI_MP.DebugTools
             GUILayout.EndScrollView();
 
             GUI.DragWindow();
-        }
-
-        void StartServer()
-        {
-            using var _ = Profiler.Scope();
-
-            MultiplayerSession.Clear();
-            try
-            {
-                DebugConsole.Log("Starting GameServer...");
-                Networking.GameServer.Start();
-                DebugConsole.Log("GameServer started successfully.");
-            }
-            catch (Exception ex)
-            {
-                DebugConsole.LogError($"GameServer.Start() failed: {ex}");
-            }
-            SelectToolPatch.UpdateColor();
-            Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
-        }
-
-        void Stop()
-        {
-            using var _ = Profiler.Scope();
-
-            if (MultiplayerSession.IsHost)
-                Networking.GameServer.Shutdown();
-
-            if (MultiplayerSession.IsClient)
-                GameClient.Disconnect();
-
-            NetworkIdentityRegistry.Clear();
-            MultiplayerSession.Clear();
-
-            SelectToolPatch.UpdateColor();
         }
 
         void Join(string ip, int port)

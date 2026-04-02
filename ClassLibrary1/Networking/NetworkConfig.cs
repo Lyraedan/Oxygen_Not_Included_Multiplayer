@@ -13,6 +13,7 @@ using SteamClient = ONI_MP.Networking.Transport.Steam.SteamworksClient;
 using ONI_MP.Networking.Transport.Steamworks;
 using ONI_MP.DebugTools;
 using Shared.Profiling;
+using ONI_MP.Patches.ToolPatches;
 
 namespace ONI_MP.Networking
 {
@@ -29,8 +30,85 @@ namespace ONI_MP.Networking
         public static TransportClient TransportClient { get; set; } = new RiptideClient();
         public static TransportPacketSender TransportPacketSender { get; set; } = new RiptidePacketSender();
 
+        /// <summary>
+        /// Starts a GameServer on the current transport without needing to go through something like SteamLobby etc
+        /// </summary>
+        public static void StartServer()
+        {
+            switch(transport)
+            {
+                case NetworkTransport.STEAMWORKS:
+                    UpdateTransport(NetworkTransport.STEAMWORKS);
+                    StartSteamServer();
+                    break;
+                case NetworkTransport.RIPTIDE:
+                    UpdateTransport(NetworkTransport.RIPTIDE);
+                    StartRawServer();
+                    break;
+            }
+        }
+
+        private static void StartSteamServer()
+        {
+            SteamLobby.CreateLobby(onSuccess: () =>
+            {
+                SpeedControlScreen.Instance?.Unpause(false);
+                Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
+            });
+        }
+
+        private static void StartRawServer()
+        {
+            MultiplayerSession.Clear();
+            try
+            {
+                Networking.GameServer.Start();
+            }
+            catch (Exception ex)
+            {
+                DebugConsole.LogError($"Failed to start LAN game server: {ex.Message}");
+            }
+            SelectToolPatch.UpdateColor();
+            Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
+        }
+
+        public static void StopServer()
+        {
+            switch(transport)
+            {
+                case NetworkTransport.STEAMWORKS:
+                    StopSteamServer();
+                    break;
+                case NetworkTransport.RIPTIDE:
+                    StopRawServer();
+                    break;
+            }
+        }
+
+        private static void StopSteamServer()
+        {
+            SteamLobby.LeaveLobby();
+        }
+
+        private static void StopRawServer()
+        {
+            if (MultiplayerSession.IsHost)
+                GameServer.Shutdown();
+
+            if (MultiplayerSession.IsClient)
+                GameClient.Disconnect();
+
+            NetworkIdentityRegistry.Clear();
+            MultiplayerSession.Clear();
+
+            SelectToolPatch.UpdateColor();
+        }
+
         public static void UpdateTransport(NetworkTransport newTransport)
         {
+            if (transport.Equals(newTransport))
+                return;
+            
             transport = newTransport;
             TransportServer = GetTransportServer();
             TransportClient = GetTransportClient();
