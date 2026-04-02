@@ -121,7 +121,13 @@ namespace ONI_MP.Networking.Components
 		{
 			using var _ = Profiler.Scope();
 
-			if (isTransitioning)
+			if (packet == null || navigator == null || navigator.transitionDriver == null)
+			{
+				DebugConsole.LogError($"[Duplicate:{gameObject.name}/DuplicateClientController}] Invalid packet or missing components. Packet: {packet}, Navigator: {navigator}, TransitionDriver: {navigator?.transitionDriver}", false);
+                return;
+			}
+
+            if (isTransitioning)
 			{
 				navigator.transitionDriver.EndTransition();
 			}

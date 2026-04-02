@@ -49,7 +49,7 @@ namespace ONI_MP.Networking
                     break;
                 case NetworkTransport.RIPTIDE:
                     UpdateTransport(NetworkTransport.RIPTIDE);
-                    CoroutineRunner.RunOne(StartRawDelayed(1f)); // Wait 1 second (prevents timeouts when hosting after loading)
+                    CoroutineRunner.RunOne(StartRawDelayed(1f)); // Wait 1 second (prevents timeouts when hosting after loading... doesn't work on crap hardware)
                     break;
             }
         }
