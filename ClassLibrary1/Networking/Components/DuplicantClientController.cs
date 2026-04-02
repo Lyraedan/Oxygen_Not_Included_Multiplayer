@@ -123,7 +123,7 @@ namespace ONI_MP.Networking.Components
 
 			if (packet == null || navigator == null || navigator.transitionDriver == null)
 			{
-				DebugConsole.LogError($"[Duplicate:{gameObject.name}/DuplicateClientController}] Invalid packet or missing components. Packet: {packet}, Navigator: {navigator}, TransitionDriver: {navigator?.transitionDriver}", false);
+				DebugConsole.LogError($"[Duplicate:{gameObject.name}/DuplicateClientController] Invalid packet or missing components. Packet: {packet}, Navigator: {navigator}, TransitionDriver: {navigator?.transitionDriver}", false);
                 return;
 			}
 
