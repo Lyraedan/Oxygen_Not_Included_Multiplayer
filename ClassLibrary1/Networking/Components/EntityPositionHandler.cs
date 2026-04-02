@@ -29,8 +29,10 @@ namespace ONI_MP.Networking.Components
 
         public static float SendIntervalDuplicantMoving = 0.5f;
         private bool? isDuplicantCached;
-        private DuplicantClientController cachedClientController;
-        private bool clientControllerChecked;
+
+        // Only duplicants have this
+        private DuplicantClientController duplicantController;
+        private bool HasDuplicantController => duplicantController != null;
 
         #region Position Sync Tuning
 
@@ -73,7 +75,8 @@ namespace ONI_MP.Networking.Components
 			lastSentPosition = transform.position;
 			previousPosition = transform.position;
 
-			DebugConsole.Log($"[EntityPositionHandler] Spawned on {name}");
+            duplicantController = GetComponent<DuplicantClientController>();
+            DebugConsole.Log($"[EntityPositionHandler] Spawned on {name}");
 		}
 
 		private void Update()
@@ -107,15 +110,9 @@ namespace ONI_MP.Networking.Components
             if (serverTimestamp == 0)
                 return;
 
-            if (!clientControllerChecked)
+            if (HasDuplicantController)
             {
-                cachedClientController = GetComponent<DuplicantClientController>();
-                clientControllerChecked = true;
-            }
-
-            if (cachedClientController != null && cachedClientController.enabled)
-            {
-                cachedClientController.OnPositionCorrection(serverPosition);
+                duplicantController.OnPositionCorrection(serverPosition);
                 kbac.FlipX = serverFlipX;
                 kbac.FlipY = serverFlipY;
                 return;
