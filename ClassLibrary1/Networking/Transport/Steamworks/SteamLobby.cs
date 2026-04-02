@@ -16,18 +16,6 @@ namespace ONI_MP.Networking.Transport.Steamworks
 {
 	public static class SteamLobby
 	{
-
-		/*
-
-		TODO: Split this..... this is gonna f*cking suck
-
-		 */
-
-		public static readonly int LOBBY_SIZE_MIN = 2;
-		public static readonly int LOBBY_SIZE_DEFAULT = 4;
-		public static readonly int LOBBY_SIZE_MAX = 16;
-
-
 		private static Callback<LobbyCreated_t> _lobbyCreated;
 		private static Callback<GameLobbyJoinRequested_t> _lobbyJoinRequested;
 		private static Callback<LobbyEnter_t> _lobbyEntered;

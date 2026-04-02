@@ -444,12 +444,12 @@ namespace ONI_MP.Menus
 			string input = _lobbySizeInput.text ?? "";
 			if (!string.IsNullOrEmpty(input))
 			{
-				int max_size = Mathf.Clamp(int.Parse(input), SteamLobby.LOBBY_SIZE_MIN, SteamLobby.LOBBY_SIZE_MAX);
+				int max_size = Mathf.Clamp(int.Parse(input), NetworkConfig.LOBBY_SIZE_MIN, NetworkConfig.LOBBY_SIZE_MAX);
 				Configuration.Instance.Host.MaxLobbySize = max_size;
 			}
 			else
 			{
-				Configuration.Instance.Host.MaxLobbySize = SteamLobby.LOBBY_SIZE_DEFAULT;
+				Configuration.Instance.Host.MaxLobbySize = NetworkConfig.LOBBY_SIZE_DEFAULT;
 			}
 
 			string password = _passwordInput?.text ?? "";

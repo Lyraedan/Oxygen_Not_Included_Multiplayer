@@ -166,9 +166,12 @@ namespace ONI_MP.UI
 			JoinViaLan = transform.Find("MainMenu/LanJoin/JoinLANButton").gameObject.AddOrGet<FButton>();
 			JoinViaLan.OnClick += JoinLanLobby;
 
-            // Load last used LAN settings
-            JoinIPInput.Text = Configuration.Instance.Client.LanSettings.Ip;
-            JoinPortInput.Text = Configuration.Instance.Client.LanSettings.Port.ToString();
+			// Load last used LAN settings
+			if (!string.IsNullOrEmpty(Configuration.Instance.Client.LanSettings.Ip))
+			{
+				JoinIPInput.Text = Configuration.Instance.Client.LanSettings.Ip;
+				JoinPortInput.Text = Configuration.Instance.Client.LanSettings.Port.ToString();
+			}
 
             HostSteamTab = transform.Find("HostMenu/SteamHosting").gameObject;
 			HostLanTab = transform.Find("HostMenu/LanHosting").gameObject;
@@ -182,14 +185,22 @@ namespace ONI_MP.UI
 			HostPortInput = transform.Find("HostMenu/LanHosting/Port/Input").FindOrAddComponent<FInputField2>();
 			HostPortInput.Text = "8080";
 
-			HostIPInput.Text = Configuration.Instance.Host.LanSettings.Ip;
-			HostPortInput.Text = Configuration.Instance.Host.LanSettings.Port.ToString();
+			if (!string.IsNullOrEmpty(Configuration.Instance.Host.LanSettings.Ip))
+			{
+				HostIPInput.Text = Configuration.Instance.Host.LanSettings.Ip;
+				HostPortInput.Text = Configuration.Instance.Host.LanSettings.Port.ToString();
+			}
 
 
             LobbySize = transform.Find("HostMenu/LobbySize/LobbySizeInput").gameObject.AddOrGet<FInputField2>();
-			LobbySize.Text = SteamLobby.LOBBY_SIZE_DEFAULT.ToString();
-			LobbySize.OnValueChanged.AddListener(ClampLobbySize);
+			LobbySize.Text = NetworkConfig.LOBBY_SIZE_DEFAULT.ToString();
 
+			if(!string.IsNullOrEmpty(Configuration.Instance.Host.MaxLobbySize.ToString()))
+			{
+				LobbySize.Text = Configuration.Instance.Host.MaxLobbySize.ToString();
+            }
+
+			LobbySize.OnValueChanged.AddListener(ClampLobbySize);
 			IncreaseSize = transform.Find("HostMenu/LobbySize/LobbySizeInput/Increase").gameObject.AddOrGet<FButton>();
 			IncreaseSize.OnClick += IncreaseLobbySize;
 			DecreaseSize = transform.Find("HostMenu/LobbySize/LobbySizeInput/Decrease").gameObject.AddOrGet<FButton>();
@@ -291,10 +302,13 @@ namespace ONI_MP.UI
 			if (int.TryParse(LobbySize.Text, out int lobbySize))
 			{
 				lobbySize++;
-				lobbySize = Mathf.Clamp(lobbySize, SteamLobby.LOBBY_SIZE_MIN, SteamLobby.LOBBY_SIZE_MAX);
+				lobbySize = Mathf.Clamp(lobbySize, NetworkConfig.LOBBY_SIZE_MIN, NetworkConfig.LOBBY_SIZE_MAX);
 				LobbySize.SetTextFromData(lobbySize.ToString());
 				RefreshLobbySizeButtons();
-			}
+
+				Configuration.Instance.Host.MaxLobbySize = lobbySize;
+				Configuration.Instance.Save();
+            }
 		}
 
 		void DecreaseLobbySize()
@@ -304,20 +318,23 @@ namespace ONI_MP.UI
 			if (int.TryParse(LobbySize.Text, out int lobbySize))
 			{
 				lobbySize--;
-				lobbySize = Mathf.Clamp(lobbySize, SteamLobby.LOBBY_SIZE_MIN, SteamLobby.LOBBY_SIZE_MAX);
+				lobbySize = Mathf.Clamp(lobbySize, NetworkConfig.LOBBY_SIZE_MIN, NetworkConfig.LOBBY_SIZE_MAX);
 				LobbySize.SetTextFromData(lobbySize.ToString());
 				RefreshLobbySizeButtons();
-			}
+
+                Configuration.Instance.Host.MaxLobbySize = lobbySize;
+                Configuration.Instance.Save();
+            }
 		}
 		void RefreshLobbySizeButtons()
 		{
 			using var _ = Profiler.Scope();
 
 			if (!int.TryParse(LobbySize.Text, out int lobbySize))
-				lobbySize = SteamLobby.LOBBY_SIZE_DEFAULT;
+				lobbySize = NetworkConfig.LOBBY_SIZE_DEFAULT;
 
-			IncreaseSize.SetInteractable(lobbySize < SteamLobby.LOBBY_SIZE_MAX);
-			DecreaseSize.SetInteractable(lobbySize > SteamLobby.LOBBY_SIZE_MIN);
+			IncreaseSize.SetInteractable(lobbySize < NetworkConfig.LOBBY_SIZE_MAX);
+			DecreaseSize.SetInteractable(lobbySize > NetworkConfig.LOBBY_SIZE_MIN);
 		}
 		void CancelHosting()
 		{
@@ -334,11 +351,11 @@ namespace ONI_MP.UI
 
 			if (int.TryParse(text, out int lobbySize))
 			{
-				lobbySize = Mathf.Clamp(lobbySize, SteamLobby.LOBBY_SIZE_MIN, SteamLobby.LOBBY_SIZE_MAX);
+				lobbySize = Mathf.Clamp(lobbySize, NetworkConfig.LOBBY_SIZE_MIN, NetworkConfig.LOBBY_SIZE_MAX);
 				LobbySize.SetTextFromData(lobbySize.ToString());
 			}
 			else
-				LobbySize.SetTextFromData(SteamLobby.LOBBY_SIZE_DEFAULT.ToString());
+				LobbySize.SetTextFromData(NetworkConfig.LOBBY_SIZE_DEFAULT.ToString());
 			RefreshLobbySizeButtons();
 		}
 
@@ -402,7 +419,7 @@ namespace ONI_MP.UI
 
 			if (int.TryParse(portText, out int port)) {
                 Configuration.Instance.Client.LanSettings.Ip = ipAdress;
-                Configuration.Instance.Client.LanSettings.Port = port;
+                Configuration.Instance.Client.LanSettings.Port = int.Parse(portText);
                 Configuration.Instance.Save();
 
                 Debug.Log("Trying to join LAN lobby with IP: " + ipAdress + " and Port: " + portText);
@@ -506,8 +523,6 @@ namespace ONI_MP.UI
 			if (ShowAdditionalHostSettings && !show)
 				ShowAdditionalHostSettingsSegment(false);
 			RefreshSpacer();
-
-			LobbySize.inputField.ForceLabelUpdate();
 		}
 		void ShowAdditionalHostSettingsSegment(bool show)
 		{
@@ -627,13 +642,13 @@ namespace ONI_MP.UI
 			if (lobbySize.Any())
 			{
 				if (!int.TryParse(lobbySize, out int maxLobbySize))
-					maxLobbySize = SteamLobby.LOBBY_SIZE_MIN;
-				maxLobbySize = Mathf.Clamp(maxLobbySize, SteamLobby.LOBBY_SIZE_MIN, SteamLobby.LOBBY_SIZE_MAX);
+					maxLobbySize = NetworkConfig.LOBBY_SIZE_MIN;
+				maxLobbySize = Mathf.Clamp(maxLobbySize, NetworkConfig.LOBBY_SIZE_MIN, NetworkConfig.LOBBY_SIZE_MAX);
 				Configuration.Instance.Host.MaxLobbySize = maxLobbySize;
 			}
 			else
 			{
-				Configuration.Instance.Host.MaxLobbySize = SteamLobby.LOBBY_SIZE_DEFAULT;
+				Configuration.Instance.Host.MaxLobbySize = NetworkConfig.LOBBY_SIZE_DEFAULT;
 			}
 
 			string password = PasswortInput.Text;
@@ -679,13 +694,13 @@ namespace ONI_MP.UI
                 if (lobbySize.Any())
                 {
                     if (!int.TryParse(lobbySize, out int maxLobbySize))
-                        maxLobbySize = SteamLobby.LOBBY_SIZE_MIN;
-                    maxLobbySize = Mathf.Clamp(maxLobbySize, SteamLobby.LOBBY_SIZE_MIN, SteamLobby.LOBBY_SIZE_MAX);
+                        maxLobbySize = NetworkConfig.LOBBY_SIZE_MIN;
+                    maxLobbySize = Mathf.Clamp(maxLobbySize, NetworkConfig.LOBBY_SIZE_MIN, NetworkConfig.LOBBY_SIZE_MAX);
                     Configuration.Instance.Host.MaxLobbySize = maxLobbySize;
                 }
                 else
                 {
-                    Configuration.Instance.Host.MaxLobbySize = SteamLobby.LOBBY_SIZE_DEFAULT;
+                    Configuration.Instance.Host.MaxLobbySize = NetworkConfig.LOBBY_SIZE_DEFAULT;
                 }
 
                 Debug.Log("Trying to start LAN lobby with IP: " + ipAdress + " and Port: " + portText);

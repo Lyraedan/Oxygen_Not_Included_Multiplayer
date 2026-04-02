@@ -14,6 +14,8 @@ using ONI_MP.Networking.Transport.Steamworks;
 using ONI_MP.DebugTools;
 using Shared.Profiling;
 using ONI_MP.Patches.ToolPatches;
+using UnityEngine;
+using System.Collections;
 
 namespace ONI_MP.Networking
 {
@@ -30,6 +32,10 @@ namespace ONI_MP.Networking
         public static TransportClient TransportClient { get; set; } = new RiptideClient();
         public static TransportPacketSender TransportPacketSender { get; set; } = new RiptidePacketSender();
 
+        public static readonly int LOBBY_SIZE_MIN = 2;
+        public static readonly int LOBBY_SIZE_DEFAULT = 4;
+        public static readonly int LOBBY_SIZE_MAX = 16;
+
         /// <summary>
         /// Starts a GameServer on the current transport
         /// </summary>
@@ -43,7 +49,7 @@ namespace ONI_MP.Networking
                     break;
                 case NetworkTransport.RIPTIDE:
                     UpdateTransport(NetworkTransport.RIPTIDE);
-                    StartRawServer();
+                    CoroutineRunner.RunOne(StartRawDelayed(1f)); // Wait 1 second (prevents timeouts when hosting after loading)
                     break;
             }
         }
@@ -55,6 +61,12 @@ namespace ONI_MP.Networking
                 SpeedControlScreen.Instance?.Unpause(false);
                 Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
             });
+        }
+
+        private static IEnumerator StartRawDelayed(float delay = 1f)
+        {
+            yield return new WaitForSecondsRealtime(delay);
+            StartRawServer();
         }
 
         private static void StartRawServer()
