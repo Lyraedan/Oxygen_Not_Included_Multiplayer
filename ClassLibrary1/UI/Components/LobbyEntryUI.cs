@@ -49,7 +49,8 @@ namespace ONI_MP.UI.Components
 		{
 			using var _ = Profiler.Scope();
 
-			if (OnJoinClicked != null && Lobby != null)
+			NetworkConfig.UpdateTransport(NetworkConfig.NetworkTransport.STEAMWORKS);
+            if (OnJoinClicked != null && Lobby != null)
 				OnJoinClicked(Lobby);
 		}
 
