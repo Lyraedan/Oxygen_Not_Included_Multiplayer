@@ -7,12 +7,14 @@ using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
 using ONI_MP.Networking.Transport.Steamworks;
+using PeterHan.PLib.AVC;
 using Shared.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Shared.Profiling;
 using UnityEngine;
+using static DistributionPlatform;
 
 namespace ONI_MP
 {
@@ -100,6 +102,11 @@ namespace ONI_MP
 		{
 			int relay = Configuration.Instance.Host.NetworkTransport;
 			NetworkConfig.UpdateTransport((NetworkConfig.NetworkTransport)relay);
+
+			///version checker that doesnt restart the game
+			var VersionChecker = new PVersionCheck();
+			VersionChecker.Register(this, new SteamVersionChecker());
+
 		}
 
 		void LoadAssetBundles()
@@ -202,9 +209,11 @@ namespace ONI_MP
 	        using var _ = Profiler.Scope();
 
             base.OnAllModsLoaded(harmony, mods);
-			ModUpdater.Updater.CheckForUpdate();
-            // For now default to the steam transport
+			///does weird force restarts; replaced with plib version checker that doesnt restart the game
+			//ModUpdater.Updater.CheckForUpdate();
+
+			// For now default to the steam transport
             NetworkConfig.UpdateTransport(NetworkConfig.NetworkTransport.STEAMWORKS);
-        }
-    }
+		}
+	}
 }

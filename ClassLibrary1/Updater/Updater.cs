@@ -173,7 +173,7 @@ namespace ONI_MP.ModUpdater
             using var _ = Profiler.Scope();
 
             string mod_updater_workshop_url = "https://steamcommunity.com/sharedfiles/filedetails/?id=2018291283";
-            DialogUtil.CreateConfirmDialogFrontend(STRINGS.UI.MP_SCREEN.UPDATER.MOD_UPDATE_TITLE, string.Format(STRINGS.UI.MP_SCREEN.UPDATER.MOD_UPDATE_TEXT, WORKSHOP_VERSION, CURRENT_VERSION, mod_updater_workshop_url));
+           // DialogUtil.CreateConfirmDialogFrontend(STRINGS.UI.MP_SCREEN.UPDATER.MOD_UPDATE_TITLE, string.Format(STRINGS.UI.MP_SCREEN.UPDATER.MOD_UPDATE_TEXT, WORKSHOP_VERSION, CURRENT_VERSION, mod_updater_workshop_url));
         }
     }
 }

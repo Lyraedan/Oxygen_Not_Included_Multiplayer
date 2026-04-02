@@ -15,12 +15,7 @@ namespace UI.lib.UIcmp //Source: Aki
 #pragma warning restore IDE0051 // Remove unused private members
 		private bool shown = false;
 		public bool pause = true;
-
-		public FButton cancelButton;
-		public FButton confirmButton;
-		public FButton XButton;
-		public FButton SteamButton;
-		public FButton GithubButton;
+		public bool lockCam = true;
 
 		public override void OnPrefabInit()
 		{
@@ -28,22 +23,6 @@ namespace UI.lib.UIcmp //Source: Aki
 			gameObject.SetActive(true);
 		}
 
-		private FButton SetButton(string key, Dictionary<string, string> buttonRefs)
-		{
-			if (buttonRefs.TryGetValue(key, out string path))
-			{
-				var obj = transform.Find(path);
-				if (obj != null)
-				{
-					DebugConsole.Log("set button " + key + " " + path);
-					return obj.gameObject.AddComponent<FButton>();
-				}
-				else
-					DebugConsole.Log("Not an object: " + path);
-			}
-
-			return null;
-		}
 
 		public virtual void ShowDialog()
 		{
@@ -51,19 +30,8 @@ namespace UI.lib.UIcmp //Source: Aki
 			{
 				transform.SetParent(transform.parent.parent);
 			}
-
 			transform.SetAsLastSibling();
-
-			if (cancelButton != null) cancelButton.OnClick += OnClickCancel;
-			if (XButton != null) XButton.OnClick += OnClickCancel;
-			if (confirmButton != null) confirmButton.OnClick += OnClickApply;
-			if (GithubButton != null) GithubButton.OnClick += OnClickGithub;
-			if (SteamButton != null) SteamButton.OnClick += OnClickSteam;
 		}
-
-		public void OnClickGithub() => Application.OpenURL("https://github.com/aki-art/ONI-Mods");
-
-		public void OnClickSteam() => Application.OpenURL("https://steamcommunity.com/id/akisnothere/myworkshopfiles/?appid=457140");
 
 		public virtual void OnClickCancel()
 		{
@@ -84,7 +52,7 @@ namespace UI.lib.UIcmp //Source: Aki
 		public override void OnCmpEnable()
 		{
 			base.OnCmpEnable();
-			if (CameraController.Instance != null)
+			if (lockCam && CameraController.Instance != null)
 			{
 				CameraController.Instance.DisableUserCameraControl = true;
 			}
@@ -93,7 +61,7 @@ namespace UI.lib.UIcmp //Source: Aki
 		public override void OnCmpDisable()
 		{
 			base.OnCmpDisable();
-			if (CameraController.Instance != null)
+			if (lockCam && CameraController.Instance != null)
 			{
 				CameraController.Instance.DisableUserCameraControl = false;
 			}
@@ -140,17 +108,6 @@ namespace UI.lib.UIcmp //Source: Aki
 			}
 		}
 
-		public override void OnKeyDown(KButtonEvent e)
-		{
-			if (e.TryConsume(Action.Escape))
-			{
-				OnClickCancel();
-			}
-			else
-			{
-				base.OnKeyDown(e);
-			}
-		}
 
 		public override void OnKeyUp(KButtonEvent e)
 		{
