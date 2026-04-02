@@ -15,7 +15,7 @@ namespace ONI_MP.Networking.Components
 		private bool isTransitioning;
 
 		private readonly Queue<NavigatorTransitionPacket> buffer = new Queue<NavigatorTransitionPacket>(16);
-		private const int MaxBufferSize = 10;
+		private const int MaxBufferSize = 16; // You limit the buffer size to 10 here but initialize it at 16 above
 		private const float BufferTargetDelay = 0.08f;
 		private bool receivedFirstPacket;
 		private float firstPacketTime;
