@@ -211,8 +211,8 @@ namespace ONI_MP
 				public static LocString CHAT_CLIENT_LEFT = "<color=yellow>[System]</color> <b>{0}</b> left the game.";
 				public static LocString CHAT_CLIENT_FAILED = "<color=red>[System]</color>{0} failed to connect to the server.";
 
-                public static LocString CHAT_SERVER_STARTED = "<color=yellow>[System]</color><color=green>Started server over {0}</color>";
-				public static LocString CHAT_SERVER_STOPPED = "<color=yellow>[System]</color><color=green>Stopped {0} server</color>";
+                public static LocString CHAT_SERVER_STARTED = "<color=yellow>[System]</color><color=green> Started server over {0}</color>";
+				public static LocString CHAT_SERVER_STOPPED = "<color=yellow>[System]</color><color=green> Stopped {0} server</color>";
 
                 public class RESIZE
 				{
