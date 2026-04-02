@@ -8,7 +8,7 @@ namespace UI.lib.UI.FUI
 	public class FToggleButton : KMonoBehaviour, IEventSystemHandler, IPointerUpHandler, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 	{
 		public event System.Action OnClick;
-		public event System.Action OnDoubleClick;
+		public event System.Action OnDoubleClick = null;
 
 		public event System.Action OnPointerEnterAction;
 		public event System.Action OnPointerExitAction;
@@ -189,7 +189,7 @@ namespace UI.lib.UI.FUI
 			else
 			{
 				ToggleSelection();
-				OnClick.Invoke();
+				OnClick?.Invoke();
 			}
 		}
 	}

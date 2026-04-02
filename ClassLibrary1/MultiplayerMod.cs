@@ -6,11 +6,13 @@ using ONI_MP.Misc;
 using ONI_MP.Networking;
 using ONI_MP.Networking.Components;
 using ONI_MP.Networking.Packets.Architecture;
+using PeterHan.PLib.AVC;
 using Shared.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using static DistributionPlatform;
 
 namespace ONI_MP
 {
@@ -90,6 +92,11 @@ namespace ONI_MP
 
 
 			RegisterDevTools();
+
+			///version checker that doesnt restart the game
+			var VersionChecker = new PVersionCheck();
+			VersionChecker.Register(this, new SteamVersionChecker());
+
 		}
 
 		void LoadAssetBundles()
@@ -179,7 +186,8 @@ namespace ONI_MP
         public override void OnAllModsLoaded(Harmony harmony, IReadOnlyList<Mod> mods)
         {
             base.OnAllModsLoaded(harmony, mods);
-			ModUpdater.Updater.CheckForUpdate();
-        }
-    }
+			///does weird force restarts; replaced with plib version checker that doesnt restart the game
+			//ModUpdater.Updater.CheckForUpdate();
+		}
+	}
 }

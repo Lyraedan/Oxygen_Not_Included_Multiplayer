@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UI.lib.UI.FUI;
 using UI.lib.UIcmp;
 using UnityEngine;
 using static ONI_MP.STRINGS.UI;
@@ -24,6 +25,18 @@ namespace ONI_MP.UI
 {
 	internal class UnityMultiplayerScreen : FScreen
 	{
+		enum JoinMode
+		{				
+			Steam,
+			Code,
+			LAN
+		}
+		enum HostMode
+		{
+			Steam,
+			LAN
+		}
+
 		public static void OnSceneChanged()
 		{
 			if (Instance != null)
@@ -48,20 +61,38 @@ namespace ONI_MP.UI
 		//MainMenuSegment:
 		FButton
 			HostGame,
-			JoinViaSteam,
-			OpenLobbyBrowser,
-			JoinWithCode,
 			MainCancel;
+		//Tabs for Joining
+		FToggleButton SteamTabToggle, CodeTabToggle, LanTabToggle;
+		JoinMode CurrentJoinMode = JoinMode.Steam;
+		//TabContainer:
+		GameObject SteamTab, CodeTab, LanTab;
+		//SteamTab:
+		FButton JoinViaSteam, OpenLobbyBrowser;
+		//CodeTab:
 		FInputField2 LobbyCodeInput;
+		FButton JoinViaCode;
+		//LanTab:
+		FInputField2 JoinIPInput, JoinPortInput;
+		FButton JoinViaLan;
 
 		//HostStartLobbySegment:
-		FToggle PrivateLobbyCheckbox;
-		LocText LobbyStateInfo;
 		FInputField2 LobbySize;
-		FButton IncreaseSize, DecreaseSize;
-		FInputField2 PasswortInput;
 		FButton AdditionalLobbySettings;
 		FButton StartHosting, HostCancel;
+
+		HostMode CurrentHostMode = HostMode.Steam;
+		//Tabs for Hosting
+		FToggleButton HostSteamToggle, HostLanToggle;
+		//TabContainer:
+		GameObject HostSteamTab, HostLanTab;
+		//SteamTab:
+		FToggle PrivateLobbyCheckbox;
+		LocText FriendsOnlyStateInfo;
+		FButton IncreaseSize, DecreaseSize;
+		FInputField2 PasswortInput;
+		//LanTab:
+		FInputField2 HostIPInput, HostPortInput;
 
 		//LobbyBrowserSegment:
 		FButton RefreshLobbiesBtn;
@@ -84,6 +115,8 @@ namespace ONI_MP.UI
 			lobbyDataCallback = Callback<LobbyDataUpdate_t>.Create(OnLobbyDataUpdateReceived);
 
 			Debug.Log("Initializing MultiplayerScreen");
+
+			///init main area of base screen
 			MainMenuSegment = transform.Find("MainMenu").gameObject;
 			StartHostingSegment = transform.Find("HostMenu").gameObject;
 			LobbyBrowserSegment = transform.Find("LobbyList").gameObject;
@@ -94,36 +127,68 @@ namespace ONI_MP.UI
 
 			HostGame = transform.Find("MainMenu/HostGameButton").gameObject.AddOrGet<FButton>();
 			HostGame.OnClick += () => ShowHostSegment(true);
-			JoinViaSteam = transform.Find("MainMenu/JoinViaSteam").gameObject.AddOrGet<FButton>();
-			JoinViaSteam.OnClick += () => SteamFriends.ActivateGameOverlay("friends");
-			OpenLobbyBrowser = transform.Find("MainMenu/OpenLobbyListButton").gameObject.AddOrGet<FButton>();
-			OpenLobbyBrowser.OnClick += () => ShowLobbySegment(true);
-
-			JoinWithCode = transform.Find("MainMenu/LobbyCodeJoin/JoinWithCodeButton").gameObject.AddOrGet<FButton>();
-			JoinWithCode.OnClick += JoinLobbyWithCode;
 			MainCancel = transform.Find("MainMenu/Cancel").gameObject.AddOrGet<FButton>();
 			MainCancel.OnClick += () => Show(false);
+			///init tabs
+			SteamTabToggle = transform.Find("MainMenu/JoinViaButtons/Steam").gameObject.AddOrGet<FToggleButton>();
+			SteamTabToggle.OnClick += () => SetJoinVia(JoinMode.Steam);
+			CodeTabToggle = transform.Find("MainMenu/JoinViaButtons/Code").gameObject.AddOrGet<FToggleButton>();
+			CodeTabToggle.OnClick += () => SetJoinVia(JoinMode.Code);
+			LanTabToggle = transform.Find("MainMenu/JoinViaButtons/LAN").gameObject.AddOrGet<FToggleButton>();
+			LanTabToggle.OnClick += () => SetJoinVia(JoinMode.LAN);
+
+			SteamTab = transform.Find("MainMenu/SteamJoin").gameObject;
+			CodeTab = transform.Find("MainMenu/LobbyCodeJoin").gameObject;
+			LanTab = transform.Find("MainMenu/LanJoin").gameObject;
+			///init Steam Join Tab
+			JoinViaSteam = transform.Find("MainMenu/SteamJoin/JoinViaSteam").gameObject.AddOrGet<FButton>();
+			JoinViaSteam.OnClick += () => SteamFriends.ActivateGameOverlay("friends");
+			OpenLobbyBrowser = transform.Find("MainMenu/SteamJoin/OpenLobbyListButton").gameObject.AddOrGet<FButton>();
+			OpenLobbyBrowser.OnClick += () => ShowLobbySegment(true);
+			///init Code Join Tab
+			JoinViaCode = transform.Find("MainMenu/LobbyCodeJoin/JoinWithCodeButton").gameObject.AddOrGet<FButton>();
+			JoinViaCode.OnClick += JoinLobbyWithCode;
 			LobbyCodeInput = transform.Find("MainMenu/LobbyCodeJoin/Input").FindOrAddComponent<FInputField2>();
 			LobbyCodeInput.Text = string.Empty;
 			LobbyCodeInput.inputField.characterLimit = 16;
+			///init LAN Join Tab
+			JoinIPInput = transform.Find("MainMenu/LanJoin/Inputs/IpInput").FindOrAddComponent<FInputField2>();
+			JoinIPInput.Text = string.Empty;
+			JoinPortInput = transform.Find("MainMenu/LanJoin/Inputs/Port").FindOrAddComponent<FInputField2>();
+			JoinPortInput.Text = "8080";
+			JoinViaLan = transform.Find("MainMenu/LanJoin/JoinLANButton").gameObject.AddOrGet<FButton>();
+			JoinViaLan.OnClick += JoinLanLobby;
 
-			LobbyStateInfo = transform.Find("HostMenu/FriendsOnly/State").gameObject.GetComponent<LocText>();
-			PrivateLobbyCheckbox = transform.Find("HostMenu/FriendsOnly/Checkbox").gameObject.AddOrGet<FToggle>();
-			PrivateLobbyCheckbox.SetCheckmark("Checkmark");
-			PrivateLobbyCheckbox.SetOnFromCode(true);
-			TintLobbyState(true);
-			PrivateLobbyCheckbox.OnChange += (on) => TintLobbyState(on);
+			HostSteamTab = transform.Find("HostMenu/SteamHosting").gameObject;
+			HostLanTab = transform.Find("HostMenu/LanHosting").gameObject;
+			HostSteamToggle = transform.Find("HostMenu/HostViaButtons/Steam").gameObject.AddOrGet<FToggleButton>();
+			HostSteamToggle.OnClick += () => SetHostVia(HostMode.Steam);
+			HostLanToggle = transform.Find("HostMenu/HostViaButtons/LAN").gameObject.AddOrGet<FToggleButton>();
+			HostLanToggle.OnClick += () => SetHostVia(HostMode.LAN);
+
+			HostIPInput = transform.Find("HostMenu/LanHosting/IpTarget/Input").FindOrAddComponent<FInputField2>();
+			HostIPInput.Text = "127.0.0.1";
+			HostPortInput = transform.Find("HostMenu/LanHosting/Port/Input").FindOrAddComponent<FInputField2>();
+			HostPortInput.Text = "8080";
+
+
 			LobbySize = transform.Find("HostMenu/LobbySize/LobbySizeInput").gameObject.AddOrGet<FInputField2>();
 			LobbySize.Text = SteamLobby.LOBBY_SIZE_DEFAULT.ToString();
 			LobbySize.OnValueChanged.AddListener(ClampLobbySize);
-
 			IncreaseSize = transform.Find("HostMenu/LobbySize/LobbySizeInput/Increase").gameObject.AddOrGet<FButton>();
 			IncreaseSize.OnClick += IncreaseLobbySize;
 			DecreaseSize = transform.Find("HostMenu/LobbySize/LobbySizeInput/Decrease").gameObject.AddOrGet<FButton>();
 			DecreaseSize.OnClick += DecreaseLobbySize;
 
 
-			PasswortInput = transform.Find("HostMenu/PasswordInput").gameObject.AddOrGet<FInputField2>();
+			FriendsOnlyStateInfo = transform.Find("HostMenu/SteamHosting/FriendsOnly/State").gameObject.GetComponent<LocText>();
+			PrivateLobbyCheckbox = transform.Find("HostMenu/SteamHosting/FriendsOnly/Checkbox").gameObject.AddOrGet<FToggle>();
+			PrivateLobbyCheckbox.SetCheckmark("Checkmark");
+			PrivateLobbyCheckbox.SetOnFromCode(true);
+			TintLobbyState(true);
+			PrivateLobbyCheckbox.OnChange += (on) => TintLobbyState(on);
+			
+			PasswortInput = transform.Find("HostMenu/SteamHosting/PasswordInput").gameObject.AddOrGet<FInputField2>();
 			PasswortInput.Text = string.Empty;
 
 			AdditionalLobbySettings = transform.Find("HostMenu/AdditionalSettings").gameObject.AddOrGet<FButton>();
@@ -145,7 +210,35 @@ namespace ONI_MP.UI
 			entryPrefabGO.SetActive(false);
 			LobbyEntryPrefab = entryPrefabGO.AddOrGet<LobbyEntryUI>();
 			RefreshLobbySizeButtons();
+
+			SetJoinVia(JoinMode.Steam);
+			SetHostVia(HostMode.Steam);
+
 			init = true;
+		}
+
+		private void SetHostVia(HostMode current)
+		{
+			CurrentHostMode = current;
+
+			HostLanTab.SetActive(current == HostMode.LAN);
+			HostSteamTab.SetActive(current == HostMode.Steam);
+
+			HostLanToggle.SetIsSelected(current == HostMode.LAN);
+			HostSteamToggle.SetIsSelected(current == HostMode.Steam);
+		}
+
+		private void SetJoinVia(JoinMode current)
+		{
+			CurrentJoinMode = current;
+
+			SteamTab.SetActive(current == JoinMode.Steam);
+			CodeTab.SetActive(current == JoinMode.Code);
+			LanTab.SetActive(current == JoinMode.LAN);
+
+			SteamTabToggle.SetIsSelected(current == JoinMode.Steam);
+			CodeTabToggle.SetIsSelected(current == JoinMode.Code);
+			LanTabToggle.SetIsSelected(current == JoinMode.LAN);
 		}
 
 		void IncreaseLobbySize()
@@ -238,6 +331,15 @@ namespace ONI_MP.UI
 			Instance.ShowHostSegment(true);
 			Instance.ShowAdditionalHostSettingsSegment(false);
 		}
+
+		void JoinLanLobby()
+		{
+			string ipAdress = JoinIPInput.Text;
+			string portText = JoinPortInput.Text;
+			Debug.Log("Trying to join LAN lobby with IP: " + ipAdress + " and Port: " + portText);
+			///TODO: Implement LAN joining
+		}
+
 		void JoinLobbyWithCode()
 		{
 			// First step: Validate and parse code
@@ -342,8 +444,8 @@ namespace ONI_MP.UI
 
 		void TintLobbyState(bool isPrivate)
 		{
-			string text = isPrivate ? STRINGS.UI.MP_SCREEN.HOSTMENU.FRIENDSONLY.LOBBY_VISIBILITY_FRIENDSONLY : STRINGS.UI.MP_SCREEN.HOSTMENU.FRIENDSONLY.LOBBY_VISIBILITY_PUBLIC;
-			LobbyStateInfo.SetText(Utils.ColorText(text, isPrivate ? PrivateLobbyTint : PublicLobbyTint));
+			string text = isPrivate ? STRINGS.UI.FRIENDSONLYMODE.LOBBY_VISIBILITY_FRIENDSONLY : STRINGS.UI.FRIENDSONLYMODE.LOBBY_VISIBILITY_PUBLIC;
+			FriendsOnlyStateInfo.SetText(Utils.ColorText(text, isPrivate ? PrivateLobbyTint : PublicLobbyTint));
 		}
 
 
@@ -439,7 +541,28 @@ namespace ONI_MP.UI
 			Configuration.Instance.Save();
 		}
 
-		private void StartHostingGame()
+		void StartHostingGame()
+		{
+			switch (CurrentHostMode)
+			{
+				case HostMode.Steam:
+					StartHostingSteamGame();
+					break;
+				case HostMode.LAN:
+					StartHostingLanGame();
+					break;
+			}
+		}
+		private void StartHostingLanGame()
+		{
+			string ipAdress = HostIPInput.Text;
+			string portText = HostPortInput.Text;
+			Debug.Log("Trying to start LAN lobby with IP: " + ipAdress + " and Port: " + portText);
+			///TODO: Implement LAN hosting hookup
+		}
+
+
+		private void StartHostingSteamGame()
 		{
 			// Save the host config
 			StoreHostConfigurationSettings();
