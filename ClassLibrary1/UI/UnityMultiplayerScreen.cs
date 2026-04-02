@@ -189,6 +189,7 @@ namespace ONI_MP.UI
             LobbySize = transform.Find("HostMenu/LobbySize/LobbySizeInput").gameObject.AddOrGet<FInputField2>();
 			LobbySize.Text = SteamLobby.LOBBY_SIZE_DEFAULT.ToString();
 			LobbySize.OnValueChanged.AddListener(ClampLobbySize);
+
 			IncreaseSize = transform.Find("HostMenu/LobbySize/LobbySizeInput/Increase").gameObject.AddOrGet<FButton>();
 			IncreaseSize.OnClick += IncreaseLobbySize;
 			DecreaseSize = transform.Find("HostMenu/LobbySize/LobbySizeInput/Decrease").gameObject.AddOrGet<FButton>();
@@ -401,7 +402,7 @@ namespace ONI_MP.UI
 
 			if (int.TryParse(portText, out int port)) {
                 Configuration.Instance.Client.LanSettings.Ip = ipAdress;
-                Configuration.Instance.Client.LanSettings.Port = int.Parse(portText);
+                Configuration.Instance.Client.LanSettings.Port = port;
                 Configuration.Instance.Save();
 
                 Debug.Log("Trying to join LAN lobby with IP: " + ipAdress + " and Port: " + portText);
@@ -505,6 +506,8 @@ namespace ONI_MP.UI
 			if (ShowAdditionalHostSettings && !show)
 				ShowAdditionalHostSettingsSegment(false);
 			RefreshSpacer();
+
+			LobbySize.inputField.ForceLabelUpdate();
 		}
 		void ShowAdditionalHostSettingsSegment(bool show)
 		{
