@@ -152,7 +152,11 @@ namespace ONI_MP.Networking.Components
 					end = (NavType)packet.EndNavType,
 					anim = packet.Anim,
 					preAnim = packet.PreAnim,
-					animSpeed = packet.AnimSpeed
+					animSpeed = packet.AnimSpeed,
+					voidOffsets = System.Array.Empty<CellOffset>(),
+					solidOffsets = System.Array.Empty<CellOffset>(),
+					validNavOffsets = System.Array.Empty<NavOffset>(),
+					invalidNavOffsets = System.Array.Empty<NavOffset>()
 				},
 				packet.Speed
 			);
