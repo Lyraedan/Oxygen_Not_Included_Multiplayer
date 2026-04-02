@@ -45,7 +45,7 @@ namespace ONI_MP.Patches.World
             TryCreateLobbyAfterLoad("[Multiplayer] Lobby created after world load.");
             if (MultiplayerSession.InSession)
             {
-				SpeedControlScreen.Instance?.Unpause(false); // Unpause the game
+				//SpeedControlScreen.Instance?.Unpause(true); // Force pause the game
 			}
             //ReadyManager.SendReadyStatusPacket(Networking.States.ClientReadyState.Ready);
         }

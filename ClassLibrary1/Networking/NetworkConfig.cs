@@ -31,7 +31,7 @@ namespace ONI_MP.Networking
         public static TransportPacketSender TransportPacketSender { get; set; } = new RiptidePacketSender();
 
         /// <summary>
-        /// Starts a GameServer on the current transport without needing to go through something like SteamLobby etc
+        /// Starts a GameServer on the current transport
         /// </summary>
         public static void StartServer()
         {
@@ -62,7 +62,7 @@ namespace ONI_MP.Networking
             MultiplayerSession.Clear();
             try
             {
-                Networking.GameServer.Start();
+                GameServer.Start();
             }
             catch (Exception ex)
             {
@@ -72,6 +72,9 @@ namespace ONI_MP.Networking
             Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
         }
 
+        /// <summary>
+        /// Stops the server based off the current transport
+        /// </summary>
         public static void StopServer()
         {
             switch(transport)
