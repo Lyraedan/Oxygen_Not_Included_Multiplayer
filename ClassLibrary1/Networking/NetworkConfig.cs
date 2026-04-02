@@ -58,7 +58,8 @@ namespace ONI_MP.Networking
         {
             SteamLobby.CreateLobby(onSuccess: () =>
             {
-                SpeedControlScreen.Instance?.Unpause(false);
+                //SpeedControlScreen.Instance?.Unpause(false);
+                SpeedControlScreen.Instance.Pause(true);
                 Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
             });
         }
@@ -82,6 +83,7 @@ namespace ONI_MP.Networking
             }
             SelectToolPatch.UpdateColor();
             Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
+            SpeedControlScreen.Instance.Pause(true);
         }
 
         /// <summary>
