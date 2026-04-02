@@ -70,12 +70,6 @@ namespace ONI_MP.Patches
 							UnityMultiplayerScreen.OpenFromPauseScreen();
 							ONI_MP.Menus.HostLobbyConfigScreen.Show(canvas.transform, () =>
 							{
-								// Config closed - create lobby with settings
-								//SteamLobby.CreateLobby(onSuccess: () =>
-								//{
-								//	SpeedControlScreen.Instance?.Unpause(false);
-								//	Game.Instance.Trigger(MP_HASHES.OnMultiplayerGameSessionInitialized);
-								//});
 								NetworkConfig.StartServer();
 							});
 						}
@@ -96,45 +90,6 @@ namespace ONI_MP.Patches
 						ONI_MP.Menus.MultiplayerInfoScreen.Show(canvas.transform);
 					}
 				});
-
-				/*
-                    AddButton(__instance, MP_STRINGS.UI.PAUSESCREEN.INVITE.LABEL, () =>
-                    {
-                        SteamFriends.ActivateGameOverlayInviteDialog(SteamLobby.CurrentLobby); // Whilst the menu opens, sending an invite this way doesn't work
-                    });
-
-					if (!GameServerHardSync.hardSyncDoneThisCycle)
-					{
-                        AddButton(__instance, MP_STRINGS.UI.PAUSESCREEN.DOHARDSYNC.LABEL, () =>
-                        {
-							if (MultiplayerSession.ConnectedPlayers.Count > 0)
-							{
-								PauseScreen.Instance.Show(false); // Hide pause screen
-								SpeedControlScreen.Instance?.Unpause(false);
-								GameServerHardSync.PerformHardSync(); // Manually trigger the hard sync
-							} else
-							{
-                                PauseScreen.Instance.Show(false); // Hide pause screen
-                                SpeedControlScreen.Instance?.Unpause(false);
-								GameServerHardSync.hardSyncDoneThisCycle = true; // No one is here, skip hard sync
-                            }
-                        });
-                    } else
-					{
-                        AddButton(__instance, MP_STRINGS.UI.PAUSESCREEN.HARDSYNCNOTAVAILABLE.LABEL, () =>
-                        {
-
-                        });
-                    }
-
-					AddButton(__instance, MP_STRINGS.UI.PAUSESCREEN.ENDSESSION.LABEL, () =>
-					{
-						SteamLobby.LeaveLobby();
-						PauseScreen.Instance.Show(false); // Hide pause screen
-						SpeedControlScreen.Instance?.Unpause(false);
-					}, MP_STRINGS.UI.PAUSESCREEN.INVITE.LABEL);
-				}*/
-
             }
 		}
 
