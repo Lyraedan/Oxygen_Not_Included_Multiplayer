@@ -21,7 +21,7 @@ namespace ONI_MP.Networking.Components
 		private float firstPacketTime;
 		private bool playbackStarted;
 
-		private const float CorrectionSnapDistance = 3f;
+		private const float CorrectionSnapDistance = 3;
 		private NavType stopNavType;
 		private bool pendingStop;
 
@@ -50,20 +50,24 @@ namespace ONI_MP.Networking.Components
 			if (!MultiplayerSession.InSession || MultiplayerSession.IsHost)
 				return;
 
-			if (isTransitioning && navigator != null && navigator.transitionDriver != null)
+			if(navigator == null || navigator.transitionDriver == null)
+                return;
+
+			if (isTransitioning)
 			{
 				navigator.transitionDriver.UpdateTransition(Time.deltaTime);
 
-				if (navigator.transitionDriver.GetTransition == null)
+                // Why not just set isTransitioning here to "navigator.transitionDriver.GetTransition != null"?
+                if (navigator.transitionDriver.GetTransition == null)
 				{
 					isTransitioning = false;
 				}
 			}
-
-			if (!isTransitioning)
+			else
 			{
-				TryDequeueAndPlay();
-			}
+				// Not transitioning
+                TryDequeueAndPlay();
+            }
 		}
 
 		public void OnTransitionReceived(NavigatorTransitionPacket packet)
@@ -120,12 +124,6 @@ namespace ONI_MP.Networking.Components
 		private void PlayTransition(NavigatorTransitionPacket packet)
 		{
 			using var _ = Profiler.Scope();
-
-			if (packet == null || navigator == null || navigator.transitionDriver == null)
-			{
-				DebugConsole.LogError($"[Duplicate:{gameObject.name}/DuplicateClientController] Invalid packet or missing components. Packet: {packet}, Navigator: {navigator}, TransitionDriver: {navigator?.transitionDriver}", false);
-                return;
-			}
 
             if (isTransitioning)
 			{
