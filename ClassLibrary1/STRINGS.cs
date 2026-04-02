@@ -293,7 +293,15 @@ namespace ONI_MP
 			}
 
 			public static LocString WORK_IN_PROGRESS = "This feature is currently not finished and will be made usable in a future update.";
-			///Unity Ui big composite screen, these get automatically applied
+			///Unity Ui big composite screen, these get automatically applied, and are auto generated from the unity project
+			/// <summary>
+			public class FRIENDSONLYMODE
+			{
+				public static LocString LOBBY_VISIBILITY_PUBLIC = "Public";
+				public static LocString LOBBY_VISIBILITY_FRIENDSONLY = "Friends Only";
+			}
+
+
 			public class MP_SCREEN
 			{
 				public class MAINMENU
@@ -304,13 +312,31 @@ namespace ONI_MP
 						public static LocString TEXT = "Host Game";
 					}
 					public static LocString JOININGTITLE = "Joining";
-					public class JOINVIASTEAM
+					public class JOINVIABUTTONS
 					{
-						public static LocString TEXT = "Join via Steam";
+						public class STEAM
+						{
+							public static LocString TEXT = "Steam";
+						}
+						public class CODE
+						{
+							public static LocString TEXT = "Code";
+						}
+						public class LAN
+						{
+							public static LocString TEXT = "LAN";
+						}
 					}
-					public class OPENLOBBYLISTBUTTON
+					public class STEAMJOIN
 					{
-						public static LocString TEXT = "Open Lobby Browser";
+						public class JOINVIASTEAM
+						{
+							public static LocString TEXT = "Join via Steam";
+						}
+						public class OPENLOBBYLISTBUTTON
+						{
+							public static LocString TEXT = "Open Lobby Browser";
+						}
 					}
 					public class LOBBYCODEJOIN
 					{
@@ -327,26 +353,50 @@ namespace ONI_MP
 							public static LocString TEXT = "Join with Code";
 						}
 					}
+					public class LANJOIN
+					{
+						public class INPUTS
+						{
+							public class IPINPUT
+							{
+								public class TEXTAREA
+								{
+									public static LocString PLACEHOLDER = "Enter IP address...";
+									public static LocString TEXT = "​";
+								}
+							}
+							public class PORT
+							{
+								public class TEXTAREA
+								{
+									public static LocString PLACEHOLDER = "Enter Port...";
+									public static LocString TEXT = "​";
+								}
+							}
+						}
+						public class JOINLANBUTTON
+						{
+							public static LocString TEXT = "Join LAN address";
+						}
+					}
 					public class CANCEL
 					{
 						public static LocString TEXT = "Cancel";
 					}
 				}
-
-				public class UPDATER
-				{
-					public static LocString MOD_UPDATE_TITLE = "ONI Together: New Update Available";
-					public static LocString MOD_UPDATE_TEXT = "It appears you are running an older version of Oxygen Not Included Together.\n\nLatest Version: <b><i>{0}</i></b>\nRunning: <b><i>{1}</i></b>\n\nIt is recommended you update using the <b><link={2}>Mod Updater</link></b>!";
-                }
-
 				public class HOSTMENU
 				{
 					public static LocString TITLE = "Host Lobby Settings";
-					public class FRIENDSONLY
+					public class HOSTVIABUTTONS
 					{
-						public static LocString LABEL = "Private Lobby:";
-						public static LocString LOBBY_VISIBILITY_PUBLIC = "Public";
-						public static LocString LOBBY_VISIBILITY_FRIENDSONLY = "Friends Only";
+						public class STEAM
+						{
+							public static LocString TEXT = "Steam Session";
+						}
+						public class LAN
+						{
+							public static LocString TEXT = "LAN Session";
+						}
 					}
 					public class LOBBYSIZE
 					{
@@ -360,29 +410,66 @@ namespace ONI_MP
 							}
 						}
 					}
-					public static LocString PASSWORDTITLE = "Password (optional):";
-					public class PASSWORDINPUT
+					public class STEAMHOSTING
 					{
-						public class TEXTAREA
+						public class FRIENDSONLY
 						{
-							public static LocString PLACEHOLDER = "Leave empty for no password";
-							public static LocString TEXT = "​";
+							public static LocString LABEL = "Private Lobby:";
+							public static LocString STATE = "Friends Only";
+						}
+						public class PASSWORD
+						{
+							public static LocString PASSWORDTITLE = "Password (optional):";
+						}
+						public class PASSWORDINPUT
+						{
+							public class TEXTAREA
+							{
+								public static LocString PLACEHOLDER = "Leave empty for no password";
+								public static LocString TEXT = "​";
+							}
+						}
+					}
+					public class LANHOSTING
+					{
+						public class IPTARGET
+						{
+							public static LocString LABEL = "Host IP:";
+							public class INPUT
+							{
+								public class TEXTAREA
+								{
+									public static LocString PLACEHOLDER = "Enter IP address...";
+									public static LocString TEXT = "127.0.0.1​";
+								}
+							}
+						}
+						public class PORT
+						{
+							public static LocString LABEL = "Port";
+							public class INPUT
+							{
+								public class TEXTAREA
+								{
+									public static LocString PLACEHOLDER = "Enter Port...";
+									public static LocString TEXT = "8080​";
+								}
+							}
 						}
 					}
 					public class ADDITIONALSETTINGS
 					{
 						public static LocString TEXT = "Additional Lobby Settings";
 					}
-
 					public class BUTTONS
 					{
-						public class STARTHOSTING
-						{
-							public static LocString TEXT = "Start Hosting";
-						}
 						public class CANCEL
 						{
 							public static LocString TEXT = "Cancel";
+						}
+						public class STARTHOSTING
+						{
+							public static LocString TEXT = "Start Hosting";
 						}
 					}
 				}
@@ -426,7 +513,7 @@ namespace ONI_MP
 							}
 						}
 					}
-				}
+				}				
 				public class TOPBAR
 				{
 					public static LocString LABEL = "Multiplayer";

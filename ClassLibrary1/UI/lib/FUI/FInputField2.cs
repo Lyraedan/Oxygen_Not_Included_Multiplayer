@@ -1,5 +1,7 @@
 ﻿using HarmonyLib;
-using PeterHan.PLib.Core;
+using ONI_MP.DebugTools;
+
+//using PeterHan.PLib.Core;
 using System;
 using TMPro;
 using UnityEngine;
@@ -19,24 +21,24 @@ namespace UI.lib.UIcmp //Source: Aki
 			if (current.currentSelectedGameObject.GetComponent(nameof(FInputField2)) != null)
 				__result = true;
 		}
-		static FInputField2()
-		{
-			string id = nameof(FInputField2);
-			if (PRegistry.GetData<bool>(id))
-				return;
+		//static FInputField2()
+		//{
+		//	string id = nameof(FInputField2);
+		//	if (PRegistry.GetData<bool>(id))
+		//		return;
 
-			try
-			{
-				var target = AccessTools.Method(typeof(CameraController), nameof(CameraController.WithinInputField));
-				var patch = AccessTools.Method(typeof(FInputField2), nameof(FInputField2.Postfix));
-				new Harmony(id).Patch(target, postfix: new(patch));
-				PRegistry.PutData(id, true);
-			}
-			catch (Exception e)
-			{
-				SgtLogger.error("Caught error while patching CameraController.WithinInputField:\n" + e.Message);
-			}
-		}
+		//	try
+		//	{
+		//		var target = AccessTools.Method(typeof(CameraController), nameof(CameraController.WithinInputField));
+		//		var patch = AccessTools.Method(typeof(FInputField2), nameof(FInputField2.Postfix));
+		//		new Harmony(id).Patch(target, postfix: new(patch));
+		//		PRegistry.PutData(id, true);
+		//	}
+		//	catch (Exception e)
+		//	{
+		//		SgtLogger.error("Caught error while patching CameraController.WithinInputField:\n" + e.Message);
+		//	}
+		//}
 
 
 		[MyCmpReq]
@@ -86,10 +88,10 @@ namespace UI.lib.UIcmp //Source: Aki
 				}
 
 				//DebugConsole.Log("setting text " + value);
-				SgtLogger.Assert("inputField", inputField);
-				SgtLogger.Assert("textViewport", inputField.textViewport);
-				SgtLogger.Assert("textcomponent", inputField.textComponent);
-				SgtLogger.Assert("placeholder", inputField.placeholder);
+				//SgtLogger.Assert("inputField", inputField);
+				//SgtLogger.Assert("textViewport", inputField.textViewport);
+				//SgtLogger.Assert("textcomponent", inputField.textComponent);
+				//SgtLogger.Assert("placeholder", inputField.placeholder);
 
 				inputField.text = value;
 			}
