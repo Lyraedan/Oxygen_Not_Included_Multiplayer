@@ -79,6 +79,46 @@ To get started with building the mod, follow these steps:
 
 ---
 
+## Debugging the Game
+
+To attach a managed debugger (e.g. Visual Studio) directly to a running ONI instance:
+
+### 1. Find the Unity version
+
+Check your player log at `%APPDATA%\..\LocalLow\Klei\Oxygen Not Included\Player.log` — the first few lines will show the Unity version (e.g. `Unity 2022.3.62f2`).
+
+### 2. Grab the development player binaries
+
+Download that exact Unity version from [unity.com/releases](https://unity.com/releases/editor/archive) and navigate to:
+
+```
+Editor\Data\PlaybackEngines\windowsstandalonesupport\Variations\win64_development_mono\
+```
+
+Copy these three files to ONI's installation folder, renaming `WindowsPlayer.exe` → `OxygenNotIncluded.exe`, replacing the originals:
+
+- `WindowsPlayer.exe` → `OxygenNotIncluded.exe`
+- `UnityPlayer.dll`
+- `WinPixEventRuntime.dll`
+
+> **Backup the originals first!** Otherwise you'll need to verify game files via Steam to restore them.
+
+### 3. Enable the debugger wait flag
+
+Open `OxygenNotIncluded_Data\boot.config` in a text editor and append:
+
+```
+wait-for-managed-debugger=1
+player-connection-debug=1
+```
+
+### 4. Attach Visual Studio
+
+Launch the game via Steam — it will pause at a message box waiting for a debugger. Make sure you have [Visual Studio Tools for Unity](https://learn.microsoft.com/en-us/visualstudio/gamedev/unity/get-started/getting-started-with-visual-studio-tools-for-unity) installed, then in VS go to **Debug → Attach Unity Debugger** and select the game instance.
+
+---
+
+
 ## Contributing
 
 Contributions are welcome!  
