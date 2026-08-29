@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using ONI_Together.Networking;
 using ONI_Together.Networking.Components;
-using ONI_Together.Networking.Packets.Tools.CopySettingsTool;
+using ONI_Together.Networking.OxySync.Components.Tools;
 using Shared.Profiling;
 using UnityEngine;
 
@@ -25,6 +25,6 @@ public class CopySettingsToolPatch
         if (identity == null)
             return;
 
-        PacketSender.SendToAllOtherPeers(new CopySettingsToolPacket(identity.NetId, cell));
+        CopySettingsToolSyncer.RequestCopy(identity.NetId, cell);
     }
 }
