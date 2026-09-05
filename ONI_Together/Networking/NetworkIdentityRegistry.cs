@@ -91,7 +91,9 @@ namespace ONI_Together.Networking
 			_lookupFailCount = 0;
 
 			int collisions = 0;
-			foreach (var identity in UnityEngine.Object.FindObjectsByType<NetworkIdentity>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+			// Sorted by instance id, so two live objects with one id resolve the same way
+			// on every rebuild (the older object, which registered first, wins).
+			foreach (var identity in UnityEngine.Object.FindObjectsByType<NetworkIdentity>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID))
 			{
 				if (identity == null || identity.NetId == 0) continue;
 				if (identities.ContainsKey(identity.NetId)) { collisions++; continue; }
