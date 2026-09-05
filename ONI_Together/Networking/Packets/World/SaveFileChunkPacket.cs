@@ -6,7 +6,7 @@ using Shared.Profiling;
 
 namespace ONI_Together.Networking.Packets.World
 {
-	public class SaveFileChunkPacket : IPacket
+	public class SaveFileChunkPacket : IPacket, IPriorityPacket
 	{
 		public string FileName;
 		public int Offset;
