@@ -74,7 +74,10 @@ namespace ONI_Together.Networking.Packets.Core
 				var ms = new MemoryStream(packetData);
 				var reader = new BinaryReader(ms);
 				innerPacket.Deserialize(reader);
-				innerPacket.OnDispatched();
+				// Inner packets bypass PacketHandler.HandleIncoming, so the no-world gate
+				// has to be applied here as well - see PacketHandler.AllowedWithoutWorld.
+				if (PacketHandler.ShouldDispatchWithoutWorld(innerPacket))
+					innerPacket.OnDispatched();
 				reader.Dispose();
 				ms.Dispose();
 			}
