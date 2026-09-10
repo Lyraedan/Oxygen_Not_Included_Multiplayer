@@ -8,7 +8,7 @@ using Shared.Profiling;
 
 namespace ONI_Together.Networking.Packets.World
 {
-	public class TcpTransferStartPacket : IPacket
+	public class TcpTransferStartPacket : IPacket, IPriorityPacket
 	{
 		public int TcpPort;
 		public string FileName;
