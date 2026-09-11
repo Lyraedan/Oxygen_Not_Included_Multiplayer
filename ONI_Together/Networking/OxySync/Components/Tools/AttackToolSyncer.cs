@@ -11,7 +11,8 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
     public class AttackToolSyncer : NetworkBehaviour
     {
         public static AttackToolSyncer Instance { get; private set; }
-        private static bool _processing;
+
+        public static bool ProcessingIncoming;
 
         public override void OnSpawn()
         {
@@ -42,11 +43,15 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
         public static void RequestAttack(Vector2 min, Vector2 max)
         {
             var s = Instance;
-            if (s == null) return;
+            if (s == null || ProcessingIncoming) return;
             try
             {
                 var p = ToolMenu.Instance?.PriorityScreen?.GetLastSelectedPriority() ?? default;
-                s.CallCommand(nameof(CmdAttack), min, max, (int)p.priority_class, p.priority_value);
+                var originator = LocalUserIdQuery?.Invoke() ?? 0;
+                if (MultiplayerSession.IsHost)
+                    s.CallCommand(nameof(CmdAttack), min, max, (int)p.priority_class, p.priority_value, originator);
+                else
+                    s.CallCommand(nameof(CmdHostAttack), min, max, (int)p.priority_class, p.priority_value, originator);
             }
             catch (System.Exception ex)
             {
@@ -55,31 +60,42 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
         }
 
         [Command]
-        private void CmdAttack(Vector2 min, Vector2 max, int priority_class, int priority_value)
+        private void CmdAttack(Vector2 min, Vector2 max, int priority_class, int priority_value, ulong originator)
         {
-            CallClientRpc(nameof(RpcAttack), min, max, priority_class, priority_value);
+            CallClientRpc(nameof(RpcAttack), min, max, priority_class, priority_value, originator);
+        }
+
+        [Command]
+        private void CmdHostAttack(Vector2 min, Vector2 max, int priority_class, int priority_value, ulong originator)
+        {
+            ProcessingIncoming = true;
+            try { ApplyAttack(min, max, priority_class, priority_value); }
+            finally { ProcessingIncoming = false; }
+            CallClientRpc(nameof(RpcAttack), min, max, priority_class, priority_value, originator);
         }
 
         [ClientRpc]
-        private void RpcAttack(Vector2 min, Vector2 max, int priority_class, int priority_value)
+        private void RpcAttack(Vector2 min, Vector2 max, int priority_class, int priority_value, ulong originator)
         {
-            if (_processing) return;
-            _processing = true;
-            try
+            if (originator != 0 && originator == (LocalUserIdQuery?.Invoke() ?? 0)) return;
+            ProcessingIncoming = true;
+            try { ApplyAttack(min, max, priority_class, priority_value); }
+            finally { ProcessingIncoming = false; }
+        }
+
+        private static void ApplyAttack(Vector2 min, Vector2 max, int priority_class, int priority_value)
+        {
+            var ps = ToolMenu.Instance?.PriorityScreen;
+            if (ps == null)
             {
-                var ps = ToolMenu.Instance?.PriorityScreen;
-                if (ps == null)
-                {
-                    AttackTool.MarkForAttack(min, max, true);
-                    return;
-                }
-                var tr = Traverse.Create(ps).Field("lastSelectedPriority");
-                var prev = tr.GetValue<PrioritySetting>();
-                tr.SetValue(new PrioritySetting((PriorityScreen.PriorityClass)priority_class, priority_value));
-                try { AttackTool.MarkForAttack(min, max, true); }
-                finally { tr.SetValue(prev); }
+                AttackTool.MarkForAttack(min, max, true);
+                return;
             }
-            finally { _processing = false; }
+            var tr = Traverse.Create(ps).Field("lastSelectedPriority");
+            var prev = tr.GetValue<PrioritySetting>();
+            tr.SetValue(new PrioritySetting((PriorityScreen.PriorityClass)priority_class, priority_value));
+            try { AttackTool.MarkForAttack(min, max, true); }
+            finally { tr.SetValue(prev); }
         }
     }
 }
