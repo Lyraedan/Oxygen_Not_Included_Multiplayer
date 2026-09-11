@@ -70,6 +70,7 @@ namespace ONI_Together.Patches.GamePatches
       Game.Instance.gameObject.AddComponent<LogicPortManager>();
 
       MoveToLocationToolSyncer.RegisterNetId(Game.Instance.gameObject);
+      DigToolSyncer.RegisterNetId(Game.Instance.gameObject);
     }
   }
 }

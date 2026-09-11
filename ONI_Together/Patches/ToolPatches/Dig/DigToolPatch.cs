@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
-using ONI_Together.DebugTools;
 using ONI_Together.Networking;
-using ONI_Together.Networking.Packets.Tools.Dig;
+using ONI_Together.Networking.OxySync.Components.Tools;
 using Shared.Profiling;
 
 namespace ONI_Together.Patches.ToolPatches.Dig
@@ -14,15 +13,9 @@ namespace ONI_Together.Patches.ToolPatches.Dig
             using var _ = Profiler.Scope();
 
             if (!MultiplayerSession.InActiveSession)
-            {
-                DebugConsole.LogWarning("[PlaceDig Patch] Skipped: MultiplayerSession.InSession is false");
-                return;
-            }
-
-            if (DiggablePacket.ProcessingIncoming)
                 return;
 
-            PacketSender.SendToAllOtherPeers(new DiggablePacket(cell, animationDelay));
+            DigToolSyncer.RequestDig(cell, animationDelay);
         }
     }
 }
