@@ -12,6 +12,8 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
     {
         public static CopySettingsToolSyncer Instance { get; private set; }
 
+        public static bool ProcessingIncoming;
+
         public override void OnSpawn()
         {
             base.OnSpawn();
@@ -41,19 +43,43 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
         public static void RequestCopy(int netId, int cell)
         {
             var s = Instance;
-            if (s == null) return;
-            try { s.CallCommand(nameof(CmdCopy), netId, cell); }
+            if (s == null || ProcessingIncoming) return;
+            try
+            {
+                var originator = LocalUserIdQuery?.Invoke() ?? 0;
+                if (MultiplayerSession.IsHost)
+                    s.CallCommand(nameof(CmdCopy), netId, cell, originator);
+                else
+                    s.CallCommand(nameof(CmdHostCopy), netId, cell, originator);
+            }
             catch (System.Exception ex) { DebugConsole.LogWarning($"[CopySettingsToolSyncer] {ex}"); }
         }
 
         [Command]
-        private void CmdCopy(int netId, int cell)
+        private void CmdCopy(int netId, int cell, ulong originator)
         {
-            CallClientRpc(nameof(RpcCopy), netId, cell);
+            CallClientRpc(nameof(RpcCopy), netId, cell, originator);
+        }
+
+        [Command]
+        private void CmdHostCopy(int netId, int cell, ulong originator)
+        {
+            ProcessingIncoming = true;
+            try { ApplyCopy(netId, cell); }
+            finally { ProcessingIncoming = false; }
+            CallClientRpc(nameof(RpcCopy), netId, cell, originator);
         }
 
         [ClientRpc]
-        private void RpcCopy(int netId, int cell)
+        private void RpcCopy(int netId, int cell, ulong originator)
+        {
+            if (originator != 0 && originator == (LocalUserIdQuery?.Invoke() ?? 0)) return;
+            ProcessingIncoming = true;
+            try { ApplyCopy(netId, cell); }
+            finally { ProcessingIncoming = false; }
+        }
+
+        private static void ApplyCopy(int netId, int cell)
         {
             if (!NetworkIdentityRegistry.TryGet(netId, out var identity) || identity.gameObject == null || !identity.TryGetComponent<CopyBuildingSettings>(out var sourceSettings) || !identity.TryGetComponent<KPrefabID>(out var sourceId))
                 return;
