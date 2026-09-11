@@ -14,6 +14,8 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
     {
         public static UtilityBuildToolSyncer Instance { get; private set; }
 
+        public static bool ProcessingIncoming;
+
         public override void OnSpawn()
         {
             base.OnSpawn();
@@ -43,11 +45,15 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
         public static void RequestUtilityBuild(string prefabID, List<string> materialTags, ulong[] pathChunks, string facadeID, bool instantBuild)
         {
             var s = Instance;
-            if (s == null) return;
+            if (s == null || ProcessingIncoming) return;
             try
             {
                 var p = PlanScreen.Instance != null ? PlanScreen.Instance.GetBuildingPriority() : ToolMenu.Instance?.PriorityScreen?.GetLastSelectedPriority() ?? default;
-                s.CallCommand(nameof(CmdUtilityBuild), prefabID, materialTags, pathChunks, facadeID, instantBuild, (int)p.priority_class, p.priority_value);
+                var originator = LocalUserIdQuery?.Invoke() ?? 0;
+                if (MultiplayerSession.IsHost)
+                    s.CallCommand(nameof(CmdUtilityBuild), prefabID, materialTags, pathChunks, facadeID, instantBuild, (int)p.priority_class, p.priority_value, originator);
+                else
+                    s.CallCommand(nameof(CmdHostUtilityBuild), prefabID, materialTags, pathChunks, facadeID, instantBuild, (int)p.priority_class, p.priority_value, originator);
             }
             catch (System.Exception ex)
             {
@@ -56,13 +62,30 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
         }
 
         [Command]
-        private void CmdUtilityBuild(string prefabID, List<string> materialTags, ulong[] pathChunks, string facadeID, bool instantBuild, int priority_class, int priority_value)
+        private void CmdUtilityBuild(string prefabID, List<string> materialTags, ulong[] pathChunks, string facadeID, bool instantBuild, int priority_class, int priority_value, ulong originator)
         {
-            CallClientRpc(nameof(RpcUtilityBuild), prefabID, materialTags, pathChunks, facadeID, instantBuild, priority_class, priority_value);
+            CallClientRpc(nameof(RpcUtilityBuild), prefabID, materialTags, pathChunks, facadeID, instantBuild, priority_class, priority_value, originator);
+        }
+
+        [Command]
+        private void CmdHostUtilityBuild(string prefabID, List<string> materialTags, ulong[] pathChunks, string facadeID, bool instantBuild, int priority_class, int priority_value, ulong originator)
+        {
+            ProcessingIncoming = true;
+            try { ApplyUtilityBuild(prefabID, materialTags, pathChunks, facadeID, instantBuild, priority_class, priority_value); }
+            finally { ProcessingIncoming = false; }
+            CallClientRpc(nameof(RpcUtilityBuild), prefabID, materialTags, pathChunks, facadeID, instantBuild, priority_class, priority_value, originator);
         }
 
         [ClientRpc]
-        private void RpcUtilityBuild(string prefabID, List<string> materialTags, ulong[] pathChunks, string facadeID, bool instantBuild, int priority_class, int priority_value)
+        private void RpcUtilityBuild(string prefabID, List<string> materialTags, ulong[] pathChunks, string facadeID, bool instantBuild, int priority_class, int priority_value, ulong originator)
+        {
+            if (originator != 0 && originator == (LocalUserIdQuery?.Invoke() ?? 0)) return;
+            ProcessingIncoming = true;
+            try { ApplyUtilityBuild(prefabID, materialTags, pathChunks, facadeID, instantBuild, priority_class, priority_value); }
+            finally { ProcessingIncoming = false; }
+        }
+
+        private static void ApplyUtilityBuild(string prefabID, List<string> materialTags, ulong[] pathChunks, string facadeID, bool instantBuild, int priority_class, int priority_value)
         {
             if (pathChunks == null || pathChunks.Length == 0) return;
             List<BaseUtilityBuildTool.PathNode> path = new();
