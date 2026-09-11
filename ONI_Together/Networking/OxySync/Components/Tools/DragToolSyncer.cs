@@ -14,6 +14,8 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
     {
         public static DragToolSyncer Instance { get; private set; }
 
+        public static bool ProcessingIncoming;
+
         public override void OnSpawn()
         {
             base.OnSpawn();
@@ -43,7 +45,7 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
         public static void RequestDrag(string toolName, int cell, int distFromOrigin)
         {
             var s = Instance;
-            if (s == null) return;
+            if (s == null || ProcessingIncoming) return;
             try
             {
                 DragTool tool = ResolveTool(toolName);
@@ -55,7 +57,11 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
                             filters.Add(t.name);
                 }
                 var p = ToolMenu.Instance?.PriorityScreen?.GetLastSelectedPriority() ?? default;
-                s.CallCommand(nameof(CmdDrag), toolName, cell, distFromOrigin, filters, (int)p.priority_class, p.priority_value, 0, Vector3.zero, Vector3.zero);
+                var originator = LocalUserIdQuery?.Invoke() ?? 0;
+                if (MultiplayerSession.IsHost)
+                    s.CallCommand(nameof(CmdDrag), toolName, cell, distFromOrigin, filters, (int)p.priority_class, p.priority_value, 0, Vector3.zero, Vector3.zero, originator);
+                else
+                    s.CallCommand(nameof(CmdHostDrag), toolName, cell, distFromOrigin, filters, (int)p.priority_class, p.priority_value, 0, Vector3.zero, Vector3.zero, originator);
             }
             catch (System.Exception ex)
             {
@@ -66,7 +72,7 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
         public static void RequestDragComplete(string toolName, Vector3 downPos, Vector3 upPos)
         {
             var s = Instance;
-            if (s == null) return;
+            if (s == null || ProcessingIncoming) return;
             try
             {
                 DragTool tool = ResolveTool(toolName);
@@ -78,7 +84,11 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
                             filters.Add(t.name);
                 }
                 var p = ToolMenu.Instance?.PriorityScreen?.GetLastSelectedPriority() ?? default;
-                s.CallCommand(nameof(CmdDrag), toolName, 0, 0, filters, (int)p.priority_class, p.priority_value, 1, downPos, upPos);
+                var originator = LocalUserIdQuery?.Invoke() ?? 0;
+                if (MultiplayerSession.IsHost)
+                    s.CallCommand(nameof(CmdDrag), toolName, 0, 0, filters, (int)p.priority_class, p.priority_value, 1, downPos, upPos, originator);
+                else
+                    s.CallCommand(nameof(CmdHostDrag), toolName, 0, 0, filters, (int)p.priority_class, p.priority_value, 1, downPos, upPos, originator);
             }
             catch (System.Exception ex)
             {
@@ -104,13 +114,30 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
         }
 
         [Command]
-        private void CmdDrag(string toolName, int cell, int distFromOrigin, List<string> filterTargets, int priority_class, int priority_value, int mode, Vector3 downPos, Vector3 upPos)
+        private void CmdDrag(string toolName, int cell, int distFromOrigin, List<string> filterTargets, int priority_class, int priority_value, int mode, Vector3 downPos, Vector3 upPos, ulong originator)
         {
-            CallClientRpc(nameof(RpcDrag), toolName, cell, distFromOrigin, filterTargets, priority_class, priority_value, mode, downPos, upPos);
+            CallClientRpc(nameof(RpcDrag), toolName, cell, distFromOrigin, filterTargets, priority_class, priority_value, mode, downPos, upPos, originator);
+        }
+
+        [Command]
+        private void CmdHostDrag(string toolName, int cell, int distFromOrigin, List<string> filterTargets, int priority_class, int priority_value, int mode, Vector3 downPos, Vector3 upPos, ulong originator)
+        {
+            ProcessingIncoming = true;
+            try { ApplyDrag(toolName, cell, distFromOrigin, filterTargets, priority_class, priority_value, mode, downPos, upPos); }
+            finally { ProcessingIncoming = false; }
+            CallClientRpc(nameof(RpcDrag), toolName, cell, distFromOrigin, filterTargets, priority_class, priority_value, mode, downPos, upPos, originator);
         }
 
         [ClientRpc]
-        private void RpcDrag(string toolName, int cell, int distFromOrigin, List<string> filterTargets, int priority_class, int priority_value, int mode, Vector3 downPos, Vector3 upPos)
+        private void RpcDrag(string toolName, int cell, int distFromOrigin, List<string> filterTargets, int priority_class, int priority_value, int mode, Vector3 downPos, Vector3 upPos, ulong originator)
+        {
+            if (originator != 0 && originator == (LocalUserIdQuery?.Invoke() ?? 0)) return;
+            ProcessingIncoming = true;
+            try { ApplyDrag(toolName, cell, distFromOrigin, filterTargets, priority_class, priority_value, mode, downPos, upPos); }
+            finally { ProcessingIncoming = false; }
+        }
+
+        private static void ApplyDrag(string toolName, int cell, int distFromOrigin, List<string> filterTargets, int priority_class, int priority_value, int mode, Vector3 downPos, Vector3 upPos)
         {
             DragTool tool = ResolveTool(toolName);
             if (tool == null) return;
