@@ -12,7 +12,8 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
     public class BuildToolSyncer : NetworkBehaviour
     {
         public static BuildToolSyncer Instance { get; private set; }
-        private static bool _processing;
+
+        public static bool ProcessingIncoming;
 
         public override void OnSpawn()
         {
@@ -43,11 +44,15 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
         public static void RequestBuild(string prefabID, int cell, int orientation, List<string> materialTags, int objectLayer, bool instantBuild)
         {
             var s = Instance;
-            if (s == null) return;
+            if (s == null || ProcessingIncoming) return;
             try
             {
                 var p = PlanScreen.Instance != null ? PlanScreen.Instance.GetBuildingPriority() : ToolMenu.Instance?.PriorityScreen?.GetLastSelectedPriority() ?? default;
-                s.CallCommand(nameof(CmdBuild), prefabID, cell, orientation, materialTags, (int)p.priority_class, p.priority_value, objectLayer, instantBuild);
+                var originator = LocalUserIdQuery?.Invoke() ?? 0;
+                if (MultiplayerSession.IsHost)
+                    s.CallCommand(nameof(CmdBuild), prefabID, cell, orientation, materialTags, (int)p.priority_class, p.priority_value, objectLayer, instantBuild, originator);
+                else
+                    s.CallCommand(nameof(CmdHostBuild), prefabID, cell, orientation, materialTags, (int)p.priority_class, p.priority_value, objectLayer, instantBuild, originator);
             }
             catch (System.Exception ex)
             {
@@ -56,38 +61,46 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
         }
 
         [Command]
-        private void CmdBuild(string prefabID, int cell, int orientation, List<string> materialTags, int priority_class, int priority_value, int objectLayer, bool instantBuild)
+        private void CmdBuild(string prefabID, int cell, int orientation, List<string> materialTags, int priority_class, int priority_value, int objectLayer, bool instantBuild, ulong originator)
         {
-            CallClientRpc(nameof(RpcBuild), prefabID, cell, orientation, materialTags, priority_class, priority_value, objectLayer, instantBuild);
+            CallClientRpc(nameof(RpcBuild), prefabID, cell, orientation, materialTags, priority_class, priority_value, objectLayer, instantBuild, originator);
+        }
+
+        [Command]
+        private void CmdHostBuild(string prefabID, int cell, int orientation, List<string> materialTags, int priority_class, int priority_value, int objectLayer, bool instantBuild, ulong originator)
+        {
+            ProcessingIncoming = true;
+            try { ApplyBuild(prefabID, cell, orientation, materialTags, priority_class, priority_value, objectLayer, instantBuild); }
+            finally { ProcessingIncoming = false; }
+            CallClientRpc(nameof(RpcBuild), prefabID, cell, orientation, materialTags, priority_class, priority_value, objectLayer, instantBuild, originator);
         }
 
         [ClientRpc]
-        private void RpcBuild(string prefabID, int cell, int orientation, List<string> materialTags, int priority_class, int priority_value, int objectLayer, bool instantBuild)
+        private void RpcBuild(string prefabID, int cell, int orientation, List<string> materialTags, int priority_class, int priority_value, int objectLayer, bool instantBuild, ulong originator)
         {
-            if (_processing) return;
+            if (originator != 0 && originator == (LocalUserIdQuery?.Invoke() ?? 0)) return;
+            ProcessingIncoming = true;
+            try { ApplyBuild(prefabID, cell, orientation, materialTags, priority_class, priority_value, objectLayer, instantBuild); }
+            finally { ProcessingIncoming = false; }
+        }
+
+        private static void ApplyBuild(string prefabID, int cell, int orientation, List<string> materialTags, int priority_class, int priority_value, int objectLayer, bool instantBuild)
+        {
             if (!Grid.IsValidCell(cell)) return;
             var def = Assets.GetBuildingDef(prefabID);
             if (def == null) return;
-            _processing = true;
-            try
-            {
-                var tags = materialTags.Select(t => TagManager.Create(t)).ToList();
-                var pos = Grid.CellToPosCBC(cell, Grid.SceneLayer.Building);
-                GameObject built = null;
-                if (instantBuild)
-                    built = BuildInternal(def, tags, pos, (Orientation)orientation, cell);
-                else
-                    built = QueueBuild(def, tags, pos, (Orientation)orientation);
-                if (built == null && def.ReplacementLayer != ObjectLayer.NumLayers)
-                    built = HandleReplacement(def, pos, tags, (Orientation)orientation, cell, instantBuild) ?? built;
-                var pri = built?.GetComponent<Prioritizable>();
-                if (pri != null)
-                    pri.SetMasterPriority(new PrioritySetting((PriorityScreen.PriorityClass)priority_class, priority_value));
-            }
-            finally
-            {
-                _processing = false;
-            }
+            var tags = materialTags.Select(t => TagManager.Create(t)).ToList();
+            var pos = Grid.CellToPosCBC(cell, Grid.SceneLayer.Building);
+            GameObject built = null;
+            if (instantBuild)
+                built = BuildInternal(def, tags, pos, (Orientation)orientation, cell);
+            else
+                built = QueueBuild(def, tags, pos, (Orientation)orientation);
+            if (built == null && def.ReplacementLayer != ObjectLayer.NumLayers)
+                built = HandleReplacement(def, pos, tags, (Orientation)orientation, cell, instantBuild) ?? built;
+            var pri = built?.GetComponent<Prioritizable>();
+            if (pri != null)
+                pri.SetMasterPriority(new PrioritySetting((PriorityScreen.PriorityClass)priority_class, priority_value));
         }
 
         private static GameObject QueueBuild(BuildingDef def, List<Tag> tags, Vector3 pos, Orientation orientation)
