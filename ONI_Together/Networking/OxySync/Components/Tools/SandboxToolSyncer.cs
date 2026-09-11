@@ -11,6 +11,8 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
     {
         public static SandboxToolSyncer Instance { get; private set; }
 
+        public static bool ProcessingIncoming;
+
         public override void OnSpawn()
         {
             base.OnSpawn();
@@ -40,19 +42,43 @@ namespace ONI_Together.Networking.OxySync.Components.Tools
         public static void RequestSandbox(byte action, int cell, int dist, Vector3 pos, int elementIndex, int diseaseCount, int moraleAdj, float mass, float temp, float tempAdd, float stressAdd, string diseaseId, string entityId, string storyId)
         {
             var s = Instance;
-            if (s == null) return;
-            try { s.CallCommand(nameof(CmdSandbox), action, cell, dist, pos, elementIndex, diseaseCount, moraleAdj, mass, temp, tempAdd, stressAdd, diseaseId, entityId, storyId); }
+            if (s == null || ProcessingIncoming) return;
+            try
+            {
+                var originator = LocalUserIdQuery?.Invoke() ?? 0;
+                if (MultiplayerSession.IsHost)
+                    s.CallCommand(nameof(CmdSandbox), action, cell, dist, pos, elementIndex, diseaseCount, moraleAdj, mass, temp, tempAdd, stressAdd, diseaseId, entityId, storyId, originator);
+                else
+                    s.CallCommand(nameof(CmdHostSandbox), action, cell, dist, pos, elementIndex, diseaseCount, moraleAdj, mass, temp, tempAdd, stressAdd, diseaseId, entityId, storyId, originator);
+            }
             catch (System.Exception ex) { DebugConsole.LogWarning($"[SandboxToolSyncer] {ex}"); }
         }
 
         [Command]
-        private void CmdSandbox(byte action, int cell, int dist, Vector3 pos, int elementIndex, int diseaseCount, int moraleAdj, float mass, float temp, float tempAdd, float stressAdd, string diseaseId, string entityId, string storyId)
+        private void CmdSandbox(byte action, int cell, int dist, Vector3 pos, int elementIndex, int diseaseCount, int moraleAdj, float mass, float temp, float tempAdd, float stressAdd, string diseaseId, string entityId, string storyId, ulong originator)
         {
-            CallClientRpc(nameof(RpcSandbox), action, cell, dist, pos, elementIndex, diseaseCount, moraleAdj, mass, temp, tempAdd, stressAdd, diseaseId, entityId, storyId);
+            CallClientRpc(nameof(RpcSandbox), action, cell, dist, pos, elementIndex, diseaseCount, moraleAdj, mass, temp, tempAdd, stressAdd, diseaseId, entityId, storyId, originator);
+        }
+
+        [Command]
+        private void CmdHostSandbox(byte action, int cell, int dist, Vector3 pos, int elementIndex, int diseaseCount, int moraleAdj, float mass, float temp, float tempAdd, float stressAdd, string diseaseId, string entityId, string storyId, ulong originator)
+        {
+            ProcessingIncoming = true;
+            try { ApplySandbox(action, cell, dist, pos, elementIndex, diseaseCount, moraleAdj, mass, temp, tempAdd, stressAdd, diseaseId, entityId, storyId); }
+            finally { ProcessingIncoming = false; }
+            CallClientRpc(nameof(RpcSandbox), action, cell, dist, pos, elementIndex, diseaseCount, moraleAdj, mass, temp, tempAdd, stressAdd, diseaseId, entityId, storyId, originator);
         }
 
         [ClientRpc]
-        private void RpcSandbox(byte action, int cell, int dist, Vector3 pos, int elementIndex, int diseaseCount, int moraleAdj, float mass, float temp, float tempAdd, float stressAdd, string diseaseId, string entityId, string storyId)
+        private void RpcSandbox(byte action, int cell, int dist, Vector3 pos, int elementIndex, int diseaseCount, int moraleAdj, float mass, float temp, float tempAdd, float stressAdd, string diseaseId, string entityId, string storyId, ulong originator)
+        {
+            if (originator != 0 && originator == (LocalUserIdQuery?.Invoke() ?? 0)) return;
+            ProcessingIncoming = true;
+            try { ApplySandbox(action, cell, dist, pos, elementIndex, diseaseCount, moraleAdj, mass, temp, tempAdd, stressAdd, diseaseId, entityId, storyId); }
+            finally { ProcessingIncoming = false; }
+        }
+
+        private static void ApplySandbox(byte action, int cell, int dist, Vector3 pos, int elementIndex, int diseaseCount, int moraleAdj, float mass, float temp, float tempAdd, float stressAdd, string diseaseId, string entityId, string storyId)
         {
             if (!Grid.IsValidCell(cell) || SandboxToolParameterMenu.instance?.settings == null) return;
             var settings = SandboxToolParameterMenu.instance.settings;
